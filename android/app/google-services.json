@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "251178698987",
+    "firebase_url": "https://genchi-c96c1.firebaseio.com",
+    "project_id": "genchi-c96c1",
+    "storage_bucket": "genchi-c96c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251178698987:android:84bf981037cf37f76bd6ae",
+        "android_client_info": {
+          "package_name": "app.genchi.genchi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "251178698987-1597qmhutukt7dder8uo2raft6h6uegn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJpKr7FV8zcFaLQjf_RvDxUkfWDehHAaY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "251178698987-1597qmhutukt7dder8uo2raft6h6uegn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "251178698987-r4umddd34a5p9917l8760d2ublouo9v2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.james-lloyd.Genchi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

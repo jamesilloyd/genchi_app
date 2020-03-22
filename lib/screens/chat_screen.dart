@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'welcome_screen.dart';
 
+// ToDo: Look at distinction between material and cupertino and how they can/cannot be used together
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
@@ -65,7 +66,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
+                    //ToDo: unable to deal with null messages (don't let them send)
+                  child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {
                         //Do something with the user input.

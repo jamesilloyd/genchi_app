@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
 
@@ -76,7 +76,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   try {
                     final newUser =  await _auth.createUserWithEmailAndPassword(email: email, password: password);
                     if (newUser != null) {
-                      Navigator.pushNamedAndRemoveUntil(context, ChatScreen.id,(Route<dynamic> route) => false);
+                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,(Route<dynamic> route) => false);
                     }
                   } catch (e){
                     print(e);

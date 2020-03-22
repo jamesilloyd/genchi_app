@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:genchi_app/screens/chat_screen.dart';
+import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'home_screen.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       final user = await _auth.currentUser();
       if(user != null){
         print("User logged in");
-        Navigator.pushReplacementNamed(context, ChatScreen.id);
+        Navigator.pushReplacementNamed(context, HomeScreen.id);
       } else {
         print("No logged in user");
       }

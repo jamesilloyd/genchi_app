@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() => runApp(FlashChat());
 
@@ -17,6 +19,7 @@ class FlashChat extends StatelessWidget {
         LoginScreen.id : (context) => LoginScreen(),
         RegistrationScreen.id : (context) => RegistrationScreen(),
         ChatScreen.id : (context) => ChatScreen(),
+        HomeScreen.id : (context) => HomeScreen(),
       },
     );
   }

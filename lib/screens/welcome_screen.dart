@@ -40,7 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     isUserAlreadyLoggedIn();
   }
 
-  //ToDo: Automatic login
+  //Automatic login
   void isUserAlreadyLoggedIn() async {
     try {
       final user = await _auth.currentUser();

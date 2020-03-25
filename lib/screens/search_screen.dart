@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'search_screen2.dart';
+import 'package:genchi_app/components/app_bar.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -14,15 +15,13 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoTabView(
+      routes: {
+        SecondSearchScreen.id : (context) => SecondSearchScreen(),
+      },
       builder: (context) {
-
-        //ToDo: Turn into normal scaffold
-        return CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: Text("Search"),
-            border: Border.all(width: 0.0),
-          ),
-          child: Center(
+        return Scaffold(
+          appBar: AppNavigationBar(barTitle: "Search"),
+          body: Center(
             child: RoundedButton(
               buttonColor: Colors.blueAccent,
               buttonTitle: "Screen 2",
@@ -42,3 +41,4 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
+

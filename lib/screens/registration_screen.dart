@@ -6,7 +6,6 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
-
   static const String id = "registration_screen";
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
@@ -18,6 +17,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
   String password;
   bool showSpinner = false;
+  bool showErrorField = false;
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   onChanged: (value) {
                     email = value;
                   },
-                  decoration: kTextFieldDecoration.copyWith(hintText: "Enter email")
-              ),
+                  decoration:
+                      kTextFieldDecoration.copyWith(hintText: "Enter email")),
               SizedBox(
                 height: 8.0,
               ),
@@ -61,24 +61,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     password = value;
                     //Do something with the user input.
                   },
-                  decoration: kTextFieldDecoration.copyWith(hintText: "Enter password")
-              ),
-              SizedBox(
-                height: 24.0,
-              ),
+                  decoration: kTextFieldDecoration.copyWith(
+                      hintText: "Enter password")),
+              SizedBox(height: 16.0),
+              showErrorField ? PasswordErrorText() : SizedBox(height: 13.0),
               RoundedButton(
                 buttonColor: Colors.blueAccent,
                 buttonTitle: "Register",
-                onPressed: () async{
+                onPressed: () async {
+                  showErrorField = false;
                   setState(() {
                     showSpinner = true;
                   });
                   try {
-                    final newUser =  await _auth.createUserWithEmailAndPassword(email: email, password: password);
+                    final newUser = await _auth.createUserWithEmailAndPassword(
+                        email: email, password: password);
+
+
                     if (newUser != null) {
-                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,(Route<dynamic> route) => false);
+                      FirebaseUser user = await _auth.currentUser();
+                      await user.sendEmailVerification();
+                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
+                          (Route<dynamic> route) => false);
                     }
-                  } catch (e){
+                  } catch (e) {
+                    showErrorField = true;
                     print(e);
                   }
                   setState(() {
@@ -87,6 +94,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
               )
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PasswordErrorText extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 13.0,
+      child: Center(
+        child: Text(
+          "Password must be at least 6 characters",
+          style: TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.w400,
+            fontStyle: FontStyle.italic,
           ),
         ),
       ),

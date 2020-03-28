@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'welcome_screen.dart';
 import 'package:genchi_app/components/app_bar.dart';
 
 final _firestore = Firestore.instance;
@@ -53,7 +52,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Expanded(
-                    //ToDo: unable to deal with null messages (don't let them send)
                     child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {

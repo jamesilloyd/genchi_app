@@ -18,6 +18,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.clear),

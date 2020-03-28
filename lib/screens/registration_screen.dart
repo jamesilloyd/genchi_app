@@ -4,6 +4,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
+import 'package:genchi_app/components/password_error_text.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -18,6 +19,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String password;
   bool showSpinner = false;
   bool showErrorField = false;
+  String errorMessage = "";
 
   @override
   Widget build(BuildContext context) {
@@ -64,19 +66,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   decoration: kTextFieldDecoration.copyWith(
                       hintText: "Enter password")),
               SizedBox(height: 16.0),
-              showErrorField ? PasswordErrorText() : SizedBox(height: 13.0),
+              showErrorField
+                  ? PasswordErrorText(errorMessage: errorMessage)
+                  : SizedBox(height: 13.0),
               RoundedButton(
                 buttonColor: Colors.blueAccent,
                 buttonTitle: "Register",
                 onPressed: () async {
-                  showErrorField = false;
                   setState(() {
+                    showErrorField = false;
                     showSpinner = true;
                   });
                   try {
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
-
 
                     if (newUser != null) {
                       FirebaseUser user = await _auth.currentUser();
@@ -86,7 +89,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     }
                   } catch (e) {
                     showErrorField = true;
-                    print(e);
+                    errorMessage = e.message;
+                    print(e.code);
                   }
                   setState(() {
                     showSpinner = false;
@@ -94,25 +98,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
               )
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class PasswordErrorText extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 13.0,
-      child: Center(
-        child: Text(
-          "Password must be at least 6 characters",
-          style: TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.italic,
           ),
         ),
       ),

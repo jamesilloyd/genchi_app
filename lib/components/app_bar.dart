@@ -10,7 +10,10 @@ class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(
         barTitle,
-        style: TextStyle(fontSize: 30),
+        style: TextStyle(
+          fontSize: 30,
+          fontFamily:
+        ),
       ),
       backgroundColor: Colors.lightBlueAccent,
       elevation: 0.0,

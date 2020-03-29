@@ -12,7 +12,6 @@ import 'home_screen.dart';
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
   static const String id = "welcome_screen";
-
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'chat_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
+import 'chat_summary_screen.dart';
 
 
 
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
         if (index == 0) {
           return SearchScreen();
         } else if (index == 1) {
-          return ChatScreen();
+          return ChatSummaryScreen();
         } else {
           return ProfileScreen();
         }

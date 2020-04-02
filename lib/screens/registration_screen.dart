@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
 import 'package:genchi_app/components/password_error_text.dart';
+import 'reg_sequence_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -17,6 +18,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
   String email;
   String password;
+  String name;
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
@@ -44,6 +46,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               SizedBox(
                 height: 48.0,
+              ),
+              TextField(
+//                textCapitalization: TextCapitalization.words,
+                  textAlign: TextAlign.center,
+                  onChanged: (value) {
+                    name = value;
+                  },
+                  decoration:
+                      kTextFieldDecoration.copyWith(hintText: "Enter name")),
+              SizedBox(
+                height: 8.0,
               ),
               TextField(
                   keyboardType: TextInputType.emailAddress,
@@ -83,9 +96,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     if (newUser != null) {
                       FirebaseUser user = await _auth.currentUser();
+
+                      UserUpdateInfo updateInfo = UserUpdateInfo();
+                      updateInfo.displayName = name;
+                      user.updateProfile(updateInfo);
+                      print('USERNAME IS: ${user.displayName}');
+
                       await user.sendEmailVerification();
-                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
-                          (Route<dynamic> route) => false);
+
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, RegSequenceScreen.id, (Route<dynamic> route) => false);
                     }
                   } catch (e) {
                     showErrorField = true;

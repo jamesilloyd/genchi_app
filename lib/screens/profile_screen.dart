@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/components/rounded_button.dart';
 import 'profile_screen2.dart';
 import 'welcome_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' as io;
+import 'package:firebase_auth/firebase_auth.dart';
+
+FirebaseUser loggedInUser;
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -13,7 +15,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _auth = FirebaseAuth.instance;
   io.File _image;
+  String userName;
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -24,179 +28,188 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        loggedInUser = user;
+        userName = loggedInUser.displayName;
+        setState(() {});
+        print(loggedInUser.email);
+        print(loggedInUser.displayName);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabView(
-      routes: {
-        SecondProfileScreen.id: (context) => SecondProfileScreen(),
-        WelcomeScreen.id: (context) => WelcomeScreen(),
-      },
-      builder: (context) {
-        return Scaffold(
-          appBar: AppNavigationBar(barTitle: "Profile"),
-          body: Container(
-            color: Colors.white,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  constraints: BoxConstraints.expand(
-                      height: MediaQuery.of(context).size.height - 168),
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.all(20),
-                        height: 250,
-                        child: Column(
+    return Scaffold(
+      appBar: AppNavigationBar(barTitle: "Profile"),
+      body: Container(
+        color: Colors.white,
+        child: Column(
+          children: <Widget>[
+            Container(
+              constraints: BoxConstraints.expand(
+                  height: MediaQuery.of(context).size.height - 168),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.all(20),
+                    //ToDo: Play around with the height and layout of widgets
+                    height: 250,
+                    child: Column(
+                      children: <Widget>[
+                        Row(
                           children: <Widget>[
-                            Row(
+                            Container(
+                              height: 50,
+                              width: 50,
+                              child: CircleAvatar(
+                                backgroundImage:
+                                    AssetImage("images/Logo_Clear.png"),
+                                backgroundColor: Colors.white,
+                              ),
+                            ),
+                            Column(
                               children: <Widget>[
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: CircleAvatar(
-                                    backgroundImage:
-                                        AssetImage("images/Logo_Clear.png"),
-                                    backgroundColor: Colors.white,
-                                  ),
-                                ),
-                                Column(
+                                Row(
                                   children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        Container(
-                                          margin: EdgeInsets.only(
-                                              left: 68, right: 20),
-                                          child: Column(
-                                            children: <Widget>[
-                                              Text(
-                                                '129',
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text('posts')
-                                            ],
+                                    Container(
+                                      margin:
+                                          EdgeInsets.only(left: 68, right: 20),
+                                      child: Column(
+                                        children: <Widget>[
+                                          Text(
+                                            '129',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(right: 20),
-                                          child: Column(
-                                            children: <Widget>[
-                                              Text(
-                                                '129K',
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text('followers')
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(right: 20),
-                                          child: Column(
-                                            children: <Widget>[
-                                              Text(
-                                                '129',
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text('following')
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                          Text('posts')
+                                        ],
+                                      ),
                                     ),
-                                    Row(
-                                      children: <Widget>[
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(5)),
-                                            color: Colors.blue,
+                                    Container(
+                                      margin: EdgeInsets.only(right: 20),
+                                      child: Column(
+                                        children: <Widget>[
+                                          Text(
+                                            '129K',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                          margin: EdgeInsets.all(10),
-                                          width: 120,
-                                          height: 30,
-                                          child: FlatButton(
-                                            child: Text(
-                                              'Add Photo',
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            onPressed: () {
-                                              getImage();
-                                            },
+                                          Text('followers')
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(right: 20),
+                                      child: Column(
+                                        children: <Widget>[
+                                          Text(
+                                            '129',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                           ),
+                                          Text('following')
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5)),
+                                        color: Colors.blue,
+                                      ),
+                                      margin: EdgeInsets.all(10),
+                                      width: 120,
+                                      height: 30,
+                                      child: FlatButton(
+                                        child: Text(
+                                          'Add Photo',
+                                          style: TextStyle(color: Colors.white),
                                         ),
-                                        Container(
-                                          margin: EdgeInsets.all(10),
-                                          height: 30,
-                                          width: 120,
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(5)),
-                                              border: Border.all(
-                                                  width: 1,
-                                                  color: Color(0xFFE7E7E7))),
-                                          child: FlatButton(
-                                            child: Text('Edit Profile'),
-                                            onPressed: () {
-                                              Navigator.pushNamed(context,
-                                                  SecondProfileScreen.id);
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    )
+                                        onPressed: () {
+                                          getImage();
+                                        },
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(10),
+                                      height: 30,
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(5)),
+                                          border: Border.all(
+                                              width: 1,
+                                              color: Color(0xFFE7E7E7))),
+                                      child: FlatButton(
+                                        child: Text('Edit Profile'),
+                                        onPressed: () {
+                                          Navigator.pushNamed(
+                                              context, SecondProfileScreen.id);
+                                        },
+                                      ),
+                                    ),
                                   ],
                                 )
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      "James Lloyd",
-                                      style: TextStyle(
-                                          fontFamily: 'Gotham',
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black),
-                                    ),
-                                    Text("I am a profile on instagram"),
-                                    InkWell(
-                                        child: new Text('my instagram'),
-                                        onTap: () {}),
-                                  ],
-                                ),
-                                Container()
                               ],
                             )
                           ],
                         ),
-                        color: Colors.white,
-                      ),
-                      Center(
-                        child: Container(
-                            margin: EdgeInsets.all(20),
-                            child: _image == null
-                            ? Center(child: Text('No image selected.'))
-                            : Center(child: Image.file(_image))
-                        ),
-                      ),
-                    ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  userName == null ? "..." : userName,
+                                  style: TextStyle(
+                                      fontFamily: 'Gotham',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                ),
+                                Text("Here's a brief description"),
+                                InkWell(
+                                    child: new Text('my instagram'),
+                                    onTap: () {}),
+                              ],
+                            ),
+                            Container()
+                          ],
+                        )
+                      ],
+                    ),
+                    color: Colors.white,
                   ),
-                )
-              ],
-            ),
-          ),
-        );
-      },
+                  Center(
+                    child: Container(
+                        margin: EdgeInsets.all(20),
+                        child: _image == null
+                            ? Center(child: Text('No image selected.'))
+                            : Center(child: Image.file(_image))),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

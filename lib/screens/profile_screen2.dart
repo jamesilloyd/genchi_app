@@ -4,7 +4,9 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'welcome_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
+import 'package:genchi_app/components/log_out_alerts_platform.dart';
+
 
 FirebaseUser loggedInUser;
 
@@ -29,6 +31,12 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void logOutNavigation() {
+    _auth.signOut();
+    Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+        WelcomeScreen.id, (Route<dynamic> route) => false);
   }
 
   @override
@@ -73,33 +81,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
                 buttonTitle: "Log out",
                 onPressed: () {
                   //ToDo: implement material widget for logout
-                  showCupertinoModalPopup(
-                    context: context,
-                    builder: (BuildContext context) => CupertinoActionSheet(
-                      cancelButton: CupertinoActionSheetAction(
-                        child: const Text('Cancel'),
-                        isDefaultAction: true,
-                        onPressed: () {
-                          Navigator.pop(context, 'Cancel');
-                        },
-                      ),
-                      actions: <Widget>[
-                        CupertinoActionSheetAction(
-                          child: Text(
-                            "Log out",
-                            style: TextStyle(
-                                color: CupertinoColors.destructiveRed),
-                          ),
-                          onPressed: () {
-                            _auth.signOut();
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                    (Route<dynamic> route) => false);
-                          },
-                        )
-                      ],
-                    ),
-                  );
+                  Platform.isIOS ? showLogOutIOS(context,logOutNavigation) : showLogOutAndroid(context, logOutNavigation);
                 },
               )
             ],

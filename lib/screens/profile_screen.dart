@@ -65,7 +65,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.all(20),
-                    //ToDo: Play around with the height and layout of widgets
                     height: 250,
                     child: Column(
                       children: <Widget>[

@@ -80,7 +80,6 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
                 buttonColor: Colors.grey,
                 buttonTitle: "Log out",
                 onPressed: () {
-                  //ToDo: implement material widget for logout
                   Platform.isIOS ? showLogOutIOS(context,logOutNavigation) : showLogOutAndroid(context, logOutNavigation);
                 },
               )

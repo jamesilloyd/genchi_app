@@ -4,7 +4,7 @@ import 'chat_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
-
+import 'dart:io' show Platform;
 
 
 class HomeScreen extends StatelessWidget {
@@ -12,6 +12,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //ToDo: Implement Android tab controller (navigation incorrect)
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(items: [
         BottomNavigationBarItem(

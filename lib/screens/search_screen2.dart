@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/app_bar.dart';
 
 class SecondSearchScreen extends StatefulWidget {
   static const String id = "second_search_screen";
@@ -11,12 +12,16 @@ class SecondSearchScreen extends StatefulWidget {
 class _SecondSearchScreenState extends State<SecondSearchScreen> {
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabView(builder: (context) {
-      return CupertinoPageScaffold(
-        child: Center(
-          child: Text("Search Screen 2"),
+    return Scaffold(
+      appBar: AppNavigationBar(barTitle: "Search 2"),
+      body: Center(
+        child: Text(
+          "Search screen 2",
+          style: TextStyle(
+            fontSize: 30.0,
+          )
         ),
-      );
-    });
+      ),
+    );
   }
 }

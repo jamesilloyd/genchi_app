@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/screens/search_screen2.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -24,7 +25,7 @@ class FlashChat extends StatelessWidget {
         HomeScreen.id : (context) => HomeScreen(),
         SecondProfileScreen.id : (context) => SecondProfileScreen(),
         RegSequenceScreen.id : (context) => RegSequenceScreen(),
-        SecondProfileScreen.id: (context) => SecondProfileScreen(),
+        SecondSearchScreen.id : (context) => SecondSearchScreen(),
       },
     );
   }

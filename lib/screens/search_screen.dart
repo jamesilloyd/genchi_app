@@ -14,31 +14,17 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabView(
-      routes: {
-        SecondSearchScreen.id : (context) => SecondSearchScreen(),
-      },
-      builder: (context) {
-        return Scaffold(
-          appBar: AppNavigationBar(barTitle: "Search"),
-          body: Center(
-            child: RoundedButton(
-              buttonColor: Colors.blueAccent,
-              buttonTitle: "Screen 2",
-              onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) {
-                      return SecondSearchScreen();
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: AppNavigationBar(barTitle: "Search"),
+      body: Center(
+        child: RoundedButton(
+          buttonColor: Colors.blueAccent,
+          buttonTitle: "Screen 2",
+          onPressed: () {
+            Navigator.pushNamed(context, SecondSearchScreen.id);
+          },
+        ),
+      ),
     );
   }
 }
-

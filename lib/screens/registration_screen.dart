@@ -96,7 +96,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     if (newUser != null) {
                       FirebaseUser user = await _auth.currentUser();
-
+                      //ToDo: better to store name locally, change this
                       UserUpdateInfo updateInfo = UserUpdateInfo();
                       updateInfo.displayName = name;
                       user.updateProfile(updateInfo);

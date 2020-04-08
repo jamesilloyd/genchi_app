@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 
-Future<void> showLogOutIOS(BuildContext context, VoidCallback logOutFunction) {
+Future<void> showAlertIOS(BuildContext context, VoidCallback logOutFunction, String alertMessage) {
 
   return showCupertinoModalPopup(
     context: context,
@@ -17,7 +17,7 @@ Future<void> showLogOutIOS(BuildContext context, VoidCallback logOutFunction) {
       actions: <Widget>[
         CupertinoActionSheetAction(
           child: Text(
-            "Log out",
+            alertMessage,
             style: TextStyle(color: CupertinoColors.destructiveRed),
           ),
           onPressed: logOutFunction,
@@ -27,7 +27,7 @@ Future<void> showLogOutIOS(BuildContext context, VoidCallback logOutFunction) {
   );
 }
 
-Future<void> showLogOutAndroid(BuildContext context, VoidCallback logOutFunction) {
+Future<void> showAlertAndroid(BuildContext context, VoidCallback logOutFunction, String alertMessage) {
   return showDialog<void>(
     context: context,
     barrierDismissible: true, // user must tap button!
@@ -37,7 +37,7 @@ Future<void> showLogOutAndroid(BuildContext context, VoidCallback logOutFunction
           child: ListBody(
             children: <Widget>[
               Text(
-                'Are you sure you want to log out?',
+                'Are you sure you want to ${alertMessage.toLowerCase()}?',
                 style: TextStyle(color: Colors.black54),
               ),
             ],
@@ -55,7 +55,7 @@ Future<void> showLogOutAndroid(BuildContext context, VoidCallback logOutFunction
           ),
           FlatButton(
             child: Text(
-              'LOG OUT',
+              alertMessage.toUpperCase(),
               style: TextStyle(color: Colors.red),
             ),
             onPressed: logOutFunction,

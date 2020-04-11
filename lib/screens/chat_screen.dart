@@ -93,11 +93,10 @@ class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('messages')
-          .orderBy('time', descending: true)
-          .snapshots(),
+      stream: _firestore.collection('messages').orderBy('time', descending: true).snapshots(),
       builder: (context, snapshot) {
+
+        //ToDO: This is not sustainable code
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(
@@ -111,16 +110,6 @@ class MessagesStream extends StatelessWidget {
         for (var message in messages) {
           final messageText = message.data['text'];
           final messageSender = message.data['sender'];
-
-          //This isn't working as toDate() is being called on null whilst waiting
-//          final messageTimeStamp = message.data['time'].toDate();
-//          String messageTimeStampString = "";
-//          messageTimeStampString += "${messageTimeStamp.hour}:";
-//          messageTimeStampString += "${messageTimeStamp.second} ";
-//          messageTimeStampString += "${messageTimeStamp.day}/";
-//          messageTimeStampString += "${messageTimeStamp.month}/";
-//          messageTimeStampString += "${messageTimeStamp.year}";
-
           final currentUser = loggedInUser.email;
 
           final messageWidget = MessageBubble(

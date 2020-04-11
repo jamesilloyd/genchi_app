@@ -10,18 +10,45 @@ import 'screens/profile_screen2.dart';
 import 'screens/reg_sequence_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'locator.dart';
+import 'models/CRUDModel.dart';
 
 void main() => runApp(Genchi());
 
 class Genchi extends StatelessWidget {
 
+  final _auth = FirebaseAuth.instance;
+
+  //Automatic login
+  //ToDo: move this into main.dart
+  Future<bool> isUserAlreadyLoggedIn() async {
+    try {
+      final user = await _auth.currentUser();
+      if(user != null){
+        print("User logged in");
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("isUserAlreadyLoggedIn $e");
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Profile>(
-      //can provide more than one class here
-      create: (context) => Profile(),
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<Profile>(create: (_) => Profile()),
+        ChangeNotifierProvider(create: (_) => locator<CRUDModel>()),
+      ],
       child: MaterialApp(
         home: WelcomeScreen(),
+//        initialRoute: isUserAlreadyLoggedIn() ? HomeScreen.id : WelcomeScreen.id ,
+      //ToDo: write the data to disk if the user is logged in or not, use this data to choose launch screen
         initialRoute: WelcomeScreen.id,
         routes: {
           WelcomeScreen.id : (context) => WelcomeScreen(),

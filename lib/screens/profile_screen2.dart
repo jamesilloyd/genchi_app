@@ -6,12 +6,13 @@ import 'welcome_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'dart:io' show Platform;
 import 'package:genchi_app/components/log_out_alerts_platform.dart';
+import 'package:provider/provider.dart';
+import 'package:genchi_app/models/profile.dart';
 
 FirebaseUser loggedInUser;
 
 class SecondProfileScreen extends StatefulWidget {
   static const String id = "second_profile_screen";
-
 
   @override
   _SecondProfileScreenState createState() => _SecondProfileScreenState();
@@ -21,6 +22,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   final _auth = FirebaseAuth.instance;
   String userEmail;
 
+  //ToDo: Refactor this
   void getCurrentUser() async {
     try {
       final user = await _auth.currentUser();
@@ -44,6 +46,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   void passwordReset()  {
     _auth.sendPasswordResetEmail(email: userEmail);
     //ToDo: add in "check your email" message and potential log out
+    Navigator.of(context).pop();
 //    _auth.confirmPasswordReset(oobCode, newPassword)
   }
 
@@ -56,7 +59,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Profile Settings"),
+      appBar: AppNavigationBar(barTitle: "Settings"),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -66,8 +69,10 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
             children: <Widget>[
               RoundedButton(
                 buttonColor: Colors.blueAccent,
-                buttonTitle: "Reset name",
-                onPressed: () {},
+                buttonTitle: "Change name",
+                onPressed: () {
+                  Provider.of<Profile>(context, listen: false).changeName("123 Lloyd");
+                },
               ),
               RoundedButton(
                 buttonColor: Colors.redAccent,
@@ -76,7 +81,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
               ),
               RoundedButton(
                 buttonColor: Colors.greenAccent,
-                buttonTitle: "Reset password",
+                buttonTitle: "Change password",
                 onPressed: () {
                   //ToDo: have a look at this, alert not popping afterwards
                   Platform.isIOS ? showAlertIOS(context, passwordReset, "Reset password")

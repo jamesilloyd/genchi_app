@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 
 class SecondSearchScreen extends StatefulWidget {
-  static const String id = "second_search_screen";
+  static const String id = "Settings1";
 
   @override
   _SecondSearchScreenState createState() => _SecondSearchScreenState();

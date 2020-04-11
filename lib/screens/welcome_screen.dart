@@ -40,6 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   }
 
   //Automatic login
+  //ToDo: move this into main.dart
   void isUserAlreadyLoggedIn() async {
     try {
       final user = await _auth.currentUser();

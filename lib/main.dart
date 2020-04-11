@@ -8,25 +8,32 @@ import 'package:genchi_app/screens/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'screens/profile_screen2.dart';
 import 'screens/reg_sequence_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:genchi_app/models/profile.dart';
 
-void main() => runApp(FlashChat());
+void main() => runApp(Genchi());
 
-class FlashChat extends StatelessWidget {
+class Genchi extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: WelcomeScreen(),
-      initialRoute: WelcomeScreen.id,
-      routes: {
-        WelcomeScreen.id : (context) => WelcomeScreen(),
-        LoginScreen.id : (context) => LoginScreen(),
-        RegistrationScreen.id : (context) => RegistrationScreen(),
-        ChatScreen.id : (context) => ChatScreen(),
-        HomeScreen.id : (context) => HomeScreen(),
-        SecondProfileScreen.id : (context) => SecondProfileScreen(),
-        RegSequenceScreen.id : (context) => RegSequenceScreen(),
-        SecondSearchScreen.id : (context) => SecondSearchScreen(),
-      },
+    return ChangeNotifierProvider<Profile>(
+      //can provide more than one class here
+      create: (context) => Profile(),
+      child: MaterialApp(
+        home: WelcomeScreen(),
+        initialRoute: WelcomeScreen.id,
+        routes: {
+          WelcomeScreen.id : (context) => WelcomeScreen(),
+          LoginScreen.id : (context) => LoginScreen(),
+          RegistrationScreen.id : (context) => RegistrationScreen(),
+          ChatScreen.id : (context) => ChatScreen(),
+          HomeScreen.id : (context) => HomeScreen(),
+          SecondProfileScreen.id : (context) => SecondProfileScreen(),
+          RegSequenceScreen.id : (context) => RegSequenceScreen(),
+          SecondSearchScreen.id : (context) => SecondSearchScreen(),
+        },
+      ),
     );
   }
 }

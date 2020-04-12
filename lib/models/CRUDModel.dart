@@ -1,49 +1,56 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/locator.dart';
-import 'firebaseAPI.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 //This class is specifically for Profile CRUD
-class CRUDModel extends ChangeNotifier {
-
-  Api _api = locator<Api>();
-
-  List<User> products;
+class FirebaseCRUDModel extends ChangeNotifier {
 
 
-  Future<List<User>> fetchProducts() async {
-    var result = await _api.getDataCollection();
-    products = result.documents
-        .map((doc) => User.fromMap(doc.data, doc.documentID))
+  CollectionReference _usersCollectionRef = Firestore.instance.collection('users');
+
+  List<User> users;
+
+  //ToDo: allow the ability to pass in a parameter for the collection to simplifiy/refactor
+  Future<List<User>> fetchUsers() async {
+    var result = await _usersCollectionRef.getDocuments();
+    users = result.documents
+        .map((doc) => User.fromMap(doc.data))
         .toList();
-    return products;
+    return users;
   }
 
-  Stream<QuerySnapshot> fetchProductsAsStream() {
-    return _api.streamDataCollection();
+  Stream<QuerySnapshot> fetchUsersAsStream() {
+    return _usersCollectionRef.snapshots();
   }
 
   Future<User> getUserById(String id) async {
-    var doc = await _api.getDocumentById(id);
-    return  User.fromMap(doc.data, doc.documentID) ;
+    var doc = await _usersCollectionRef.document(id).get();
+    return User.fromMap(doc.data);
   }
 
 
-  Future removeProduct(String id) async{
-    await _api.removeDocument(id) ;
-    return ;
-  }
-  Future updateUser(User data, String id) async{
-    await _api.updateDocument(data.toJson(), id) ;
-    return ;
+  Future removeUser(String id) async {
+    await _usersCollectionRef.document(id).delete();
+    return;
   }
 
-  Future addUser(User user, String id) async{
-    var result  = await _api.addDocumentById(user.toJson(), id) ;
-    return ;
+  Future updateUser(User data) async {
+    await _usersCollectionRef.document(data.id).updateData(data.toJson());
+    return;
   }
 
+  Future addUserByID(User user, String id) async {
+    var result = await _usersCollectionRef.document(id).setData(user.toJson());
+    return;
+  }
+
+  Future addUser(User user) async {
+    var result = await _usersCollectionRef.add(user.toJson());
+    return;
+  }
 
 }
+

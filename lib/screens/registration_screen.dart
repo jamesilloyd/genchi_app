@@ -29,12 +29,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final DateTime timestamp = DateTime.now();
 
 
-
-  final CollectionReference usersRef = Firestore.instance.collection('users');
-
   @override
   Widget build(BuildContext context) {
-    var profileProvider = Provider.of<CRUDModel>(context) ;
+    var profileProvider = Provider.of<FirebaseCRUDModel>(context) ;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,16 +105,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     if (newUser != null) {
                       FirebaseUser user = await _auth.currentUser();
 
-                      //Update auth name
-                      UserUpdateInfo updateInfo = UserUpdateInfo();
-                      updateInfo.displayName = name;
-                      user.updateProfile(updateInfo);
-
                       //ToDo: do we want to send verification email?
 //                      await user.sendEmailVerification();
 
                       //create new user in firestore
-                      await profileProvider.addUser(User(id: user.uid, email: user.email, name: name, timeStamp: timestamp),user.uid);
+                      await profileProvider.addUserByID(User(id: user.uid, email: user.email, name: name, timeStamp: timestamp),user.uid);
 
                       Navigator.pushNamedAndRemoveUntil(
                           context, RegSequenceScreen.id, (Route<dynamic> route) => false);

@@ -8,6 +8,8 @@ import 'dart:io' show Platform;
 import 'package:genchi_app/components/log_out_alerts_platform.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 FirebaseUser loggedInUser;
 
@@ -22,28 +24,13 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   final _auth = FirebaseAuth.instance;
   String userEmail;
 
-  //ToDo: Refactor this
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser();
-      if (user != null) {
-        loggedInUser = user;
-        userEmail = loggedInUser.email;
-        print(loggedInUser.email);
-        print(loggedInUser.displayName);
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
   void logOutNavigation() {
     _auth.signOut();
     Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
         WelcomeScreen.id, (Route<dynamic> route) => false);
   }
 
-  void passwordReset()  {
+  void passwordReset() {
     _auth.sendPasswordResetEmail(email: userEmail);
     //ToDo: add in "check your email" message and potential log out
     Navigator.of(context).pop();
@@ -53,11 +40,13 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
   }
 
   @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final authProvider = Provider.of<AuthenticationService>(context);
+
     return Scaffold(
       appBar: AppNavigationBar(barTitle: "Settings"),
       body: Center(
@@ -69,24 +58,32 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
             children: <Widget>[
               RoundedButton(
                 buttonColor: Colors.blueAccent,
-                buttonTitle: "Change name",
+                buttonTitle: "Change details",
                 onPressed: () {
-                  //ToDo: need to implement change firestore document by id and check the name on profile changes
+                  //Update details
+                  profileProvider.updateUser(
+                    User(
+                        name: "James 7",
+                        email: authProvider.currentUser.email,
+                        id: authProvider.currentUser.id,
+                        bio: authProvider.currentUser.bio,
+                        profilePicture: authProvider.currentUser.profilePicture,
+                        timeStamp: authProvider.currentUser.timeStamp),
+                  );
+                  //Need to repopulate current user data
+                  authProvider.updateCurrentUserData();
 //                  Provider.of<Profile>(context, listen: false).changeName("123 Lloyd");
                 },
-              ),
-              RoundedButton(
-                buttonColor: Colors.redAccent,
-                buttonTitle: "Reset email",
-                onPressed: () {},
               ),
               RoundedButton(
                 buttonColor: Colors.greenAccent,
                 buttonTitle: "Change password",
                 onPressed: () {
                   //ToDo: have a look at this, alert not popping afterwards
-                  Platform.isIOS ? showAlertIOS(context, passwordReset, "Reset password")
-                      : showAlertAndroid(context, passwordReset, "Reset password");
+                  Platform.isIOS
+                      ? showAlertIOS(context, passwordReset, "Reset password")
+                      : showAlertAndroid(
+                          context, passwordReset, "Reset password");
                 },
               ),
               RoundedButton(

@@ -16,7 +16,7 @@ class User extends ChangeNotifier {
   User({this.id, this.bio, this.email, this.name, this.profilePicture, this.timeStamp});
 
 
-  User.fromMap(Map snapshot, String id) :
+  User.fromMap(Map snapshot) :
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
         profilePicture = snapshot['profilePicture'] ?? '',

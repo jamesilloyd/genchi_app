@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 User currentUser;
 
@@ -57,7 +58,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
 
     //ToDo: how to get user by id then use throughout details this page
-    final profileProvider = Provider.of<CRUDModel>(context);
+    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final authProvider = Provider.of<AuthenticationService>(context);
 //    User user = profileProvider.getUserById(widget.profileId);
 
     return Scaffold(
@@ -186,15 +188,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  //ToDo: Grab name from firebase
-                                  userName == null ? "..." : userName,
+                                  //Gram name from current user
+                                  authProvider.currentUser.name,
+//                                  userName == null ? "..." : userName,
 //                                      profileData.name,
                                   style: TextStyle(
                                       fontFamily: 'Gotham',
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black),
                                 ),
-                                Text("Here's a brief description"),
+                                Text(
+                                  authProvider.currentUser.bio ?? ' ',
+                                ),
                                 InkWell(
                                     child: new Text('my instagram'),
                                     onTap: () {}),

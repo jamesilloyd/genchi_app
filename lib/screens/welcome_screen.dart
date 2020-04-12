@@ -7,7 +7,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
-
+import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/locator.dart';
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -18,9 +19,12 @@ class WelcomeScreen extends StatefulWidget {
 
 //with single... allows the class to act as a ticker for a single animation
 class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProviderStateMixin {
+
   AnimationController controller;
   Animation animation;
   final _auth = FirebaseAuth.instance;
+
+  final AuthenticationService _authenticationService = locator<AuthenticationService>();
 
   @override
   void initState() {
@@ -36,6 +40,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       setState(() {});
     },
     );
+
+    _authenticationService.isUserLoggedIn();
     isUserAlreadyLoggedIn();
   }
 

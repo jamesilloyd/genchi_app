@@ -13,6 +13,8 @@ import 'package:genchi_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'locator.dart';
 import 'models/CRUDModel.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'models/authentication.dart';
 
 void main() {
   setupLocator();
@@ -22,6 +24,7 @@ void main() {
 class Genchi extends StatelessWidget {
 
   final _auth = FirebaseAuth.instance;
+
 
   //Automatic login
   //ToDo: move this into main.dart
@@ -42,11 +45,13 @@ class Genchi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<User>(create: (_) => User()),
-        ChangeNotifierProvider(create: (_) => locator<CRUDModel>()),
+        //ToDo: I'm worried this is a very  large changenotifierprovider, may need to break up into smaller components
+        ChangeNotifierProvider(create: (_) => locator<FirebaseCRUDModel>()),
+        ChangeNotifierProvider(create: (_) => locator<AuthenticationService>()),
+        //ToDo: how to do this - meant to create the current user to be accessed ANYWHERE!
+//        StreamProvider<User>(create: (_) => FirebaseAuth.instance.onAuthStateChanged)
       ],
       child: MaterialApp(
         home: WelcomeScreen(),

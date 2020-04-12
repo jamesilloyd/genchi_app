@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'profile_screen2.dart';
-import 'welcome_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' as io;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/profile.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
 
-FirebaseUser loggedInUser;
+User currentUser;
 
 class ProfileScreen extends StatefulWidget {
+
+  final String profileId;
+
+  ProfileScreen({this.profileId});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -36,9 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (user != null) {
         loggedInUser = user;
         userName = loggedInUser.displayName;
-        setState(() {});
-        print(loggedInUser.email);
-        print(loggedInUser.displayName);
       }
     } catch (e) {
       print(e);
@@ -53,6 +55,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    //ToDo: how to get user by id then use throughout details this page
+    final profileProvider = Provider.of<CRUDModel>(context);
+//    User user = profileProvider.getUserById(widget.profileId);
+
     return Scaffold(
       appBar: AppNavigationBar(barTitle: "Profile"),
       body: Container(

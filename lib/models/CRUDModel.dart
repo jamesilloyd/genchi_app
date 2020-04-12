@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/locator.dart';
 import 'firebaseAPI.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'profile.dart';
+import 'user.dart';
 
+//This class is specifically for Profile CRUD
 class CRUDModel extends ChangeNotifier {
 
   Api _api = locator<Api>();
 
-  List<Profile> products;
+  List<User> products;
 
 
-  Future<List<Profile>> fetchProducts() async {
+  Future<List<User>> fetchProducts() async {
     var result = await _api.getDataCollection();
     products = result.documents
-        .map((doc) => Profile.fromMap(doc.data, doc.documentID))
+        .map((doc) => User.fromMap(doc.data, doc.documentID))
         .toList();
     return products;
   }
@@ -24,9 +25,9 @@ class CRUDModel extends ChangeNotifier {
     return _api.streamDataCollection();
   }
 
-  Future<Profile> getProductById(String id) async {
+  Future<User> getUserById(String id) async {
     var doc = await _api.getDocumentById(id);
-    return  Profile.fromMap(doc.data, doc.documentID) ;
+    return  User.fromMap(doc.data, doc.documentID) ;
   }
 
 
@@ -34,16 +35,14 @@ class CRUDModel extends ChangeNotifier {
     await _api.removeDocument(id) ;
     return ;
   }
-  Future updateProduct(Profile data, String id) async{
+  Future updateUser(User data, String id) async{
     await _api.updateDocument(data.toJson(), id) ;
     return ;
   }
 
-  Future addProduct(Profile data) async{
-    var result  = await _api.addDocument(data.toJson()) ;
-
+  Future addUser(User user, String id) async{
+    var result  = await _api.addDocumentById(user.toJson(), id) ;
     return ;
-
   }
 
 

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
@@ -6,6 +7,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
 import 'reg_sequence_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:provider/provider.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -14,7 +18,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  //make it a private final
+  //ToDo: Make a class that handles auth
   final _auth = FirebaseAuth.instance;
   String email;
   String password;
@@ -25,10 +29,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final DateTime timestamp = DateTime.now();
 
 
+
   final CollectionReference usersRef = Firestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
+    var profileProvider = Provider.of<CRUDModel>(context) ;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
@@ -106,18 +113,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       updateInfo.displayName = name;
                       user.updateProfile(updateInfo);
 
-                      await user.sendEmailVerification();
+                      //ToDo: do we want to send verification email?
+//                      await user.sendEmailVerification();
 
                       //create new user in firestore
-                      //ToDo: need to be using the "toJSON" from profile class here!
-                      usersRef.document(user.uid).setData({
-                        'id': user.uid,
-                        'photoUrl': '',
-                        'email': user.email,
-                        'displayName': name,
-                        'bio': '',
-                        'timestamp': timestamp,
-                      });
+                      await profileProvider.addUser(User(id: user.uid, email: user.email, name: name, timeStamp: timestamp),user.uid);
 
                       Navigator.pushNamedAndRemoveUntil(
                           context, RegSequenceScreen.id, (Route<dynamic> route) => false);

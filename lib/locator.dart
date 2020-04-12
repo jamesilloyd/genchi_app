@@ -5,6 +5,9 @@ import 'models/CRUDModel.dart';
 GetIt locator = GetIt.instance;
 
 void setupLocator() {
-  locator.registerLazySingleton(() => Api('products'));
+  //ToDo: how to implement more than one collection path
+  locator.registerLazySingleton(() => Api("users"));
+  //This is currently throwing an error
+//  locator.registerLazySingleton(() => Api("messages"));
   locator.registerLazySingleton(() => CRUDModel()) ;
 }

@@ -23,9 +23,15 @@ class Api{
     return ref.document(id).delete();
   }
 
+  //This allows you to set the document id on creation
+  Future<void> addDocumentById(Map data, String id) {
+    return ref.document(id).setData(data);
+  }
+
   Future<DocumentReference> addDocument(Map data) {
     return ref.add(data);
   }
+
   Future<void> updateDocument(Map data , String id) {
     return ref.document(id).updateData(data) ;
   }

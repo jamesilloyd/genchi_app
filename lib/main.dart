@@ -9,12 +9,15 @@ import 'package:flutter/cupertino.dart';
 import 'screens/profile_screen2.dart';
 import 'screens/reg_sequence_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/profile.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'locator.dart';
 import 'models/CRUDModel.dart';
 
-void main() => runApp(Genchi());
+void main() {
+  setupLocator();
+  runApp(Genchi());
+}
 
 class Genchi extends StatelessWidget {
 
@@ -42,7 +45,7 @@ class Genchi extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<Profile>(create: (_) => Profile()),
+        ChangeNotifierProvider<User>(create: (_) => User()),
         ChangeNotifierProvider(create: (_) => locator<CRUDModel>()),
       ],
       child: MaterialApp(

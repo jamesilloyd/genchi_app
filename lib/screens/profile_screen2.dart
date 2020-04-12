@@ -7,7 +7,7 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'dart:io' show Platform;
 import 'package:genchi_app/components/log_out_alerts_platform.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/profile.dart';
+import 'package:genchi_app/models/user.dart';
 
 FirebaseUser loggedInUser;
 
@@ -71,7 +71,8 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
                 buttonColor: Colors.blueAccent,
                 buttonTitle: "Change name",
                 onPressed: () {
-                  Provider.of<Profile>(context, listen: false).changeName("123 Lloyd");
+                  //ToDo: need to implement change firestore document by id and check the name on profile changes
+//                  Provider.of<Profile>(context, listen: false).changeName("123 Lloyd");
                 },
               ),
               RoundedButton(

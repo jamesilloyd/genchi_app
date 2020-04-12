@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:provider/provider.dart';
 
 
-class Profile extends ChangeNotifier {
+class User extends ChangeNotifier {
 
   String id;
   String email;
@@ -13,15 +13,16 @@ class Profile extends ChangeNotifier {
   String bio;
 
 
-  Profile({this.id, this.bio, this.email, this.name, this.profilePicture, this.timeStamp});
+  User({this.id, this.bio, this.email, this.name, this.profilePicture, this.timeStamp});
 
 
-  Profile.fromMap(Map snapshot,String id) :
+  User.fromMap(Map snapshot, String id) :
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
         profilePicture = snapshot['profilePicture'] ?? '',
         id = snapshot['id'],
-        timeStamp = snapshot['timestamp'],
+        //ToDo: need to fix mismatch in data types of flutter and firebase timestamps
+//        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'];
 
   toJson() {

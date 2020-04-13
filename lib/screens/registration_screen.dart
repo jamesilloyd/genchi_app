@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -18,20 +19,18 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  //ToDo: Make a class that handles auth
-  final _auth = FirebaseAuth.instance;
   String email;
   String password;
   String name;
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
-  final DateTime timestamp = DateTime.now();
-
 
   @override
   Widget build(BuildContext context) {
-    var profileProvider = Provider.of<FirebaseCRUDModel>(context) ;
+    FirebaseCRUDModel profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    AuthenticationService authProvider =
+        Provider.of<AuthenticationService>(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -99,26 +98,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     showSpinner = true;
                   });
                   try {
-                    final newUser = await _auth.createUserWithEmailAndPassword(
-                        email: email, password: password);
-
-                    if (newUser != null) {
-                      FirebaseUser user = await _auth.currentUser();
-
-                      //ToDo: do we want to send verification email?
-//                      await user.sendEmailVerification();
-
-                      //create new user in firestore
-                      await profileProvider.addUserByID(User(id: user.uid, email: user.email, name: name, timeStamp: timestamp),user.uid);
-
+                    await authProvider.registerWithEmail(
+                        email: email, password: password, name: name);
+                    if (await authProvider.isUserLoggedIn() == true) {
                       Navigator.pushNamedAndRemoveUntil(
-                          context, RegSequenceScreen.id, (Route<dynamic> route) => false);
+                          context,
+                          RegSequenceScreen.id,
+                          (Route<dynamic> route) => false);
                     }
                   } catch (e) {
                     showErrorField = true;
                     errorMessage = e.message;
-                    print(e.code);
                   }
+
                   setState(() {
                     showSpinner = false;
                   });

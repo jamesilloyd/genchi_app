@@ -13,7 +13,7 @@ class FirebaseCRUDModel extends ChangeNotifier {
 
   List<User> users;
 
-  //ToDo: allow the ability to pass in a parameter for the collection to simplifiy/refactor
+  //ToDo: allow the ability to pass in a parameter for the collection TYPE to simplifiy/refactor
   Future<List<User>> fetchUsers() async {
     var result = await _usersCollectionRef.getDocuments();
     users = result.documents

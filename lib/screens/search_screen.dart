@@ -20,7 +20,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //ToDo: how does this know to collect user data
     final profileProvider = Provider.of<FirebaseCRUDModel>(context);
     return Scaffold(
       appBar: AppNavigationBar(barTitle: "Search"),
@@ -34,7 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
               stream: profileProvider.fetchUsersAsStream(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
-                  //Todo: this line throwing error when timestamp available
+                  //Todo: this line throwing error when timestamp available - see Flutter Socail
                   users = snapshot.data.documents
                       .map((doc) => User.fromMap(doc.data))
                       .toList();

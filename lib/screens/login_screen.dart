@@ -81,6 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     showSpinner = true;
                   });
                   try {
+                    //ToDo: implement this in authentication.dart
                     final currentUser = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
                     if (currentUser != null) {

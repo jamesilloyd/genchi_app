@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'CRUDModel.dart';
 import 'package:genchi_app/locator.dart';
 
-
 class AuthenticationService extends ChangeNotifier {
-
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseCRUDModel _firestoreCRUDModel = locator<FirebaseCRUDModel>();
 
@@ -20,9 +18,13 @@ class AuthenticationService extends ChangeNotifier {
   }
 
   Future<bool> isUserLoggedIn() async {
-    var user = await _firebaseAuth.currentUser();
-    await _populateCurrentUser(user); // Populate the user information
-    return user != null;
+    try {
+      var user = await _firebaseAuth.currentUser();
+      await _populateCurrentUser(user); // Populate the user information
+      return user != null;
+    } catch (e) {
+      throw e;
+    }
   }
 
   Future updateCurrentUserData() async {
@@ -30,6 +32,35 @@ class AuthenticationService extends ChangeNotifier {
     await _populateCurrentUser(user);
   }
 
+  Future registerWithEmail(
+      {@required String email,
+      @required String password,
+      @required String name}) async {
+    try {
+      final newUser = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
+      if (newUser != null) {
+        FirebaseUser user = await _firebaseAuth.currentUser();
+
+        //ToDo: do we want to send verification email?
+//      await user.sendEmailVerification();
+
+        //create new user in firestore
+        final DateTime timestamp = DateTime.now();
+        await _firestoreCRUDModel.addUserByID(
+            User(
+                id: user.uid,
+                email: email,
+                name: name,
+                timeStamp: timestamp),
+            user.uid);
+        updateCurrentUserData();
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
 //  Future loginWithEmail({
 //    @required String email,
@@ -46,6 +77,5 @@ class AuthenticationService extends ChangeNotifier {
 //      return e.message;
 //    }
 //  }
-
 
 }

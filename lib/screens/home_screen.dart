@@ -1,15 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
-import 'chat_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
 import 'dart:io' show Platform;
-import 'package:genchi_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 
@@ -25,24 +20,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-
-  final _auth = FirebaseAuth.instance;
-  //ToDO: need to implment this in main (top of the tree)
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser();
-      if (user != null) {
-        loggedInUser = user;
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
   }
 
   @override

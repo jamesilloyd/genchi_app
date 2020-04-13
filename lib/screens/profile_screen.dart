@@ -56,8 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    //ToDo: how to get user by id then use throughout details this page
     final profileProvider = Provider.of<FirebaseCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 //    User user = profileProvider.getUserById(widget.profileId);

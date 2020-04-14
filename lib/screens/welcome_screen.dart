@@ -42,6 +42,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     );
 
     //ToDo: ideally want to do this in Main.dart to determine initialRoute
+    //Even tho not attached to provider, this does update current User!
     _authenticationService.isUserLoggedIn();
     isUserAlreadyLoggedIn();
   }

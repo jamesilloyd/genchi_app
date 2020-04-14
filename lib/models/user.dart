@@ -20,35 +20,20 @@ class User extends ChangeNotifier {
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
         profilePicture = snapshot['profilePicture'] ?? '',
-        id = snapshot['id'],
+        id = snapshot['id'] ?? '',
         //ToDo: need to fix mismatch in data types of flutter and firebase timestamps
 //        timeStamp = snapshot['timestamp'],
-        bio = snapshot['bio'];
+        bio = snapshot['bio'] ?? '';
 
   toJson() {
     return {
-      "email": email,
-      "name": name,
-      "profilePicture": profilePicture,
-      "bio": bio,
-      'id' : id,
-      'timeStamp' : timeStamp
+      if(email != null) "email" : email,
+      if(name != null) "name": name ?? '',
+      if(profilePicture != null) "profilePicture": profilePicture,
+      if(bio != null) "bio": bio,
+      if(id != null) 'id' : id,
+      if(timeStamp != null) 'timeStamp' : timeStamp
     };
   }
+
 }
-
-
-//class Profile extends ChangeNotifier {
-//
-//  String _name = "James Lloyd";
-//
-//  String get name {
-//    return _name;
-//  }
-//
-//  void changeName(String newName){
-//    _name = newName;
-//    notifyListeners();
-//  }
-//
-//}

@@ -7,6 +7,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 FirebaseUser loggedInUser;
 
@@ -26,8 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-
+  Widget build(BuildContext context)  {
+    final authProvider = Provider.of<AuthenticationService>(context);
+    print("Home screen ${authProvider.currentUser}");
 
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(items: [
@@ -50,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (index == 1) {
           return ChatSummaryScreen();
         } else {
-          return ProfileScreen(profileId: loggedInUser.uid);
+          return ProfileScreen();
         }
       },
     );

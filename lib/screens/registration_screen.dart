@@ -20,7 +20,8 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
-  String password;
+  String password1;
+  String password2;
   String name;
   bool showSpinner = false;
   bool showErrorField = false;
@@ -80,11 +81,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   obscureText: true,
                   textAlign: TextAlign.center,
                   onChanged: (value) {
-                    password = value;
+                    password1 = value;
                     //Do something with the user input.
                   },
                   decoration: kTextFieldDecoration.copyWith(
                       hintText: "Enter password")),
+              SizedBox(
+                height: 8.0,
+              ),
+              TextField(
+                  obscureText: true,
+                  textAlign: TextAlign.center,
+                  onChanged: (value) {
+                    password2 = value;
+                  },
+                  decoration: kTextFieldDecoration.copyWith(
+                      hintText: "Repeat password")),
               SizedBox(height: 16.0),
               showErrorField
                   ? PasswordErrorText(errorMessage: errorMessage)
@@ -98,8 +110,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     showSpinner = true;
                   });
                   try {
+
+                    if(name == null || email == null) throw(Exception('Enter name and email'));
+
+
+                    if(password1 != password2) throw(Exception("Passwords do not match"));
+
                     await authProvider.registerWithEmail(
-                        email: email, password: password, name: name);
+                        email: email, password: password1, name: name);
+
+                    //This populates the current user simultaneously
                     if (await authProvider.isUserLoggedIn() == true) {
                       Navigator.pushNamedAndRemoveUntil(
                           context,
@@ -107,6 +127,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           (Route<dynamic> route) => false);
                     }
                   } catch (e) {
+                    print(e);
                     showErrorField = true;
                     errorMessage = e.message;
                   }

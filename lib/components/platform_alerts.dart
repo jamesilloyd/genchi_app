@@ -27,6 +27,7 @@ Future<void> showAlertIOS(BuildContext context, VoidCallback logOutFunction, Str
   );
 }
 
+
 Future<void> showAlertAndroid(BuildContext context, VoidCallback logOutFunction, String alertMessage) {
   return showDialog<void>(
     context: context,

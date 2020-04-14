@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppNavigationBar({@required this.barTitle});
+class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
+  const MyAppNavigationBar({@required this.barTitle});
 
   final String barTitle;
 

@@ -37,13 +37,13 @@ class FirebaseCRUDModel extends ChangeNotifier {
     return;
   }
 
-  Future updateUser(User data) async {
-    await _usersCollectionRef.document(data.id).updateData(data.toJson());
+  Future updateUser(User user, String id) async {
+    await _usersCollectionRef.document(id).setData(user.toJson(),merge: true);
     return;
   }
 
-  Future addUserByID(User user, String id) async {
-    var result = await _usersCollectionRef.document(id).setData(user.toJson());
+  Future addUserByID(User user) async {
+    var result = await _usersCollectionRef.document(user.id).setData(user.toJson());
     return;
   }
 

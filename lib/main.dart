@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/search_screen2.dart';
+import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -13,6 +15,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'locator.dart';
 import 'models/CRUDModel.dart';
 import 'models/authentication.dart';
+import 'screens/edit_account_screen.dart';
+import 'screens/forgot_password_screen.dart';
+
 
 void main() {
   setupLocator();
@@ -45,6 +50,10 @@ class Genchi extends StatelessWidget {
           SecondProfileScreen.id : (context) => SecondProfileScreen(),
           RegSequenceScreen.id : (context) => RegSequenceScreen(),
           SecondSearchScreen.id : (context) => SecondSearchScreen(),
+          SplashScreen.id : (context) => SplashScreen(),
+          EditAccountScreen.id : (context) => EditAccountScreen(),
+          ForgotPasswordScreen.id : (context) => ForgotPasswordScreen(),
+
         },
       ),
     );

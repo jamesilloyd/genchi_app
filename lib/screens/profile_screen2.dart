@@ -5,11 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'welcome_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'dart:io' show Platform;
-import 'package:genchi_app/components/log_out_alerts_platform.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
+import 'edit_account_screen.dart';
 
 FirebaseUser loggedInUser;
 
@@ -21,21 +22,7 @@ class SecondProfileScreen extends StatefulWidget {
 }
 
 class _SecondProfileScreenState extends State<SecondProfileScreen> {
-  final _auth = FirebaseAuth.instance;
-  String userEmail;
 
-  void logOutNavigation() {
-    _auth.signOut();
-    Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-        WelcomeScreen.id, (Route<dynamic> route) => false);
-  }
-
-  void passwordReset() {
-    _auth.sendPasswordResetEmail(email: userEmail);
-    //ToDo: add in "check your email" message and potential log out
-    Navigator.of(context).pop();
-//    _auth.confirmPasswordReset(oobCode, newPassword)
-  }
 
   @override
   void initState() {
@@ -48,7 +35,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
 
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Settings"),
+      appBar: MyAppNavigationBar(barTitle: "Settings"),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -60,34 +47,11 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
                 buttonColor: Colors.blueAccent,
                 buttonTitle: "Change details",
                 onPressed: () {
-                  //Update details
-                  profileProvider.updateUser(
-                    User(
-                        name: "James 7",
-                        email: authProvider.currentUser.email,
-                        id: authProvider.currentUser.id,
-                        bio: authProvider.currentUser.bio,
-                        profilePicture: authProvider.currentUser.profilePicture,
-                        timeStamp: authProvider.currentUser.timeStamp),
-                  );
-                  //Need to repopulate current user data
-                  authProvider.updateCurrentUserData();
-//                  Provider.of<Profile>(context, listen: false).changeName("123 Lloyd");
+                  Navigator.pushNamed(context, EditAccountScreen.id);
                 },
               ),
               RoundedButton(
-                buttonColor: Colors.greenAccent,
-                buttonTitle: "Change password",
-                onPressed: () {
-                  //ToDo: have a look at this, alert not popping afterwards
-                  Platform.isIOS
-                      ? showAlertIOS(context, passwordReset, "Reset password")
-                      : showAlertAndroid(
-                          context, passwordReset, "Reset password");
-                },
-              ),
-              RoundedButton(
-                buttonColor: Colors.cyanAccent,
+                buttonColor: Colors.deepOrange,
                 buttonTitle: "Create provider profile",
                 onPressed: () {},
               ),
@@ -96,8 +60,18 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
                 buttonTitle: "Log out",
                 onPressed: () {
                   Platform.isIOS
-                      ? showAlertIOS(context, logOutNavigation, "Log out")
-                      : showAlertAndroid(context, logOutNavigation, "Log out");
+                      ? showAlertIOS(context, () {
+                          authProvider.signUserOut();
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                  (Route<dynamic> route) => false);
+                        }, "Log out")
+                      : showAlertAndroid(context, () {
+                          authProvider.signUserOut();
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                  (Route<dynamic> route) => false);
+                        }, "Log out");
                 },
               )
             ],

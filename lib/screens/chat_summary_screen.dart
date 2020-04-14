@@ -12,7 +12,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Messages"),
+      appBar: MyAppNavigationBar(barTitle: "Messages"),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

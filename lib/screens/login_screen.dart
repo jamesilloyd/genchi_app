@@ -6,6 +6,9 @@ import 'package:genchi_app/screens/home_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
 import 'package:genchi_app/components/password_error_text.dart';
+import 'package:genchi_app/models/authentication.dart';
+import 'package:provider/provider.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";
@@ -23,6 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AuthenticationService authProvider =
+        Provider.of<AuthenticationService>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
@@ -81,21 +87,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     showSpinner = true;
                   });
                   try {
-                    //ToDo: implement this in authentication.dart
-                    final currentUser = await _auth.signInWithEmailAndPassword(
-                        email: email, password: password);
-                    if (currentUser != null) {
+                    if (email == null) throw (Exception('Enter email'));
+
+                    await authProvider.loginWithEmail(email: email, password: password);
+
+                    //This populates the current user simultaneously
+                    if (await authProvider.isUserLoggedIn() == true) {
                       Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
                           (Route<dynamic> route) => false);
                     }
                   } catch (e) {
-                    print(e.code);
+                    print(e);
                     showErrorField = true;
                     errorMessage = e.message;
                   }
                   setState(() {
                     showSpinner = false;
                   });
+                },
+              ),
+              Container(
+                height: 20.0,
+              ),
+              RoundedButton(
+                buttonColor: Colors.grey,
+                buttonTitle: "Forgot password",
+                onPressed: () {
+
+                  Navigator.pushNamed(context, ForgotPasswordScreen.id);
                 },
               )
             ],

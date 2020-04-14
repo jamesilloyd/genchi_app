@@ -14,10 +14,6 @@ User currentUser;
 
 class ProfileScreen extends StatefulWidget {
 
-  final String profileId;
-
-  ProfileScreen({this.profileId});
-
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -61,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //    User user = profileProvider.getUserById(widget.profileId);
 
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Profile"),
+      appBar: MyAppNavigationBar(barTitle: "Profile"),
       body: Container(
         color: Colors.white,
         child: Column(
@@ -187,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: <Widget>[
                                 Text(
                                   //Gram name from current user
-                                  authProvider.currentUser.name,
+                                  authProvider.currentUser.name??'',
 //                                  userName == null ? "..." : userName,
 //                                      profileData.name,
                                   style: TextStyle(
@@ -198,9 +194,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Text(
                                   authProvider.currentUser.bio ?? ' ',
                                 ),
-                                InkWell(
-                                    child: new Text('my instagram'),
-                                    onTap: () {}),
                               ],
                             ),
                             Container()

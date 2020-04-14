@@ -22,7 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<FirebaseCRUDModel>(context);
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Search"),
+      appBar: MyAppNavigationBar(barTitle: "Search"),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Group chat"),
+      appBar: MyAppNavigationBar(barTitle: "Group chat"),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

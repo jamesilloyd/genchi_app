@@ -13,7 +13,7 @@ class _SecondSearchScreenState extends State<SecondSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(barTitle: "Search 2"),
+      appBar: MyAppNavigationBar(barTitle: "Search 2"),
       body: Center(
         child: Text(
           "Search screen 2",

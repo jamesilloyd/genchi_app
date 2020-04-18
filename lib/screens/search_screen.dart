@@ -8,6 +8,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/components/profile_card.dart';
+import 'package:genchi_app/models/provider.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -16,11 +17,13 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   List<User> users;
+  List<ProviderUser> providers;
+
   final messageTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final firestoreProvider = Provider.of<FirestoreCRUDModel>(context);
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Search"),
       body: Column(
@@ -30,19 +33,39 @@ class _SearchScreenState extends State<SearchScreen> {
           Text("Showing all registered users:"),
           Container(
             child: StreamBuilder(
-              stream: profileProvider.fetchUsersAsStream(),
+              stream: firestoreProvider.fetchUsersAsStream(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
                   //Todo: this line throwing error when timestamp available - see Flutter Socail
-                  users = snapshot.data.documents
-                      .map((doc) => User.fromMap(doc.data))
-                      .toList();
+                  users = snapshot.data.documents.map((doc) => User.fromMap(doc.data)).toList();
 
                   return Expanded(
                     child: ListView.builder(
                       itemCount: users.length,
                       itemBuilder: (buildContext, index) =>
                           ProfileCard(userDetails: users[index]),
+                    ),
+                  );
+                } else {
+                  return Text('fetching');
+                }
+              },
+            ),
+          ),
+          Text("Showing all registered providers:"),
+          Container(
+            child: StreamBuilder(
+              stream: firestoreProvider.fetchProvidersAsStream(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  //Todo: this line throwing error when timestamp available - see Flutter Socail
+                  providers = snapshot.data.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
+
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: providers.length,
+                      itemBuilder: (buildContext, index) =>
+                          ProviderCard(providerDetails: providers[index]),
                     ),
                   );
                 } else {
@@ -59,7 +82,7 @@ class _SearchScreenState extends State<SearchScreen> {
             },
           ),
           Container(
-            height: 50.0,
+            height: 100.0,
           )
         ],
       ),

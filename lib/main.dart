@@ -17,7 +17,8 @@ import 'models/CRUDModel.dart';
 import 'models/authentication.dart';
 import 'screens/edit_account_screen.dart';
 import 'screens/forgot_password_screen.dart';
-
+import 'screens/provider_screen.dart';
+import 'screens/create_provider_screen.dart';
 
 void main() {
   setupLocator();
@@ -33,7 +34,7 @@ class Genchi extends StatelessWidget {
     return MultiProvider(
       providers: [
         //ToDo: I'm worried this is a very  large changenotifierprovider, may need to break up into smaller components
-        ChangeNotifierProvider(create: (_) => locator<FirebaseCRUDModel>()),
+        ChangeNotifierProvider(create: (_) => locator<FirestoreCRUDModel>()),
         ChangeNotifierProvider(create: (_) => locator<AuthenticationService>()),
       ],
       child: MaterialApp(
@@ -53,6 +54,8 @@ class Genchi extends StatelessWidget {
           SplashScreen.id : (context) => SplashScreen(),
           EditAccountScreen.id : (context) => EditAccountScreen(),
           ForgotPasswordScreen.id : (context) => ForgotPasswordScreen(),
+          ProviderScreen.id : (context) => ProviderScreen(),
+          CreateProviderScreen.id : (context) => CreateProviderScreen(),
 
         },
       ),

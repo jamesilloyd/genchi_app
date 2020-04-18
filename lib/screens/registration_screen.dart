@@ -11,6 +11,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
+import 'package:flutter/cupertino.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -19,6 +20,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+
   String email;
   String password1;
   String password2;
@@ -26,10 +28,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
+  
 
   @override
   Widget build(BuildContext context) {
-    FirebaseCRUDModel profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    FirestoreCRUDModel profileProvider = Provider.of<FirestoreCRUDModel>(context);
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
 

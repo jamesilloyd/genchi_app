@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:genchi_app/screens/create_provider_screen.dart';
 import 'welcome_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'dart:io' show Platform;
@@ -11,6 +12,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'edit_account_screen.dart';
+import 'provider_screen.dart';
 
 FirebaseUser loggedInUser;
 
@@ -22,8 +24,6 @@ class SecondProfileScreen extends StatefulWidget {
 }
 
 class _SecondProfileScreenState extends State<SecondProfileScreen> {
-
-
   @override
   void initState() {
     super.initState();
@@ -31,7 +31,7 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final profileProvider = Provider.of<FirestoreCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     return Scaffold(
@@ -53,7 +53,9 @@ class _SecondProfileScreenState extends State<SecondProfileScreen> {
               RoundedButton(
                 buttonColor: Colors.deepOrange,
                 buttonTitle: "Create provider profile",
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, CreateProviderScreen.id);
+                },
               ),
               RoundedButton(
                 buttonColor: Colors.grey,

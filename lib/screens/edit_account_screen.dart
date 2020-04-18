@@ -25,7 +25,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final firestoreProvider = Provider.of<FirestoreCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     return Scaffold(
@@ -67,7 +67,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               buttonColor: Colors.grey,
               onPressed: () async {
                 print("$name $email $bio");
-                await profileProvider.updateUser(
+                await firestoreProvider.updateUser(
                     User(name: name, email: email, bio: bio),
                     authProvider.currentUser.id);
                 await authProvider.updateCurrentUserData();

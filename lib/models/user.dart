@@ -1,7 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'dart:collection';
-import 'package:provider/provider.dart';
-
 
 class User extends ChangeNotifier {
 
@@ -11,9 +8,10 @@ class User extends ChangeNotifier {
   String profilePicture;
   DateTime timeStamp;
   String bio;
+  List<dynamic> providerProfiles;
 
 
-  User({this.id, this.bio, this.email, this.name, this.profilePicture, this.timeStamp});
+  User({this.id, this.bio, this.email, this.name, this.profilePicture, this.timeStamp, this.providerProfiles});
 
 
   User.fromMap(Map snapshot) :
@@ -21,9 +19,11 @@ class User extends ChangeNotifier {
         name = snapshot['name'] ?? '',
         profilePicture = snapshot['profilePicture'] ?? '',
         id = snapshot['id'] ?? '',
-        //ToDo: need to fix mismatch in data types of flutter and firebase timestamps
+        //ToDo: need to fix mismatch in data types of flutter and firebase timestamps null value needs to return a timestamp type
 //        timeStamp = snapshot['timestamp'],
-        bio = snapshot['bio'] ?? '';
+        bio = snapshot['bio'] ?? '',
+        providerProfiles = snapshot['providerProfiles'] ?? [''];
+
 
   toJson() {
     return {
@@ -32,7 +32,9 @@ class User extends ChangeNotifier {
       if(profilePicture != null) "profilePicture": profilePicture,
       if(bio != null) "bio": bio,
       if(id != null) 'id' : id,
-      if(timeStamp != null) 'timeStamp' : timeStamp
+      if(timeStamp != null) 'timeStamp' : timeStamp,
+
+      if(providerProfiles !=null) 'providerProfiles' : providerProfiles
     };
   }
 

@@ -7,7 +7,7 @@ import 'package:genchi_app/locator.dart';
 class AuthenticationService extends ChangeNotifier {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseCRUDModel _firestoreCRUDModel = locator<FirebaseCRUDModel>();
+  final FirestoreCRUDModel _firestoreCRUDModel = locator<FirestoreCRUDModel>();
   
 
   User _currentUser;

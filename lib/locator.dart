@@ -5,6 +5,6 @@ import 'models/authentication.dart';
 GetIt locator = GetIt.instance;
 
 void setupLocator() {
-  locator.registerLazySingleton(() => FirebaseCRUDModel());
+  locator.registerLazySingleton(() => FirestoreCRUDModel());
   locator.registerLazySingleton(() => AuthenticationService());
 }

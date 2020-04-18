@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<FirebaseCRUDModel>(context);
+    final profileProvider = Provider.of<FirestoreCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 //    User user = profileProvider.getUserById(widget.profileId);
 

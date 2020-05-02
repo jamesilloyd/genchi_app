@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/screens/home_screen.dart';
@@ -8,7 +10,8 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 import 'package:genchi_app/models/authentication.dart';
-import 'package:genchi_app/locator.dart';
+import 'package:provider/provider.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -18,13 +21,13 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 //with single... allows the class to act as a ticker for a single animation
-class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProviderStateMixin {
-
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation animation;
   final _auth = FirebaseAuth.instance;
 
-  final AuthenticationService _authenticationService = locator<AuthenticationService>();
+//  final AuthenticationService _authenticationService = AuthenticationService();
 
   @override
   void initState() {
@@ -36,14 +39,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
         .animate(controller);
     controller.forward();
-    controller.addListener( () {
-      setState(() {});
-    },
+    controller.addListener(
+      () {
+        setState(() {});
+      },
     );
 
     //ToDo: ideally want to do this in Main.dart to determine initialRoute
-    //Even tho not attached to provider, this does update current User!
-    _authenticationService.isUserLoggedIn();
+
+    //ToDo: Can't seem to call this...
+//    _authenticationService.isUserLoggedIn();
     isUserAlreadyLoggedIn();
   }
 
@@ -52,8 +57,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   void isUserAlreadyLoggedIn() async {
     try {
       final user = await _auth.currentUser();
-      if(user != null){
+      final bool loggedIn = await Provider.of<AuthenticationService>(context, listen: false).isUserLoggedIn();
+      print(loggedIn);
+      if (user != null) {
         print("User logged in");
+
         Navigator.pushReplacementNamed(context, HomeScreen.id);
       } else {
         print("No logged in user");

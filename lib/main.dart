@@ -11,9 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'screens/profile_screen2.dart';
 import 'screens/reg_sequence_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'locator.dart';
-import 'models/CRUDModel.dart';
 import 'models/authentication.dart';
 import 'screens/edit_account_screen.dart';
 import 'screens/forgot_password_screen.dart';
@@ -21,26 +18,21 @@ import 'screens/provider_screen.dart';
 import 'screens/create_provider_screen.dart';
 
 void main() {
-  setupLocator();
   runApp(Genchi());
 }
 
 class Genchi extends StatelessWidget {
 
-  final _auth = FirebaseAuth.instance;
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        //ToDo: I'm worried this is a very  large changenotifierprovider, may need to break up into smaller components
-        ChangeNotifierProvider(create: (_) => locator<FirestoreCRUDModel>()),
-        ChangeNotifierProvider(create: (_) => locator<AuthenticationService>()),
+      //ToDo to be updated (1)
+    providers: [
+        ChangeNotifierProvider(create: (_) => AuthenticationService()),
       ],
       child: MaterialApp(
+        //ToDo: need to implement correct start up logic
         home: WelcomeScreen(),
-//        initialRoute: isUserAlreadyLoggedIn() ? HomeScreen.id : WelcomeScreen.id ,
-      //ToDo: one option is to write the data to disk if the user is logged in or not, use this data to choose launch screen
         initialRoute: WelcomeScreen.id,
         routes: {
           WelcomeScreen.id : (context) => WelcomeScreen(),

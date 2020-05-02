@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/locator.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'home_screen.dart';
 import 'welcome_screen.dart';
@@ -16,8 +15,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-  final AuthenticationService _authenticationService = locator<AuthenticationService>();
 
   bool userLoggedIn;
 

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
+import 'package:flutter/material.dart';
 
 FirebaseUser loggedInUser;
 
@@ -31,8 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     print("Home screen ${authProvider.currentUser}");
 
+    //ToDo, Change this to a normal tab contorller or conditional on device. What is the functional difference between the different types
     return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(items: [
+      tabBar: CupertinoTabBar(
+          activeColor: Color.fromRGBO(241,147, 0, 100),
+          items: [
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.search),
           title: Text('Search'),

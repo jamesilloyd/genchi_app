@@ -24,14 +24,11 @@ class SecondProfileScreen extends StatefulWidget {
 }
 
 class _SecondProfileScreenState extends State<SecondProfileScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
+
+  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<FirestoreCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     return Scaffold(

@@ -2,19 +2,23 @@ import 'user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'CRUDModel.dart';
-import 'package:genchi_app/locator.dart';
+
+
+//ToDo: (1) Once everything is currently working, just leave as is, however once complete try and implement FilledStacks provider and firebase examples
+//https://github.com/FilledStacks/flutter-tutorials
 
 class AuthenticationService extends ChangeNotifier {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirestoreCRUDModel _firestoreCRUDModel = locator<FirestoreCRUDModel>();
-  
+  final FirestoreCRUDModel _firestoreCRUDModel = FirestoreCRUDModel();
 
+  //ToDo to be updated (1)
   User _currentUser;
   User get currentUser => _currentUser;
 
+  //ToDo to be updated (1)
   Future _populateCurrentUser(FirebaseUser user) async {
-    print("ppulating current user");
+    print("populating current user");
     if (user != null) {
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       print(_currentUser);

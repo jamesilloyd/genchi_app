@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+
+//ToDo: create the app bar into a silverappbar
 class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppNavigationBar({@required this.barTitle});
 

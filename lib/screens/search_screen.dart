@@ -21,9 +21,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   final messageTextController = TextEditingController();
 
+  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+
   @override
   Widget build(BuildContext context) {
-    final firestoreProvider = Provider.of<FirestoreCRUDModel>(context);
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Search"),
       body: Column(
@@ -33,7 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Text("Showing all registered users:"),
           Container(
             child: StreamBuilder(
-              stream: firestoreProvider.fetchUsersAsStream(),
+              stream: firestoreAPI.fetchUsersAsStream(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
                   //Todo: this line throwing error when timestamp available - see Flutter Socail
@@ -55,7 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Text("Showing all registered providers:"),
           Container(
             child: StreamBuilder(
-              stream: firestoreProvider.fetchProvidersAsStream(),
+              stream: firestoreAPI.fetchProvidersAsStream(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
                   //Todo: this line throwing error when timestamp available - see Flutter Socail

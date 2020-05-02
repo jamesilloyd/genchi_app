@@ -18,6 +18,7 @@ class EditAccountScreen extends StatefulWidget {
 class _EditAccountScreenState extends State<EditAccountScreen> {
 
 //  final TextEditingController _controller = new TextEditingController();
+  final FirestoreCRUDModel fireStoreAPI = FirestoreCRUDModel();
 
   String name;
   String email;
@@ -25,11 +26,10 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final firestoreProvider = Provider.of<FirestoreCRUDModel>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     return Scaffold(
-      //ToDo: add functionality that questions users to continue if changes have been made (e.g. u sure u wanna discard changes?)
+      //ToDo: add functionality that questions user to continue if changes have been made (e.g. u sure u wanna discard changes?)
       appBar: MyAppNavigationBar(barTitle: "Edit Account"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -67,7 +67,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               buttonColor: Colors.grey,
               onPressed: () async {
                 print("$name $email $bio");
-                await firestoreProvider.updateUser(
+                await fireStoreAPI.updateUser(
                     User(name: name, email: email, bio: bio),
                     authProvider.currentUser.id);
                 await authProvider.updateCurrentUserData();

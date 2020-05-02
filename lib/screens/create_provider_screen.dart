@@ -77,7 +77,6 @@ class _CreateProviderScreenState extends State<CreateProviderScreen> {
               buttonColor: Colors.lightBlue,
               buttonTitle: "Create Provider Profile",
               onPressed: () async {
-                
                 //ToDo: this is working, need to put in error handling
                 await firestoreProvider.addProvider(
                   ProviderUser(

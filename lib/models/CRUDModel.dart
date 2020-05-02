@@ -6,11 +6,10 @@ import 'package:genchi_app/models/authentication.dart';
 import 'provider.dart';
 
 //This class is specifically for Profile CRUD
-class FirestoreCRUDModel extends ChangeNotifier {
+class FirestoreCRUDModel {
 
 
   CollectionReference _usersCollectionRef = Firestore.instance.collection('users');
-  //ToDo: currently adding all under one model, if it is reloading too much, will make a model per collection
   CollectionReference _providersCollectionRef = Firestore.instance.collection('providers');
 
   List<User> users;
@@ -50,6 +49,7 @@ class FirestoreCRUDModel extends ChangeNotifier {
 
   Future<ProviderUser> getProviderById(String pid) async {
     var doc = await _providersCollectionRef.document(pid).get();
+    var doc1 = await _providersCollectionRef.document(pid).snapshots();
     return ProviderUser.fromMap(doc.data);
   }
 

@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 FirebaseUser loggedInUser;
 
 class HomeScreen extends StatefulWidget {
-
   static const String id = "home_screen";
 
   @override
@@ -21,36 +20,40 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   void initState() {
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     print("Home screen ${authProvider.currentUser}");
 
     //ToDo, Change this to a normal tab contorller or conditional on device. What is the functional difference between the different types
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
-        backgroundColor: Color(kGenchiCream),
-          activeColor: Color.fromRGBO(241,147, 0, 100),
+          backgroundColor: Color(kGenchiCream),
+          activeColor: Color(kGenchiOrange),
+          inactiveColor: Color(kGenchiBlue),
           items: [
-        BottomNavigationBarItem(
-          icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-          title: Text('Search'),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Platform.isIOS ? CupertinoIcons.conversation_bubble : Icons.message),
-          title: Text('Messages'),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Platform.isIOS ? CupertinoIcons.profile_circled : Icons.account_circle),
-          title: Text('Profile'),
-        ),
-      ]),
+            BottomNavigationBarItem(
+              icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+              title: Text('Search'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Platform.isIOS
+                  ? CupertinoIcons.conversation_bubble
+                  : Icons.message),
+              title: Text('Messages'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Platform.isIOS
+                  ? CupertinoIcons.group
+                  : Icons.group),
+              title: Text('Profile'),
+            ),
+          ]),
       tabBuilder: (context, index) {
         if (index == 0) {
           return SearchScreen();

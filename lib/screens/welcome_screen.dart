@@ -118,8 +118,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       buttonColor: Color(kGenchiOrange),
                       buttonTitle: 'Log In',
                       onPressed: () {
-//                        Navigator.pushNamed(context, LoginScreen.id);
-                        Navigator.pushNamed(context, RegSequenceScreen.id);
+                        Navigator.pushNamed(context, LoginScreen.id);
+//                        Navigator.pushNamed(context, RegSequenceScreen.id);
                       }),
                   RoundedButton(
                     buttonColor: Color(kGenchiBlue),

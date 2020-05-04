@@ -21,17 +21,21 @@ const kMessageContainerDecoration = BoxDecoration(
 const kTextFieldDecoration = InputDecoration(
   hintText: "",
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(32.0)),
-  ),
+  focusColor: Colors.red,
+  fillColor: Color(kGenchiCream),
+  filled: true,
+
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.blueAccent, width: 1.0),
+    borderSide: BorderSide(color: Color(kGenchiCream), width: 1.0),
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
   focusedBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.blueAccent, width: 2.0),
+    borderSide: BorderSide(color: Color(kGenchiCream), width: 2.0),
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
 
-
+const kGenchiOrange = 0xfff19300;
+const kGenchiBlue = 0xff05004e;
+const kGenchiCream = 0xfff9f8eb;
+const kGenchiGreen = 0xff76b39d;

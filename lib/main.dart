@@ -31,6 +31,7 @@ class Genchi extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
       ],
       child: MaterialApp(
+        theme: ThemeData(fontFamily: 'FuturaPT'),
         //ToDo: need to implement correct start up logic
         home: WelcomeScreen(),
         initialRoute: WelcomeScreen.id,

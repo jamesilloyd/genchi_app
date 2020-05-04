@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/constants.dart';
 import 'home_screen.dart';
 
 class RegSequenceScreen extends StatefulWidget {
@@ -16,27 +17,65 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Center(
-            child: Text("What brings you here?"),
+          Container(
+            height: MediaQuery.of(context).size.height*0.5,
+            child: RaisedButton(
+              color: Color(kGenchiOrange),
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                          context, HomeScreen.id, (Route<dynamic> route) => false);
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Text("I am a Hirer",
+                      //TODO: ADD FUTURA FONT
+                      style: TextStyle(
+                        color: Color(kGenchiBlue),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      Icons.pan_tool,
+                      size: 100,
+                      color: Color(kGenchiBlue),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           Container(
-            height: 20.0,
-          ),
-          RoundedButton(
-            buttonColor: Colors.lightBlueAccent,
-            buttonTitle: "Hirer",
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomeScreen.id, (Route<dynamic> route) => false);
-            },
-          ),
-          RoundedButton(
-            buttonColor: Colors.greenAccent,
-            buttonTitle: "Provider",
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomeScreen.id, (Route<dynamic> route) => false);
-            },
+            height: MediaQuery.of(context).size.height*0.5,
+            child: RaisedButton(
+              color: Color(kGenchiBlue),
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, HomeScreen.id, (Route<dynamic> route) => false);
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Text("I am a Provider",
+                      //TODO: ADD FUTURA FONT
+                      style: TextStyle(
+                        color: Color(kGenchiOrange),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      Icons.accessible_forward,
+                      size: 100,
+                      color: Color(kGenchiOrange),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

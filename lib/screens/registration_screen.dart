@@ -2,16 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
 import 'reg_sequence_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:genchi_app/models/user.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/components/signin_textfield.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -20,7 +16,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-
   String email;
   String password1;
   String password2;
@@ -28,16 +23,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
-  
 
   @override
   Widget build(BuildContext context) {
-    FirestoreCRUDModel profileProvider = Provider.of<FirestoreCRUDModel>(context);
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Color(kGenchiGreen),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Padding(
@@ -46,100 +40,101 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Flexible(
+              Container(
+                height: MediaQuery.of(context).size.height * .3,
                 child: Hero(
                   tag: 'logo',
                   child: Container(
-                    height: 200.0,
-                    child: Image.asset('images/Logo_Clear.png'),
+                    child: Image.asset('images/LogoAndName.png'),
                   ),
                 ),
               ),
-              SizedBox(
-                height: 48.0,
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SignInTextField(
+                        onChanged: (value) {
+                          name = value;
+                        },
+                        hintText: "Enter name",
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      SignInTextField(
+                        onChanged: (value) {
+                          email = value;
+                        },
+                        hintText: "Enter email",
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      SignInTextField(
+                        onChanged: (value) {
+                          password1 = value;
+                        },
+                        hintText: "Enter password",
+                        isPasswordField: true,
+                      ),
+
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      SignInTextField(
+                        onChanged: (value) {
+                          password2 = value;
+                        },
+                        hintText: "Repeat password",
+                        isPasswordField: true,
+                      ),
+                      showErrorField
+                          ? PasswordErrorText(errorMessage: errorMessage)
+                          : SizedBox(height: 30.0),
+                      RoundedButton(
+                        buttonColor: Color(kGenchiBlue),
+                        buttonTitle: "Register",
+                        onPressed: () async {
+                          setState(() {
+                            showErrorField = false;
+                            showSpinner = true;
+                          });
+                          try {
+                            if (name == null || email == null)
+                              throw (Exception('Enter name and email'));
+
+                            if (password1 != password2)
+                              throw (Exception("Passwords do not match"));
+
+                            await authProvider.registerWithEmail(
+                                email: email, password: password1, name: name);
+
+                            //This populates the current user simultaneously
+                            if (await authProvider.isUserLoggedIn() == true) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  RegSequenceScreen.id,
+                                  (Route<dynamic> route) => false);
+                            }
+                          } catch (e) {
+                            print(e);
+                            showErrorField = true;
+                            errorMessage = e.message;
+                          }
+
+                          setState(() {
+                            showSpinner = false;
+                          });
+                        },
+                      )
+                    ],
+                  )),
+              Container(
+                height: MediaQuery.of(context).size.height * .2,
               ),
-              TextField(
-//                textCapitalization: TextCapitalization.words,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    name = value;
-                  },
-                  decoration:
-                      kTextFieldDecoration.copyWith(hintText: "Enter name")),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    email = value;
-                  },
-                  decoration:
-                      kTextFieldDecoration.copyWith(hintText: "Enter email")),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                  obscureText: true,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    password1 = value;
-                    //Do something with the user input.
-                  },
-                  decoration: kTextFieldDecoration.copyWith(
-                      hintText: "Enter password")),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                  obscureText: true,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    password2 = value;
-                  },
-                  decoration: kTextFieldDecoration.copyWith(
-                      hintText: "Repeat password")),
-              SizedBox(height: 16.0),
-              showErrorField
-                  ? PasswordErrorText(errorMessage: errorMessage)
-                  : SizedBox(height: 13.0),
-              RoundedButton(
-                buttonColor: Colors.blueAccent,
-                buttonTitle: "Register",
-                onPressed: () async {
-                  setState(() {
-                    showErrorField = false;
-                    showSpinner = true;
-                  });
-                  try {
-
-                    if(name == null || email == null) throw(Exception('Enter name and email'));
-
-
-                    if(password1 != password2) throw(Exception("Passwords do not match"));
-
-                    await authProvider.registerWithEmail(
-                        email: email, password: password1, name: name);
-
-                    //This populates the current user simultaneously
-                    if (await authProvider.isUserLoggedIn() == true) {
-                      Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          RegSequenceScreen.id,
-                          (Route<dynamic> route) => false);
-                    }
-                  } catch (e) {
-                    print(e);
-                    showErrorField = true;
-                    errorMessage = e.message;
-                  }
-
-                  setState(() {
-                    showSpinner = false;
-                  });
-                },
-              )
             ],
           ),
         ),

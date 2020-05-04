@@ -10,7 +10,7 @@ class RoundedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 16.0),
+      margin: EdgeInsets.symmetric(vertical: 10.0),
       height: 42.0,
       width: 200.0,
       decoration: BoxDecoration(

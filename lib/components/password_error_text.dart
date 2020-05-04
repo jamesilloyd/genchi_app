@@ -9,7 +9,7 @@ class PasswordErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 30.0,
+      height: 30,
       child: Center(
         child: Text(
           errorMessage,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
-//ToDo: create the app bar into a silverappbar
+
 class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppNavigationBar({@required this.barTitle});
 
@@ -12,13 +14,11 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
     return AppBar(
       title: Text(
         barTitle,
-        style: TextStyle(
-          fontSize: 30,
-        ),
       ),
-      backgroundColor: Colors.lightBlueAccent,
-      elevation: 0.0,
+      backgroundColor: Color(kGenchiCream),
+      elevation: 2.0,
     );
+//    style: GoogleFonts.helvetica
   }
 
   @override

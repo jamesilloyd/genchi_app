@@ -9,6 +9,7 @@ import 'package:genchi_app/components/password_error_text.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
 import 'forgot_password_screen.dart';
+import 'package:genchi_app/components/signin_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";
@@ -26,10 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationService authProvider = Provider.of<AuthenticationService>(context);
-
+    AuthenticationService authProvider =
+        Provider.of<AuthenticationService>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Color(kGenchiGreen),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Padding(
@@ -38,84 +40,84 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              //Prevent hero image overflowing
-              Flexible(
+              Container(
+                height: MediaQuery.of(context).size.height * .3,
                 child: Hero(
                   tag: 'logo',
                   child: Container(
-                    height: 200.0,
-                    child: Image.asset('images/Logo_Clear.png'),
+                    child: Image.asset('images/LogoAndName.png'),
                   ),
                 ),
               ),
-              SizedBox(
-                height: 48.0,
-              ),
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  email = value;
-                  //Do something with the user input.
-                },
-                decoration:
-                    kTextFieldDecoration.copyWith(hintText: "Enter email"),
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                  obscureText: true,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    password = value;
-                    //Do something with the user input.
-                  },
-                  decoration: kTextFieldDecoration.copyWith(
-                      hintText: "Enter password")),
-              SizedBox(height: 16.0),
-              showErrorField
-                  ? PasswordErrorText(errorMessage: errorMessage)
-                  : SizedBox(height: 13.0),
-              RoundedButton(
-                buttonColor: Colors.lightBlueAccent,
-                buttonTitle: "Log In",
-                onPressed: () async {
-                  setState(() {
-                    showErrorField = false;
-                    showSpinner = true;
-                  });
-                  try {
-                    if (email == null) throw (Exception('Enter email'));
-
-                    await authProvider.loginWithEmail(email: email, password: password);
-
-                    //This populates the current user simultaneously
-                    if (await authProvider.isUserLoggedIn() == true) {
-                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
-                          (Route<dynamic> route) => false);
-                    }
-                  } catch (e) {
-                    print(e);
-                    showErrorField = true;
-                    errorMessage = e.message;
-                  }
-                  setState(() {
-                    showSpinner = false;
-                  });
-                },
-              ),
               Container(
-                height: 20.0,
-              ),
-              RoundedButton(
-                buttonColor: Colors.grey,
-                buttonTitle: "Forgot password",
-                onPressed: () {
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SignInTextField(
+                        onChanged: (value) {
+                          email = value;
+                        },
+                        hintText: "Enter email",
+                      ),
 
-                  Navigator.pushNamed(context, ForgotPasswordScreen.id);
-                },
-              )
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      SignInTextField(
+                        onChanged: (value) {
+                          password = value;
+                        },
+                        hintText: "Enter password",
+                        isPasswordField: true,
+                      ),
+
+                      showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
+                      RoundedButton(
+                        buttonColor: Color(kGenchiOrange),
+                        buttonTitle: "Log In",
+                        onPressed: () async {
+                          setState(() {
+                            showErrorField = false;
+                            showSpinner = true;
+                          });
+                          try {
+                            if (email == null) throw (Exception('Enter email'));
+
+                            await authProvider.loginWithEmail(
+                                email: email, password: password);
+
+                            //This populates the current user simultaneously
+                            if (await authProvider.isUserLoggedIn() == true) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  HomeScreen.id,
+                                  (Route<dynamic> route) => false);
+                            }
+                          } catch (e) {
+                            print(e);
+                            showErrorField = true;
+                            errorMessage = e.message;
+                          }
+                          setState(() {
+                            showSpinner = false;
+                          });
+                        },
+                      ),
+                      RoundedButton(
+                        buttonColor: Color(kGenchiBlue),
+                        buttonTitle: "Forgot password",
+                        onPressed: () {
+                          Navigator.pushNamed(context, ForgotPasswordScreen.id);
+                        },
+                      ),
+                    ],
+                  )),
+              Container(
+                height: MediaQuery.of(context).size.height * .2,
+              ),
+
             ],
           ),
         ),

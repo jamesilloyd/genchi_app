@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/constants.dart';
 import 'search_screen2.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(kGenchiCream),
       appBar: MyAppNavigationBar(barTitle: "Search"),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

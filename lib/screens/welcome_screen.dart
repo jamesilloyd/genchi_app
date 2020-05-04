@@ -1,17 +1,16 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/constants.dart';
+import 'reg_sequence_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -36,7 +35,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: Duration(seconds: 1),
       vsync: this,
     );
-    animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
+    animation = ColorTween(begin: Color(kGenchiBlue), end: Color(kGenchiGreen))
         .animate(controller);
     controller.forward();
     controller.addListener(
@@ -57,7 +56,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void isUserAlreadyLoggedIn() async {
     try {
       final user = await _auth.currentUser();
-      final bool loggedIn = await Provider.of<AuthenticationService>(context, listen: false).isUserLoggedIn();
+      final bool loggedIn =
+          await Provider.of<AuthenticationService>(context, listen: false)
+              .isUserLoggedIn();
       print(loggedIn);
       if (user != null) {
         print("User logged in");
@@ -81,52 +82,55 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: animation.value,
+//      backgroundColor: animation.value,
+      backgroundColor: Color(kGenchiGreen),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Hero(
+            Container(
+              height: MediaQuery.of(context).size.height * .25,
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height * .25,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Hero(
                   tag: 'logo',
                   child: Container(
-                    child: Image.asset('images/Logo_Clear.png'),
-                    height: 60.0,
+                    child: Image.asset('images/LogoAndName.png'),
                   ),
                 ),
-                Container(
-                  width: 20.0,
-                ),
-                Text(
-                  'GENCHI',
-                  style: TextStyle(
-                    color: Colors.grey[800],
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
+              ),
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height * .25,
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height * .25,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  RoundedButton(
+                      buttonColor: Color(kGenchiOrange),
+                      buttonTitle: 'Log In',
+                      onPressed: () {
+//                        Navigator.pushNamed(context, LoginScreen.id);
+                        Navigator.pushNamed(context, RegSequenceScreen.id);
+                      }),
+                  RoundedButton(
+                    buttonColor: Color(kGenchiBlue),
+                    buttonTitle: "Register",
+                    onPressed: () {
+                      Navigator.pushNamed(context, RegistrationScreen.id);
+                    },
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 48.0,
-            ),
-            RoundedButton(
-                buttonColor: Colors.lightBlueAccent,
-                buttonTitle: 'Log In',
-                onPressed: () {
-                  Navigator.pushNamed(context, LoginScreen.id);
-                }),
-            RoundedButton(
-              buttonColor: Colors.blueAccent,
-              buttonTitle: "Register",
-              onPressed: () {
-                Navigator.pushNamed(context, RegistrationScreen.id);
-              },
-            ),
+                ],
+              ),
+            )
           ],
         ),
       ),

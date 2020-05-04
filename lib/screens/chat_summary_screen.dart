@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/components/rounded_button.dart';
 import 'chat_screen.dart';
+import 'package:genchi_app/components/message_list_item.dart';
+import 'package:shimmer/shimmer.dart';
+
 
 class ChatSummaryScreen extends StatefulWidget {
   @override
@@ -16,17 +18,51 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ListView(
             children: <Widget>[
-              RoundedButton(
-                buttonColor: Colors.grey,
-                buttonTitle: "Group chat",
-                onPressed: () {
+              MessageListItem(
+                image: AssetImage("images/Logo_Clear.png"),
+                name: "Leroy",
+                lastMessage: "Hey dude",
+                time: "19:27 PM",
+                hasUnreadMessage: true,
+                newMesssageCount: 5,
+                onTap: () {
                   Navigator.pushNamed(context, ChatScreen.id);
                 },
-              )
+                service: "Photographer",
+              ),
+              MessageListItem(
+                image: AssetImage("images/Logo_Clear.png"),
+                name: "Rotter",
+                lastMessage: "Hey how's it going, are you ok?",
+                time: "19:27 PM",
+                hasUnreadMessage: true,
+                newMesssageCount: 2,
+                onTap: () {},
+                service: "Barber",
+              ),
+              MessageListItem(
+                image: AssetImage("images/Logo_Clear.png"),
+                name: "Mabel",
+                lastMessage: "Hey dude",
+                time: "19:27 PM",
+                hasUnreadMessage: false,
+                onTap: () {},
+                service: "Bicycle Repair",
+              ),
+//              Shimmer.fromColors(
+//                baseColor: Color(0xFF54C5E6),
+//                highlightColor: const Color(0xFFFF8C00),
+//                child: Text(
+//                  'Welcome',
+//                  textAlign: TextAlign.center,
+//                  style: TextStyle(
+//                    fontSize: 40.0,
+//                    fontWeight: FontWeight.bold,
+//                  ),
+//                ),
+//              ),
             ],
           ),
         ),

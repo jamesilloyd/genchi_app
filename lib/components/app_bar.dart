@@ -12,6 +12,9 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      iconTheme: IconThemeData(
+        color: Color(kGenchiBlue),
+      ),
       title: Text(
         barTitle,
         style: TextStyle(

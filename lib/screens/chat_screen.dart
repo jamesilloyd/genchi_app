@@ -43,7 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             MessagesStream(),
             Container(
@@ -58,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         //Do something with the user input.
                         messageText = value;
                       },
+                      cursorColor: Color(kGenchiOrange),
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),

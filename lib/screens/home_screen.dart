@@ -49,8 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
-                  ? CupertinoIcons.group
-                  : Icons.group),
+                  ? CupertinoIcons.profile_circled
+                  : Icons.account_circle),
               title: Text('Profile'),
             ),
           ]),

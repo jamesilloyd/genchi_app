@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'search_screen2.dart';
+import 'search_provider_screen.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:genchi_app/components/profile_card.dart';
+import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/models/provider.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -81,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
             buttonColor: Colors.blueAccent,
             buttonTitle: "Screen 2",
             onPressed: () {
-              Navigator.pushNamed(context, SecondSearchScreen.id);
+              Navigator.pushNamed(context, SearchProviderScreen.id);
             },
           ),
           Container(

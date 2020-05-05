@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -20,13 +19,12 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
         style: TextStyle(
           color: Color(kGenchiBlue),
           fontSize: 30,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
       ),
       backgroundColor: Color(kGenchiCream),
       elevation: 2.0,
     );
-//    style: GoogleFonts.helvetica
   }
 
   @override

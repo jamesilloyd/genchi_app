@@ -22,7 +22,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   String name;
   String email;
-  String bio;
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +45,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               },
             ),
             EditAccountField(
-              field: "Bio",
-              initialValue: authProvider.currentUser.bio ?? '',
-              onChanged: (value) {
-                //Update name field
-                bio = value;
-              },
-            ),
-            EditAccountField(
               field: "Email",
               initialValue: authProvider.currentUser.email ?? '',
               isEditable: false,
@@ -66,9 +57,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               buttonTitle: "Save Details",
               buttonColor: Colors.grey,
               onPressed: () async {
-                print("$name $email $bio");
+                print("$name $email");
                 await fireStoreAPI.updateUser(
-                    User(name: name, email: email, bio: bio),
+                    User(name: name, email: email),
                     authProvider.currentUser.id);
                 await authProvider.updateCurrentUserData();
               },

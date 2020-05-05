@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'chat_screen.dart';
 import 'package:genchi_app/components/message_list_item.dart';
-import 'package:shimmer/shimmer.dart';
 
 
 class ChatSummaryScreen extends StatefulWidget {

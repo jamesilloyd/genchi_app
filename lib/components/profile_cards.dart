@@ -1,44 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/constants.dart'
+;
 import 'package:genchi_app/models/user.dart';
-//import 'package:productapp/ui/views/productDetails.dart';
 import 'package:genchi_app/models/provider.dart';
 
-
-class ProfileCard extends StatelessWidget {
-  final User userDetails;
-
-  ProfileCard({@required this.userDetails});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('${userDetails.name} - ${userDetails.email}' ),
-          ],
-        )
-    );
-  }
-}
-
-
 class ProviderCard extends StatelessWidget {
-  final ProviderUser providerDetails;
 
-  ProviderCard({@required this.providerDetails});
+  final String name;
+  final AssetImage image;
+  final String service;
+  final Function onTap;
+  final String description;
+
+  //ToDo: easier to pass provider class than initialise all the provider attributes
+  ProviderCard({this.image, this.name, this.service, @required this.onTap, this.description = ''});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Row(
           children: <Widget>[
-            Text('${providerDetails.name} - ${providerDetails.bio}' ),
+            Expanded(
+              flex: 10,
+              child: ListTile(
+                title: Text(
+                  service == '' ? '$name - $service': name,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                leading: CircleAvatar(
+                  backgroundImage: image,
+                  backgroundColor: Color(kGenchiCream),
+                ),
+                subtitle: Container(
+                  child: Text(
+                    description.length > 30 ? '${description.substring(0,30)}...' : description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+//                    trailing: Column(
+//                      crossAxisAlignment: CrossAxisAlignment.center,
+//                      mainAxisAlignment: MainAxisAlignment.center,
+//                      children: <Widget>[
+//                        Text(
+//                          time,
+//                          style: TextStyle(fontSize: 12),
+//                        ),
+//                        hasUnreadMessage
+//                            ? Container(
+//                          margin: const EdgeInsets.only(top: 5.0),
+//                          height: 18,
+//                          width: 18,
+//                          decoration: BoxDecoration(
+//                              color: Color(kGenchiOrange),
+//                              borderRadius: BorderRadius.all(
+//                                Radius.circular(25.0),
+//                              )),
+//                          child: Center(
+//                            child: Text(
+//                              newMesssageCount.toString(),
+//                              style: TextStyle(fontSize: 11),
+//                            ),),
+//                        )
+//                            : SizedBox()
+//                      ],
+//                    ),
+                onTap: onTap,
+              ),
+            ),
           ],
-        )
+        ),
+        Divider(
+          endIndent: 12.0,
+          indent: 12.0,
+          height: 0,
+        ),
+      ],
     );
   }
 }

@@ -16,7 +16,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
       appBar: MyAppNavigationBar(barTitle: "Messages"),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: ListView(
             children: <Widget>[
               MessageListItem(
@@ -50,18 +50,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                 onTap: () {},
                 service: "Bicycle Repair",
               ),
-//              Shimmer.fromColors(
-//                baseColor: Color(0xFF54C5E6),
-//                highlightColor: const Color(0xFFFF8C00),
-//                child: Text(
-//                  'Welcome',
-//                  textAlign: TextAlign.center,
-//                  style: TextStyle(
-//                    fontSize: 40.0,
-//                    fontWeight: FontWeight.bold,
-//                  ),
-//                ),
-//              ),
             ],
           ),
         ),

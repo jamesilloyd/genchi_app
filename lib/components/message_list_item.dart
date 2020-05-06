@@ -76,7 +76,7 @@ class MessageListItem extends StatelessWidget {
                             child: Text(
                               newMesssageCount.toString(),
                               style: TextStyle(fontSize: 11),
-                            )),
+                            ),),
                       )
                           : SizedBox()
                     ],

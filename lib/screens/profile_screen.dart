@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/login_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' as io;
 import 'package:provider/provider.dart';
@@ -15,7 +16,9 @@ import 'dart:io' show Platform;
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'welcome_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'edit_account_screen.dart';
+import 'provider_screen.dart';
+import 'package:genchi_app/components/profile_option_tile.dart';
 
 User currentUser;
 
@@ -25,7 +28,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   static const GenchiURL = 'https://www.genchi.app';
 
   io.File _image;
@@ -70,46 +72,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: <Widget>[
               Container(
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-//                color: Color(kGenchiGreen),
-                height: MediaQuery.of(context).size.height*0.2,
+                height: MediaQuery.of(context).size.height * 0.2,
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: Center(
                     child: CircleAvatar(
-                        radius: 50.0,
-                        backgroundImage: AssetImage("images/Logo_Clear.png"),
-                        backgroundColor: Colors.white,
-                      ),
+                      radius: 50.0,
+                      backgroundImage: AssetImage("images/Logo_Clear.png"),
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ),
               Divider(
                 height: 0,
               ),
-              ProfileOptionTile(text: 'Create Provider Account',onPressed: (){}),
-              ProfileOptionTile(text: 'Change Details',onPressed: (){}),
-              ProfileOptionTile(text: 'About Genchi', onPressed: () async {
-                if (await canLaunch(GenchiURL)) {
-                  await launch(GenchiURL);
-                } else {
-                  print("Could not open URL");
-                }
+              ProfileOptionTile(
+                  text: 'Create Provider Profile', onPressed: () {
+                    Navigator.pushNamed(context, ProviderScreen.id);
               }),
-              ProfileOptionTile(text: 'Log Out', onPressed: () {
-              Platform.isIOS
-              ? showAlertIOS(context, () {
-              authProvider.signUserOut();
-              Navigator.of(context, rootNavigator: true)
-                  .pushNamedAndRemoveUntil(WelcomeScreen.id,
-              (Route<dynamic> route) => false);
-              }, "Log out")
-                  : showAlertAndroid(context, () {
-              authProvider.signUserOut();
-              Navigator.of(context, rootNavigator: true)
-                  .pushNamedAndRemoveUntil(WelcomeScreen.id,
-              (Route<dynamic> route) => false);
-              }, "Log out");
-              },
+              ProfileOptionTile(
+                text: 'Change Details',
+                onPressed: () {
+                  Navigator.pushNamed(context, EditAccountScreen.id);
+                },
+              ),
+              ProfileOptionTile(
+                  text: 'About Genchi',
+                  onPressed: () async {
+                    if (await canLaunch(GenchiURL)) {
+                      await launch(GenchiURL);
+                    } else {
+                      print("Could not open URL");
+                    }
+                  }),
+              ProfileOptionTile(
+                text: 'Log Out',
+                onPressed: () {
+                  Platform.isIOS
+                      ? showAlertIOS(context, () {
+                          authProvider.signUserOut();
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                  (Route<dynamic> route) => false);
+                        }, "Log out")
+                      : showAlertAndroid(context, () {
+                          authProvider.signUserOut();
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                  (Route<dynamic> route) => false);
+                        }, "Log out");
+                },
               ),
             ],
           ),
@@ -211,41 +224,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class ProfileOptionTile extends StatelessWidget {
-
-  final String text;
-  final Function onPressed;
-
-  const ProfileOptionTile({this.text, @required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Container(
-          height: 50,
-          child: FlatButton(
-            onPressed: onPressed,
-            child: Align(
-              alignment: Alignment.center,
-              child: Text(
-                  text,
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Color(kGenchiBlue),
-                  fontWeight: FontWeight.w500,
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Divider(
-          height: 0,
-        ),
-      ],
-    );
-  }
-}

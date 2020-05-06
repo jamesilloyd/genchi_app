@@ -19,7 +19,7 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
         style: TextStyle(
           color: Color(kGenchiBlue),
           fontSize: 30,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
         ),
       ),
       backgroundColor: Color(kGenchiCream),

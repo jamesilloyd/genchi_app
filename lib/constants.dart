@@ -21,7 +21,6 @@ const kMessageContainerDecoration = BoxDecoration(
 const kTextFieldDecoration = InputDecoration(
   hintText: "",
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-  focusColor: Colors.red,
   fillColor: Color(kGenchiCream),
   filled: true,
 

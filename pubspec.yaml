@@ -49,42 +49,49 @@ flutter:
     - family : FuturaPT
       fonts:
         - asset: fonts/FuturaPT-Bold.ttf
+          style: normal
           weight: 700
         - asset: fonts/FuturaPT-BoldObl.ttf
           style: italic
           weight: 700
 
         - asset: fonts/FuturaPT-Book.ttf
+          style: normal
           weight: 400
         - asset: fonts/FuturaPT-BookObl.ttf
           style: italic
           weight: 400
 
         - asset: fonts/FuturaPT-Demi.ttf
+          style: normal
           weight: 600
         - asset: fonts/FuturaPT-DemiObl.ttf
           style: italic
           weight: 600
 
         - asset: fonts/FuturaPT-ExtraBold.ttf
+          style: normal
           weight: 800
         - asset: fonts/FuturaPT-ExtraBoldObl.ttf
           style: italic
           weight: 800
 
         - asset: fonts/FuturaPT-Heavy.ttf
+          style: normal
           weight: 900
         - asset: fonts/FuturaPT-HeavyObl.ttf
           style: italic
           weight: 900
 
         - asset: fonts/FuturaPT-Light.ttf
+          style: normal
           weight: 300
         - asset: fonts/FuturaPT-LightObl.ttf
           style: italic
           weight: 300
 
         - asset: fonts/FuturaPT-Medium.ttf
+          style: normal
           weight: 500
         - asset: fonts/FuturaPT-MediumObl.ttf
           style: italic

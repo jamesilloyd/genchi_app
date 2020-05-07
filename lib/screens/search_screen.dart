@@ -32,6 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('Search screen activated');
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Search"),
       body: Center(
@@ -58,67 +59,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-
-//      body: Column(
-//        mainAxisAlignment: MainAxisAlignment.center,
-//        children: [
-//          //Grabs all users from firestore
-//          Text("Showing all registered users:"),
-//          Container(
-//            child: StreamBuilder(
-//              stream: firestoreAPI.fetchUsersAsStream(),
-//              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//                if (snapshot.hasData) {
-//                  //Todo: this line throwing error when timestamp available - see Flutter Socail
-//                  users = snapshot.data.documents.map((doc) => User.fromMap(doc.data)).toList();
-//
-//                  return Expanded(
-//                    child: ListView.builder(
-//                      itemCount: users.length,
-//                      itemBuilder: (buildContext, index) =>
-//                          ProfileCard(userDetails: users[index]),
-//                    ),
-//                  );
-//                } else {
-//                  return Text('fetching');
-//                }
-//              },
-//            ),
-//          ),
-//          Text("Showing all registered providers:"),
-//          Container(
-//            child: StreamBuilder(
-//              stream: firestoreAPI.fetchProvidersAsStream(),
-//              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//                if (snapshot.hasData) {
-//                  //Todo: this line throwing error when timestamp available - see Flutter Socail
-//                  providers = snapshot.data.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
-//
-//                  return Expanded(
-//                    child: ListView.builder(
-//                      itemCount: providers.length,
-//                      itemBuilder: (buildContext, index) =>
-//                          ProviderCard(providerDetails: providers[index]),
-//                    ),
-//                  );
-//                } else {
-//                  return Text('fetching');
-//                }
-//              },
-//            ),
-//          ),
-//          RoundedButton(
-//            buttonColor: Colors.blueAccent,
-//            buttonTitle: "Screen 2",
-//            onPressed: () {
-//              Navigator.pushNamed(context, SearchProviderScreen.id);
-//            },
-//          ),
-//          Container(
-//            height: 100.0,
-//          )
-//        ],
-//      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'provider.dart';
+import 'chat.dart';
 
 //This class is specifically for Profile CRUD
 class FirestoreCRUDModel {
@@ -11,6 +12,7 @@ class FirestoreCRUDModel {
 
   CollectionReference _usersCollectionRef = Firestore.instance.collection('users');
   CollectionReference _providersCollectionRef = Firestore.instance.collection('providers');
+  CollectionReference _chatCollectionRef = Firestore.instance.collection('chats');
 
   List<User> users;
   List<ProviderUser> providers;
@@ -30,6 +32,9 @@ class FirestoreCRUDModel {
     return providers;
   }
 
+  Stream<DocumentSnapshot> fetchChatAsStream(String chatId) {
+    return  _chatCollectionRef.document(chatId).snapshots();
+  }
 
 
   Stream<QuerySnapshot> fetchUsersAsStream() {
@@ -40,6 +45,11 @@ class FirestoreCRUDModel {
     return _providersCollectionRef.snapshots();
   }
 
+
+  Future<Chat> getChatById(String chatId) async {
+    var doc = await _chatCollectionRef.document(chatId).get();
+    return Chat.fromMap(doc.data);
+  }
 
 
   Future<User> getUserById(String uid) async {

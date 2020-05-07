@@ -12,8 +12,6 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
 
 
-//TODO: Create function that streams providers by service type
-
 class SearchProviderScreen extends StatefulWidget {
 
   static const String id = "search_provider_screen";
@@ -29,10 +27,9 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
   //ToDo: add this to CRUDModel
   Future<List<ProviderUser>> getProvidersByService(serviceType) async {
     List<ProviderUser> providers = [];
-
     List<ProviderUser> allProviders = await firestoreAPI.fetchProviders();
-
-    for( ProviderUser provider in allProviders){
+    print(allProviders);
+    for(ProviderUser provider in allProviders){
       if(provider.type == serviceType) providers.add(provider);
     }
 
@@ -48,7 +45,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
     String service = args.service ?? '';
 
     return Scaffold(
-        appBar: MyAppNavigationBar(barTitle: service),
+        appBar: MyAppNavigationBar(barTitle: '${service}s'),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -97,7 +94,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
 //                  name: 'Rotter',
 //                  description: 'I am rotter',
 //                  onTap: () {
-//                    //TODO: Need to pass provider id to Provider screen
 //                    Navigator.pushNamed(context, ProviderScreen.id);
 //                  },
 //                ),

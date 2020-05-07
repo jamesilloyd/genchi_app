@@ -60,8 +60,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return providers;
   }
 
+
   @override
   Widget build(BuildContext context) {
+
+    print('Profile screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
@@ -132,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     for (ProviderUser provider in providers) {
                       ProviderCard pCard = ProviderCard(
-                        //ToDo: implement dp
+                        //ToDo: implemPent dp
                         image: AssetImage("images/Logo_Clear.png"),
                         name: provider.name,
                         description: provider.bio,
@@ -154,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: providerCards,
                     );
-                  }),
+                  },),
               ProfileOptionTile(
                 text: userIsProvider ? 'Create Another Provider Account':'Create Provider Profile',
                 onPressed: () async {

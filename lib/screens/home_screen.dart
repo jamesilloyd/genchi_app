@@ -23,14 +23,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
+  //ToDo: look into why the screens are being called (leading to extra firestore reads)
   @override
   Widget build(BuildContext context) {
+
+    print('home screen activated');
+
     final HomeScreenArguments args = ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);

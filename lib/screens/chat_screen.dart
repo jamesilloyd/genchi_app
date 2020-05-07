@@ -8,6 +8,10 @@ import 'package:genchi_app/components/chat_message_bubble.dart';
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
+//TODO: need to pass in chatid to display messages
+//TODO: work out how to check if the message belongs to user if they are the provider
+//TODO: create button that can go to their account (maybe on the Navigation bar)
+
 class ChatScreen extends StatefulWidget {
   static const String id = "chat_screen";
   @override
@@ -95,7 +99,7 @@ class MessagesStream extends StatelessWidget {
       stream: _firestore.collection('messages').orderBy('time', descending: true).snapshots(),
       builder: (context, snapshot) {
 
-        //ToDO: This is not sustainable code
+        //ToDO: Update the way messages are received in CRUDModel
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(

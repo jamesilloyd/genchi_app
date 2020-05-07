@@ -9,10 +9,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 
 FirebaseUser loggedInUser;
 
 class HomeScreen extends StatefulWidget {
+
   static const String id = "home_screen";
 
   @override
@@ -20,6 +22,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+
   @override
   void initState() {
     super.initState();
@@ -27,12 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final HomeScreenArguments args = ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
+    int startingIndex = args.startingIndex;
+
     final authProvider = Provider.of<AuthenticationService>(context);
     print("Home screen ${authProvider.currentUser}");
 
-    //ToDo, Change this to a normal tab contorller or conditional on device. What is the functional difference between the different types
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
+        currentIndex: startingIndex,
           backgroundColor: Color(kGenchiCream),
           activeColor: Color(kGenchiOrange),
           inactiveColor: Color(kGenchiBlue),

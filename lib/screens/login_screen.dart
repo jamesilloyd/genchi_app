@@ -10,6 +10,7 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
 import 'forgot_password_screen.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";

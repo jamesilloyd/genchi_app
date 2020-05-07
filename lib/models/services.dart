@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 
+
+//TODO: add logos from gdrive
+
 const Map<String, Map> servicesMap = {
   'Barbers': {
     'name' : 'Barbers',
-    'icon': Icons.accessible_forward,
+    'icon': Icons.content_cut,
   },
   'Photograhpers': {
     'name' : 'Photograhpers',
-    'icon': Icons.pregnant_woman,
+    'icon': Icons.photo_camera,
   },
   'Musicians': {
     'name' : 'Musicians',
-    'icon': Icons.radio,
+    'icon': Icons.music_note,
   },
   'Researchers': {
     'name' : 'Researchers',
-    'icon': Icons.label,
+    'icon': Icons.bookmark_border,
   },
   'Other': {
     'name' : 'Other',
-    'icon': Icons.nature,
+    'icon': Icons.accessibility_new,
   },
 };
 

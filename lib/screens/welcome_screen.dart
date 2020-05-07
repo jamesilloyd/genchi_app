@@ -11,6 +11,7 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/constants.dart';
 import 'reg_sequence_screen.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -22,11 +23,10 @@ class WelcomeScreen extends StatefulWidget {
 //with single... allows the class to act as a ticker for a single animation
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
+
   AnimationController controller;
   Animation animation;
-  final _auth = FirebaseAuth.instance;
 
-//  final AuthenticationService _authenticationService = AuthenticationService();
 
   @override
   void initState() {
@@ -45,9 +45,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
 
     //ToDo: ideally want to do this in Main.dart to determine initialRoute
-
-    //ToDo: Can't seem to call this...
-//    _authenticationService.isUserLoggedIn();
     isUserAlreadyLoggedIn();
   }
 
@@ -55,12 +52,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   //ToDo: move this into main.dart
   void isUserAlreadyLoggedIn() async {
     try {
-      final user = await _auth.currentUser();
       final bool loggedIn =
           await Provider.of<AuthenticationService>(context, listen: false)
               .isUserLoggedIn();
       print(loggedIn);
-      if (user != null) {
+      if (loggedIn != false) {
         print("User logged in");
 
         Navigator.pushReplacementNamed(context, HomeScreen.id);
@@ -118,6 +114,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       buttonColor: Color(kGenchiOrange),
                       buttonTitle: 'Log In',
                       onPressed: () {
+//                        Navigator.pushNamed(context, RegSequenceScreen.id);
                         Navigator.pushNamed(context, LoginScreen.id);
                       },),
                   RoundedButton(

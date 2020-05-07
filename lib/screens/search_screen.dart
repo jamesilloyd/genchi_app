@@ -17,8 +17,6 @@ import 'search_provider_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
-
-
 class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -43,55 +41,20 @@ class _SearchScreenState extends State<SearchScreen> {
           mainAxisSpacing: 20.0,
           padding: EdgeInsets.all(20.0),
           childAspectRatio: 1.618,
-          children: List.generate(servicesList.length, (index) {
-            final String service = servicesList[index];
-            return SearchServiceTile(
-              onPressed: () {
-                Navigator.pushNamed(context, SearchProviderScreen.id,arguments: ScreenArguments(service));
-              },
-              buttonTitle: servicesMap[service]['name'],
-              icon: servicesMap[service]['icon'],
-            );
-          }),
-
-//            SearchServiceTile(
-//              onPressed: () {
-//                Navigator.pushNamed(context, SearchProviderScreen.id);
-//              },
-//              buttonTitle: 'Barber',
-//              icon: Icon(
-//                Icons.accessible_forward,
-//                size: 100,
-//                color: Color(kGenchiBlue),
-//              ),
-//            ),
-//            SearchServiceTile(
-//              onPressed: () {},
-//              buttonTitle: 'Photographer',
-//              icon: Icon(
-//                Icons.pregnant_woman,
-//                size: 100,
-//                color: Color(kGenchiBlue),
-//              ),
-//            ),
-//            SearchServiceTile(
-//              onPressed: () {},
-//              buttonTitle: 'Other',
-//              icon: Icon(
-//                Icons.queue_music,
-//                size: 100,
-//                color: Color(kGenchiBlue),
-//              ),
-//            ),
-//            SearchServiceTile(
-//              onPressed: () {},
-//              buttonTitle: 'Other',
-//              icon: Icon(
-//                Icons.queue_music,
-//                size: 100,
-//                color: Color(kGenchiBlue),
-//              ),
-//            ),
+          children: List.generate(
+            servicesList.length,
+            (index) {
+              final String service = servicesList[index];
+              return SearchServiceTile(
+                onPressed: () {
+                  Navigator.pushNamed(context, SearchProviderScreen.id,
+                      arguments: SearchProviderScreenArguments(service));
+                },
+                buttonTitle: servicesMap[service]['name'],
+                icon: servicesMap[service]['icon'],
+              );
+            },
+          ),
         ),
       ),
 

@@ -4,6 +4,9 @@ import 'chat_screen.dart';
 import 'package:genchi_app/components/message_list_item.dart';
 
 
+//TODO: create function that streams chats associated with the userid
+//TODO: for each chat fetch the other user's data and display
+
 class ChatSummaryScreen extends StatefulWidget {
   @override
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();

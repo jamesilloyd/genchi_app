@@ -12,17 +12,20 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
+
+import 'home_screen.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
-  _EditProviderAccountScreenState createState() =>
-      _EditProviderAccountScreenState();
+  _EditProviderAccountScreenState createState() => _EditProviderAccountScreenState();
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
+
   String name;
   String email;
   bool showSpinner = false;
@@ -45,7 +48,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       onChanged: (value) {
         setState(() {
           selectedService = value;
-//          getData(selectedCurrency);
         });
       },
     );
@@ -64,15 +66,19 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
           selectedService = pickerItems[selectedIndex].data;
-//          getData(selectedCurrency);
         });
       },
       children: pickerItems,
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
+
+    final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
+    bool fromRegistration = args.fromRegistration;
+
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Edit Details"),
       body: ModalProgressHUD(
@@ -136,8 +142,24 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             RoundedButton(
               buttonTitle: "Save Details",
               buttonColor: Color(kGenchiOrange),
-              onPressed: () {},
+              onPressed: fromRegistration ? () {
+
+                //TODO: save new details
+                
+                Navigator.pushNamedAndRemoveUntil(
+                    context, HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 2));
+              } : () {},
             ),
+            if(fromRegistration)  RoundedButton(
+              buttonTitle: "Cancel (you can make one later)",
+              buttonColor: Color(kGenchiBlue),
+              onPressed: () {
+                //TODO: Delete provider account
+                Navigator.pushNamedAndRemoveUntil(
+                    context, HomeScreen.id, (Route<dynamic> route) => false);
+              },
+            ),
+            //TODO: option to delete provider account (maybe next release)
           ],
         ),
       ),

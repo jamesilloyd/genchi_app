@@ -6,6 +6,12 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'edit_provider_account_screen.dart';
 
+import 'package:genchi_app/models/screen_arguments.dart';
+
+//TODO: 1st Need to pass in argument for providerid
+//TODO: Need to create function that returns bool of isUsersProviderProfile
+//TODO: Create futures that fetch provider details from firestore
+
 class ProviderScreen extends StatefulWidget {
   static const String id = "provider_screen";
   @override
@@ -63,6 +69,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                   buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
                   fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
                   onPressed: (){
+                    //TODO: Either navigate to edit account or new message with provider, no need for fancy routing
                     Navigator.pushNamed(context, EditProviderAccountScreen.id);
                   },
                 )

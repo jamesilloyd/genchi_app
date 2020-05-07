@@ -87,8 +87,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Divider(
                 height: 0,
               ),
+              //TODO: Make get Future function that gets User's provider accounts
+              //TODO: also check if they do have accounts already to say "create another provider account?
               ProfileOptionTile(
                   text: 'Create Provider Profile', onPressed: () {
+                    //TODO: Reuse function that creates provider account linked to user (must append to list)
                     Navigator.pushNamed(context, ProviderScreen.id);
               }),
               ProfileOptionTile(

@@ -33,9 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final HomeScreenArguments args = ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
     int startingIndex = args.startingIndex;
-
     final authProvider = Provider.of<AuthenticationService>(context);
-    print("Home screen ${authProvider.currentUser}");
 
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(

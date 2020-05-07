@@ -54,6 +54,7 @@ class FirestoreCRUDModel {
   }
 
 
+
   Future removeUser(String uid) async {
     await _usersCollectionRef.document(uid).delete();
     return;

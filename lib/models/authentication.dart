@@ -112,7 +112,6 @@ class ProviderService extends ChangeNotifier {
     print("populating provider");
     if (pid != null) {
       _currentProvider = await _firestoreCRUDModel.getProviderById(pid);
-      print(_currentProvider);
       notifyListeners();
     }
   }

@@ -51,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
+  //ToDo: this can all go into CRUDModel
   Future<List<ProviderUser>> getUsersProviders(usersPids) async {
     List<ProviderUser> providers = [];
     for (var pid in usersPids) {
@@ -67,8 +68,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
-    print(currentUser.providerProfiles);
-    print(userIsProvider);
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
@@ -138,7 +137,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         name: provider.name,
                         description: provider.bio,
                         service: provider.type,
-                        onTap: () {
+                        onTap: () async {
+
+                          await providerService.updateCurrentProvider(provider.pid);
                           Navigator.pushNamed(context, ProviderScreen.id,
                               arguments:
                                   ProviderScreenArguments(provider: provider));

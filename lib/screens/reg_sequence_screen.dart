@@ -4,6 +4,12 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'home_screen.dart';
 import 'edit_provider_account_screen.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/models/authentication.dart';
+import 'package:provider/provider.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegSequenceScreen extends StatefulWidget {
   static const String id = "reg_sequence_screen";
@@ -12,8 +18,12 @@ class RegSequenceScreen extends StatefulWidget {
 }
 
 class _RegSequenceScreenState extends State<RegSequenceScreen> {
+  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+
   @override
   Widget build(BuildContext context) {
+    AuthenticationService authProvider =
+        Provider.of<AuthenticationService>(context);
     return Scaffold(
       backgroundColor: Color(kGenchiGreen),
       body: Padding(
@@ -111,15 +121,20 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                         borderRadius: BorderRadius.circular(15),
                         child: RaisedButton(
                           color: Color(kGenchiBlue),
-                          onPressed: () {
-                            //TODO: Create function that adds provider account to user in firestore
+                          onPressed: () async {
+
+                            DocumentReference result = await firestoreAPI.addProvider(ProviderUser(uid: authProvider.currentUser.id),authProvider.currentUser.id);
+                            await authProvider.updateCurrentUserData();
+
+                            ProviderUser newProvider = await firestoreAPI.getProviderById(result.documentID);
+                            print(newProvider);
 
                             Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 EditProviderAccountScreen.id,
                                 (Route<dynamic> route) => false,
                                 arguments: EditProviderAccountScreenArguments(
-                                    fromRegistration: true));
+                                    fromRegistration: true, provider: newProvider));
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

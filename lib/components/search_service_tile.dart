@@ -27,7 +27,7 @@ class SearchServiceTile extends StatelessWidget {
               children: <Widget>[
                 Align(
                   child: Text(
-                    buttonTitle,
+                    '${buttonTitle}s',
                     style: TextStyle(
                       color: Color(kGenchiCream),
                       fontSize: 25.0,

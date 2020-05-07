@@ -19,13 +19,16 @@ class ProfileOptionTile extends StatelessWidget {
             onPressed: onPressed,
             child: Align(
               alignment: Alignment.center,
-              child: Text(
-                text,
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Color(kGenchiBlue),
-                  fontWeight: FontWeight.w400,
-                  fontSize: 25.0,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  text,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Color(kGenchiBlue),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 25.0,
+                  ),
                 ),
               ),
             ),

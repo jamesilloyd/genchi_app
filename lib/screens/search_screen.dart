@@ -44,7 +44,8 @@ class _SearchScreenState extends State<SearchScreen> {
           children: List.generate(
             servicesList.length,
             (index) {
-              final String service = servicesList[index];
+//              final String service = '${servicesList[index]}s';
+              String service = servicesList[index];
               return SearchServiceTile(
                 onPressed: () {
                   Navigator.pushNamed(context, SearchProviderScreen.id,

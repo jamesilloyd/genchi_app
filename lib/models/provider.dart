@@ -15,14 +15,14 @@ class ProviderUser extends ChangeNotifier {
 
 
   ProviderUser.fromMap(Map snapshot) :
-        uid = snapshot['email'] ?? '',
-        pid = snapshot['email'] ?? '',
+        uid = snapshot['uid'] ?? '',
+        pid = snapshot['pid'] ?? '',
         name = snapshot['name'] ?? '',
         profilePicture = snapshot['profilePicture'] ?? '',
   //ToDo: need to fix mismatch in data types of flutter and firebase timestamps
 //        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'] ?? '',
-        type = snapshot['email'] ?? '';
+        type = snapshot['type'] ?? '';
 
   toJson() {
     return {

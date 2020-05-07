@@ -13,7 +13,7 @@ class ProviderCard extends StatelessWidget {
   final String description;
 
   //ToDo: easier to pass provider class than initialise all the provider attributes
-  ProviderCard({this.image, this.name, this.service, @required this.onTap, this.description = ''});
+  ProviderCard({this.image, this.name, this.service = '', @required this.onTap, this.description = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class ProviderCard extends StatelessWidget {
               flex: 10,
               child: ListTile(
                 title: Text(
-                  service == '' ? '$name - $service': name,
+                  (service != '') ? '$name - $service': name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,

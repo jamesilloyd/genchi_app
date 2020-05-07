@@ -2,22 +2,23 @@ import 'package:flutter/material.dart';
 
 
 //TODO: add logos from gdrive
+//TODO: sort out plurals
 
 const Map<String, Map> servicesMap = {
-  'Barbers': {
-    'name' : 'Barbers',
+  'Barber': {
+    'name' : 'Barber',
     'icon': Icons.content_cut,
   },
-  'Photograhpers': {
-    'name' : 'Photograhpers',
+  'Photograhper': {
+    'name' : 'Photograhper',
     'icon': Icons.photo_camera,
   },
-  'Musicians': {
-    'name' : 'Musicians',
+  'Musician': {
+    'name' : 'Musician',
     'icon': Icons.music_note,
   },
-  'Researchers': {
-    'name' : 'Researchers',
+  'Researcher': {
+    'name' : 'Researcher',
     'icon': Icons.bookmark_border,
   },
   'Other': {
@@ -28,9 +29,9 @@ const Map<String, Map> servicesMap = {
 
 
 const List<String> servicesList = [
-  'Barbers',
-  'Photograhpers',
-  'Musicians',
-  'Researchers',
+  'Barber',
+  'Photograhper',
+  'Musician',
+  'Researcher',
   'Other',
 ];

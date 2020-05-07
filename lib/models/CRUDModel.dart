@@ -49,7 +49,7 @@ class FirestoreCRUDModel {
 
   Future<ProviderUser> getProviderById(String pid) async {
     var doc = await _providersCollectionRef.document(pid).get();
-    var doc1 = await _providersCollectionRef.document(pid).snapshots();
+//    var doc1 = await _providersCollectionRef.document(pid).snapshots();
     return ProviderUser.fromMap(doc.data);
   }
 
@@ -92,10 +92,17 @@ class FirestoreCRUDModel {
     return;
   }
 
-  Future<DocumentReference> addProvider(ProviderUser provider) async {
-    DocumentReference result = await _providersCollectionRef.add(provider.toJson());
+  Future<DocumentReference> addProvider(ProviderUser provider,String uid) async {
+
+    DocumentReference result = await _providersCollectionRef.add(provider.toJson()).then((docRef) async {
+    await updateProvider(ProviderUser(pid: docRef.documentID),docRef.documentID,);
+    await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayUnion([docRef.documentID])},merge: true);
+    return docRef;
+    });
+
     return result;
   }
+
 
 }
 

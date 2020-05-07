@@ -4,13 +4,16 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+
 import 'edit_provider_account_screen.dart';
+import 'chat_screen.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/models/authentication.dart';
 
-//TODO: 1st Need to pass in argument for providerid
-//TODO: Need to create function that returns bool of isUsersProviderProfile
-//TODO: Create futures that fetch provider details from firestore
+import 'package:provider/provider.dart';
 
 class ProviderScreen extends StatefulWidget {
   static const String id = "provider_screen";
@@ -20,13 +23,25 @@ class ProviderScreen extends StatefulWidget {
 
 class _ProviderScreenState extends State<ProviderScreen> {
 
-  bool isUsersProviderProfile = true;
+  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+
 
   @override
   Widget build(BuildContext context) {
+
+    final ProviderScreenArguments args = ModalRoute.of(context).settings.arguments;
+//    ProviderUser provider = args.provider;
+
+    final authProvider = Provider.of<AuthenticationService>(context);
+    final providerService = Provider.of<ProviderService>(context);
+
+    ProviderUser providerUser = providerService.currentProvider;
+    print(providerUser.pid);
+    bool isUsersProviderProfile = authProvider.currentUser.providerProfiles.contains(providerUser.pid);
+
     return Scaffold(
       appBar: MyAppNavigationBar(
-        barTitle: isUsersProviderProfile ? "Your Provider Name" : "Provider's Name",
+        barTitle: providerUser.name ?? "",
       ),
       body: Container(
         color: Colors.white,
@@ -50,7 +65,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
               ),
               Container(
                 child: Text(
-                  "Your Provider Name",
+                  providerUser.name ?? "",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
@@ -70,7 +85,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                   fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
                   onPressed: (){
                     //TODO: Either navigate to edit account or new message with provider, no need for fancy routing
-                    Navigator.pushNamed(context, EditProviderAccountScreen.id);
+                    isUsersProviderProfile ? Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser)) : Navigator.pushNamed(context, ChatScreen.id);
                   },
                 )
               ),
@@ -87,7 +102,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
               Text(
-                'Barber',
+                providerUser.type ?? "",
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w400
@@ -108,7 +123,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
               Text(
-                  'Been cutting hair since I was 3 years old. Been cutting hair since I was 3 years old. Been cutting hair since I was 3 years old. Been cutting hair since I was 3 years old. Been cutting hair since I was 3 years old.',
+                providerUser.bio ?? "",
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w400,

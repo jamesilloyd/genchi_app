@@ -9,10 +9,8 @@ import 'package:genchi_app/models/screen_arguments.dart';
 //TODO: Create function that streams providers by service type
 
 class SearchProviderScreen extends StatefulWidget {
-//  final String service;
-  static const String id = "search_provider_screen";
 
-//  const SearchProviderScreen({@required this.service});
+  static const String id = "search_provider_screen";
 
   @override
   _SearchProviderScreenState createState() => _SearchProviderScreenState();
@@ -26,7 +24,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
     String service = args.service ?? '';
 
     return Scaffold(
-//      appBar: MyAppNavigationBar(barTitle: widget.service),
         appBar: MyAppNavigationBar(barTitle: service),
         body: SafeArea(
           child: Padding(

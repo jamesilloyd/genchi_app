@@ -22,13 +22,13 @@ void main() {
 }
 
 class Genchi extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       //ToDo to be updated (1)
-    providers: [
+      providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
+        ChangeNotifierProvider(create: (_) => ProviderService()),
       ],
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'FuturaPT'),
@@ -36,18 +36,19 @@ class Genchi extends StatelessWidget {
         home: WelcomeScreen(),
         initialRoute: WelcomeScreen.id,
         routes: {
-          WelcomeScreen.id : (context) => WelcomeScreen(),
-          LoginScreen.id : (context) => LoginScreen(),
-          RegistrationScreen.id : (context) => RegistrationScreen(),
-          ChatScreen.id : (context) => ChatScreen(),
-          HomeScreen.id : (context) => HomeScreen(),
-          RegSequenceScreen.id : (context) => RegSequenceScreen(),
-          SplashScreen.id : (context) => SplashScreen(),
-          EditAccountScreen.id : (context) => EditAccountScreen(),
-          ForgotPasswordScreen.id : (context) => ForgotPasswordScreen(),
-          ProviderScreen.id : (context) => ProviderScreen(),
-          SearchProviderScreen.id : (context) => SearchProviderScreen(),
-          EditProviderAccountScreen.id : (context) => EditProviderAccountScreen(),
+          WelcomeScreen.id: (context) => WelcomeScreen(),
+          LoginScreen.id: (context) => LoginScreen(),
+          RegistrationScreen.id: (context) => RegistrationScreen(),
+          ChatScreen.id: (context) => ChatScreen(),
+          HomeScreen.id: (context) => HomeScreen(),
+          RegSequenceScreen.id: (context) => RegSequenceScreen(),
+          SplashScreen.id: (context) => SplashScreen(),
+          EditAccountScreen.id: (context) => EditAccountScreen(),
+          ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
+          ProviderScreen.id: (context) => ProviderScreen(),
+          SearchProviderScreen.id: (context) => SearchProviderScreen(),
+          EditProviderAccountScreen.id: (context) =>
+              EditProviderAccountScreen(),
         },
       ),
     );

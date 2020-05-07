@@ -13,71 +13,78 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/provider.dart';
 
 import 'home_screen.dart';
 
+import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
-  _EditProviderAccountScreenState createState() => _EditProviderAccountScreenState();
+  _EditProviderAccountScreenState createState() =>
+      _EditProviderAccountScreenState();
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
+  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
   String name;
-  String email;
+  String bio;
   bool showSpinner = false;
-  String selectedService = servicesList[0];
+  String service;
 
-  DropdownButton<String> androidDropdownButton() {
+  DropdownButton<String> androidDropdownButton(currentService) {
     List<DropdownMenuItem<String>> dropdownItems = [];
-    for (String service in servicesList) {
+    for (String serviceType in servicesList) {
       var newItem = DropdownMenuItem(
         child: Text(
-          service,
+          serviceType,
         ),
-        value: service,
+        value: serviceType,
       );
       dropdownItems.add(newItem);
     }
     return DropdownButton<String>(
-      value: selectedService,
+      value: service ?? currentService,
       items: dropdownItems,
       onChanged: (value) {
+        service = value;
         setState(() {
-          selectedService = value;
+
         });
       },
     );
   }
 
-  CupertinoPicker iOSPicker() {
+  CupertinoPicker iOSPicker(currentService) {
     List<Text> pickerItems = [];
-    for (String service in servicesList) {
-      var newItem = Text(service);
+    for (String serviceType in servicesList) {
+      var newItem = Text(serviceType);
       pickerItems.add(newItem);
     }
 
     return CupertinoPicker(
+      scrollController: FixedExtentScrollController(initialItem: servicesList.indexOf(currentService)),
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
-        setState(() {
-          selectedService = pickerItems[selectedIndex].data;
-        });
+        service = pickerItems[selectedIndex].data;
       },
       children: pickerItems,
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationService>(context);
 
     final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
     bool fromRegistration = args.fromRegistration;
+    
+    final providerService = Provider.of<ProviderService>(context);
+    ProviderUser providerUser = providerService.currentProvider;
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Edit Details"),
@@ -94,7 +101,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             ),
             EditAccountField(
               field: "Provider Profile Name",
-              initialValue: '',
+              initialValue: providerUser.name ?? '',
               onChanged: (value) {
                 //Update name field
                 name = value;
@@ -119,18 +126,17 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   height: Platform.isIOS ? 100.0 : 50.0,
                   child: Container(
                     color: Color(kGenchiCream),
-                    child: Platform.isIOS ? iOSPicker() : androidDropdownButton(),
+                    child: Platform.isIOS ? iOSPicker(providerUser.type) : androidDropdownButton(providerUser.type),
                   ),
                 ),
               ],
             ),
             EditAccountField(
               field: 'Description',
-              initialValue: '',
-              isEditable: false,
+              initialValue: providerUser.bio ?? '',
               onChanged: (value) {
                 //Update name field
-                email = value;
+                bio = value;
               },
             ),
             SizedBox(
@@ -142,24 +148,35 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             RoundedButton(
               buttonTitle: "Save Details",
               buttonColor: Color(kGenchiOrange),
-              onPressed: fromRegistration ? () {
+              onPressed: () async {
 
-                //TODO: save new details
-                
-                Navigator.pushNamedAndRemoveUntil(
-                    context, HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 2));
-              } : () {},
-            ),
-            if(fromRegistration)  RoundedButton(
-              buttonTitle: "Cancel (you can make one later)",
-              buttonColor: Color(kGenchiBlue),
-              onPressed: () {
-                //TODO: Delete provider account
-                Navigator.pushNamedAndRemoveUntil(
-                    context, HomeScreen.id, (Route<dynamic> route) => false);
+                print('$name $service $bio ${providerUser.pid}');
+
+                await firestoreAPI.updateProvider(
+                    ProviderUser(name: name, type: service, bio: bio),
+                    providerUser.pid);
+                await authProvider.updateCurrentUserData();
+                await providerService.updateCurrentProvider(providerUser.pid);
+
+                fromRegistration
+                    ? Navigator.pushNamedAndRemoveUntil(
+                        context, HomeScreen.id, (Route<dynamic> route) => false,
+                        arguments: HomeScreenArguments(startingIndex: 2))
+                    : Navigator.of(context).pop();
               },
             ),
-            //TODO: option to delete provider account (maybe next release)
+            if (fromRegistration)
+              RoundedButton(
+                buttonTitle: fromRegistration
+                    ? "Cancel (you can make one later)"
+                    : "Delete provider account",
+                buttonColor: Color(kGenchiBlue),
+                onPressed: () {
+                  //TODO: Delete provider account
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, HomeScreen.id, (Route<dynamic> route) => false);
+                },
+              ),
           ],
         ),
       ),

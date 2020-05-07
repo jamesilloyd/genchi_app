@@ -2,6 +2,7 @@ import 'user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'CRUDModel.dart';
+import 'provider.dart';
 
 
 //ToDo: (1) Once everything is currently working, just leave as is, however once complete try and implement FilledStacks provider and firebase examples
@@ -22,6 +23,7 @@ class AuthenticationService extends ChangeNotifier {
     if (user != null) {
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       print(_currentUser);
+      notifyListeners();
     }
   }
 
@@ -93,4 +95,27 @@ class AuthenticationService extends ChangeNotifier {
   Future<void> signUserOut() async {
     await _firebaseAuth.signOut();
   }
+}
+
+//ToDo: may be able to integrate this into CRUDModel
+class ProviderService extends ChangeNotifier {
+
+  final FirestoreCRUDModel _firestoreCRUDModel = FirestoreCRUDModel();
+
+  //ToDo to be updated (1)
+  ProviderUser _currentProvider;
+  ProviderUser get currentProvider => _currentProvider;
+
+  //ToDo to be updated (1)
+  Future updateCurrentProvider(pid) async {
+
+    print("populating provider");
+    if (pid != null) {
+      _currentProvider = await _firestoreCRUDModel.getProviderById(pid);
+      print(_currentProvider);
+      notifyListeners();
+    }
+  }
+
+
 }

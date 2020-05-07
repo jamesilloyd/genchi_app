@@ -30,7 +30,6 @@ class User extends ChangeNotifier {
       if(profilePicture != null) "profilePicture": profilePicture,
       if(id != null) 'id' : id,
       if(timeStamp != null) 'timeStamp' : timeStamp,
-
       if(providerProfiles !=null) 'providerProfiles' : providerProfiles
     };
   }

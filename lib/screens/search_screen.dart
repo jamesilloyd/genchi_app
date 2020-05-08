@@ -53,7 +53,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       arguments: SearchProviderScreenArguments(service));
                 },
                 buttonTitle: servicesMap[service]['name'],
-                icon: servicesMap[service]['icon'],
+                imageAddress: servicesMap[service]['imageAddress'],
               );
             },
           ),

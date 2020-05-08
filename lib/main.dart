@@ -27,6 +27,7 @@ class Genchi extends StatelessWidget {
     return MultiProvider(
       //ToDo to be updated (1)
       providers: [
+        //ToDO: going to need to do this for ChatSummary as well, because of updating last message
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
       ],

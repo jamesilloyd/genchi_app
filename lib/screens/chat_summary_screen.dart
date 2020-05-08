@@ -1,20 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'package:genchi_app/constants.dart';
+
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/models/provider.dart';
-import 'chat_screen.dart';
 import 'package:genchi_app/components/message_list_item.dart';
+
+import 'chat_screen.dart';
 
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 
 import 'package:provider/provider.dart';
-
-//TODO: create function that streams chats associated with the userid
-//TODO: for each chat fetch the other user's data and display
 
 class ChatSummaryScreen extends StatefulWidget {
   @override
@@ -22,18 +23,16 @@ class ChatSummaryScreen extends StatefulWidget {
 }
 
 class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
-
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
   //ToDo: this can all go into CRUDModel
-  Future<Map<Chat , ProviderUser>> getUserChatsAndProviders(chatIds) async {
-
-    Map<Chat,ProviderUser> chatAndProviders = {};
+  Future<Map<Chat, ProviderUser>> getUserChatsAndProviders(chatIds) async {
+    Map<Chat, ProviderUser> chatAndProviders = {};
     List<Chat> chats = [];
     for (String chatId in chatIds) {
       chats.add(await firestoreAPI.getChatById(chatId));
     }
-    for(Chat chat in chats){
+    for (Chat chat in chats) {
       ProviderUser provider = await firestoreAPI.getProviderById(chat.pid);
       chatAndProviders[chat] = provider;
     }
@@ -41,12 +40,35 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   }
 
   //ToDo: this can all go into CRUDModel
-  Future<List<ProviderUser>> getUsersProviders(usersPids) async {
+  Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers(
+      usersPids) async {
+    Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
+
     List<ProviderUser> providers = [];
-    for (var pid in usersPids) {
-      providers.add(await firestoreAPI.getProviderById(pid));
+
+    for (String pid in usersPids) {
+
+      List<Chat> chats = [];
+      Map<Chat, User> chatsAndUsers = {};
+
+      ProviderUser provider = await firestoreAPI.getProviderById(pid);
+
+      if(provider.chats.isNotEmpty) {
+
+        for (String chatId in provider.chats) {
+          Chat chat = await firestoreAPI.getChatById(chatId);
+          chats.add(chat);
+        }
+        for (Chat chat in chats) {
+          User chatUser = await firestoreAPI.getUserById(chat.uid);
+          chatsAndUsers[chat] = chatUser;
+        }
+        userProviderChatsAndUsers[provider] = chatsAndUsers;
+      }
+
     }
-    return providers;
+
+    return userProviderChatsAndUsers;
   }
 
   @override
@@ -55,7 +77,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
 
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
-    print(currentUser.chats);
+    bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Messages"),
@@ -63,9 +85,24 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
         child: ListView(
           padding: const EdgeInsets.all(10.0),
           children: <Widget>[
-            Center(
-              child: Text("Your Hirer Chats"),
+            Container(
+              height: 50,
+              child: Center(
+                child: Text(
+                  'Your Hiring Messages',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(kGenchiBlue),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 25.0,
+                  ),
+                ),
+              ),
             ),
+            Divider(
+              height: 0,
+            ),
+            //ToDo: make this a streambuilder
             FutureBuilder(
               future: getUserChatsAndProviders(currentUser.chats),
               builder: (context, snapshot) {
@@ -74,40 +111,118 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   return Center(child: Text("Loading Chats"));
                 }
 
-                final Map<Chat,ProviderUser> chatsAndProviders = snapshot.data;
-                print(chatsAndProviders);
+                final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
                 List<MessageListItem> chatWidgets = [];
 
-                //Todo: firstly we need to fetch both their provider data from the firestore
-                //Todo: now from the chats we need to work out which belong to the user (simple if (chat's uid = currentuser.uid))
+                chatsAndProviders.forEach(
+                  (k, v) {
 
-                chatsAndProviders.forEach((k,v){
-                  print('${k.pid} ${v.pid}');
-                });
+                    //ToDO: also for adding last message time etc.
 
-//                for (ProviderUser provider in chatsAndProviders.values) {
-//                  MessageListItem chatWidget = MessageListItem(
-//                    //ToDo: implement dp
-//                    image: AssetImage("images/Logo_Clear.png"),
-//                    name: "Leroy",
-//                    lastMessage: "Hey dude",
-//                    time: "19:27 PM",
-//                    hasUnreadMessage: true,
-//                    newMesssageCount: 5,
-//                    onTap: () {
-//                      Navigator.pushNamed(context, ChatScreen.id);
-//                    },
-//                    service: "Photographer",
-//                  );
-//                }
+                    Chat chat = k;
+                    ProviderUser provider = v;
 
-                return Center(child: Text("Complete"));
+                    MessageListItem chatWidget = MessageListItem(
+                      //ToDo: implement dp
+                      image: AssetImage("images/Logo_Clear.png"),
+                      name: provider.name,
+                      service: provider.type,
+                      lastMessage: "Last message preview coming soon",
+                      time: "19:27 PM",
+                      hasUnreadMessage: true,
+                      newMesssageCount: 5,
+                      onTap: () {
+                        Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: false,provider: provider,user: currentUser));
+                      },
+                    );
+
+                    chatWidgets.add(chatWidget);
+                  },
+                );
+
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: chatWidgets,
+                );
               },
             ),
-            Center(
-              child: Text("Your Hirer Chats"),
-            ),
+
+            userIsProvider ? Column(
+              children: <Widget>[
+                Container(
+                  height: 50,
+                  child: Center(
+                    child: Text(
+                      'Your Providing Messages',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(kGenchiBlue),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 25.0,
+                      ),
+                    ),
+                  ),
+                ),
+                Divider(
+                  height: 0,
+                ),
+                FutureBuilder(
+                  future:
+                      getUserProviderChatsAndUsers(currentUser.providerProfiles),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      //ToDo: Add in progressmodalhud
+                      return Center(child: Text("Loading Chats"));
+                    }
+
+                    final Map<ProviderUser, Map<Chat, User>>
+                        userProviderChatsAndUsers = snapshot.data;
+
+
+                    List<MessageListItem> chatWidgets = [];
+
+                    userProviderChatsAndUsers.forEach(
+                      (k, v) {
+                        ProviderUser provider = k;
+
+                        Map<Chat, User> chatsAndUsers = v;
+
+                        chatsAndUsers.forEach(
+                          (k, v) {
+                            Chat chat = k;
+                            User user = v;
+
+                            MessageListItem chatWidget = MessageListItem(
+                              //ToDo: implement dp
+                              image: AssetImage("images/Logo_Clear.png"),
+                              name: user.name,
+                              service: provider.type,
+                              lastMessage: "Last message preview coming soon",
+                              time: "19:27 PM",
+                              hasUnreadMessage: true,
+                              newMesssageCount: 5,
+                              onTap: () {
+                                Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: true, provider: provider, user: user));
+                              },
+                            );
+
+                            chatWidgets.add(chatWidget);
+                          },
+                        );
+                      },
+                    );
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: chatWidgets,
+                    );
+                  },
+                ),
+              ],
+            ) : SizedBox(),
           ],
         ),
       ),

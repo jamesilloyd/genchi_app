@@ -3,46 +3,49 @@ import 'package:genchi_app/constants.dart';
 
 class SearchServiceTile extends StatelessWidget {
   const SearchServiceTile(
-      {this.buttonTitle, @required this.onPressed, this.icon});
+      {this.buttonTitle, @required this.onPressed, this.imageAddress});
 
   final String buttonTitle;
   final Function onPressed;
 
-  final IconData icon;
+  final String imageAddress;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
         color: Color(kGenchiGreen),
       ),
-      child: FittedBox(
-        fit: BoxFit.contain,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5.0),
-          child: FlatButton(
-            onPressed: onPressed,
-            child: Column(
-              children: <Widget>[
-                Align(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5.0),
+        child: FlatButton(
+          onPressed: onPressed,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
                   child: Text(
                     '${buttonTitle}s',
                     style: TextStyle(
                       color: Color(kGenchiCream),
-                      fontSize: 25.0,
+                      fontSize: 15.0,
                     ),
                   ),
                 ),
-                Center(
-                  child: Icon(
-                    icon,
-                    size: 100,
-                    color: Color(kGenchiBlue),
-                  ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Image.asset(
+                  imageAddress,
+                  fit: BoxFit.contain,
+                  height: 50,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

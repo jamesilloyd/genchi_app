@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
 
 
-//TODO: add logos from gdrive
-//TODO: sort out plurals
-
 const Map<String, Map> servicesMap = {
   'Barber': {
     'name' : 'Barber',
-    'icon': Icons.content_cut,
+    'imageAddress': 'images/salon.png',
   },
+
   'Photograhper': {
     'name' : 'Photograhper',
-    'icon': Icons.photo_camera,
+    'imageAddress': 'images/camera.png',
   },
   'Musician': {
     'name' : 'Musician',
-    'icon': Icons.music_note,
+    'imageAddress': 'images/dj-controller.png',
   },
   'Researcher': {
     'name' : 'Researcher',
-    'icon': Icons.bookmark_border,
+    'imageAddress': 'images/book.png',
   },
   'Other': {
     'name' : 'Other',
-    'icon': Icons.accessibility_new,
+    'imageAddress': 'images/tools.png',
   },
 };
 

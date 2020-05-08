@@ -7,6 +7,8 @@ import 'provider.dart';
 import 'chat.dart';
 
 //This class is specifically for Profile CRUD
+
+//TODO: FIRST THING AFTER MVP RELEASE use the .where function to easily filter providers/chats etc.
 class FirestoreCRUDModel {
 
 
@@ -32,8 +34,8 @@ class FirestoreCRUDModel {
     return providers;
   }
 
-  Stream<DocumentSnapshot> fetchChatAsStream(String chatId) {
-    return  _chatCollectionRef.document(chatId).snapshots();
+  Stream<QuerySnapshot> fetchChatStream(String chatId) {
+    return  _chatCollectionRef.document(chatId).collection('messages').snapshots();
   }
 
 
@@ -44,6 +46,7 @@ class FirestoreCRUDModel {
   Stream<QuerySnapshot> fetchProvidersAsStream() {
     return _providersCollectionRef.snapshots();
   }
+
 
 
   Future<Chat> getChatById(String chatId) async {
@@ -86,6 +89,10 @@ class FirestoreCRUDModel {
     return;
   }
 
+  Future updateChat(Chat chat, String chatId) async {
+    await _chatCollectionRef.document(chatId).setData(chat.toJson(),merge: true);
+  }
+
 
   Future addUserByID(User user) async {
     var result = await _usersCollectionRef.document(user.id).setData(user.toJson());
@@ -100,7 +107,12 @@ class FirestoreCRUDModel {
 
   Future addUser(User user) async {
     var result = await _usersCollectionRef.add(user.toJson());
-    return;
+    return result;
+  }
+
+  Future addMessageToChat(String chatId, ChatMessage chatMessage) async {
+
+    var result = await _chatCollectionRef.document(chatId).collection('messages').add(chatMessage.toJson());
   }
 
   Future<DocumentReference> addProvider(ProviderUser provider,String uid) async {
@@ -109,6 +121,22 @@ class FirestoreCRUDModel {
     await updateProvider(ProviderUser(pid: docRef.documentID),docRef.documentID,);
     await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayUnion([docRef.documentID])},merge: true);
     return docRef;
+    });
+
+    return result;
+  }
+
+  Future<DocumentReference> addNewChat({String uid, String pid, String providersUid}) async {
+
+    print('$uid $pid $providersUid');
+
+    Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid);
+
+    DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
+      await updateChat(Chat(chatid: docRef.documentID),docRef.documentID);
+      await _usersCollectionRef.document(uid).setData({'chats': FieldValue.arrayUnion([docRef.documentID])},merge: true);
+      await _providersCollectionRef.document(pid).setData({'chats': FieldValue.arrayUnion([docRef.documentID])},merge: true);
+      return docRef;
     });
 
     return result;

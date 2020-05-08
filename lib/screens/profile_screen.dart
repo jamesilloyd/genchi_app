@@ -166,9 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       authProvider.currentUser.id);
                   await authProvider.updateCurrentUserData();
 
-                  await providerService
-                      .updateCurrentProvider(result.documentID);
-                  print(providerService.currentProvider.pid);
+                  await providerService.updateCurrentProvider(result.documentID);
 
                   Navigator.pushNamed(context, ProviderScreen.id,
                       arguments: ProviderScreenArguments(

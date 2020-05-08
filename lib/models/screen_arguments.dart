@@ -1,6 +1,8 @@
 //ToDo: I don't like this method
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/models/chat.dart';
+import 'package:genchi_app/models/user.dart';
 
 class SearchProviderScreenArguments {
   final String service;
@@ -28,11 +30,20 @@ class ProviderScreenArguments {
 
 }
 
-//TODO: must find a better way to do this
-//TODO: or find a way to only pass argument if you need to change a value (preinitialise)
 class HomeScreenArguments {
 
   final int startingIndex;
 
   HomeScreenArguments({this.startingIndex = 0});
+}
+
+class ChatScreenArguments {
+
+  final Chat chat;
+  final bool userIsProvider;
+  final User user;
+  final ProviderUser provider;
+
+  ChatScreenArguments({this.chat,this.userIsProvider = false, this.provider, this.user});
+
 }

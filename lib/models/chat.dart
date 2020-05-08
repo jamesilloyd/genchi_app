@@ -1,6 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Chat extends ChangeNotifier {
+class Chat {
 
   String pid;
   String providerdsUid;
@@ -26,6 +26,30 @@ class Chat extends ChangeNotifier {
       if(providerdsUid != null) "providerdsUid": providerdsUid ?? '',
       if(uid != null) "uid": uid,
       if(chatid != null) 'chatid' : chatid,
+    };
+  }
+
+}
+
+class ChatMessage {
+
+  String sender;
+  String text;
+  FieldValue time;
+
+  ChatMessage({this.sender,this.text,this.time});
+
+  ChatMessage.fromMap(Map snapshot) :
+        sender = snapshot['sender'] ?? '',
+        text = snapshot['text'] ?? '',
+        time = snapshot['time'] ?? '';
+
+
+  toJson() {
+    return {
+      if(sender != null) "sender" : sender,
+      if(text != null) "text" : text,
+      if(time != null) "time" : time,
     };
   }
 

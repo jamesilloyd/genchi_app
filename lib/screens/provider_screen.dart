@@ -4,6 +4,7 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/screens/profile_screen.dart';
 
 import 'edit_provider_account_screen.dart';
 import 'chat_screen.dart';
@@ -12,8 +13,10 @@ import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/models/chat.dart';
 
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProviderScreen extends StatefulWidget {
   static const String id = "provider_screen";
@@ -36,7 +39,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
     final providerService = Provider.of<ProviderService>(context);
 
     ProviderUser providerUser = providerService.currentProvider;
-    print(providerUser.pid);
     bool isUsersProviderProfile = authProvider.currentUser.providerProfiles.contains(providerUser.pid);
 
     return Scaffold(
@@ -83,9 +85,16 @@ class _ProviderScreenState extends State<ProviderScreen> {
                   buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
                   buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
                   fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
-                  onPressed: (){
-                    //TODO: Either navigate to edit account or new message with provider, no need for fancy routing
-                    isUsersProviderProfile ? Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser)) : Navigator.pushNamed(context, ChatScreen.id);
+                  onPressed: isUsersProviderProfile ? (){
+                    Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
+                  }: () async{
+
+                    DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: providerUser.pid,providersUid: providerUser.uid);
+                    await authProvider.updateCurrentUserData();
+                    print(result.documentID);
+
+                    Chat newChat = await firestoreAPI.getChatById(result.documentID);
+                    Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: newChat,provider: providerUser,user: authProvider.currentUser));
                   },
                 )
               ),

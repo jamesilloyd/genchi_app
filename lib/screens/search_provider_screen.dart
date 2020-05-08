@@ -67,7 +67,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                     image: AssetImage("images/Logo_Clear.png"),
                     name: provider.name,
                     description: provider.bio,
-                    service: provider.type,
                     onTap: () async {
 
                       await providerService.updateCurrentProvider(provider.pid);

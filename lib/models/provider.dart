@@ -29,7 +29,7 @@ class ProviderUser extends ChangeNotifier {
         //ToDo: need to fix mismatch in data types of flutter and firebase timestamps
 //        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'] ?? '',
-        chats = snapshot['chats'] ?? [''],
+        chats = snapshot['chats'] ?? [],
         type = snapshot['type'] ?? '';
 
   toJson() {

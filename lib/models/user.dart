@@ -25,8 +25,8 @@ class User extends ChangeNotifier {
         id = snapshot['id'] ?? '',
         //ToDo: need to fix mismatch in data types of flutter and firebase timestamps null value needs to return a timestamp type
 //        timeStamp = snapshot['timestamp'],
-        providerProfiles = snapshot['providerProfiles'] ?? [''],
-        chats = snapshot['chats'] ?? [''];
+        providerProfiles = snapshot['providerProfiles'] ?? [],
+        chats = snapshot['chats'] ?? [];
 
   toJson() {
     return {

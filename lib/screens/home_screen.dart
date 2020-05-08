@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
-                  ? CupertinoIcons.profile_circled
+                  ? (authProvider.currentUser.providerProfiles.isEmpty ? CupertinoIcons.profile_circled : CupertinoIcons.group )
                   : Icons.account_circle),
               title: Text('Profile'),
             ),

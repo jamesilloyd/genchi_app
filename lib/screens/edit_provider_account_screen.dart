@@ -8,6 +8,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
@@ -51,9 +52,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       items: dropdownItems,
       onChanged: (value) {
         service = value;
-        setState(() {
-
-        });
+        setState(() {});
       },
     );
   }
@@ -66,7 +65,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     }
 
     return CupertinoPicker(
-      scrollController: FixedExtentScrollController(initialItem: servicesList.indexOf(currentService)),
+      scrollController: FixedExtentScrollController(
+          initialItem: servicesList.indexOf(currentService)),
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
@@ -82,7 +82,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
     final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
     bool fromRegistration = args.fromRegistration;
-    
+
     final providerService = Provider.of<ProviderService>(context);
     ProviderUser providerUser = providerService.currentProvider;
 
@@ -126,7 +126,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   height: Platform.isIOS ? 100.0 : 50.0,
                   child: Container(
                     color: Color(kGenchiCream),
-                    child: Platform.isIOS ? iOSPicker(providerUser.type) : androidDropdownButton(providerUser.type),
+                    child: Platform.isIOS
+                        ? iOSPicker(providerUser.type)
+                        : androidDropdownButton(providerUser.type),
                   ),
                 ),
               ],
@@ -149,7 +151,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               buttonTitle: "Save Details",
               buttonColor: Color(kGenchiOrange),
               onPressed: () async {
-
                 print('$name $service $bio ${providerUser.pid}');
 
                 await firestoreAPI.updateProvider(
@@ -165,18 +166,35 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     : Navigator.of(context).pop();
               },
             ),
-            if (fromRegistration)
-              RoundedButton(
-                buttonTitle: fromRegistration
-                    ? "Cancel (you can make one later)"
-                    : "Delete provider account",
-                buttonColor: Color(kGenchiBlue),
-                onPressed: () {
-                  //TODO: Delete provider account
+            RoundedButton(
+              buttonTitle: fromRegistration
+                  ? "Cancel (you can make one later)"
+                  : "Delete provider account",
+              buttonColor: Color(kGenchiBlue),
+              onPressed: () async {
+
+                Platform.isIOS
+                    ? showAlertIOS(context, () async {
+
+                  await firestoreAPI.deleteProvider(pid: providerUser.pid, uid: authProvider.currentUser.id );
+                  await authProvider.updateCurrentUserData();
+
                   Navigator.pushNamedAndRemoveUntil(
                       context, HomeScreen.id, (Route<dynamic> route) => false);
-                },
-              ),
+                }, 'Delete Account')
+
+                    : showAlertAndroid(context, () async {
+
+                  await firestoreAPI.deleteProvider(pid: providerUser.pid, uid: authProvider.currentUser.id );
+                  await authProvider.updateCurrentUserData();
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, HomeScreen.id, (Route<dynamic> route) => false);
+
+                }, "Delete Account");
+
+
+              },
+            ),
           ],
         ),
       ),

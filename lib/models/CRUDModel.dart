@@ -128,8 +128,6 @@ class FirestoreCRUDModel {
 
   Future<DocumentReference> addNewChat({String uid, String pid, String providersUid}) async {
 
-    print('$uid $pid $providersUid');
-
     Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid);
 
     DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
@@ -141,6 +139,11 @@ class FirestoreCRUDModel {
 
     return result;
   }
+
+  Future<void> deleteProvider({String pid, String uid}) async {
+    await _providersCollectionRef.document(pid).delete();
+    await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayRemove([pid])},merge: true);
+}
 
 
 }

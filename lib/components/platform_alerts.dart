@@ -39,7 +39,7 @@ Future<void> showAlertAndroid(BuildContext context, VoidCallback logOutFunction,
             children: <Widget>[
               Text(
                 'Are you sure you want to ${alertMessage.toLowerCase()}?',
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(color: Colors.black54,fontWeight: FontWeight.w500),
               ),
             ],
           ),

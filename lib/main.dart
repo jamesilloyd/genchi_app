@@ -22,6 +22,9 @@ void main() {
 }
 
 class Genchi extends StatelessWidget {
+
+  //TODO: how to add images with correct resolutions (do we need to add three) - looks very granular on the app
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -32,7 +35,8 @@ class Genchi extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProviderService()),
       ],
       child: MaterialApp(
-        theme: ThemeData(fontFamily: 'FuturaPT'),
+        //TODO: Android italic font problem
+        theme: ThemeData(fontFamily: 'FuturaPT',textTheme: TextTheme(body1: TextStyle(fontWeight: FontWeight.w500))),
         //ToDo: need to implement correct start up logic
         home: WelcomeScreen(),
         initialRoute: WelcomeScreen.id,

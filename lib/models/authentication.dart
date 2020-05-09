@@ -30,8 +30,12 @@ class AuthenticationService extends ChangeNotifier {
     try {
       print("isUserLoggedIn");
       var user = await _firebaseAuth.currentUser();
-      await _populateCurrentUser(user); // Populate the user information
-      return user != null;
+      if(user != null) {
+        await _populateCurrentUser(user); // Populate the
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       throw e;
     }

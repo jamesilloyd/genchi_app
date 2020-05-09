@@ -38,6 +38,7 @@ class EditAccountField extends StatelessWidget {
           style: TextStyle(
             color: isEditable ? Colors.black : Colors.grey,
             fontSize: 18.0,
+            fontWeight: FontWeight.w500,
           ),
           textAlign: TextAlign.left,
           onChanged: onChanged,

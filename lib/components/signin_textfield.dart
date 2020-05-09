@@ -15,6 +15,10 @@ class SignInTextField extends StatelessWidget {
     return TextField(
         keyboardType: isPasswordField ? TextInputType.text: TextInputType.emailAddress,
         obscureText: isPasswordField,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
         textAlign: TextAlign.left,
         cursorColor: Color(kGenchiOrange),
         onChanged: onChanged,

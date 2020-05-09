@@ -89,6 +89,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
                     Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
                   }: () async{
 
+                    //Todo add functionality to not create additional chat if one already exists
+
                     DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: providerUser.pid,providersUid: providerUser.uid);
                     await authProvider.updateCurrentUserData();
                     print(result.documentID);
@@ -114,7 +116,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 providerUser.type ?? "",
                 style: TextStyle(
                   fontSize: 20.0,
-                  fontWeight: FontWeight.w400
+                  fontWeight: FontWeight.w500
                 ),
               ),
               SizedBox(
@@ -135,7 +137,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 providerUser.bio ?? "",
                 style: TextStyle(
                   fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               SizedBox(
@@ -145,8 +147,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
           ),
         ),
       ),
-
-
     );
   }
 }

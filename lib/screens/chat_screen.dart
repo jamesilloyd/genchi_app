@@ -18,6 +18,7 @@ final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 //ToDo: create button that can go to their account (maybe on the Navigation bar)
+//TODO: messages aren't coming in the correct order
 
 class ChatScreen extends StatefulWidget {
   static const String id = "chat_screen";
@@ -99,6 +100,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         messageText = value;
                       },
                       cursorColor: Color(kGenchiOrange),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                      ),
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),

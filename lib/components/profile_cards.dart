@@ -41,7 +41,7 @@ class ProviderCard extends StatelessWidget {
                     description.length > 30 ? '${description.substring(0,30)}...' : description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500),
                   ),
                 ),
 //                    trailing: Column(

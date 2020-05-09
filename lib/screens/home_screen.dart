@@ -53,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
                   ? (authProvider.currentUser.providerProfiles.isEmpty ? CupertinoIcons.profile_circled : CupertinoIcons.group )
-                  : Icons.account_circle),
-              title: Text('Profile'),
+                  : (authProvider.currentUser.providerProfiles.isEmpty ? Icons.account_circle : Icons.group)),
+              title: Text(authProvider.currentUser.providerProfiles.isEmpty ? 'Profile' : 'Profiles'),
             ),
           ]),
       tabBuilder: (context, index) {

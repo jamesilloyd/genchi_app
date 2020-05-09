@@ -93,7 +93,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                     fontSize: 25.0,
                   ),
                 ),
@@ -159,7 +159,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(kGenchiBlue),
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         fontSize: 25.0,
                       ),
                     ),

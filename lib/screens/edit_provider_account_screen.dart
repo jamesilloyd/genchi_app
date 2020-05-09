@@ -42,13 +42,16 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       var newItem = DropdownMenuItem(
         child: Text(
           serviceType,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
         ),
         value: serviceType,
       );
       dropdownItems.add(newItem);
     }
     return DropdownButton<String>(
-      value: service ?? currentService,
+      value: service ?? (currentService=='' ? 'Other':currentService),
       items: dropdownItems,
       onChanged: (value) {
         service = value;

@@ -24,6 +24,8 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
   Widget build(BuildContext context) {
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
+    ProviderService providerService = Provider.of<ProviderService>(context);
+
     return Scaffold(
       backgroundColor: Color(kGenchiGreen),
       body: Padding(
@@ -82,32 +84,30 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                             Navigator.pushNamedAndRemoveUntil(context,
                                 HomeScreen.id, (Route<dynamic> route) => false);
                           },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Center(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    "Hire",
-                                    style: TextStyle(
-                                      color: Color(kGenchiBlue),
-                                      fontSize: 30,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Center(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      "Hire",
+                                      style: TextStyle(
+                                        color: Color(kGenchiBlue),
+                                        fontSize: 30,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Center(
-                                child: Icon(
-                                  Icons.pan_tool,
-                                  size: 100,
-                                  color: Color(kGenchiBlue),
+                                SizedBox(
+                                  height: 10,
                                 ),
-                              ),
-                            ],
+                                Expanded(child: Image.asset('images/hirer.png',fit: BoxFit.contain)),
+
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -127,6 +127,8 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                             await authProvider.updateCurrentUserData();
 
                             ProviderUser newProvider = await firestoreAPI.getProviderById(result.documentID);
+                            await providerService.updateCurrentProvider(result.documentID);
+
                             print(newProvider);
 
                             Navigator.pushNamedAndRemoveUntil(
@@ -136,32 +138,29 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                                 arguments: EditProviderAccountScreenArguments(
                                     fromRegistration: true, provider: newProvider));
                           },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Center(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    "Provide",
-                                    style: TextStyle(
-                                      color: Color(kGenchiOrange),
-                                      fontSize: 30,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Center(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      "Provide",
+                                      style: TextStyle(
+                                        color: Color(kGenchiOrange),
+                                        fontSize: 30,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Center(
-                                child: Icon(
-                                  Icons.accessible_forward,
-                                  size: 100,
-                                  color: Color(kGenchiOrange),
+                                SizedBox(
+                                  height: 10,
                                 ),
-                              ),
-                            ],
+                                Expanded(child: Image.asset('images/provider.png',fit: BoxFit.contain)),
+                              ],
+                            ),
                           ),
                         ),
                       ),

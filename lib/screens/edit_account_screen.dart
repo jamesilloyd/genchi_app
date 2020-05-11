@@ -30,6 +30,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   String name;
   String email;
 
+  TextEditingController nameController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
@@ -47,6 +50,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 isEditable: false,
                 onChanged: (value) {
                 },
+                textController: TextEditingController(),
               ),
               EditAccountField(
                 field: "Name",
@@ -55,6 +59,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   //Update name field
                   name = value;
                 },
+                changedParameter: name,
+                textController: nameController,
               ),
               EditAccountField(
                 field: "Email",
@@ -64,6 +70,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   //Update name field
                   email = value;
                 },
+                changedParameter: email,
+                textController: TextEditingController(),
               ),
               SizedBox(
                 height: 10.0,
@@ -87,6 +95,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   setState(() {
                     showSpinner = false;
                   });
+                  Navigator.pop(context);
                 },
               ),
               RoundedButton(

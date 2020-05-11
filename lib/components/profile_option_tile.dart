@@ -26,7 +26,7 @@ class ProfileOptionTile extends StatelessWidget {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     fontSize: 25.0,
                   ),
                 ),

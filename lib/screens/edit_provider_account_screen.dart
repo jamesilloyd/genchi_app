@@ -29,7 +29,11 @@ class EditProviderAccountScreen extends StatefulWidget {
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
+
+
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  TextEditingController nameTextController =  TextEditingController();
+  TextEditingController bioTextController =  TextEditingController();
 
   String name;
   String bio;
@@ -54,8 +58,11 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       value: service ?? (currentService=='' ? 'Other':currentService),
       items: dropdownItems,
       onChanged: (value) {
-        service = value;
-        setState(() {});
+        setState(() {
+          service = value;
+          print(name);
+          print(bio);
+        });
       },
     );
   }
@@ -79,8 +86,11 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     );
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+
     final authProvider = Provider.of<AuthenticationService>(context);
 
     final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
@@ -101,14 +111,17 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               initialValue: 'Coming Soon',
               isEditable: false,
               onChanged: (value) {},
+              textController: TextEditingController(),
             ),
             EditAccountField(
               field: "Provider Profile Name",
               initialValue: providerUser.name ?? '',
+              textController: nameTextController,
               onChanged: (value) {
                 //Update name field
                 name = value;
               },
+              changedParameter: name,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,6 +152,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             EditAccountField(
               field: 'Description',
               initialValue: providerUser.bio ?? '',
+              textController: bioTextController,
+              changedParameter: bio,
               onChanged: (value) {
                 //Update name field
                 bio = value;

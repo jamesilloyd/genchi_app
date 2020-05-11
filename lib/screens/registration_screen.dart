@@ -60,6 +60,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           name = value;
                         },
                         hintText: "Enter name",
+                        isNameField: true,
                       ),
                       SizedBox(
                         height: 10.0,

@@ -36,7 +36,7 @@ class Genchi extends StatelessWidget {
       ],
       child: MaterialApp(
         //TODO: Android italic font problem
-        theme: ThemeData(fontFamily: 'FuturaPT',textTheme: TextTheme(body1: TextStyle(fontWeight: FontWeight.w500))),
+        theme: ThemeData(fontFamily: 'FuturaPT'),
         //ToDo: need to implement correct start up logic
         home: WelcomeScreen(),
         initialRoute: WelcomeScreen.id,

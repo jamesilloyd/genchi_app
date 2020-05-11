@@ -7,13 +7,14 @@ class EditAccountField extends StatelessWidget {
       {@required this.field,
         this.initialValue,
         @required this.onChanged,
-        this.isEditable = true});
+        this.isEditable = true, @required this.textController, this.changedParameter});
 
   final String field;
   final String initialValue;
   final Function onChanged;
   final bool isEditable;
-
+  final TextEditingController textController;
+  final String changedParameter;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +36,16 @@ class EditAccountField extends StatelessWidget {
             height: 5.0
         ),
         TextField(
+          textCapitalization: TextCapitalization.sentences,
           style: TextStyle(
             color: isEditable ? Colors.black : Colors.grey,
             fontSize: 18.0,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
           textAlign: TextAlign.left,
           onChanged: onChanged,
           readOnly: isEditable ? false : true,
-          controller: TextEditingController()..text = initialValue,
+          controller: textController..text = (textController.text != changedParameter) ? initialValue : changedParameter,
           decoration: kTextFieldDecoration,
           cursorColor: Color(kGenchiOrange),
         ),

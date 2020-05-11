@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(kGenchiBlue),
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             fontSize: 25.0,
                           ),
                         ),

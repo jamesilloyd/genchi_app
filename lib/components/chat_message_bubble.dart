@@ -40,7 +40,7 @@ class MessageBubble extends StatelessWidget {
                     Text(
                       text,
                       style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         fontSize: 16,
                         color: Color(kGenchiCream),
                       ),
@@ -52,7 +52,7 @@ class MessageBubble extends StatelessWidget {
                             child: Text(
                               time,
                               style: TextStyle(
-                                  fontSize: 10, color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w500),
+                                  fontSize: 10, color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w400),
                             ),
                           )
                         : Positioned(
@@ -61,7 +61,7 @@ class MessageBubble extends StatelessWidget {
                             child: Text(
                               time,
                               style: TextStyle(
-                                  fontSize: 10, color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w500),
+                                  fontSize: 10, color: Colors.black.withOpacity(0.6), fontWeight: FontWeight.w400),
                             ),
                           )
                   ],

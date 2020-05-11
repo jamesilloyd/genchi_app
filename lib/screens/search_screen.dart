@@ -14,9 +14,6 @@ import 'package:genchi_app/models/screen_arguments.dart';
 
 import 'search_provider_screen.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
-
 class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -43,17 +40,16 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: EdgeInsets.all(20.0),
           childAspectRatio: 1.618,
           children: List.generate(
-            servicesList.length,
+            servicesListMap.length,
             (index) {
-//              final String service = '${servicesList[index]}s';
-              String service = servicesList[index];
+              Map service = servicesListMap[index];
               return SearchServiceTile(
                 onPressed: () {
                   Navigator.pushNamed(context, SearchProviderScreen.id,
-                      arguments: SearchProviderScreenArguments(service));
+                      arguments: SearchProviderScreenArguments(service: service));
                 },
-                buttonTitle: servicesMap[service]['name'],
-                imageAddress: servicesMap[service]['imageAddress'],
+                buttonTitle: service['plural'],
+                imageAddress: service['imageAddress'],
               );
             },
           ),

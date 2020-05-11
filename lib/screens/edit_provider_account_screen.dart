@@ -29,11 +29,9 @@ class EditProviderAccountScreen extends StatefulWidget {
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
-
-
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
-  TextEditingController nameTextController =  TextEditingController();
-  TextEditingController bioTextController =  TextEditingController();
+  TextEditingController nameTextController = TextEditingController();
+  TextEditingController bioTextController = TextEditingController();
 
   String name;
   String bio;
@@ -42,20 +40,20 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   DropdownButton<String> androidDropdownButton(currentService) {
     List<DropdownMenuItem<String>> dropdownItems = [];
-    for (String serviceType in servicesList) {
+    for (Map serviceType in servicesListMap) {
       var newItem = DropdownMenuItem(
         child: Text(
-          serviceType,
+          serviceType['name'],
           style: TextStyle(
             fontWeight: FontWeight.w500,
           ),
         ),
-        value: serviceType,
+        value: serviceType['name'],
       );
       dropdownItems.add(newItem);
     }
     return DropdownButton<String>(
-      value: service ?? (currentService=='' ? 'Other':currentService),
+      value: service ?? (currentService == '' ? 'Other' : currentService),
       items: dropdownItems,
       onChanged: (value) {
         setState(() {
@@ -69,14 +67,15 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   CupertinoPicker iOSPicker(currentService) {
     List<Text> pickerItems = [];
-    for (String serviceType in servicesList) {
-      var newItem = Text(serviceType);
+    for (Map serviceType in servicesListMap) {
+      var newItem = Text(serviceType['name']);
       pickerItems.add(newItem);
     }
 
     return CupertinoPicker(
       scrollController: FixedExtentScrollController(
-          initialItem: servicesList.indexOf(currentService)),
+        initialItem: servicesListMap.indexWhere((service) => service['name'] == currentService),
+      ),
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
@@ -86,14 +85,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
+    final EditProviderAccountScreenArguments args =
+        ModalRoute.of(context).settings.arguments ??
+            EditProviderAccountScreenArguments();
     bool fromRegistration = args.fromRegistration;
 
     final providerService = Provider.of<ProviderService>(context);
@@ -190,27 +188,24 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   : "Delete provider account",
               buttonColor: Color(kGenchiBlue),
               onPressed: () async {
-
                 Platform.isIOS
                     ? showAlertIOS(context, () async {
+                        await firestoreAPI.deleteProvider(
+                            pid: providerUser.pid,
+                            uid: authProvider.currentUser.id);
+                        await authProvider.updateCurrentUserData();
 
-                  await firestoreAPI.deleteProvider(pid: providerUser.pid, uid: authProvider.currentUser.id );
-                  await authProvider.updateCurrentUserData();
-
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, HomeScreen.id, (Route<dynamic> route) => false);
-                }, 'Delete Account')
-
+                        Navigator.pushNamedAndRemoveUntil(context,
+                            HomeScreen.id, (Route<dynamic> route) => false);
+                      }, 'Delete Account')
                     : showAlertAndroid(context, () async {
-
-                  await firestoreAPI.deleteProvider(pid: providerUser.pid, uid: authProvider.currentUser.id );
-                  await authProvider.updateCurrentUserData();
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, HomeScreen.id, (Route<dynamic> route) => false);
-
-                }, "Delete Account");
-
-
+                        await firestoreAPI.deleteProvider(
+                            pid: providerUser.pid,
+                            uid: authProvider.currentUser.id);
+                        await authProvider.updateCurrentUserData();
+                        Navigator.pushNamedAndRemoveUntil(context,
+                            HomeScreen.id, (Route<dynamic> route) => false);
+                      }, "Delete Account");
               },
             ),
           ],

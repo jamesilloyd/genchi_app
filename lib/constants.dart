@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kSendButtonTextStyle = TextStyle(
-  color: Color(kGenchiOrange),
-  fontWeight: FontWeight.bold,
-  fontSize: 18.0,
-);
+
 
 const kMessageTextFieldDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -41,3 +37,6 @@ const kGenchiGreen = 0xff76b39d;
 
 //ToDo: start implementing print statements depending on this value e.g. if(debugMode) print("Home screen - ${}");
 const debugMode = false;
+
+const GenchiURL = 'https://www.genchi.app';
+const GenchiAboutURL = 'https://www.genchi.app/about-us';

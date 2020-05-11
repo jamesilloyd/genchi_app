@@ -34,7 +34,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const GenchiURL = 'https://www.genchi.app';
 
   io.File _image;
   String userName;
@@ -135,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     for (ProviderUser provider in providers) {
                       ProviderCard pCard = ProviderCard(
-                        //ToDo: implemPent dp
+                        //ToDo: implement dp
                         image: AssetImage("images/Logo_Clear.png"),
                         name: provider.name,
                         description: provider.bio,
@@ -182,8 +181,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileOptionTile(
                   text: 'About Genchi',
                   onPressed: () async {
-                    if (await canLaunch(GenchiURL)) {
-                      await launch(GenchiURL);
+                    if (await canLaunch(GenchiAboutURL)) {
+                      await launch(GenchiAboutURL);
                     } else {
                       print("Could not open URL");
                     }

@@ -18,7 +18,6 @@ final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 //ToDo: create button that can go to their account (maybe on the Navigation bar)
-//TODO: messages aren't coming in the correct order
 
 class ChatScreen extends StatefulWidget {
   static const String id = "chat_screen";
@@ -34,6 +33,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
   String messageText;
 
+
+  //ToDo: need to work out how to use OnWillPop to implement chat deletion
   @override
   Widget build(BuildContext context) {
 
@@ -42,8 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final Chat thisChat = args.chat;
     final ProviderUser provider = args.provider;
     final User user = args.user;
-    print(args.user);
-//    print('User id is ${user.id}');
+    final bool isFirstInstance = args.isFirstInstance;
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: userIsProvider ? user.name : provider.name),
@@ -94,6 +94,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      minLines: 1,
+                      maxLines: 5,
                       textCapitalization: TextCapitalization.sentences,
                       controller: messageTextController,
                       onChanged: (value) {
@@ -102,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                       cursorColor: Color(kGenchiOrange),
                       style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                       ),
                       decoration: kMessageTextFieldDecoration,
                     ),
@@ -114,7 +116,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                     child: Text(
                       'Send',
-                      style: kSendButtonTextStyle,
+                      style: TextStyle(
+                        color: Color(kGenchiOrange),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
                     ),
                   ),
                 ],

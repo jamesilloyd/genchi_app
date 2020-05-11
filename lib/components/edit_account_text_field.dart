@@ -37,6 +37,7 @@ class EditAccountField extends StatelessWidget {
         ),
         TextField(
           textCapitalization: TextCapitalization.sentences,
+          maxLines: null,
           style: TextStyle(
             color: isEditable ? Colors.black : Colors.grey,
             fontSize: 18.0,

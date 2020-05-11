@@ -42,10 +42,10 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
     final SearchProviderScreenArguments args = ModalRoute.of(context).settings.arguments;
     final providerService = Provider.of<ProviderService>(context);
 
-    String service = args.service ?? '';
+    Map service = args.service;
 
     return Scaffold(
-        appBar: MyAppNavigationBar(barTitle: '${service}s'),
+        appBar: MyAppNavigationBar(barTitle: service['plural']),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(10.0),

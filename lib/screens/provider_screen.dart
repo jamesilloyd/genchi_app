@@ -91,12 +91,30 @@ class _ProviderScreenState extends State<ProviderScreen> {
 
                     //Todo add functionality to not create additional chat if one already exists
 
-                    DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: providerUser.pid,providersUid: providerUser.uid);
-                    await authProvider.updateCurrentUserData();
-                    print(result.documentID);
+                    List userChats = authProvider.currentUser.chats;
+                    List providerChats = providerUser.chats;
+                    List allChats = [userChats,providerChats];
 
-                    Chat newChat = await firestoreAPI.getChatById(result.documentID);
-                    Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: newChat,provider: providerUser,user: authProvider.currentUser));
+
+                    final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
+
+                    print(commonChatIds);
+
+                    if(commonChatIds.isEmpty) {
+
+                      DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: providerUser.pid,providersUid: providerUser.uid);
+                      await authProvider.updateCurrentUserData();
+                      Chat newChat = await firestoreAPI.getChatById(result.documentID);
+                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: newChat,provider: providerUser,user: authProvider.currentUser,isFirstInstance: true));
+
+
+                    } else {
+
+                      Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
+                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
+
+                    }
+
                   },
                 )
               ),

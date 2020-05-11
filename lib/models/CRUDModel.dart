@@ -35,7 +35,7 @@ class FirestoreCRUDModel {
   }
 
   Stream<QuerySnapshot> fetchChatStream(String chatId) {
-    return  _chatCollectionRef.document(chatId).collection('messages').snapshots();
+    return  _chatCollectionRef.document(chatId).collection('messages').orderBy('time', descending: true).snapshots();
   }
 
 
@@ -143,7 +143,13 @@ class FirestoreCRUDModel {
   Future<void> deleteProvider({String pid, String uid}) async {
     await _providersCollectionRef.document(pid).delete();
     await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayRemove([pid])},merge: true);
-}
+  }
+
+  Future<void> deleteChat({Chat chat}) async {
+    await _chatCollectionRef.document(chat.chatid).delete();
+    await _providersCollectionRef.document(chat.pid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
+    await _providersCollectionRef.document(chat.uid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
+  }
 
 
 }

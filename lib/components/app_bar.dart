@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 
 
-
 class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppNavigationBar({@required this.barTitle});
 
@@ -24,6 +23,7 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
       ),
       backgroundColor: Color(kGenchiCream),
       elevation: 2.0,
+      brightness: Brightness.light,
     );
   }
 

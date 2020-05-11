@@ -5,9 +5,10 @@ import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/user.dart';
 
 class SearchProviderScreenArguments {
-  final String service;
+  //ToDO: change this when using service as a class
+  final Map service;
 
-  SearchProviderScreenArguments(this.service);
+  SearchProviderScreenArguments({@required this.service});
 }
 
 
@@ -43,7 +44,8 @@ class ChatScreenArguments {
   final bool userIsProvider;
   final User user;
   final ProviderUser provider;
+  final bool isFirstInstance;
 
-  ChatScreenArguments({this.chat,this.userIsProvider = false, this.provider, this.user});
+  ChatScreenArguments({this.chat,this.userIsProvider = false, this.provider, this.user, this.isFirstInstance = false});
 
 }

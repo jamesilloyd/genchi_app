@@ -19,7 +19,7 @@ class SignInTextField extends StatelessWidget {
         textCapitalization: isNameField ? TextCapitalization.words : TextCapitalization.none,
         style: TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
         textAlign: TextAlign.left,
         cursorColor: Color(kGenchiOrange),

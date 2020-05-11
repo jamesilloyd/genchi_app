@@ -41,16 +41,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Container(
-                height: MediaQuery.of(context).size.height * .3,
-                child: Hero(
-                  tag: 'logo',
-                  child: Container(
-                    child: Image.asset('images/LogoAndName.png'),
+                height: MediaQuery.of(context).size.height * .2,
+                child: Center(
+                  child: Hero(
+                    tag: 'logo',
+                    child: Container(
+                      child: Image.asset('images/LogoAndName.png'),
+                    ),
                   ),
                 ),
               ),
               Container(
-                  height: MediaQuery.of(context).size.height * 0.5,
+//                  height: MediaQuery.of(context).size.height * 0.5,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,

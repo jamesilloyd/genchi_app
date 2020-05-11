@@ -29,7 +29,7 @@ class SearchServiceTile extends StatelessWidget {
                 flex: 1,
                 child: Container(
                   child: Text(
-                    '${buttonTitle}s',
+                    buttonTitle,
                     style: TextStyle(
                       color: Color(kGenchiCream),
                       fontSize: 15.0,

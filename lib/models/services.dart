@@ -1,74 +1,74 @@
 import 'package:flutter/material.dart';
 
 
-const Map<String, Map> servicesMap = {
-  'Hairdressing': {
+
+//ToDo: probably need to make a class for service when it becomes more complex
+const List<Map<String,String>> servicesListMap = [
+
+  {
     'name' : 'Hairdressing',
+    'plural' : 'Hairdressing',
     'imageAddress': 'images/salon.png',
   },
-  'Deliverer': {
+
+  {
     'name' : 'Deliverer',
+    'plural' : 'Deliveries',
     'imageAddress': 'images/grocery.png',
   },
 
-  'Designer': {
+  {
     'name' : 'Designer',
+    'plural' : 'Designers',
     'imageAddress': 'images/creativity.png',
   },
 
-  'Helping Hand': {
+  {
     'name' : 'Helping Hand',
+    'plural' : 'Helping Hand',
     'imageAddress': 'images/support.png',
   },
 
-  'Photographer': {
+  {
     'name' : 'Photographer',
+    'plural' : 'Photographers',
     'imageAddress': 'images/camera.png',
   },
 
-  'Entertainment': {
+  {
     'name' : 'Entertainment',
+    'plural' : 'Entertainment',
     'imageAddress': 'images/dj-controller.png',
   },
 
-  'Repair': {
+  {
     'name' : 'Repair',
+    'plural' : 'Repairs',
     'imageAddress': 'images/tools.png',
   },
 
-  'Researcher': {
+  {
     'name' : 'Researcher',
+    'plural' : 'Researchers',
     'imageAddress': 'images/segmentation.png',
   },
 
-  'Sport': {
+  {
     'name' : 'Sport',
+    'plural' : 'Sports',
     'imageAddress': 'images/dumbbell.png',
   },
-  'Tutor': {
+
+  {
     'name' : 'Tutor',
+    'plural' : 'Tutors',
     'imageAddress': 'images/book.png',
   },
 
-  'Other': {
+  {
     'name' : 'Other',
+    'plural' : 'Other',
     'imageAddress': 'images/other.png',
   },
-};
 
-
-
-//ToDo: remove this and use the loop function
-const List<String> servicesList = [
-  'Hairdressing',
-  'Deliverer',
-  'Designer',
-  'Helping Hand',
-  'Photographer',
-  'Entertainment',
-  'Repair',
-  'Researcher',
-  'Sport',
-  'Tutor',
-  'Other',
 ];

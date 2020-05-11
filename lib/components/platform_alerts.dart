@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 
-Future<void> showAlertIOS(BuildContext context, VoidCallback logOutFunction, String alertMessage) {
+Future<void> showAlertIOS({BuildContext context, VoidCallback actionFunction, String alertMessage}) {
 
   return showCupertinoModalPopup(
     context: context,
@@ -20,7 +20,7 @@ Future<void> showAlertIOS(BuildContext context, VoidCallback logOutFunction, Str
             alertMessage,
             style: TextStyle(color: CupertinoColors.destructiveRed),
           ),
-          onPressed: logOutFunction,
+          onPressed: actionFunction,
         )
       ],
     ),
@@ -28,7 +28,7 @@ Future<void> showAlertIOS(BuildContext context, VoidCallback logOutFunction, Str
 }
 
 
-Future<void> showAlertAndroid(BuildContext context, VoidCallback logOutFunction, String alertMessage) {
+Future<void> showAlertAndroid({BuildContext context, VoidCallback actionFunction, String alertMessage}) {
   return showDialog<void>(
     context: context,
     barrierDismissible: true, // user must tap button!
@@ -59,7 +59,7 @@ Future<void> showAlertAndroid(BuildContext context, VoidCallback logOutFunction,
               alertMessage.toUpperCase(),
               style: TextStyle(color: Colors.red),
             ),
-            onPressed: logOutFunction,
+            onPressed: actionFunction,
           ),
         ],
       );

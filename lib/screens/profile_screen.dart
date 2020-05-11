@@ -14,6 +14,7 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_option_tile.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
@@ -125,8 +126,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   future: getUsersProviders(currentUser.providerProfiles),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
-                      //ToDo: Add in progressmodalhud
-                      return Text("Loading Provider Accounts");
+
+                      return CircularProgress();
                     }
                     final List<ProviderUser> providers = snapshot.data;
 
@@ -191,18 +192,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 text: 'Log Out',
                 onPressed: () {
                   Platform.isIOS
-                      ? showAlertIOS(context, () {
-                          authProvider.signUserOut();
+                      ? showAlertIOS(context: context, actionFunction: () async {
+                          await authProvider.signUserOut();
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(WelcomeScreen.id,
                                   (Route<dynamic> route) => false);
-                        }, "Log out")
-                      : showAlertAndroid(context, () {
-                          authProvider.signUserOut();
+                        }, alertMessage: "Log out")
+                      : showAlertAndroid(context: context,actionFunction: () async {
+                          await authProvider.signUserOut();
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(WelcomeScreen.id,
                                   (Route<dynamic> route) => false);
-                        }, "Log out");
+                        }, alertMessage: "Log out");
                 },
               ),
             ],

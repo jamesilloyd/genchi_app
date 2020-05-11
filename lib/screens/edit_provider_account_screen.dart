@@ -189,7 +189,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               buttonColor: Color(kGenchiBlue),
               onPressed: () async {
                 Platform.isIOS
-                    ? showAlertIOS(context, () async {
+                    ? showAlertIOS(context: context, actionFunction: () async {
                         await firestoreAPI.deleteProvider(
                             pid: providerUser.pid,
                             uid: authProvider.currentUser.id);
@@ -197,15 +197,15 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
                         Navigator.pushNamedAndRemoveUntil(context,
                             HomeScreen.id, (Route<dynamic> route) => false);
-                      }, 'Delete Account')
-                    : showAlertAndroid(context, () async {
+                      }, alertMessage: 'Delete Account')
+                    : showAlertAndroid(context: context, actionFunction: () async {
                         await firestoreAPI.deleteProvider(
                             pid: providerUser.pid,
                             uid: authProvider.currentUser.id);
                         await authProvider.updateCurrentUserData();
                         Navigator.pushNamedAndRemoveUntil(context,
                             HomeScreen.id, (Route<dynamic> route) => false);
-                      }, "Delete Account");
+                      },alertMessage: "Delete Account");
               },
             ),
           ],

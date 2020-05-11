@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -33,6 +34,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Color(kGenchiGreen),
       body: ModalProgressHUD(
+        progressIndicator: CircularProgress(),
         inAsyncCall: showSpinner,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.0),

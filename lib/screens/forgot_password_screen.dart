@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/components/app_bar.dart';
+import 'dart:io' show Platform;
+
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/circular_progress.dart';
+
 import 'package:genchi_app/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/password_error_text.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   static const String id = 'forgot_password_screen';
@@ -32,6 +37,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         barTitle: "Forgot Password",
       ),
       body: ModalProgressHUD(
+        progressIndicator: CircularProgress(),
         inAsyncCall: showSpinner,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -47,27 +53,58 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   //Do something with the user input.
                 },
                 hintText: "Enter you account email",
-
               ),
-              showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
+              showErrorField
+                  ? PasswordErrorText(errorMessage: errorMessage)
+                  : SizedBox(height: 30.0),
               RoundedButton(
                 buttonTitle: "Send password reset email",
                 buttonColor: Color(kGenchiBlue),
                 onPressed: () async {
-                  setState(() {
-                    showErrorField = false;
-                    showSpinner = true;
-                  });
-                  try {
-                    await authProvider.sendResetEmail(email: email);
-                  } catch (e) {
-                    print(e);
-                    showErrorField = true;
-                    errorMessage = e.message;
-                  }
-                  setState(() {
-                    showSpinner = false;
-                  });
+                  Platform.isIOS
+                      ? showAlertIOS(
+                          context: context,
+                          //TODO: show alert that notifies to check email
+                          actionFunction: () async {
+                            setState(() {
+                              showErrorField = false;
+                              showSpinner = true;
+                            });
+                            try {
+                              await authProvider.sendResetEmail(email: email);
+                            } catch (e) {
+                              print(e);
+                              showErrorField = true;
+                              errorMessage = e.message;
+                            }
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          alertMessage: "Reset password")
+                      : showAlertAndroid(
+                          context: context,
+                          //TODO: show alert that notifies to check email
+
+                          actionFunction: () async {
+                            setState(() {
+                              showErrorField = false;
+                              showSpinner = true;
+                            });
+                            try {
+                              await authProvider.sendResetEmail(email: email);
+                            } catch (e) {
+                              print(e);
+                              showErrorField = true;
+                              errorMessage = e.message;
+                            }
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          alertMessage: "Reset password");
                 },
               )
             ],

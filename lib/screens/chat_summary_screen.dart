@@ -5,6 +5,7 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/message_list_item.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 
 import 'chat_screen.dart';
 
@@ -108,8 +109,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
               future: getUserChatsAndProviders(currentUser.chats),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  //ToDo: Add in progressmodalhud
-                  return Center(child: Text("Loading Chats"));
+                  return CircularProgress();
                 }
 
                 final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;

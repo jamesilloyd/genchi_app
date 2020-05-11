@@ -103,16 +103,16 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 buttonTitle: "Change Password",
                 onPressed: () {
                   Platform.isIOS
-                      ? showAlertIOS(context, () {
+                      ? showAlertIOS(context: context,actionFunction: () {
                           authProvider.sendResetEmail(
                               email: authProvider.currentUser.email);
                           Navigator.of(context).pop();
-                        }, "Reset password")
-                      : showAlertAndroid(context, () {
+                        },alertMessage: "Reset password")
+                      : showAlertAndroid(context: context, actionFunction: () {
                           authProvider.sendResetEmail(
                               email: authProvider.currentUser.email);
                           Navigator.of(context).pop();
-                        }, "Reset password");
+                        },alertMessage: "Reset password");
                 },
               ),
             ],

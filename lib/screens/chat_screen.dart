@@ -4,6 +4,7 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/chat_message_bubble.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
@@ -55,11 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
               stream: firestoreAPI.fetchChatStream(thisChat.chatid),
               builder: (context,snapshot){
                 if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Color(kGenchiOrange),
-                    ),
-                  );
+                  return CircularProgress();
                 }
 
                 final messages = snapshot.data.documents;

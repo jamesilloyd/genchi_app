@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/components/profile_cards.dart'
-;
+import 'package:genchi_app/components/profile_cards.dart';
+import 'package:genchi_app/components/circular_progress.dart';
+
 import 'provider_screen.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
@@ -53,8 +55,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
               future: getProvidersByService(service['name']),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  //ToDo: Add in progressmodalhud
-                  return Text("Loading Provider Accounts");
+                  return CircularProgress();
                 }
 
                 final List<ProviderUser> providers = snapshot.data;

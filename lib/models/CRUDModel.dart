@@ -62,7 +62,6 @@ class FirestoreCRUDModel {
 
   Future<ProviderUser> getProviderById(String pid) async {
     var doc = await _providersCollectionRef.document(pid).get();
-//    var doc1 = await _providersCollectionRef.document(pid).snapshots();
     return ProviderUser.fromMap(doc.data);
   }
 
@@ -89,8 +88,8 @@ class FirestoreCRUDModel {
     return;
   }
 
-  Future updateChat(Chat chat, String chatId) async {
-    await _chatCollectionRef.document(chatId).setData(chat.toJson(),merge: true);
+  Future updateChat({Chat chat}) async {
+    await _chatCollectionRef.document(chat.chatid).setData(chat.toJson(),merge: true);
   }
 
 
@@ -110,8 +109,13 @@ class FirestoreCRUDModel {
     return result;
   }
 
-  Future addMessageToChat(String chatId, ChatMessage chatMessage) async {
+  Future addMessageToChat({String chatId, ChatMessage chatMessage, bool providerIsSender}) async {
 
+    Chat chat = Chat(lastMessage: chatMessage.text, time: chatMessage.time);
+
+    providerIsSender ? chat.userHasUnreadMessage = true : chat.providerHasUnreadMessage = true;
+
+    await _chatCollectionRef.document(chatId).setData(chat.toJson(), merge: true);
     var result = await _chatCollectionRef.document(chatId).collection('messages').add(chatMessage.toJson());
   }
 
@@ -131,7 +135,7 @@ class FirestoreCRUDModel {
     Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid);
 
     DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
-      await updateChat(Chat(chatid: docRef.documentID),docRef.documentID);
+      await updateChat(chat: Chat(chatid: docRef.documentID));
       await _usersCollectionRef.document(uid).setData({'chats': FieldValue.arrayUnion([docRef.documentID])},merge: true);
       await _providersCollectionRef.document(pid).setData({'chats': FieldValue.arrayUnion([docRef.documentID])},merge: true);
       return docRef;

@@ -112,7 +112,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      firestoreAPI.addMessageToChat(thisChat.chatid, ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: FieldValue.serverTimestamp()) );
+                      firestoreAPI.addMessageToChat(chatId: thisChat.chatid,chatMessage: ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: Timestamp.now()),providerIsSender: userIsProvider ? true : false );
                       },
                     child: Text(
                       'Send',

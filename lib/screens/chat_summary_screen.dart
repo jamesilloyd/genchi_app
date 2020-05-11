@@ -30,8 +30,10 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
     Map<Chat, ProviderUser> chatAndProviders = {};
     List<Chat> chats = [];
     for (String chatId in chatIds) {
-      chats.add(await firestoreAPI.getChatById(chatId));
+      Chat chat = await firestoreAPI.getChatById(chatId);
+      chats.add(chat);
     }
+
     for (Chat chat in chats) {
       ProviderUser provider = await firestoreAPI.getProviderById(chat.pid);
       chatAndProviders[chat] = provider;
@@ -40,8 +42,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   }
 
   //ToDo: this can all go into CRUDModel
-  Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers(
-      usersPids) async {
+  Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers(usersPids) async {
     Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
 
     List<ProviderUser> providers = [];
@@ -93,7 +94,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     fontSize: 25.0,
                   ),
                 ),
@@ -118,8 +119,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                 chatsAndProviders.forEach(
                   (k, v) {
 
-                    //ToDO: also for adding last message time etc.
-
                     Chat chat = k;
                     ProviderUser provider = v;
 
@@ -128,11 +127,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       image: AssetImage("images/Logo_Clear.png"),
                       name: provider.name,
                       service: provider.type,
-                      lastMessage: "Last message preview coming soon",
-                      time: "19:27 PM",
-                      hasUnreadMessage: true,
-                      newMesssageCount: 5,
-                      onTap: () {
+                      lastMessage: chat.lastMessage,
+                      time: chat.time,
+                      hasUnreadMessage: chat.userHasUnreadMessage,
+                      onTap: () async {
+                        chat.userHasUnreadMessage = false;
+                        await firestoreAPI.updateChat(chat: chat);
                         Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: false,provider: provider,user: currentUser));
                       },
                     );
@@ -159,7 +159,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(kGenchiBlue),
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         fontSize: 25.0,
                       ),
                     ),
@@ -169,8 +169,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   height: 0,
                 ),
                 FutureBuilder(
-                  future:
-                      getUserProviderChatsAndUsers(currentUser.providerProfiles),
+                  future: getUserProviderChatsAndUsers(currentUser.providerProfiles),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       //ToDo: Add in progressmodalhud
@@ -199,11 +198,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                               image: AssetImage("images/Logo_Clear.png"),
                               name: user.name,
                               service: provider.type,
-                              lastMessage: "Last message preview coming soon",
-                              time: "19:27 PM",
-                              hasUnreadMessage: true,
-                              newMesssageCount: 5,
-                              onTap: () {
+                              lastMessage: chat.lastMessage,
+                              time: chat.time,
+                              hasUnreadMessage: chat.providerHasUnreadMessage,
+                              onTap: () async {
+                                chat.providerHasUnreadMessage = false;
+                                await firestoreAPI.updateChat(chat: chat);
                                 Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: true, provider: provider, user: user));
                               },
                             );

@@ -13,7 +13,7 @@ const List<Map<String,String>> servicesListMap = [
 
   {
     'name' : 'Deliverer',
-    'plural' : 'Deliveries',
+    'plural' : 'Delivery Services',
     'imageAddress': 'images/grocery.png',
   },
 

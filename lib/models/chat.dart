@@ -6,18 +6,23 @@ class Chat {
   String providerdsUid;
   String uid;
   String chatid;
-  //ToDo - add in timestamp
+  bool userHasUnreadMessage;
+  bool providerHasUnreadMessage;
+  String lastMessage;
+  Timestamp time;
 
-
-
-  Chat({this.pid, this.providerdsUid, this.uid, this.chatid});
+  Chat({this.pid, this.providerdsUid, this.uid, this.chatid, this.userHasUnreadMessage, this.providerHasUnreadMessage, this.lastMessage, this.time});
 
 
   Chat.fromMap(Map snapshot) :
         pid = snapshot['pid'] ?? '',
         providerdsUid = snapshot['providerdsUid'] ?? '',
         uid = snapshot['uid'] ?? '',
-        chatid = snapshot['chatid'] ?? '';
+        userHasUnreadMessage = snapshot['userHasUnreadMessage'] ?? false,
+        providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
+        lastMessage = snapshot['lastMessage'] ?? '',
+        chatid = snapshot['chatid'] ?? '',
+        time = snapshot['time'] ?? Timestamp.now();
 
 
   toJson() {
@@ -26,23 +31,26 @@ class Chat {
       if(providerdsUid != null) "providerdsUid": providerdsUid ?? '',
       if(uid != null) "uid": uid,
       if(chatid != null) 'chatid' : chatid,
+      if(providerHasUnreadMessage != null) 'providerHasUnreadMessage' : providerHasUnreadMessage,
+      if(userHasUnreadMessage != null) 'userHasUnreadMessage' : userHasUnreadMessage,
+      if(lastMessage!=null) 'lastMessage' : lastMessage,
+      if(time != null) "time" : time,
     };
   }
-
 }
 
 class ChatMessage {
 
   String sender;
   String text;
-  FieldValue time;
+  Timestamp time;
 
   ChatMessage({this.sender,this.text,this.time});
 
   ChatMessage.fromMap(Map snapshot) :
         sender = snapshot['sender'] ?? '',
         text = snapshot['text'] ?? '',
-        time = snapshot['time'] ?? '';
+        time = snapshot['time'] ?? Timestamp.now();
 
 
   toJson() {

@@ -50,7 +50,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: FutureBuilder(
-              future: getProvidersByService(service),
+              future: getProvidersByService(service['name']),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   //ToDo: Add in progressmodalhud

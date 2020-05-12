@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
-import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -30,12 +29,10 @@ class Genchi extends StatelessWidget {
     return MultiProvider(
       //ToDo to be updated (1)
       providers: [
-        //ToDO: going to need to do this for ChatSummary as well, because of updating last message
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
       ],
       child: MaterialApp(
-        //TODO: Android italic font problem
         theme: ThemeData(fontFamily: 'FuturaPT'),
         //ToDo: need to implement correct start up logic
         home: WelcomeScreen(),
@@ -47,7 +44,6 @@ class Genchi extends StatelessWidget {
           ChatScreen.id: (context) => ChatScreen(),
           HomeScreen.id: (context) => HomeScreen(),
           RegSequenceScreen.id: (context) => RegSequenceScreen(),
-          SplashScreen.id: (context) => SplashScreen(),
           EditAccountScreen.id: (context) => EditAccountScreen(),
           ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
           ProviderScreen.id: (context) => ProviderScreen(),

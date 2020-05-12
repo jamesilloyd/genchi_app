@@ -15,7 +15,7 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditAccountScreen extends StatefulWidget {
   static const id = "edit_account_screen";

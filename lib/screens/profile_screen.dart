@@ -159,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },),
               ProfileOptionTile(
-                text: userIsProvider ? 'Create Another Provider Account':'Create Provider Profile',
+                text: userIsProvider ? 'Provider Another Service':'Create Provider Profile',
                 onPressed: () async {
                   DocumentReference result = await firestoreAPI.addProvider(
                       ProviderUser(uid: authProvider.currentUser.id),
@@ -182,8 +182,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileOptionTile(
                   text: 'About Genchi',
                   onPressed: () async {
-                    if (await canLaunch(GenchiAboutURL)) {
-                      await launch(GenchiAboutURL);
+                    if (await canLaunch(GenchiURL)) {
+                      await launch(GenchiURL);
                     } else {
                       print("Could not open URL");
                     }

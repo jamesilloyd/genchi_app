@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/constants.dart';
@@ -89,27 +90,18 @@ class _ProviderScreenState extends State<ProviderScreen> {
                     Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
                   }: () async{
 
-                    //Todo add functionality to not create additional chat if one already exists
-
                     List userChats = authProvider.currentUser.chats;
                     List providerChats = providerUser.chats;
                     List allChats = [userChats,providerChats];
 
-
                     final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
 
-                    print(commonChatIds);
+                    if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
 
                     if(commonChatIds.isEmpty) {
-
-                      DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: providerUser.pid,providersUid: providerUser.uid);
-                      await authProvider.updateCurrentUserData();
-                      Chat newChat = await firestoreAPI.getChatById(result.documentID);
-                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: newChat,provider: providerUser,user: authProvider.currentUser,isFirstInstance: true));
-
-
+                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
                     } else {
-
+                      //This is an existing chat
                       Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
 
@@ -142,7 +134,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
               ),
               Container(
                 child: Text(
-                  "Experience",
+                  "Description",
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Color(kGenchiBlue),

@@ -17,7 +17,6 @@ class PasswordErrorText extends StatelessWidget {
           style: TextStyle(
             color: Colors.red,
             fontWeight: FontWeight.w500,
-            fontStyle: FontStyle.italic,
             fontSize: 12,
           ),
         ),

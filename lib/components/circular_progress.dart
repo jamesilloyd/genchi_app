@@ -6,10 +6,13 @@ class CircularProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(
-        valueColor:  AlwaysStoppedAnimation<Color>(Color(kGenchiOrange)),
-        strokeWidth: 3.0,
-      ),);
+    return Container(
+      height: 40,
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor:  AlwaysStoppedAnimation<Color>(Color(kGenchiOrange)),
+          strokeWidth: 3.0,
+        ),),
+    );
   }
 }

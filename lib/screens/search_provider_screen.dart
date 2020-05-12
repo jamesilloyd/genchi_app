@@ -30,7 +30,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
   Future<List<ProviderUser>> getProvidersByService(serviceType) async {
     List<ProviderUser> providers = [];
     List<ProviderUser> allProviders = await firestoreAPI.fetchProviders();
-    print(allProviders);
     for(ProviderUser provider in allProviders){
       if(provider.type == serviceType) providers.add(provider);
     }

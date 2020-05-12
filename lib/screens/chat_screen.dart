@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/constants.dart';
@@ -11,9 +12,11 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
@@ -34,17 +37,27 @@ class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
   String messageText;
 
+  Chat thisChat;
+  bool userIsProvider;
+  ProviderUser provider;
+  User user;
+  bool isFirstInstance;
+
 
   //ToDo: need to work out how to use OnWillPop to implement chat deletion
+
   @override
   Widget build(BuildContext context) {
 
+    final authProvider = Provider.of<AuthenticationService>(context);
+
     final ChatScreenArguments args = ModalRoute.of(context).settings.arguments;
-    final bool userIsProvider = args.userIsProvider;
-    final Chat thisChat = args.chat;
-    final ProviderUser provider = args.provider;
-    final User user = args.user;
-    final bool isFirstInstance = args.isFirstInstance;
+    userIsProvider = args.userIsProvider;
+    if(thisChat==null) thisChat = args.chat;
+    provider = args.provider;
+    user = args.user;
+    if(isFirstInstance==null) isFirstInstance = args.isFirstInstance;
+    if(kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: userIsProvider ? user.name : provider.name),
@@ -58,6 +71,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (!snapshot.hasData) {
                   return CircularProgress();
                 }
+
+                if(kDebugMode) print('Chat Screen: Snapshot has data');
 
                 final messages = snapshot.data.documents;
                 List<MessageBubble> messageBubbles = [];
@@ -107,9 +122,22 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {
+                    onPressed: isFirstInstance ? () async {
                       messageTextController.clear();
-                      firestoreAPI.addMessageToChat(chatId: thisChat.chatid,chatMessage: ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: Timestamp.now()),providerIsSender: userIsProvider ? true : false );
+                      DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: provider.pid, providersUid: provider.uid);
+                      await authProvider.updateCurrentUserData();
+                      thisChat = await firestoreAPI.getChatById(result.documentID);
+                      await firestoreAPI.addMessageToChat(chatId: thisChat.chatid,chatMessage: ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: Timestamp.now()),providerIsSender: userIsProvider ? true : false );
+                      setState(() {
+                        isFirstInstance = false;
+                      });
+
+                      if(kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
+
+                    } : () async {
+                      messageTextController.clear();
+                      await firestoreAPI.addMessageToChat(chatId: thisChat.chatid,chatMessage: ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: Timestamp.now()),providerIsSender: userIsProvider ? true : false );
+
                       },
                     child: Text(
                       'Send',

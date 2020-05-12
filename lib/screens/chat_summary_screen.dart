@@ -104,13 +104,14 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
             Divider(
               height: 0,
             ),
-            //ToDo: make this a streambuilder
             FutureBuilder(
               future: getUserChatsAndProviders(currentUser.chats),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgress();
                 }
+
+                //ToDo: if you have no messages display some feedback
 
                 final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
@@ -172,8 +173,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   future: getUserProviderChatsAndUsers(currentUser.providerProfiles),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
-                      //ToDo: Add in progressmodalhud
-                      return Center(child: Text("Loading Chats"));
+                      return CircularProgress();
                     }
 
                     final Map<ProviderUser, Map<Chat, User>>

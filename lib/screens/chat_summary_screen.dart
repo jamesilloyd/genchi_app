@@ -112,7 +112,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                 }
 
                 //ToDo: if you have no messages display some feedback
-
                 final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
                 List<MessageListItem> chatWidgets = [];

@@ -12,6 +12,7 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
+import 'package:genchi_app/components/add_image_screen.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -44,13 +45,28 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         child: ListView(
           padding: EdgeInsets.all(20.0),
           children: <Widget>[
-              EditAccountField(
-                field: "Display Picture",
-                initialValue: 'Coming Soon',
-                isEditable: false,
-                onChanged: (value) {
-                },
-                textController: TextEditingController(),
+              RoundedButton(
+                buttonColor: Color(kGenchiBlue),
+                buttonTitle: "Display Picture",
+                onPressed: () {
+                  showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
+                      builder: (context) =>
+                          SingleChildScrollView(
+                              child: Container(
+                                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                child: Container(
+                                    height: MediaQuery.of(context).size.height*0.75,
+                                    child: AddImageScreen()),
+                              )
+                          )
+                  );
+                }
+
               ),
               EditAccountField(
                 field: "Name",

@@ -8,6 +8,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+
+/* TODO: things left to do here:
+    -design 3 scenarios (has image, doesn't have image, added/changed image)
+    -store file to correct location
+    -handle timeout/failure errors
+    -passing in user's current image as placeholder
+ */
+
 Color _iconColor = Color(kGenchiCream);
 
 class AddImageScreen extends StatefulWidget {
@@ -92,9 +100,8 @@ class _AddImageScreenState extends State<AddImageScreen> {
               children: <Widget>[
                 if (_imageFile != null) ...[
                   CircleAvatar(
-                    //TODO this is 0.35
                     radius:
-                        (MediaQuery.of(context).size.height * 0.75 - 130) * 0.2,
+                        (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
                     backgroundImage: FileImage(_imageFile),
                     backgroundColor: Colors.transparent,
                   ),
@@ -107,9 +114,26 @@ class _AddImageScreenState extends State<AddImageScreen> {
                         icon: Icon(Icons.crop),
                         onPressed: _cropImage,
                       ),
-                      /* TODO: turn this into a loading indicator (blue save button turns to
-                          progress indicator which turns to saved
-                       */
+                      Uploader(
+                        file: _imageFile,
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  CircleAvatar(
+                    radius:
+                    (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
+                    backgroundColor: Color(kGenchiCream),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Icon(
+                        Icons.crop,
+                        size: 25,
+                        color: _iconColor,
+                      ),
+                      //Todo: add placeholder here
                       Uploader(
                         file: _imageFile,
                       ),
@@ -198,34 +222,40 @@ class _UploaderState extends State<Uploader> {
           builder: (context, snapshot) {
             var event = snapshot?.data?.snapshot;
 
-//            double progressPercent = event != null
-//                ? event.bytesTransferred / event.totalByteCount
-//                : 0;
+            //TODO: this doesn't work, but need to find a way to handle fails or timesout
+            if (!_uploadTask.isSuccessful){
+              print('Uncessessful');
+            }
 
             if (_uploadTask.isComplete) {
-              return Icon(
-                Platform.isIOS
-                    ? CupertinoIcons.check_mark_circled_solid
-                    : Icons.check_circle,
-                color: _iconColor,
-                size: 25,
+              return SizedBox(
+                height:25,
+                width: 25,
+                child: Icon(
+                  Platform.isIOS
+                      ? CupertinoIcons.check_mark_circled_solid
+                      : Icons.check_circle,
+                  color: _iconColor,
+                  size: 25,
+                ),
               );
             } else if (_uploadTask.isInProgress) {
-              return Container(
-                height: 25,
+              return SizedBox(
+                height: 40,
                 child: Center(
-                  child: CircularProgressIndicator(
+                  child: Container(
+                    height: 25,
+                    width: 25,
+                    child: CircularProgressIndicator(
 //                    value: progressPercent,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(_iconColor),
-                    strokeWidth: 2.0,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(_iconColor),
+                      strokeWidth: 2.0,
+                    ),
                   ),
                 ),
               );
 
-              //TODO: this doesn't work, but need to find a way to handle fails
-            } else if (!_uploadTask.isSuccessful){
-              print('Uncessessful');
             }
 
             return Text("");
@@ -243,17 +273,21 @@ class _UploaderState extends State<Uploader> {
 //                      child: Icon(Icons.pause, size: 30),
 //                      onPressed: _uploadTask.pause,
 //                    ),
+
+
           });
     } else {
-      return IconButton(
-        iconSize: 25,
-        color: _iconColor,
-        icon: Icon(
-          Platform.isIOS
-              ? CupertinoIcons.check_mark_circled
-              : Icons.check_circle_outline,
+      return Container(
+        child: IconButton(
+          iconSize: 25,
+          color: _iconColor,
+          icon: Icon(
+            Platform.isIOS
+                ? CupertinoIcons.check_mark_circled
+                : Icons.check_circle_outline,
+          ),
+          onPressed: _startUpload,
         ),
-        onPressed: _startUpload,
       );
     }
   }

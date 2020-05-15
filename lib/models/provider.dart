@@ -8,6 +8,7 @@ class ProviderUser extends ChangeNotifier {
   String profilePicture;
   DateTime timeStamp;
   String bio;
+  String experience;
   String type;
   List<dynamic> chats;
 
@@ -19,7 +20,8 @@ class ProviderUser extends ChangeNotifier {
       this.timeStamp,
       this.bio,
       this.type,
-      this.chats});
+      this.chats,
+        this.experience});
 
   ProviderUser.fromMap(Map snapshot)
       : uid = snapshot['uid'] ?? '',
@@ -30,6 +32,7 @@ class ProviderUser extends ChangeNotifier {
 //        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'] ?? '',
         chats = snapshot['chats'] ?? [],
+        experience = snapshot['experience'] ?? '',
         type = snapshot['type'] ?? '';
 
   toJson() {
@@ -42,6 +45,7 @@ class ProviderUser extends ChangeNotifier {
       if (type != null) 'type': type,
       if (timeStamp != null) 'timeStamp': timeStamp,
       if(chats != null) 'chats' : chats,
+      if(experience != null) 'experience' : experience,
     };
   }
 }

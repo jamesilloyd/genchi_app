@@ -35,6 +35,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
       chats.add(chat);
     }
 
+    chats.sort((a,b) => b.time.compareTo(a.time));
     for (Chat chat in chats) {
       ProviderUser provider = await firestoreAPI.getProviderById(chat.pid);
       chatAndProviders[chat] = provider;
@@ -61,6 +62,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
           Chat chat = await firestoreAPI.getChatById(chatId);
           chats.add(chat);
         }
+
+        chats.sort((a,b) => b.time.compareTo(a.time));
+
         for (Chat chat in chats) {
           User chatUser = await firestoreAPI.getUserById(chat.uid);
           chatsAndUsers[chat] = chatUser;
@@ -72,6 +76,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
 
     return userProviderChatsAndUsers;
   }
+
+
 
   @override
   Widget build(BuildContext context) {

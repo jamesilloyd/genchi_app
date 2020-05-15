@@ -4,7 +4,8 @@ class User extends ChangeNotifier {
   String id;
   String email;
   String name;
-  String profilePicture;
+  String displayPictureFileName;
+  String displayPictureURL;
   DateTime timeStamp;
   List<dynamic> providerProfiles;
   List<dynamic> chats;
@@ -13,7 +14,8 @@ class User extends ChangeNotifier {
       {this.id,
       this.email,
       this.name,
-      this.profilePicture,
+      this.displayPictureFileName,
+      this.displayPictureURL,
       this.timeStamp,
       this.providerProfiles,
       this.chats});
@@ -21,10 +23,9 @@ class User extends ChangeNotifier {
   User.fromMap(Map snapshot)
       : email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
-        profilePicture = snapshot['profilePicture'] ?? '',
+        displayPictureFileName = snapshot['displayPictureFileName'],
+        displayPictureURL = snapshot['displayPictureURL'],
         id = snapshot['id'] ?? '',
-        //ToDo: need to fix mismatch in data types of flutter and firebase timestamps null value needs to return a timestamp type
-//        timeStamp = snapshot['timestamp'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
         chats = snapshot['chats'] ?? [];
 
@@ -32,7 +33,8 @@ class User extends ChangeNotifier {
     return {
       if (email != null) "email": email,
       if (name != null) "name": name ?? '',
-      if (profilePicture != null) "profilePicture": profilePicture,
+      if (displayPictureFileName != null) "displayPictureFileName": displayPictureFileName,
+      if (displayPictureURL != null) 'displayPictureURL' : displayPictureURL,
       if (id != null) 'id': id,
       if (timeStamp != null) 'timeStamp': timeStamp,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,

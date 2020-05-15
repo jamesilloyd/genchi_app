@@ -134,7 +134,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
               ),
               Container(
                 child: Text(
-                  "Description",
+                  "About Me",
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
@@ -145,6 +145,27 @@ class _ProviderScreenState extends State<ProviderScreen> {
               ),
               Text(
                 providerUser.bio ?? "",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                child: Text(
+                  "Experience",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Color(kGenchiBlue),
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                providerUser.experience ?? "",
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,

@@ -26,6 +26,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 User currentUser;
 
@@ -72,6 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
+
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
       body: Container(
@@ -81,16 +84,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.all(20.0),
             children: <Widget>[
               Container(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                height: MediaQuery.of(context).size.height * 0.2,
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                height: MediaQuery.of(context).size.height * 0.25,
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: Center(
-                    child: CircleAvatar(
-                      radius: 50.0,
-                      backgroundImage: AssetImage("images/Logo_Clear.png"),
-                      backgroundColor: Colors.white,
+                    child: currentUser.displayPictureURL != null ? CachedNetworkImage(
+                      imageUrl: currentUser.displayPictureURL,
+                      placeholder: (context, url) => CircularProgress(),
+                      imageBuilder: (context, imageProvider) => Container(
+                        width: 50.0,
+                        height: 50.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.fill),
+                        ),
+                      ),
+                    ):Container(
+                    width: 50.0,
+                    height: 50.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('images/Logo_Clear.png'),),
                     ),
+                  ),
                   ),
                 ),
               ),
@@ -158,6 +177,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: providerCards,
                     );
                   },),
+
+              //TODO: Add in some feedback here
               ProfileOptionTile(
                 text: userIsProvider ? 'Provider Another Service':'Create Provider Profile',
                 onPressed: () async {
@@ -179,6 +200,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pushNamed(context, EditAccountScreen.id);
                 },
               ),
+
+              //TODO: open up another page that gives a brief overview, find out more and links to pp and tcs
               ProfileOptionTile(
                   text: 'About Genchi',
                   onPressed: () async {

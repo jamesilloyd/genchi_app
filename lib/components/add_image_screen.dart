@@ -3,19 +3,21 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/models/user.dart';
 
+import 'package:genchi_app/components/platform_alerts.dart';
+
+import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /* TODO: things left to do here:
-    -design 3 scenarios (has image, doesn't have image, added/changed image)
-    -store file to correct location
     -handle timeout/failure errors
-    -passing in user's current image as placeholder
  */
-
-bool noChangesMade = true;
 
 Color _iconColor = Color(kGenchiCream);
 
@@ -25,30 +27,37 @@ class AddImageScreen extends StatefulWidget {
 }
 
 class _AddImageScreenState extends State<AddImageScreen> {
+
+  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  bool uploadStarted = false;
   File _imageFile;
+  bool noChangesMade = true;
 
   Future<void> _pickImage(ImageSource source) async {
+
+    //TODO: You can pass in image selection properties here
     File selected = await ImagePicker.pickImage(source: source);
 
     setState(() {
-      if(selected!=null) noChangesMade = false;
+      if (selected != null) {
+        noChangesMade = false;
+        uploadStarted = false;
+      }
       _imageFile = selected;
     });
   }
 
   //Remove image
   void _clear() {
-    //TODO: need to change this so that any existing image is passed back to avatar
-
     setState(() {
       noChangesMade = true;
       _imageFile = null;
     });
   }
 
+
   //Croper plugin
   Future<void> _cropImage() async {
-
     File cropped = await ImageCropper.cropImage(
         sourcePath: _imageFile.path,
         cropStyle: CropStyle.circle,
@@ -64,13 +73,19 @@ class _AddImageScreenState extends State<AddImageScreen> {
         ));
 
     setState(() {
-        if(cropped!=null) noChangesMade = false;
+      if (cropped != null) {
+        noChangesMade = false;
+        uploadStarted = false;
+      }
       _imageFile = cropped ?? _imageFile;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationService>(context);
+    User currentUser = authProvider.currentUser;
+
     return Container(
       padding: EdgeInsets.all(20.0),
       decoration: BoxDecoration(
@@ -110,11 +125,13 @@ class _AddImageScreenState extends State<AddImageScreen> {
                     ? CircleAvatar(
                         radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
                         backgroundColor: Color(kGenchiCream),
+                        backgroundImage: currentUser.displayPictureURL!=null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
                       )
                     : CircleAvatar(
-                  //ToDo, existing image, this should probably be stored on the device, only if one exists!
                         backgroundImage: FileImage(_imageFile),
-                        radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
+                        radius:
+                            (MediaQuery.of(context).size.height * 0.75 - 130) *
+                                0.35,
                         backgroundColor: Color(kGenchiCream),
                       ),
                 SizedBox(
@@ -124,7 +141,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                       color: _iconColor,
                       iconSize: 25,
                       icon: Icon(Icons.crop),
-                      onPressed: _imageFile == null ? (){}: _cropImage,
+                      onPressed: _imageFile == null ? () {} : _cropImage,
                     ),
                   ),
                 ),
@@ -138,7 +155,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  width: (MediaQuery.of(context).size.width -40)/3,
+                  width: (MediaQuery.of(context).size.width - 40) / 3,
                   child: IconButton(
                     icon: Icon(
                       Platform.isIOS
@@ -151,7 +168,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                   ),
                 ),
                 SizedBox(
-                  width: (MediaQuery.of(context).size.width -40)/3,
+                  width: (MediaQuery.of(context).size.width - 40) / 3,
                   child: IconButton(
                     icon: Icon(
                       Platform.isIOS
@@ -165,38 +182,50 @@ class _AddImageScreenState extends State<AddImageScreen> {
                 ),
                 noChangesMade
                     ? SizedBox(
-                  width: (MediaQuery.of(context).size.width -40)/3,
-                      child: IconButton(
+                        width: (MediaQuery.of(context).size.width - 40) / 3,
+                        child: IconButton(
                           icon: Icon(
                             Platform.isIOS
                                 ? CupertinoIcons.delete_solid
                                 : Icons.delete,
                             size: 25,
                           ),
-                          /* ToDo: add in functionality that asks if the user wants to delete
-                             their image and will clear the display and show standard image
-                   */
-                          //                  onPressed: _clear,
-                          onPressed: () {},
+                          onPressed: () {
+                            Platform.isIOS
+                                ? showAlertIOS(context: context, actionFunction: () async {
+                                  await firestoreAPI.deleteUserDisplayPicture(user: currentUser);
+                                  await authProvider.updateCurrentUserData();
+                                  Navigator.of(context).pop();
+
+                            }, alertMessage: "Delete Current Picture")
+                                : showAlertAndroid(context: context, actionFunction: () async {
+                                  await firestoreAPI.deleteUserDisplayPicture(user: currentUser);
+                                  await authProvider.updateCurrentUserData();
+                                  Navigator.of(context).pop();
+
+                            }, alertMessage: "Delete Current Picture");
+                          setState(() {});
+                            },
                           color: _iconColor,
                         ),
-                    )
+                      )
                     : SizedBox(
-                  width: (MediaQuery.of(context).size.width -40)/3,
-                    child: Uploader(file: _imageFile)),
-
-//                IconButton(
-//                        icon: Icon(
-//                          Platform.isIOS
-//                              ? CupertinoIcons.clear_thick
-//                              : Icons.clear,
-//                          size: 25,
-//                        ),
-//                        //ToDo: add in functionality that asks if the user wants to reset changes
-//                        //TODO this has also got to cancel any upload if clicked!
-//                        onPressed: _clear,
-//                        color: _iconColor,
-//                      ),
+                        width: (MediaQuery.of(context).size.width - 40) / 3,
+                        child: uploadStarted
+                            ? Uploader(file: _imageFile)
+                            : IconButton(
+                                iconSize: 25,
+                                color: _iconColor,
+                                icon: Icon(
+                                  Platform.isIOS
+                                      ? CupertinoIcons.check_mark_circled
+                                      : Icons.check_circle_outline,
+                                ),
+                                onPressed: () {
+                                  setState(() => uploadStarted = true);
+                                },
+                              ),
+                      ),
               ],
             ),
           )
@@ -205,6 +234,11 @@ class _AddImageScreenState extends State<AddImageScreen> {
     );
   }
 }
+
+
+
+
+
 
 // Widget used to handle the management of sending files
 class Uploader extends StatefulWidget {
@@ -215,104 +249,94 @@ class Uploader extends StatefulWidget {
   createState() => _UploaderState();
 }
 
+
 class _UploaderState extends State<Uploader> {
-  final FirebaseStorage _storage =
-      FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
+  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirebaseStorage _storage = FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
 
   StorageUploadTask _uploadTask;
+  String filePath;
 
-  _startUpload() {
-    //TODO: change this to be the current users id
-    String filePath = 'images/users/${DateTime.now()}.png';
+  Future<bool> updateUserDisplayPicture() async {
+    final authProvider = Provider.of<AuthenticationService>(context,listen: false);
 
-    setState(() {
-      noChangesMade = true;
-      _uploadTask = _storage.ref().child(filePath).putFile(widget.file);
-    });
+    try {
+      filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
+      StorageReference ref = _storage.ref().child(filePath);
+      print('Uploading image');
+      _uploadTask = ref.putFile(widget.file);
+      StorageTaskSnapshot storageSnapshot = await _uploadTask.onComplete;
+      print('downloading url');
+      String downloadUrl = await storageSnapshot.ref.getDownloadURL();
+      print(downloadUrl);
+      String oldFileName = authProvider.currentUser.displayPictureFileName;
+      print('Updating firestore');
+      await firestoreAPI.updateUser(
+          user: User(
+              displayPictureFileName: filePath, displayPictureURL: downloadUrl),
+          uid: authProvider.currentUser.id);
+      print('Updating current user');
+      await authProvider.updateCurrentUserData();
+      print('Deleting old file');
+      if (oldFileName != null)
+        await FirebaseStorage.instance.ref().child(oldFileName).delete();
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> successfullUpload;
+
+
+  @override
+  void initState() {
+    super.initState();
+    successfullUpload = updateUserDisplayPicture();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_uploadTask != null) {
-      return StreamBuilder<StorageTaskEvent>(
-          stream: _uploadTask.events,
-          builder: (context, snapshot) {
-            var event = snapshot?.data?.snapshot;
-
-            //TODO: this doesn't work, but need to find a way to handle fails or timeouts
-            if (!_uploadTask.isSuccessful) {
-              print('Uncessessful');
-            }
-            if (_uploadTask.isComplete) {
-              //TODO: must add file path to firestore
-              //TODO: must update current user here
-
-              print('Is complete');
-              return IconButton(
-                iconSize: 25,
-                color: _iconColor,
-                icon: noChangesMade
-                    ? Icon(
-                  Platform.isIOS
-                      ? CupertinoIcons.check_mark_circled_solid
-                      : Icons.check_circle,
-                )
-                    : Icon(
-                  Platform.isIOS
-                      ? CupertinoIcons.check_mark_circled
-                      : Icons.check_circle_outline,
-                ),
-                onPressed: noChangesMade ? () {} : _startUpload,
-              );
-            } else if (_uploadTask.isInProgress) {
-              print('inProgress');
-              return FlatButton(
-                onPressed: _uploadTask.pause,
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  child: Center(
-                    child: CircularProgressIndicator(
-//                    value: progressPercent,
-                      valueColor: AlwaysStoppedAnimation<Color>(_iconColor),
-                      strokeWidth: 2.0,
-                    ),
+      return FutureBuilder(
+        future: successfullUpload,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: Container(
+                height: 20,
+                width: 20,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(_iconColor),
+                    strokeWidth: 2.0,
                   ),
                 ),
-              );
-            } else if(_uploadTask.isPaused) {
-              return IconButton(
-                iconSize: 25,
-                color: _iconColor,
-                icon: Icon(
-                  Platform.isIOS
-                      ? CupertinoIcons.check_mark_circled
-                      : Icons.check_circle_outline,
-                ),
-                onPressed: _uploadTask.resume,
-              );
-            }
+              ),
+            );
+          }
 
-            return Text("");
-
-          });
-    } else {
-      return IconButton(
-        iconSize: 25,
-        color: _iconColor,
-        icon: noChangesMade
-            ? Icon(
+          if (snapshot.data) {
+            return IconButton(
+              iconSize: 25,
+              color: _iconColor,
+              icon: Icon(
                 Platform.isIOS
                     ? CupertinoIcons.check_mark_circled_solid
                     : Icons.check_circle,
-              )
-            : Icon(
-                Platform.isIOS
-                    ? CupertinoIcons.check_mark_circled
-                    : Icons.check_circle_outline,
               ),
-        onPressed: noChangesMade ? () {} : _startUpload,
+              onPressed: () {},
+            );
+          } else {
+            return IconButton(
+              iconSize: 25,
+              color: _iconColor,
+              icon: Icon(Icons.error),
+              //TODO Maybe add in a snackbar here
+              onPressed: () {},
+            );
+          }
+        },
       );
-    }
   }
 }

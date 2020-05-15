@@ -44,8 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isFirstInstance;
 
 
-  //ToDo: need to work out how to use OnWillPop to implement chat deletion
-
   @override
   Widget build(BuildContext context) {
 
@@ -96,9 +94,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               },
             ),
-
-
-//            MessagesStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -122,7 +117,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: isFirstInstance ? () async {
+                    onPressed: messageText!= null ? (isFirstInstance ? () async {
+
                       messageTextController.clear();
                       DocumentReference result = await firestoreAPI.addNewChat(uid: authProvider.currentUser.id,pid: provider.pid, providersUid: provider.uid);
                       await authProvider.updateCurrentUserData();
@@ -132,13 +128,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         isFirstInstance = false;
                       });
 
-                      if(kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
-
                     } : () async {
                       messageTextController.clear();
                       await firestoreAPI.addMessageToChat(chatId: thisChat.chatid,chatMessage: ChatMessage(sender: userIsProvider ? provider.pid : user.id, text: messageText, time: Timestamp.now()),providerIsSender: userIsProvider ? true : false );
 
-                      },
+                      }) :(){print("hello");},
                     child: Text(
                       'Send',
                       style: TextStyle(

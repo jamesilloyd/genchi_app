@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user.dart';
-import 'package:genchi_app/models/authentication.dart';
 import 'provider.dart';
 import 'chat.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 //This class is specifically for Profile CRUD
 
@@ -78,7 +78,7 @@ class FirestoreCRUDModel {
   }
 
 
-  Future updateUser(User user, String uid) async {
+  Future updateUser({User user, String uid}) async {
     await _usersCollectionRef.document(uid).setData(user.toJson(),merge: true);
     return;
   }
@@ -153,6 +153,11 @@ class FirestoreCRUDModel {
     await _chatCollectionRef.document(chat.chatid).delete();
     await _providersCollectionRef.document(chat.pid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
     await _providersCollectionRef.document(chat.uid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
+  }
+
+  Future<void> deleteUserDisplayPicture({User user}) async {
+    await FirebaseStorage.instance.ref().child(user.displayPictureFileName).delete();
+    await _usersCollectionRef.document(user.id).setData({'displayPictureFileName': FieldValue.delete(),'displayPictureURL':FieldValue.delete()},merge: true);
   }
 
 

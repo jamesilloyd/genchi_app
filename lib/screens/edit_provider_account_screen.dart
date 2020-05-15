@@ -9,6 +9,7 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
@@ -21,6 +22,8 @@ import 'home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+
+//TODO: add in hint text for making your profile
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
@@ -32,9 +35,11 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
+  TextEditingController experienceTextController = TextEditingController();
 
   String name;
   String bio;
+  String experience;
   bool showSpinner = false;
   String service;
 
@@ -101,6 +106,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       appBar: MyAppNavigationBar(barTitle: "Edit Details"),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
+        progressIndicator: CircularProgress(),
         child: ListView(
           padding: EdgeInsets.all(20.0),
           children: <Widget>[
@@ -148,7 +154,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               ],
             ),
             EditAccountField(
-              field: 'Description',
+              field: 'About me',
               initialValue: providerUser.bio ?? '',
               textController: bioTextController,
               changedParameter: bio,
@@ -156,6 +162,47 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 //Update name field
                 bio = value;
               },
+            ),
+            EditAccountField(
+              field: 'Experience',
+              initialValue: providerUser.experience ?? '',
+              textController: experienceTextController,
+              changedParameter: experience,
+              onChanged: (value) {
+                //Update name field
+                experience = value;
+              },
+            ),
+            //TODO Implement the following fields
+            EditAccountField(
+              field: "Price",
+              initialValue: 'Coming Soon',
+              isEditable: false,
+              onChanged: (value) {},
+              textController: TextEditingController(),
+            ),
+            EditAccountField(
+              field: "Portfolio Pictures",
+              initialValue: 'Coming Soon',
+              isEditable: false,
+              onChanged: (value) {},
+              textController: TextEditingController(),
+            ),
+            EditAccountField(
+              field: "Tags",
+              initialValue: 'Coming Soon',
+              isEditable: false,
+              onChanged: (value) {},
+              textController: TextEditingController(),
+            ),
+
+            //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
+            EditAccountField(
+              field: "Website Links",
+              initialValue: 'Coming Soon',
+              isEditable: false,
+              onChanged: (value) {},
+              textController: TextEditingController(),
             ),
             SizedBox(
               height: 10.0,
@@ -167,13 +214,20 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               buttonTitle: "Save Details",
               buttonColor: Color(kGenchiOrange),
               onPressed: () async {
-                print('$name $service $bio ${providerUser.pid}');
+
+                setState(() {
+                  showSpinner = true;
+                });
 
                 await firestoreAPI.updateProvider(
-                    ProviderUser(name: name, type: service, bio: bio),
+                    ProviderUser(name: name, type: service, bio: bio, experience: experience),
                     providerUser.pid);
                 await authProvider.updateCurrentUserData();
                 await providerService.updateCurrentProvider(providerUser.pid);
+
+                setState(() {
+                  showSpinner = false;
+                });
 
                 fromRegistration
                     ? Navigator.pushNamedAndRemoveUntil(
@@ -199,6 +253,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                             HomeScreen.id, (Route<dynamic> route) => false);
                       }, alertMessage: 'Delete Account')
                     : showAlertAndroid(context: context, actionFunction: () async {
+
+                      //TODO You should also update the chat to say chat delete or something so that the other users know the chat doesn't exist anymore
                         await firestoreAPI.deleteProvider(
                             pid: providerUser.pid,
                             uid: authProvider.currentUser.id);

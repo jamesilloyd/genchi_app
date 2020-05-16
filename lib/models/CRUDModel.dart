@@ -201,6 +201,7 @@ class FirestoreCRUDModel {
     for(Chat chat in provider.chats) {
       await updateChat(chat: Chat(chatid: chat.chatid, isDeleted : true, lastMessage: 'Provider No Longer Exists'));
     }
+    await FirebaseStorage.instance.ref().child(provider.displayPictureFileName).delete();
     await _providersCollectionRef.document(provider.pid).delete();
     await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
   }

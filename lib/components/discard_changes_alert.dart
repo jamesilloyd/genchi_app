@@ -3,21 +3,18 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 import 'package:genchi_app/constants.dart';
 
-Future<bool> showProviderAlert({BuildContext context}) {
+Future<bool> showDiscardChangesAlert({BuildContext context}) {
   return showDialog(
     context: context,
     child: Platform.isIOS
         ? CupertinoAlertDialog(
             title: Text(
-              "Create Provider Account",
+              "Are you sure you want to discard changes?",
               style: TextStyle(fontFamily: 'FuturaPT'),
             ),
-            content: Text(
-                "Are you ready to provider your skills to the Cambridge community?",
-                style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
             actions: <Widget>[
               CupertinoDialogAction(
-                child: Text("Not now",
+                child: Text("No",
                     style: TextStyle(
                         fontFamily: 'FuturaPT',
                         color: Color(kGenchiOrange),
@@ -36,13 +33,14 @@ Future<bool> showProviderAlert({BuildContext context}) {
                 ),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop(true);
+
                 },
               ),
             ],
           )
         : SimpleDialog(
             title: Text(
-              "Create Provider Account",
+              "Are you sure you want to discard changes?",
               style: TextStyle(fontFamily: 'FuturaPT'),
             ),
             children: <Widget>[
@@ -51,21 +49,18 @@ Future<bool> showProviderAlert({BuildContext context}) {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    Text(
-                        "Are you ready to provider your skills to the Cambridge community?",
-                        style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         SimpleDialogOption(
-                          child: Text("Not now",
+                          child: Text("No",
                               style: TextStyle(
                                   fontFamily: 'FuturaPT',
                                   color: Color(kGenchiOrange),
                                   fontWeight: FontWeight.w600)),
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(false);
+                            Navigator.of(context, rootNavigator: true).pop(false);
+
                           },
                         ),
                         SimpleDialogOption(
@@ -75,8 +70,8 @@ Future<bool> showProviderAlert({BuildContext context}) {
                                   color: Color(kGenchiGreen),
                                   fontWeight: FontWeight.w600)),
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(true);
+                            Navigator.of(context, rootNavigator: true).pop(true);
+
                           },
                         ),
                       ],

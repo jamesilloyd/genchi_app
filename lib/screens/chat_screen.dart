@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
     provider = args.provider;
     user = args.user;
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
-    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
+//    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
 
     return Scaffold(
       appBar: MyAppNavigationBar(
@@ -62,12 +62,11 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             StreamBuilder(
-              stream: firestoreAPI.fetchChatStream(thisChat.chatid),
+              stream: firestoreAPI.fetchChatStream(thisChat.chatid) ,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgress();
                 }
-
                 if (kDebugMode) print('Chat Screen: Snapshot has data');
 
                 final messages = snapshot.data.documents;
@@ -136,8 +135,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                             pid: provider.pid,
                                             providersUid: provider.uid);
                                     await authProvider.updateCurrentUserData();
-                                    thisChat = await firestoreAPI
-                                        .getChatById(result.documentID);
+                                    thisChat = await firestoreAPI.getChatById(result.documentID);
+                                    print(thisChat.chatid);
                                     await firestoreAPI.addMessageToChat(
                                         chatId: thisChat.chatid,
                                         chatMessage: ChatMessage(

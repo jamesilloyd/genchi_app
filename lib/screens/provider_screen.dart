@@ -87,7 +87,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
                     if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
 
                     if(commonChatIds.isEmpty) {
-                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
+                      print("Empty");
+                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(isDeleted: false),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
                     } else {
                       //This is an existing chat
                       Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);

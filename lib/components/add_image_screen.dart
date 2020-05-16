@@ -137,7 +137,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                     ? CircleAvatar(
                         radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
                         backgroundColor: Color(kGenchiCream),
-                        backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
+                        backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? (widget.isUser ? CachedNetworkImageProvider(currentUser.displayPictureURL) : CachedNetworkImageProvider(currentProvider.displayPictureURL)): null,
                       )
                     : CircleAvatar(
                         backgroundImage: FileImage(_imageFile),

@@ -25,13 +25,6 @@ class ChatSummaryScreen extends StatefulWidget {
 class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
-  //ToDo: this can all go into CRUDModel
-
-
-  //ToDo: this can all go into CRUDModel
-
-
-
   @override
   Widget build(BuildContext context) {
     print('Chat screen activated');

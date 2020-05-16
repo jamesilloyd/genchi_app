@@ -31,7 +31,7 @@ Future<bool> showHirerAlert({BuildContext context}) {
                   "Yes",
                   style: TextStyle(
                       fontFamily: 'FuturaPT',
-                      color: Color(kGenchiBlue),
+                      color: Color(kGenchiGreen),
                       fontWeight: FontWeight.w600),
                 ),
                 onPressed: () {
@@ -64,19 +64,17 @@ Future<bool> showHirerAlert({BuildContext context}) {
                                   color: Color(kGenchiOrange),
                                   fontWeight: FontWeight.w600)),
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(false);
+                            Navigator.of(context, rootNavigator: true).pop(false);
                           },
                         ),
                         SimpleDialogOption(
                           child: Text("Yes",
                               style: TextStyle(
                                   fontFamily: 'FuturaPT',
-                                  color: Color(kGenchiBlue),
+                                  color: Color(kGenchiGreen),
                                   fontWeight: FontWeight.w600)),
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(true);
+                            Navigator.of(context, rootNavigator: true).pop(true);
                           },
                         ),
                       ],

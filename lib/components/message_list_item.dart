@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 
 class MessageListItem extends StatelessWidget {
 
-  final AssetImage image;
+  final ImageProvider image;
   final String name;
   final String lastMessage;
   final Timestamp time;
@@ -77,6 +77,7 @@ class MessageListItem extends StatelessWidget {
                     style: TextStyle(fontSize: 14),
                   ),
                   leading: CircleAvatar(
+                    radius: 30,
                     backgroundImage: image,
                     backgroundColor: Color(kGenchiCream),
                   ),

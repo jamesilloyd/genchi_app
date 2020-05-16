@@ -10,6 +10,8 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/display_picture.dart';
+import 'package:genchi_app/components/add_image_screen.dart';
 
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
@@ -36,12 +38,14 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
   TextEditingController experienceTextController = TextEditingController();
+  TextEditingController priceTextController = TextEditingController();
 
   String name;
   String bio;
   String experience;
   bool showSpinner = false;
   String service;
+  String pricing;
 
   DropdownButton<String> androidDropdownButton(currentService) {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -103,24 +107,102 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     ProviderUser providerUser = providerService.currentProvider;
 
     return Scaffold(
-      appBar: MyAppNavigationBar(barTitle: "Edit Details"),
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Color(kGenchiBlue),
+        ),
+        title: Text(
+          'Edit Details',
+          style: TextStyle(
+            color: Color(kGenchiBlue),
+            fontSize: 30,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: Color(kGenchiCream),
+        elevation: 2.0,
+        brightness: Brightness.light,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+                Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
+                size: 30,
+                color: Color(kGenchiBlue),
+            ),
+            onPressed: () async {
+
+              setState(() {
+                showSpinner = true;
+              });
+
+              await firestoreAPI.updateProvider(provider:
+              ProviderUser(name: name, type: service, bio: bio, experience: experience, pricing: pricing),
+                  pid: providerUser.pid);
+              await authProvider.updateCurrentUserData();
+              await providerService.updateCurrentProvider(providerUser.pid);
+
+              setState(() {
+                showSpinner = false;
+              });
+
+              fromRegistration
+                  ? Navigator.pushNamedAndRemoveUntil(
+                  context, HomeScreen.id, (Route<dynamic> route) => false,
+                  arguments: HomeScreenArguments(startingIndex: 2))
+                  : Navigator.of(context).pop();
+            },
+          )
+        ],
+      ),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
         child: ListView(
           padding: EdgeInsets.all(20.0),
           children: <Widget>[
-            EditAccountField(
-              field: "Display Picture",
-              initialValue: 'Coming Soon',
-              isEditable: false,
-              onChanged: (value) {},
-              textController: TextEditingController(),
+            Center(
+              child: Text(
+                'Display Picture',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                  color: Color(kGenchiBlue),
+                ),
+              ),
+            ),
+            SizedBox(
+                height: 5.0
+            ),
+            GestureDetector(
+              onTap: (){
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0))),
+                  builder: (context) => SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context)
+                              .viewInsets
+                              .bottom),
+                      child: Container(
+                          height: MediaQuery.of(context).size.height *
+                              0.75,
+                          child: AddImageScreen(isUser: false)),
+                    ),
+                  ),
+                );
+              },
+              child: DisplayPicture(imageUrl: providerUser.displayPictureURL, height: 0.25),
             ),
             EditAccountField(
               field: "Provider Profile Name",
               initialValue: providerUser.name ?? '',
               textController: nameTextController,
+              hintText: "Either your name or your brand's name",
               onChanged: (value) {
                 //Update name field
                 name = value;
@@ -158,6 +240,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               initialValue: providerUser.bio ?? '',
               textController: bioTextController,
               changedParameter: bio,
+              hintText: 'What your service/offering is',
               onChanged: (value) {
                 //Update name field
                 bio = value;
@@ -168,19 +251,22 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               initialValue: providerUser.experience ?? '',
               textController: experienceTextController,
               changedParameter: experience,
+              hintText: 'E.g. how you developed your skills',
               onChanged: (value) {
                 //Update name field
                 experience = value;
               },
             ),
-            //TODO Implement the following fields
             EditAccountField(
               field: "Price",
-              initialValue: 'Coming Soon',
-              isEditable: false,
-              onChanged: (value) {},
-              textController: TextEditingController(),
+              initialValue: providerUser.pricing,
+              onChanged: (value) {
+                pricing = value;
+                },
+              textController: priceTextController,
+              hintText: "E.g. for experience, £10 per job etc.",
             ),
+            //TODO Implement the following fields
             EditAccountField(
               field: "Portfolio Pictures",
               initialValue: 'Coming Soon',
@@ -211,32 +297,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               height: 10,
             ),
             RoundedButton(
-              buttonTitle: "Save Details",
-              buttonColor: Color(kGenchiOrange),
-              onPressed: () async {
-
-                setState(() {
-                  showSpinner = true;
-                });
-
-                await firestoreAPI.updateProvider(
-                    ProviderUser(name: name, type: service, bio: bio, experience: experience),
-                    providerUser.pid);
-                await authProvider.updateCurrentUserData();
-                await providerService.updateCurrentProvider(providerUser.pid);
-
-                setState(() {
-                  showSpinner = false;
-                });
-
-                fromRegistration
-                    ? Navigator.pushNamedAndRemoveUntil(
-                        context, HomeScreen.id, (Route<dynamic> route) => false,
-                        arguments: HomeScreenArguments(startingIndex: 2))
-                    : Navigator.of(context).pop();
-              },
-            ),
-            RoundedButton(
               buttonTitle: fromRegistration
                   ? "Cancel (you can make one later)"
                   : "Delete provider account",
@@ -244,9 +304,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               onPressed: () async {
                 Platform.isIOS
                     ? showAlertIOS(context: context, actionFunction: () async {
-                        await firestoreAPI.deleteProvider(
-                            pid: providerUser.pid,
-                            uid: authProvider.currentUser.id);
+                        await firestoreAPI.deleteProvider(provider: providerUser);
                         await authProvider.updateCurrentUserData();
 
                         Navigator.pushNamedAndRemoveUntil(context,
@@ -255,9 +313,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     : showAlertAndroid(context: context, actionFunction: () async {
 
                       //TODO You should also update the chat to say chat delete or something so that the other users know the chat doesn't exist anymore
-                        await firestoreAPI.deleteProvider(
-                            pid: providerUser.pid,
-                            uid: authProvider.currentUser.id);
+                        await firestoreAPI.deleteProvider(provider: providerUser);
                         await authProvider.updateCurrentUserData();
                         Navigator.pushNamedAndRemoveUntil(context,
                             HomeScreen.id, (Route<dynamic> route) => false);

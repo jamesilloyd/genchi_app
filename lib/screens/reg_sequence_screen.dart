@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/create_hirer_alert.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'home_screen.dart';
@@ -10,6 +11,7 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/components/create_provider_alert.dart';
 
 class RegSequenceScreen extends StatefulWidget {
   static const String id = "reg_sequence_screen";
@@ -25,8 +27,7 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationService authProvider =
-        Provider.of<AuthenticationService>(context);
+    AuthenticationService authProvider = Provider.of<AuthenticationService>(context);
     ProviderService providerService = Provider.of<ProviderService>(context);
 
     return Scaffold(
@@ -83,9 +84,14 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                         borderRadius: BorderRadius.circular(15),
                         child: RaisedButton(
                           color: Color(kGenchiOrange),
-                          onPressed: () {
-                            Navigator.pushNamedAndRemoveUntil(context,
-                                HomeScreen.id, (Route<dynamic> route) => false);
+                          onPressed: () async {
+
+                            bool createHirer = await showHirerAlert(context:context);
+                            if(createHirer) {
+                              Navigator.pushNamedAndRemoveUntil(context,
+                                  HomeScreen.id, (
+                                      Route<dynamic> route) => false);
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
@@ -126,20 +132,30 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                           color: Color(kGenchiBlue),
                           onPressed: () async {
 
-                            DocumentReference result = await firestoreAPI.addProvider(ProviderUser(uid: authProvider.currentUser.id),authProvider.currentUser.id);
-                            await authProvider.updateCurrentUserData();
+                            bool createProvider = await showProviderAlert(context: context);
+                            if(createProvider) {
+                              DocumentReference result = await firestoreAPI
+                                  .addProvider(ProviderUser(
+                                  uid: authProvider.currentUser.id),
+                                  authProvider.currentUser.id);
+                              await authProvider.updateCurrentUserData();
 
-                            ProviderUser newProvider = await firestoreAPI.getProviderById(result.documentID);
-                            await providerService.updateCurrentProvider(result.documentID);
+                              ProviderUser newProvider = await firestoreAPI
+                                  .getProviderById(result.documentID);
+                              await providerService.updateCurrentProvider(
+                                  result.documentID);
 
-                            print(newProvider);
+                              print(newProvider);
 
-                            Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                EditProviderAccountScreen.id,
-                                (Route<dynamic> route) => false,
-                                arguments: EditProviderAccountScreenArguments(
-                                    fromRegistration: true, provider: newProvider));
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  EditProviderAccountScreen.id,
+                                      (Route<dynamic> route) => false,
+                                  arguments: EditProviderAccountScreenArguments(
+                                      fromRegistration: true,
+                                      provider: newProvider));
+                            }
+
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),

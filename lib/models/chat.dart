@@ -8,10 +8,11 @@ class Chat {
   String chatid;
   bool userHasUnreadMessage;
   bool providerHasUnreadMessage;
+  bool isDeleted;
   String lastMessage;
   Timestamp time;
 
-  Chat({this.pid, this.providerdsUid, this.uid, this.chatid, this.userHasUnreadMessage, this.providerHasUnreadMessage, this.lastMessage, this.time});
+  Chat({this.pid, this.isDeleted, this.providerdsUid, this.uid, this.chatid, this.userHasUnreadMessage, this.providerHasUnreadMessage, this.lastMessage, this.time});
 
 
   Chat.fromMap(Map snapshot) :
@@ -20,6 +21,7 @@ class Chat {
         uid = snapshot['uid'] ?? '',
         userHasUnreadMessage = snapshot['userHasUnreadMessage'] ?? false,
         providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
+        isDeleted = snapshot['isDeleted'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         chatid = snapshot['chatid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
@@ -30,6 +32,7 @@ class Chat {
       if(pid != null) "pid" : pid,
       if(providerdsUid != null) "providerdsUid": providerdsUid ?? '',
       if(uid != null) "uid": uid,
+      if(isDeleted !=null) 'isDeleted' : isDeleted,
       if(chatid != null) 'chatid' : chatid,
       if(providerHasUnreadMessage != null) 'providerHasUnreadMessage' : providerHasUnreadMessage,
       if(userHasUnreadMessage != null) 'userHasUnreadMessage' : userHasUnreadMessage,

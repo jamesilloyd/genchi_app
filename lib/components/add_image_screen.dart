@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
 
@@ -22,6 +24,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 Color _iconColor = Color(kGenchiCream);
 
 class AddImageScreen extends StatefulWidget {
+
+  final bool isUser;
+
+  AddImageScreen({Key key, @required this.isUser}) : super(key: key);
+
+
   @override
   _AddImageScreenState createState() => _AddImageScreenState();
 }
@@ -58,15 +66,17 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   //Croper plugin
   Future<void> _cropImage() async {
+
     File cropped = await ImageCropper.cropImage(
         sourcePath: _imageFile.path,
         cropStyle: CropStyle.circle,
         compressFormat: ImageCompressFormat.png,
         //TODO: MUST check to see what this looks like
         androidUiSettings: AndroidUiSettings(
-          toolbarColor: Colors.purple,
-          toolbarWidgetColor: Colors.white,
-          toolbarTitle: 'Crop It',
+          toolbarColor: Color(kGenchiGreen),
+          toolbarWidgetColor: Color(kGenchiOrange),
+          backgroundColor: Color(kGenchiCream),
+          toolbarTitle: 'Crop Photo',
         ),
         iosUiSettings: IOSUiSettings(
           title: 'Crop Photo',
@@ -85,6 +95,8 @@ class _AddImageScreenState extends State<AddImageScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
+    final providerService = Provider.of<ProviderService>(context);
+    ProviderUser currentProvider = providerService.currentProvider;
 
     return Container(
       padding: EdgeInsets.all(20.0),
@@ -125,7 +137,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                     ? CircleAvatar(
                         radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
                         backgroundColor: Color(kGenchiCream),
-                        backgroundImage: currentUser.displayPictureURL!=null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
+                        backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
                       )
                     : CircleAvatar(
                         backgroundImage: FileImage(_imageFile),
@@ -134,14 +146,14 @@ class _AddImageScreenState extends State<AddImageScreen> {
                                 0.35,
                         backgroundColor: Color(kGenchiCream),
                       ),
-                SizedBox(
+                _imageFile == null ? SizedBox(height: 30): SizedBox(
                   height: 30,
-                  child: Center(
+                  child:  Center(
                     child: IconButton(
                       color: _iconColor,
                       iconSize: 25,
                       icon: Icon(Icons.crop),
-                      onPressed: _imageFile == null ? () {} : _cropImage,
+                      onPressed: _cropImage,
                     ),
                   ),
                 ),
@@ -193,14 +205,14 @@ class _AddImageScreenState extends State<AddImageScreen> {
                           onPressed: () {
                             Platform.isIOS
                                 ? showAlertIOS(context: context, actionFunction: () async {
-                                  await firestoreAPI.deleteUserDisplayPicture(user: currentUser);
-                                  await authProvider.updateCurrentUserData();
+                                  widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
+                                  widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
                                   Navigator.of(context).pop();
 
                             }, alertMessage: "Delete Current Picture")
                                 : showAlertAndroid(context: context, actionFunction: () async {
-                                  await firestoreAPI.deleteUserDisplayPicture(user: currentUser);
-                                  await authProvider.updateCurrentUserData();
+                                  widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
+                                  widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
                                   Navigator.of(context).pop();
 
                             }, alertMessage: "Delete Current Picture");
@@ -212,7 +224,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                     : SizedBox(
                         width: (MediaQuery.of(context).size.width - 40) / 3,
                         child: uploadStarted
-                            ? Uploader(file: _imageFile)
+                            ? Uploader(file: _imageFile, isUser: widget.isUser,)
                             : IconButton(
                                 iconSize: 25,
                                 color: _iconColor,
@@ -243,8 +255,9 @@ class _AddImageScreenState extends State<AddImageScreen> {
 // Widget used to handle the management of sending files
 class Uploader extends StatefulWidget {
   final File file;
+  final bool isUser;
 
-  Uploader({Key key, this.file}) : super(key: key);
+  Uploader({Key key, this.file, @required this.isUser}) : super(key: key);
 
   createState() => _UploaderState();
 }
@@ -257,11 +270,12 @@ class _UploaderState extends State<Uploader> {
   StorageUploadTask _uploadTask;
   String filePath;
 
-  Future<bool> updateUserDisplayPicture() async {
+  Future<bool> updateDisplayPicture() async {
     final authProvider = Provider.of<AuthenticationService>(context,listen: false);
+    final providerService = Provider.of<ProviderService>(context, listen: false);
 
     try {
-      filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
+      filePath = widget.isUser ? 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png' : 'images/providers/displayPicture/${providerService.currentProvider.pid}${DateTime.now()}.png';
       StorageReference ref = _storage.ref().child(filePath);
       print('Uploading image');
       _uploadTask = ref.putFile(widget.file);
@@ -269,14 +283,13 @@ class _UploaderState extends State<Uploader> {
       print('downloading url');
       String downloadUrl = await storageSnapshot.ref.getDownloadURL();
       print(downloadUrl);
-      String oldFileName = authProvider.currentUser.displayPictureFileName;
+      String oldFileName = widget.isUser ? authProvider.currentUser.displayPictureFileName : providerService.currentProvider.displayPictureFileName;
       print('Updating firestore');
-      await firestoreAPI.updateUser(
-          user: User(
-              displayPictureFileName: filePath, displayPictureURL: downloadUrl),
-          uid: authProvider.currentUser.id);
+      widget.isUser ? await firestoreAPI.updateUser(
+          user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl),
+          uid: authProvider.currentUser.id) : await firestoreAPI.updateProvider(provider: ProviderUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl),pid: providerService.currentProvider.pid);
       print('Updating current user');
-      await authProvider.updateCurrentUserData();
+      widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(providerService.currentProvider.pid);
       print('Deleting old file');
       if (oldFileName != null)
         await FirebaseStorage.instance.ref().child(oldFileName).delete();
@@ -293,7 +306,7 @@ class _UploaderState extends State<Uploader> {
   @override
   void initState() {
     super.initState();
-    successfullUpload = updateUserDisplayPicture();
+    successfullUpload = updateDisplayPicture();
   }
 
   @override

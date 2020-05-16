@@ -1,6 +1,6 @@
-import 'dart:io' as io;
 import 'dart:io' show Platform;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -15,6 +15,8 @@ import 'package:genchi_app/components/profile_option_tile.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/display_picture.dart';
+import 'package:genchi_app/components/create_provider_alert.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
@@ -24,7 +26,6 @@ import 'package:genchi_app/models/provider.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -38,18 +39,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
 
-  io.File _image;
   String userName;
   List<ProviderUser> providers;
 
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(
-      () {
-        _image = image;
-      },
-    );
-  }
 
   final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
 
@@ -74,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
-
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
       body: Container(
@@ -83,36 +74,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView(
             padding: EdgeInsets.all(20.0),
             children: <Widget>[
-              Container(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                height: MediaQuery.of(context).size.height * 0.25,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Center(
-                    child: currentUser.displayPictureURL != null ? CachedNetworkImage(
-                      imageUrl: currentUser.displayPictureURL,
-                      placeholder: (context, url) => CircularProgress(),
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: 50.0,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.fill),
-                        ),
-                      ),
-                    ):Container(
-                    width: 50.0,
-                    height: 50.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage('images/Logo_Clear.png'),),
-                    ),
-                  ),
-                  ),
-                ),
-              ),
+              DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,),
+              SizedBox(height:20),
               Divider(
                 height: 0,
               ),
@@ -155,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     for (ProviderUser provider in providers) {
                       ProviderCard pCard = ProviderCard(
                         //ToDo: implement dp
-                        image: AssetImage("images/Logo_Clear.png"),
+                        image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
                         name: provider.name,
                         description: provider.bio,
                         service: provider.type,
@@ -182,16 +145,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileOptionTile(
                 text: userIsProvider ? 'Provider Another Service':'Create Provider Profile',
                 onPressed: () async {
-                  DocumentReference result = await firestoreAPI.addProvider(
-                      ProviderUser(uid: authProvider.currentUser.id),
-                      authProvider.currentUser.id);
-                  await authProvider.updateCurrentUserData();
 
-                  await providerService.updateCurrentProvider(result.documentID);
+                  bool createAccount = await showProviderAlert(context: context);
+                  if(createAccount){
+                    DocumentReference result = await firestoreAPI.addProvider(
+                        ProviderUser(uid: authProvider.currentUser.id),
+                        authProvider.currentUser.id);
+                    await authProvider.updateCurrentUserData();
 
-                  Navigator.pushNamed(context, ProviderScreen.id,
-                      arguments: ProviderScreenArguments(
-                          provider: providerService.currentProvider));
+                    await providerService.updateCurrentProvider(result.documentID);
+
+                    Navigator.pushNamed(context, ProviderScreen.id,
+                        arguments: ProviderScreenArguments(
+                            provider: providerService.currentProvider));
+                  }
                 },
               ),
               ProfileOptionTile(

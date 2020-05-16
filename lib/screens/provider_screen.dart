@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/rounded_button.dart';
-import 'package:genchi_app/screens/profile_screen.dart';
 
 import 'edit_provider_account_screen.dart';
 import 'chat_screen.dart';
@@ -52,20 +52,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
           child: ListView(
             padding: EdgeInsets.all(20.0),
             children: <Widget>[
-              Container(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Center(
-                    child: CircleAvatar(
-                      radius: 50.0,
-                      backgroundImage: AssetImage("images/Logo_Clear.png"),
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              DisplayPicture(imageUrl: providerUser.displayPictureURL,height: 0.2,),
+              SizedBox(height: 10),
               Container(
                 child: Text(
                   providerUser.name ?? "",
@@ -166,6 +154,27 @@ class _ProviderScreenState extends State<ProviderScreen> {
               ),
               Text(
                 providerUser.experience ?? "",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                child: Text(
+                  "Pricing",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Color(kGenchiBlue),
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                providerUser.pricing,
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,

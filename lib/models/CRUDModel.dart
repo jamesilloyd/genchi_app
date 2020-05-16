@@ -65,6 +65,59 @@ class FirestoreCRUDModel {
     return ProviderUser.fromMap(doc.data);
   }
 
+  Future<Map<Chat, ProviderUser>> getUserChatsAndProviders({List<dynamic> chatIds}) async {
+
+//    _chatCollectionRef
+
+    Map<Chat, ProviderUser> chatAndProviders = {};
+    List<Chat> chats = [];
+    for (String chatId in chatIds) {
+      Chat chat = await getChatById(chatId);
+      chats.add(chat);
+    }
+
+    chats.sort((a,b) => b.time.compareTo(a.time));
+    for (Chat chat in chats) {
+      ProviderUser provider = await getProviderById(chat.pid);
+      chatAndProviders[chat] = provider;
+    }
+    return chatAndProviders;
+
+  }
+
+  Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers({List<dynamic> usersPids}) async {
+
+
+    Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
+
+
+    for (String pid in usersPids) {
+
+      List<Chat> chats = [];
+      Map<Chat, User> chatsAndUsers = {};
+
+      ProviderUser provider = await getProviderById(pid);
+
+      if(provider.chats.isNotEmpty) {
+        for (String chatId in provider.chats) {
+          Chat chat = await getChatById(chatId);
+          chats.add(chat);
+        }
+
+        chats.sort((a,b) => b.time.compareTo(a.time));
+
+        for (Chat chat in chats) {
+          User chatUser = await getUserById(chat.uid);
+          chatsAndUsers[chat] = chatUser;
+        }
+        userProviderChatsAndUsers[provider] = chatsAndUsers;
+      }
+
+    }
+
+    return userProviderChatsAndUsers;
+  }
+
 
 
   Future removeUser(String uid) async {
@@ -83,7 +136,7 @@ class FirestoreCRUDModel {
     return;
   }
 
-  Future updateProvider(ProviderUser provider, String pid) async {
+  Future updateProvider({ProviderUser provider, String pid}) async {
     await _providersCollectionRef.document(pid).setData(provider.toJson(),merge: true);
     return;
   }
@@ -122,7 +175,7 @@ class FirestoreCRUDModel {
   Future<DocumentReference> addProvider(ProviderUser provider,String uid) async {
 
     DocumentReference result = await _providersCollectionRef.add(provider.toJson()).then((docRef) async {
-    await updateProvider(ProviderUser(pid: docRef.documentID),docRef.documentID,);
+    await updateProvider(provider: ProviderUser(pid: docRef.documentID),pid: docRef.documentID,);
     await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayUnion([docRef.documentID])},merge: true);
     return docRef;
     });
@@ -144,9 +197,12 @@ class FirestoreCRUDModel {
     return result;
   }
 
-  Future<void> deleteProvider({String pid, String uid}) async {
-    await _providersCollectionRef.document(pid).delete();
-    await _usersCollectionRef.document(uid).setData({'providerProfiles': FieldValue.arrayRemove([pid])},merge: true);
+  Future<void> deleteProvider({ProviderUser provider}) async {
+    for(Chat chat in provider.chats) {
+      await updateChat(chat: Chat(chatid: chat.chatid, isDeleted : true, lastMessage: 'Provider No Longer Exists'));
+    }
+    await _providersCollectionRef.document(provider.pid).delete();
+    await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
   }
 
   Future<void> deleteChat({Chat chat}) async {
@@ -158,6 +214,11 @@ class FirestoreCRUDModel {
   Future<void> deleteUserDisplayPicture({User user}) async {
     await FirebaseStorage.instance.ref().child(user.displayPictureFileName).delete();
     await _usersCollectionRef.document(user.id).setData({'displayPictureFileName': FieldValue.delete(),'displayPictureURL':FieldValue.delete()},merge: true);
+  }
+
+  Future<void> deleteProviderDisplayPicture({ProviderUser provider}) async {
+    await FirebaseStorage.instance.ref().child(provider.displayPictureFileName).delete();
+    await _providersCollectionRef.document(provider.pid).setData({'displayPictureFileName': FieldValue.delete(),'displayPictureURL':FieldValue.delete()},merge: true);
   }
 
 

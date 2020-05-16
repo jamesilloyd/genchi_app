@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/constants.dart'
-;
-import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/constants.dart';
+
 
 class ProviderCard extends StatelessWidget {
 
   final String name;
-  final AssetImage image;
+  final ImageProvider image;
   final String service;
   final Function onTap;
   final String description;
@@ -34,6 +32,7 @@ class ProviderCard extends StatelessWidget {
                 ),
                 leading: CircleAvatar(
                   backgroundImage: image,
+                  radius: 30,
                   backgroundColor: Color(kGenchiCream),
                 ),
                 subtitle: Container(

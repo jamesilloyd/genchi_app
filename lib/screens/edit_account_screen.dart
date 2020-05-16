@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -14,10 +15,10 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class EditAccountScreen extends StatefulWidget {
   static const id = "edit_account_screen";
@@ -36,8 +37,48 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
+    User currentUser = authProvider.currentUser;
     return Scaffold(
-      appBar: MyAppNavigationBar(barTitle: "Edit Details"),
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Color(kGenchiBlue),
+        ),
+        title: Text(
+          'Edit Details',
+          style: TextStyle(
+            color: Color(kGenchiBlue),
+            fontSize: 30,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: Color(kGenchiCream),
+        elevation: 2.0,
+        brightness: Brightness.light,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
+              size: 30,
+              color: Color(kGenchiBlue),
+            ),
+            onPressed: () async {
+              setState(() {
+                showSpinner = true;
+              });
+              print("$name $email");
+              await fireStoreAPI.updateUser(user:
+              User(name: name, email: email),
+                  uid: currentUser.id);
+              await authProvider.updateCurrentUserData();
+
+              setState(() {
+                showSpinner = false;
+              });
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
       body: Builder(
         builder: (BuildContext context) {
           return ModalProgressHUD(
@@ -46,32 +87,47 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
             child: ListView(
               padding: EdgeInsets.all(20.0),
               children: <Widget>[
-                RoundedButton(
-                    buttonColor: Color(kGenchiBlue),
-                    buttonTitle: "Display Picture",
-                    onPressed: () {
-                      showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20.0),
-                                  topRight: Radius.circular(20.0))),
-                          builder: (context) => SingleChildScrollView(
-                                  child: Container(
-                                padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context)
-                                        .viewInsets
-                                        .bottom),
-                                child: Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.75,
-                                    child: AddImageScreen()),
-                              )));
-                    }),
+                Center(
+                  child: Text(
+                    'Display Picture',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(kGenchiBlue),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                    height: 5.0
+                ),
+                GestureDetector(
+                  onTap: (){
+                    showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20.0),
+                                topRight: Radius.circular(20.0))),
+                        builder: (context) => SingleChildScrollView(
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  bottom: MediaQuery.of(context)
+                                      .viewInsets
+                                      .bottom),
+                              child: Container(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.75,
+                                  child: AddImageScreen(isUser: true)),
+                            ),
+                        ),
+                    );
+                  },
+                  child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25),
+                ),
                 EditAccountField(
                   field: "Name",
-                  initialValue: authProvider.currentUser.name ?? '',
+                  initialValue: currentUser.name ?? '',
                   onChanged: (value) {
                     //Update name field
                     name = value;
@@ -81,7 +137,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 ),
                 EditAccountField(
                   field: "Email",
-                  initialValue: authProvider.currentUser.email ?? '',
+                  initialValue: currentUser.email ?? '',
                   isEditable: false,
                   onChanged: (value) {
                     //Update name field
@@ -97,25 +153,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   height: 10,
                 ),
                 RoundedButton(
-                  buttonTitle: "Save Details",
-                  buttonColor: Color(kGenchiOrange),
-                  onPressed: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                    print("$name $email");
-                    await fireStoreAPI.updateUser(user:
-                        User(name: name, email: email),
-                        uid: authProvider.currentUser.id);
-                    await authProvider.updateCurrentUserData();
-
-                    setState(() {
-                      showSpinner = false;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                RoundedButton(
                   //TODO: add in feedback
                   buttonColor: Color(kGenchiBlue),
                   buttonTitle: "Change Password",
@@ -126,7 +163,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             actionFunction: () async {
                               setState(() => showSpinner = true);
                               await authProvider.sendResetEmail(
-                                  email: authProvider.currentUser.email);
+                                  email: currentUser.email);
                               Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
                               setState(() => showSpinner = false);
                               Navigator.of(context).pop();
@@ -136,7 +173,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             context: context,
                             actionFunction: () async {
                               await authProvider.sendResetEmail(
-                                  email: authProvider.currentUser.email);
+                                  email: currentUser.email);
                               Scaffold.of(context)
                                   .showSnackBar(kForgotPasswordSnackbar);
                               Navigator.of(context).pop();

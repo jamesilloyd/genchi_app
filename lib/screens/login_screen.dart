@@ -12,7 +12,6 @@ import 'forgot_password_screen.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'reg_sequence_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";
@@ -21,7 +20,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _auth = FirebaseAuth.instance;
   String email;
   String password;
   bool showSpinner = false;

@@ -12,6 +12,8 @@ import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/authentication.dart';
 
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 
 class SearchProviderScreen extends StatefulWidget {
@@ -64,7 +66,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                 for (ProviderUser provider in providers) {
                   ProviderCard pCard = ProviderCard(
                     //ToDo: implement dp
-                    image: AssetImage("images/Logo_Clear.png"),
+                    image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
                     name: provider.name,
                     description: provider.bio,
                     onTap: () async {

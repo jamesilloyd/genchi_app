@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 
 class EditAccountField extends StatelessWidget {
-
   const EditAccountField(
       {@required this.field,
-        this.initialValue,
-        @required this.onChanged,
-        this.isEditable = true, @required this.textController, this.changedParameter, this.hintText});
+      @required this.onChanged,
+      this.isEditable = true,
+      @required this.textController,
+      this.hintText});
 
   final String field;
-  final String initialValue;
   final Function onChanged;
   final bool isEditable;
   final TextEditingController textController;
-  final String changedParameter;
   final String hintText;
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +32,7 @@ class EditAccountField extends StatelessWidget {
             color: Color(kGenchiBlue),
           ),
         ),
-        SizedBox(
-            height: 5.0
-        ),
+        SizedBox(height: 5.0),
         TextField(
           textCapitalization: TextCapitalization.sentences,
           maxLines: null,
@@ -47,7 +44,7 @@ class EditAccountField extends StatelessWidget {
           textAlign: TextAlign.left,
           onChanged: onChanged,
           readOnly: isEditable ? false : true,
-          controller: textController..text = (textController.text != changedParameter) ? initialValue : changedParameter,
+          controller: textController,
           decoration: kTextFieldDecoration.copyWith(hintText: hintText),
           cursorColor: Color(kGenchiOrange),
         ),

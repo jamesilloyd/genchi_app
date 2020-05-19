@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/edit_account_text_field.dart';
-import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
@@ -26,7 +25,8 @@ import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 
-//TODO: add in hint text for making your profile
+
+//TODO - DELETE PROVIDER ACCOUNT, CURSOR RESETTING, CHANGES MADE BOOL AND REMOVE KEYBOARD
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
@@ -35,6 +35,7 @@ class EditProviderAccountScreen extends StatefulWidget {
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
+
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
@@ -70,8 +71,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       onChanged: (value) {
         setState(() {
           service = value;
-          print(name);
-          print(bio);
         });
       },
     );
@@ -99,15 +98,23 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   Future<bool> _onWillPop() async {
 
+    print('in here');
+
     if(changesMade){
-
       bool discard = await showDiscardChangesAlert(context:context);
-      if(discard) Navigator.of(context).pop();
-
-    } else {
-      Navigator.of(context).pop();
+      if(!discard) return false;
     }
+    return true;
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    ProviderUser provider = Provider.of<ProviderService>(context, listen: false).currentProvider;
+    nameTextController.text = provider.name;
+    bioTextController.text = provider.bio;
+    experienceTextController.text = provider.experience;
+    priceTextController.text = provider.pricing;
 
   }
 
@@ -149,7 +156,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   color: Color(kGenchiBlue),
               ),
               onPressed: () async {
-
                 setState(() {
                   showSpinner = true;
                 });
@@ -220,14 +226,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               ),
               EditAccountField(
                 field: "Provider Profile Name",
-                initialValue: name == null ? providerUser.name ?? '' : name,
                 textController: nameTextController,
                 hintText: "Either your name or your brand's name",
                 onChanged: (value) {
-                  //Update name field
-                  setState(() => name = value);
+                  name = value;
+                  changesMade = true;
+                  print(name);
                 },
-                changedParameter: name,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,34 +262,28 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               ),
               EditAccountField(
                 field: 'About me',
-                initialValue: bio==null ? providerUser.bio ?? '' : bio,
                 textController: bioTextController,
-                changedParameter: bio,
                 hintText: 'What your service/offering is',
                 onChanged: (value) {
-                  //Update name field
-                  setState(() => bio = value);
-
+                  bio = value;
+                  changesMade = true;
                 },
               ),
               EditAccountField(
                 field: 'Experience',
-                initialValue: experience == null ? providerUser.experience ?? '' : experience,
                 textController: experienceTextController,
-                changedParameter: experience,
                 hintText: 'E.g. how you developed your skills',
                 onChanged: (value) {
 
-                  setState(() => experience = value);
+                  experience = value;
 
                 },
               ),
               EditAccountField(
                 field: "Price",
-                initialValue: pricing ==null ? providerUser.pricing : pricing,
                 onChanged: (value) {
-
-                  setState(() => pricing = value);
+                  changesMade = true;
+                  pricing = value;
 
                   },
                 textController: priceTextController,
@@ -293,14 +292,12 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               //TODO Implement the following fields
               EditAccountField(
                 field: "Portfolio Pictures",
-                initialValue: 'Coming Soon',
                 isEditable: false,
                 onChanged: (value) {},
                 textController: TextEditingController(),
               ),
               EditAccountField(
                 field: "Tags",
-                initialValue: 'Coming Soon',
                 isEditable: false,
                 onChanged: (value) {},
                 textController: TextEditingController(),
@@ -309,7 +306,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
               //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
               EditAccountField(
                 field: "Website Links",
-                initialValue: 'Coming Soon',
                 isEditable: false,
                 onChanged: (value) {},
                 textController: TextEditingController(),
@@ -328,18 +324,24 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 onPressed: () async {
                   Platform.isIOS
                       ? showAlertIOS(context: context, actionFunction: () async {
+                        setState(() => showSpinner = true);
+
                           await firestoreAPI.deleteProvider(provider: providerUser);
                           await authProvider.updateCurrentUserData();
                           changesMade = false;
+                          setState(() => showSpinner = false);
 
                           Navigator.pushNamedAndRemoveUntil(context,
                               HomeScreen.id, (Route<dynamic> route) => false);
                         }, alertMessage: 'Delete Account')
                       : showAlertAndroid(context: context, actionFunction: () async {
+                          setState(() => showSpinner = true);
 
-                          await firestoreAPI.deleteProvider(provider: providerUser);
+                          await firestoreAPI.deleteProvider(provider : providerUser);
                           await authProvider.updateCurrentUserData();
                           changesMade = false;
+                          setState(() => showSpinner = false);
+
                           Navigator.pushNamedAndRemoveUntil(context,
                               HomeScreen.id, (Route<dynamic> route) => false);
                         },alertMessage: "Delete Account");

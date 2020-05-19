@@ -100,6 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     Divider(
                       height: 0,
+//                      color: Color(kGenchiBlue),
                     ),
                   ],
                 ),
@@ -143,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               //TODO: Add in some feedback here
               ProfileOptionTile(
-                text: userIsProvider ? 'Provider Another Service':'Create Provider Profile',
+                text: userIsProvider ? 'Provide Another Service':'Create Provider Profile',
                 onPressed: () async {
 
                   bool createAccount = await showProviderAlert(context: context);

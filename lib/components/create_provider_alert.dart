@@ -13,7 +13,7 @@ Future<bool> showProviderAlert({BuildContext context}) {
               style: TextStyle(fontFamily: 'FuturaPT'),
             ),
             content: Text(
-                "Are you ready to provider your skills to the Cambridge community?",
+                "Are you ready to provide your skills to the Cambridge community?",
                 style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
             actions: <Widget>[
               CupertinoDialogAction(
@@ -52,7 +52,7 @@ Future<bool> showProviderAlert({BuildContext context}) {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     Text(
-                        "Are you ready to provider your skills to the Cambridge community?",
+                        "Are you ready to provide your skills to the Cambridge community?",
                         style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

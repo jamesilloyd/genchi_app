@@ -35,19 +35,23 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   String email;
 
   TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   Future<bool> _onWillPop() async {
 
     if(changesMade){
-
       bool discard = await showDiscardChangesAlert(context:context);
-      if(discard) Navigator.of(context).pop();
-
-    } else {
-      Navigator.of(context).pop();
+      if(!discard) return false;
     }
+    return true;
+  }
 
-
+  @override
+  void initState() {
+    super.initState();
+    User user = Provider.of<AuthenticationService>(context, listen: false).currentUser;
+    nameController.text = user.name;
+    emailController.text = user.email;
   }
 
   @override
@@ -146,25 +150,21 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   ),
                   EditAccountField(
                     field: "Name",
-                    initialValue: (name == null) ? currentUser.name ?? '' : '',
                     onChanged: (value) {
                       //Update name
                       changesMade = true;
-                      setState(() => name = value);
+                      name = value;
                     },
-                    changedParameter: name,
                     textController: nameController,
                   ),
                   EditAccountField(
                     field: "Email",
-                    initialValue: (email == null) ? currentUser.email ?? '' : '',
                     isEditable: false,
                     onChanged: (value) {
                       changesMade = true;
-                      setState(() => email = value);
+                      email = value;
                     },
-                    changedParameter: email,
-                    textController: TextEditingController(),
+                    textController: emailController,
                   ),
                   SizedBox(
                     height: 10.0,
@@ -173,7 +173,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     height: 10,
                   ),
                   RoundedButton(
-                    //TODO: add in feedback
                     buttonColor: Color(kGenchiBlue),
                     buttonTitle: "Change Password",
                     onPressed: () async {

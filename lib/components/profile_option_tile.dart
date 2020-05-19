@@ -36,6 +36,7 @@ class ProfileOptionTile extends StatelessWidget {
         ),
         Divider(
           height: 0,
+//          color: Color(kGenchiBlue),
         ),
       ],
     );

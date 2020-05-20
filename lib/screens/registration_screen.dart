@@ -30,117 +30,122 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Color(kGenchiGreen),
-      body: ModalProgressHUD(
-        progressIndicator: CircularProgress(),
-        inAsyncCall: showSpinner,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Container(
-                height: MediaQuery.of(context).size.height * .2,
-                child: Center(
-                  child: Hero(
-                    tag: 'logo',
-                    child: Container(
-                      child: Image.asset('images/LogoAndName.png'),
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Color(kGenchiGreen),
+        body: ModalProgressHUD(
+          progressIndicator: CircularProgress(),
+          inAsyncCall: showSpinner,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                  height: MediaQuery.of(context).size.height * .2,
+                  child: Center(
+                    child: Hero(
+                      tag: 'logo',
+                      child: Container(
+                        child: Image.asset('images/LogoAndName.png'),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
+                Container(
 //                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SignInTextField(
-                        onChanged: (value) {
-                          name = value;
-                        },
-                        hintText: "Enter name",
-                        isNameField: true,
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      SignInTextField(
-                        onChanged: (value) {
-                          email = value;
-                        },
-                        hintText: "Enter email",
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      SignInTextField(
-                        onChanged: (value) {
-                          password1 = value;
-                        },
-                        hintText: "Enter password",
-                        isPasswordField: true,
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        SignInTextField(
+                          onChanged: (value) {
+                            name = value;
+                          },
+                          hintText: "Enter name",
+                          isNameField: true,
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        SignInTextField(
+                          onChanged: (value) {
+                            email = value;
+                          },
+                          hintText: "Enter email",
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        SignInTextField(
+                          onChanged: (value) {
+                            password1 = value;
+                          },
+                          hintText: "Enter password",
+                          isPasswordField: true,
+                        ),
 
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      SignInTextField(
-                        onChanged: (value) {
-                          password2 = value;
-                        },
-                        hintText: "Repeat password",
-                        isPasswordField: true,
-                      ),
-                      showErrorField
-                          ? PasswordErrorText(errorMessage: errorMessage)
-                          : SizedBox(height: 30.0),
-                      RoundedButton(
-                        buttonColor: Color(kGenchiBlue),
-                        buttonTitle: "Register",
-                        onPressed: () async {
-                          setState(() {
-                            showErrorField = false;
-                            showSpinner = true;
-                          });
-                          try {
-                            if (name == null || email == null)
-                              throw (Exception('Enter name and email'));
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        SignInTextField(
+                          onChanged: (value) {
+                            password2 = value;
+                          },
+                          hintText: "Repeat password",
+                          isPasswordField: true,
+                        ),
+                        showErrorField
+                            ? PasswordErrorText(errorMessage: errorMessage)
+                            : SizedBox(height: 30.0),
+                        RoundedButton(
+                          buttonColor: Color(kGenchiBlue),
+                          buttonTitle: "Register",
+                          onPressed: () async {
+                            setState(() {
+                              showErrorField = false;
+                              showSpinner = true;
+                            });
+                            try {
+                              if (name == null || email == null)
+                                throw (Exception('Enter name and email'));
 
-                            if (password1 != password2)
-                              throw (Exception("Passwords do not match"));
+                              if (password1 != password2)
+                                throw (Exception("Passwords do not match"));
 
-                            await authProvider.registerWithEmail(
-                                email: email, password: password1, name: name);
+                              await authProvider.registerWithEmail(
+                                  email: email, password: password1, name: name);
 
-                            //This populates the current user simultaneously
-                            if (await authProvider.isUserLoggedIn() == true) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  RegSequenceScreen.id,
-                                  (Route<dynamic> route) => false);
+                              //This populates the current user simultaneously
+                              if (await authProvider.isUserLoggedIn() == true) {
+                                Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    RegSequenceScreen.id,
+                                    (Route<dynamic> route) => false);
+                              }
+                            } catch (e) {
+                              print(e);
+                              showErrorField = true;
+                              errorMessage = e.message;
                             }
-                          } catch (e) {
-                            print(e);
-                            showErrorField = true;
-                            errorMessage = e.message;
-                          }
 
-                          setState(() {
-                            showSpinner = false;
-                          });
-                        },
-                      )
-                    ],
-                  )),
-              Container(
-                height: MediaQuery.of(context).size.height * .2,
-              ),
-            ],
+                            setState(() {
+                              showSpinner = false;
+                            });
+                          },
+                        )
+                      ],
+                    )),
+                Container(
+                  height: MediaQuery.of(context).size.height * .2,
+                ),
+              ],
+            ),
           ),
         ),
       ),

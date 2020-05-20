@@ -65,6 +65,13 @@ class FirestoreCRUDModel {
     return ProviderUser.fromMap(doc.data);
   }
 
+  Stream<QuerySnapshot> streamUserChatsAndProviders({List<dynamic> chatIds}) {
+    
+    return _chatCollectionRef.where('uid', arrayContainsAny: chatIds).orderBy('time', descending: true).snapshots();
+
+
+  }
+
   Future<Map<Chat, ProviderUser>> getUserChatsAndProviders({List<dynamic> chatIds}) async {
 
 //    _chatCollectionRef

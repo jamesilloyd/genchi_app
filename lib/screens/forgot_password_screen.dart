@@ -31,96 +31,101 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    return Scaffold(
-      backgroundColor: Color(kGenchiGreen),
-      appBar: MyAppNavigationBar(
-        barTitle: "Forgot Password",
-      ),
-      body: Builder(builder: (BuildContext context) {
-        return ModalProgressHUD(
-          progressIndicator: CircularProgress(),
-          inAsyncCall: showSpinner,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  height: 50,
-                ),
-                SignInTextField(
-                  onChanged: (value) {
-                    email = value;
-                    //Do something with the user input.
-                  },
-                  hintText: "Enter you account email",
-                ),
-                showErrorField
-                    ? PasswordErrorText(errorMessage: errorMessage)
-                    : SizedBox(height: 30.0),
-                RoundedButton(
-                  buttonTitle: "Send password reset email",
-                  buttonColor: Color(kGenchiBlue),
-                  onPressed: () async {
-                    Platform.isIOS
-                        ? showAlertIOS(
-                            context: context,
-                            actionFunction: () async {
-                              setState(() {
-                                showErrorField = false;
-                                showSpinner = true;
-                              });
-                              try {
-                                if (email != null) {
-                                  await authProvider.sendResetEmail(email: email);
-                                  Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
-                                } else {
-                                  throw ("Enter an email address");
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: Color(kGenchiGreen),
+        appBar: MyAppNavigationBar(
+          barTitle: "Forgot Password",
+        ),
+        body: Builder(builder: (BuildContext context) {
+          return ModalProgressHUD(
+            progressIndicator: CircularProgress(),
+            inAsyncCall: showSpinner,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 50,
+                  ),
+                  SignInTextField(
+                    onChanged: (value) {
+                      email = value;
+                      //Do something with the user input.
+                    },
+                    hintText: "Enter you account email",
+                  ),
+                  showErrorField
+                      ? PasswordErrorText(errorMessage: errorMessage)
+                      : SizedBox(height: 30.0),
+                  RoundedButton(
+                    buttonTitle: "Send password reset email",
+                    buttonColor: Color(kGenchiBlue),
+                    onPressed: () async {
+                      Platform.isIOS
+                          ? showAlertIOS(
+                              context: context,
+                              actionFunction: () async {
+                                setState(() {
+                                  showErrorField = false;
+                                  showSpinner = true;
+                                });
+                                try {
+                                  if (email != null) {
+                                    await authProvider.sendResetEmail(email: email);
+                                    Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                  } else {
+                                    throw ("Enter an email address");
+                                  }
+                                } catch (e) {
+                                  print(e);
+                                  showErrorField = true;
+                                  errorMessage = e.message;
                                 }
-                              } catch (e) {
-                                print(e);
-                                showErrorField = true;
-                                errorMessage = e.message;
-                              }
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.of(context).pop();
-                            },
-                            alertMessage: "Reset password")
-                        : showAlertAndroid(
-                            context: context,
-                            actionFunction: () async {
-                              setState(() {
-                                showErrorField = false;
-                                showSpinner = true;
-                              });
-                              try {
-                                if (email != null) {
-                                  await authProvider.sendResetEmail(
-                                      email: email);
-                                  Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
-                                } else {
-                                  throw ("Enter an email address");
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                Navigator.of(context).pop();
+                              },
+                              alertMessage: "Reset password")
+                          : showAlertAndroid(
+                              context: context,
+                              actionFunction: () async {
+                                setState(() {
+                                  showErrorField = false;
+                                  showSpinner = true;
+                                });
+                                try {
+                                  if (email != null) {
+                                    await authProvider.sendResetEmail(
+                                        email: email);
+                                    Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                  } else {
+                                    throw ("Enter an email address");
+                                  }
+                                } catch (e) {
+                                  print(e);
+                                  showErrorField = true;
+                                  errorMessage = e.message;
                                 }
-                              } catch (e) {
-                                print(e);
-                                showErrorField = true;
-                                errorMessage = e.message;
-                              }
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.of(context).pop();
-                            },
-                            alertMessage: "Reset password");
-                  },
-                )
-              ],
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                Navigator.of(context).pop();
+                              },
+                              alertMessage: "Reset password");
+                    },
+                  )
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }

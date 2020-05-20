@@ -45,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
+    final providerService = Provider.of<ProviderService>(context);
 
     final ChatScreenArguments args = ModalRoute.of(context).settings.arguments;
     userIsProvider = args.userIsProvider;
@@ -54,132 +55,141 @@ class _ChatScreenState extends State<ChatScreen> {
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
 //    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
 
-    return Scaffold(
-      appBar: MyAppNavigationBar(
-          barTitle: userIsProvider ? user.name : provider.name),
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            StreamBuilder(
-              stream: firestoreAPI.fetchChatStream(thisChat.chatid) ,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return CircularProgress();
-                }
-                if (kDebugMode) print('Chat Screen: Snapshot has data');
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: MyAppNavigationBar(
+            barTitle: userIsProvider ? user.name : provider.name),
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              StreamBuilder(
+                stream: firestoreAPI.fetchChatStream(thisChat.chatid) ,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgress();
+                  }
+                  if (kDebugMode) print('Chat Screen: Snapshot has data');
 
-                final messages = snapshot.data.documents;
-                List<MessageBubble> messageBubbles = [];
-                for (var message in messages) {
-                  final messageText = message.data['text'];
-                  final messageSender = message.data['sender'];
+                  final messages = snapshot.data.documents;
+                  List<MessageBubble> messageBubbles = [];
+                  for (var message in messages) {
+                    final messageText = message.data['text'];
+                    final messageSender = message.data['sender'];
+                    final messageTime = message.data['time'];
 
-                  final messageWidget = MessageBubble(
-                    text: messageText,
-                    sender: messageSender,
-                    isMe: userIsProvider
-                        ? messageSender == provider.pid
-                        : messageSender == user.id,
+                    final messageWidget = MessageBubble(
+                      text: messageText,
+                      sender: messageSender,
+                      isMe: userIsProvider
+                          ? messageSender == provider.pid
+                          : messageSender == user.id,
+                      time: messageTime,
+                    );
+                    messageBubbles.add(messageWidget);
+                  }
+                  return Expanded(
+                    child: ListView(
+                      reverse: true,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                      children: messageBubbles,
+                    ),
                   );
-                  messageBubbles.add(messageWidget);
-                }
-                return Expanded(
-                  child: ListView(
-                    reverse: true,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-                    children: messageBubbles,
-                  ),
-                );
-              },
-            ),
-            Container(
-              decoration: kMessageContainerDecoration,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      minLines: 1,
-                      maxLines: 5,
-                      textCapitalization: TextCapitalization.sentences,
-                      controller: messageTextController,
-                      onChanged: (value) {
-                        //Do something with the user input.
-                        setState(() => messageText = value);
-                      },
-                      cursorColor: Color(kGenchiOrange),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                      ),
-                      decoration: kMessageTextFieldDecoration,
-                    ),
-                  ),
-                  FlatButton(
-                    onPressed: thisChat.isDeleted
-                        ? () {
-                            print('Provider does not exist');
-                            Scaffold.of(context)
-                                .showSnackBar(kProviderDoesNotExistSnackBar);
-                          }
-                        : (messageText != null
-                            ? (isFirstInstance
-                                ? () async {
-                                    print('Message text is not null and this is the first instance');
-                                    setState(
-                                        () => messageTextController.clear());
-                                    DocumentReference result =
-                                        await firestoreAPI.addNewChat(
-                                            uid: authProvider.currentUser.id,
-                                            pid: provider.pid,
-                                            providersUid: provider.uid);
-                                    await authProvider.updateCurrentUserData();
-                                    thisChat = await firestoreAPI.getChatById(result.documentID);
-                                    print(thisChat.chatid);
-                                    await firestoreAPI.addMessageToChat(
-                                        chatId: thisChat.chatid,
-                                        chatMessage: ChatMessage(
-                                            sender: userIsProvider
-                                                ? provider.pid
-                                                : user.id,
-                                            text: messageText,
-                                            time: Timestamp.now()),
-                                        providerIsSender:
-                                            userIsProvider ? true : false);
-                                    setState(() {
-                                      isFirstInstance = false;
-                                    });
-                                  }
-                                : () async {
-                                    print('Message text is not null and this is NOT the first instance');
-                                    setState(
-                                        () => messageTextController.clear());
-                                    await firestoreAPI.addMessageToChat(
-                                        chatId: thisChat.chatid,
-                                        chatMessage: ChatMessage(
-                                            sender: userIsProvider
-                                                ? provider.pid
-                                                : user.id,
-                                            text: messageText,
-                                            time: Timestamp.now()),
-                                        providerIsSender:
-                                            userIsProvider ? true : false);
-                                  })
-                            : () {print('Message text is null');}),
-                    child: Text(
-                      'Send',
-                      style: TextStyle(
-                        color: Color(kGenchiOrange),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                ],
+                },
               ),
-            ),
-          ],
+              Container(
+                decoration: kMessageContainerDecoration,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        minLines: 1,
+                        maxLines: 5,
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: messageTextController,
+                        onChanged: (value) {
+                          //Do something with the user input.
+                          setState(() => messageText = value);
+                        },
+                        cursorColor: Color(kGenchiOrange),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                        ),
+                        decoration: kMessageTextFieldDecoration,
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: thisChat.isDeleted
+                          ? () {
+                              print('Provider does not exist');
+                              Scaffold.of(context)
+                                  .showSnackBar(kProviderDoesNotExistSnackBar);
+                            }
+                          : (messageText != null
+                              ? (isFirstInstance
+                                  ? () async {
+                                      print('Message text is not null and this is the first instance');
+                                      setState(
+                                          () => messageTextController.clear());
+                                      DocumentReference result =
+                                          await firestoreAPI.addNewChat(
+                                              uid: authProvider.currentUser.id,
+                                              pid: provider.pid,
+                                              providersUid: provider.uid);
+                                      await authProvider.updateCurrentUserData();
+                                      await providerService.updateCurrentProvider(provider.pid);
+
+                                      thisChat = await firestoreAPI.getChatById(result.documentID);
+                                      print(thisChat.chatid);
+                                      await firestoreAPI.addMessageToChat(
+                                          chatId: thisChat.chatid,
+                                          chatMessage: ChatMessage(
+                                              sender: userIsProvider
+                                                  ? provider.pid
+                                                  : user.id,
+                                              text: messageText,
+                                              time: Timestamp.now()),
+                                          providerIsSender:
+                                              userIsProvider ? true : false);
+                                      setState(() {
+                                        isFirstInstance = false;
+                                      });
+                                    }
+                                  : () async {
+                                      print('Message text is not null and this is NOT the first instance');
+                                      setState(
+                                          () => messageTextController.clear());
+                                      await firestoreAPI.addMessageToChat(
+                                          chatId: thisChat.chatid,
+                                          chatMessage: ChatMessage(
+                                              sender: userIsProvider
+                                                  ? provider.pid
+                                                  : user.id,
+                                              text: messageText,
+                                              time: Timestamp.now()),
+                                          providerIsSender:
+                                              userIsProvider ? true : false);
+                                    })
+                              : () {print('Message text is null');}),
+                      child: Text(
+                        'Send',
+                        style: TextStyle(
+                          color: Color(kGenchiOrange),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

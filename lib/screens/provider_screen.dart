@@ -79,7 +79,9 @@ class _ProviderScreenState extends State<ProviderScreen> {
                   }: () async{
 
                     List userChats = authProvider.currentUser.chats;
+                    if(kDebugMode) print('Provider Screen: User Chats = $userChats');
                     List providerChats = providerUser.chats;
+                    if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
                     List allChats = [userChats,providerChats];
 
                     final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));

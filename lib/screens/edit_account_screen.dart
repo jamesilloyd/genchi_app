@@ -53,6 +53,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     nameController.text = user.name;
     emailController.text = user.email;
   }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    emailController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,150 +67,155 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     User currentUser = authProvider.currentUser;
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(
-            color: Color(kGenchiBlue),
-          ),
-          title: Text(
-            'Edit Details',
-            style: TextStyle(
+      child: GestureDetector(
+        onTap: (){
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
               color: Color(kGenchiBlue),
-              fontSize: 30,
-              fontWeight: FontWeight.w500,
             ),
-          ),
-          backgroundColor: Color(kGenchiCream),
-          elevation: 2.0,
-          brightness: Brightness.light,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
-                size: 30,
+            title: Text(
+              'Edit Details',
+              style: TextStyle(
                 color: Color(kGenchiBlue),
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
               ),
-              onPressed: () async {
-                setState(() {
-                  showSpinner = true;
-                });
-                print("$name $email");
-                await fireStoreAPI.updateUser(user:
-                User(name: name, email: email),
-                    uid: currentUser.id);
-                await authProvider.updateCurrentUserData();
+            ),
+            backgroundColor: Color(kGenchiCream),
+            elevation: 2.0,
+            brightness: Brightness.light,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
+                  size: 30,
+                  color: Color(kGenchiBlue),
+                ),
+                onPressed: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
+                  print("$name $email");
+                  await fireStoreAPI.updateUser(user:
+                  User(name: name, email: email),
+                      uid: currentUser.id);
+                  await authProvider.updateCurrentUserData();
 
-                setState(() {
-                  changesMade = false;
-                  showSpinner = false;
-                });
-                Navigator.pop(context);
-              },
-            )
-          ],
-        ),
-        body: Builder(
-          builder: (BuildContext context) {
-            return ModalProgressHUD(
-              inAsyncCall: showSpinner,
-              progressIndicator: CircularProgress(),
-              child: ListView(
-                padding: EdgeInsets.all(20.0),
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      'Display Picture',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(kGenchiBlue),
+                  setState(() {
+                    changesMade = false;
+                    showSpinner = false;
+                  });
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          ),
+          body: Builder(
+            builder: (BuildContext context) {
+              return ModalProgressHUD(
+                inAsyncCall: showSpinner,
+                progressIndicator: CircularProgress(),
+                child: ListView(
+                  padding: EdgeInsets.all(20.0),
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        'Display Picture',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w500,
+                          color: Color(kGenchiBlue),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                      height: 5.0
-                  ),
-                  GestureDetector(
-                    onTap: (){
-                      showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20.0),
-                                  topRight: Radius.circular(20.0))),
-                          builder: (context) => SingleChildScrollView(
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context)
-                                        .viewInsets
-                                        .bottom),
+                    SizedBox(
+                        height: 5.0
+                    ),
+                    GestureDetector(
+                      onTap: (){
+                        showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20.0),
+                                    topRight: Radius.circular(20.0))),
+                            builder: (context) => SingleChildScrollView(
                                 child: Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.75,
-                                    child: AddImageScreen(isUser: true)),
-                              ),
-                          ),
-                      );
-                    },
-                    child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25),
-                  ),
-                  EditAccountField(
-                    field: "Name",
-                    onChanged: (value) {
-                      //Update name
-                      changesMade = true;
-                      name = value;
-                    },
-                    textController: nameController,
-                  ),
-                  EditAccountField(
-                    field: "Email",
-                    isEditable: false,
-                    onChanged: (value) {
-                      changesMade = true;
-                      email = value;
-                    },
-                    textController: emailController,
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Divider(
-                    height: 10,
-                  ),
-                  RoundedButton(
-                    buttonColor: Color(kGenchiBlue),
-                    buttonTitle: "Change Password",
-                    onPressed: () async {
-                      Platform.isIOS
-                          ? showAlertIOS(
-                              context: context,
-                              actionFunction: () async {
-                                setState(() => showSpinner = true);
-                                await authProvider.sendResetEmail(
-                                    email: currentUser.email);
-                                Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
-                                setState(() => showSpinner = false);
-                                Navigator.of(context).pop();
-                              },
-                              alertMessage: "Reset password")
-                          : showAlertAndroid(
-                              context: context,
-                              actionFunction: () async {
-                                await authProvider.sendResetEmail(
-                                    email: currentUser.email);
-                                Scaffold.of(context)
-                                    .showSnackBar(kForgotPasswordSnackbar);
-                                Navigator.of(context).pop();
-                              },
-                              alertMessage: "Reset password");
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
+                                  padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom),
+                                  child: Container(
+                                      height: MediaQuery.of(context).size.height *
+                                          0.75,
+                                      child: AddImageScreen(isUser: true)),
+                                ),
+                            ),
+                        );
+                      },
+                      child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25),
+                    ),
+                    EditAccountField(
+                      field: "Name",
+                      onChanged: (value) {
+                        //Update name
+                        changesMade = true;
+                        name = value;
+                      },
+                      textController: nameController,
+                    ),
+                    EditAccountField(
+                      field: "Email",
+                      isEditable: false,
+                      onChanged: (value) {
+                        changesMade = true;
+                        email = value;
+                      },
+                      textController: emailController,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Divider(
+                      height: 10,
+                    ),
+                    RoundedButton(
+                      buttonColor: Color(kGenchiBlue),
+                      buttonTitle: "Change Password",
+                      onPressed: () async {
+                        Platform.isIOS
+                            ? showAlertIOS(
+                                context: context,
+                                actionFunction: () async {
+                                  setState(() => showSpinner = true);
+                                  await authProvider.sendResetEmail(
+                                      email: currentUser.email);
+                                  Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                  setState(() => showSpinner = false);
+                                  Navigator.of(context).pop();
+                                },
+                                alertMessage: "Reset password")
+                            : showAlertAndroid(
+                                context: context,
+                                actionFunction: () async {
+                                  await authProvider.sendResetEmail(
+                                      email: currentUser.email);
+                                  Scaffold.of(context)
+                                      .showSnackBar(kForgotPasswordSnackbar);
+                                  Navigator.of(context).pop();
+                                },
+                                alertMessage: "Reset password");
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

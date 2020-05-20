@@ -44,7 +44,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
   Future<void> _pickImage(ImageSource source) async {
 
     //TODO: You can pass in image selection properties here
-    File selected = await ImagePicker.pickImage(source: source);
+    File selected = await ImagePicker.pickImage(source: source, imageQuality: 100);
 
     setState(() {
       if (selected != null) {
@@ -71,7 +71,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
         sourcePath: _imageFile.path,
         cropStyle: CropStyle.circle,
         compressFormat: ImageCompressFormat.png,
-        //TODO: MUST check to see what this looks like
+        //TODO: MUST check to see what this looks like, seems to be crashing
         androidUiSettings: AndroidUiSettings(
           toolbarColor: Color(kGenchiGreen),
           toolbarWidgetColor: Color(kGenchiOrange),

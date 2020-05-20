@@ -37,13 +37,13 @@ class MessageListItem extends StatelessWidget {
 
       return formatted;
 
-    } else if(time.toDate().difference(DateTime.now()).inDays > 7) {
-      var formatter = new DateFormat.E();
+    } else if(time.toDate().difference(DateTime.now()).inDays < 7) {
+      var formatter = new DateFormat.E().add_Hm();
       String formatted = formatter.format(time.toDate());
       return formatted;
 
     } else {
-      var formatter = new DateFormat.MMMMd();
+      var formatter = new DateFormat.MMMMd().add_Hm();
       String formatted = formatter.format(time.toDate());
       return formatted;
     }

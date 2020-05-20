@@ -119,6 +119,15 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    nameTextController.dispose();
+    bioTextController.dispose();
+    experienceTextController.dispose();
+    priceTextController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
@@ -132,222 +141,227 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(
-            color: Color(kGenchiBlue),
-          ),
-          title: Text(
-            'Edit Details',
-            style: TextStyle(
+      child: GestureDetector(
+        onTap: (){
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
               color: Color(kGenchiBlue),
-              fontSize: 30,
-              fontWeight: FontWeight.w500,
             ),
-          ),
-          backgroundColor: Color(kGenchiCream),
-          elevation: 2.0,
-          brightness: Brightness.light,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                  Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
-                  size: 30,
-                  color: Color(kGenchiBlue),
+            title: Text(
+              'Edit Details',
+              style: TextStyle(
+                color: Color(kGenchiBlue),
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
               ),
-              onPressed: () async {
-                setState(() {
-                  showSpinner = true;
-                });
-
-                await firestoreAPI.updateProvider(provider:
-                ProviderUser(name: name, type: service, bio: bio, experience: experience, pricing: pricing),
-                    pid: providerUser.pid);
-                await authProvider.updateCurrentUserData();
-                await providerService.updateCurrentProvider(providerUser.pid);
-
-                setState(() {
-                  changesMade = false;
-                  showSpinner = false;
-                });
-
-                fromRegistration
-                    ? Navigator.pushNamedAndRemoveUntil(
-                    context, HomeScreen.id, (Route<dynamic> route) => false,
-                    arguments: HomeScreenArguments(startingIndex: 2))
-                    : Navigator.of(context).pop();
-              },
-            )
-          ],
-        ),
-        body: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          progressIndicator: CircularProgress(),
-          child: ListView(
-            padding: EdgeInsets.all(20.0),
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Display Picture',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
+            ),
+            backgroundColor: Color(kGenchiCream),
+            elevation: 2.0,
+            brightness: Brightness.light,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                    Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
+                    size: 30,
                     color: Color(kGenchiBlue),
-                  ),
                 ),
-              ),
-              SizedBox(
-                  height: 5.0
-              ),
-              GestureDetector(
-                onTap: (){
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20.0),
-                            topRight: Radius.circular(20.0))),
-                    builder: (context) => SingleChildScrollView(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context)
-                                .viewInsets
-                                .bottom),
-                        child: Container(
-                            height: MediaQuery.of(context).size.height *
-                                0.75,
-                            child: AddImageScreen(isUser: false)),
-                      ),
-                    ),
-                  );
+                onPressed: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
+
+                  await firestoreAPI.updateProvider(provider:
+                  ProviderUser(name: name, type: service, bio: bio, experience: experience, pricing: pricing),
+                      pid: providerUser.pid);
+                  await authProvider.updateCurrentUserData();
+                  await providerService.updateCurrentProvider(providerUser.pid);
+
+                  setState(() {
+                    changesMade = false;
+                    showSpinner = false;
+                  });
+
+                  fromRegistration
+                      ? Navigator.pushNamedAndRemoveUntil(
+                      context, HomeScreen.id, (Route<dynamic> route) => false,
+                      arguments: HomeScreenArguments(startingIndex: 2))
+                      : Navigator.of(context).pop();
                 },
-                child: DisplayPicture(imageUrl: providerUser.displayPictureURL, height: 0.25),
-              ),
-              EditAccountField(
-                field: "Provider Profile Name",
-                textController: nameTextController,
-                hintText: "Either your name or your brand's name",
-                onChanged: (value) {
-                  name = value;
-                  changesMade = true;
-                  print(name);
-                },
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    height: 30.0,
-                  ),
-                  Text(
-                    'Service',
+              )
+            ],
+          ),
+          body: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            progressIndicator: CircularProgress(),
+            child: ListView(
+              padding: EdgeInsets.all(20.0),
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    'Display Picture',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w500,
                       color: Color(kGenchiBlue),
                     ),
                   ),
-                  SizedBox(height: 5.0),
-                  SizedBox(
-                    height: Platform.isIOS ? 100.0 : 50.0,
-                    child: Container(
-                      color: Color(kGenchiCream),
-                      child: Platform.isIOS
-                          ? iOSPicker(providerUser.type)
-                          : androidDropdownButton(providerUser.type),
+                ),
+                SizedBox(
+                    height: 5.0
+                ),
+                GestureDetector(
+                  onTap: (){
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(20.0))),
+                      builder: (context) => SingleChildScrollView(
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context)
+                                  .viewInsets
+                                  .bottom),
+                          child: Container(
+                              height: MediaQuery.of(context).size.height *
+                                  0.75,
+                              child: AddImageScreen(isUser: false)),
+                        ),
+                      ),
+                    );
+                  },
+                  child: DisplayPicture(imageUrl: providerUser.displayPictureURL, height: 0.25),
+                ),
+                EditAccountField(
+                  field: "Provider Profile Name",
+                  textController: nameTextController,
+                  hintText: "Either your name or your brand's name",
+                  onChanged: (value) {
+                    name = value;
+                    changesMade = true;
+                    print(name);
+                  },
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: 30.0,
                     ),
-                  ),
-                ],
-              ),
-              EditAccountField(
-                field: 'About me',
-                textController: bioTextController,
-                hintText: 'What your service/offering is',
-                onChanged: (value) {
-                  bio = value;
-                  changesMade = true;
-                },
-              ),
-              EditAccountField(
-                field: 'Experience',
-                textController: experienceTextController,
-                hintText: 'E.g. how you developed your skills',
-                onChanged: (value) {
+                    Text(
+                      'Service',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w500,
+                        color: Color(kGenchiBlue),
+                      ),
+                    ),
+                    SizedBox(height: 5.0),
+                    SizedBox(
+                      height: Platform.isIOS ? 100.0 : 50.0,
+                      child: Container(
+                        color: Color(kGenchiCream),
+                        child: Platform.isIOS
+                            ? iOSPicker(providerUser.type)
+                            : androidDropdownButton(providerUser.type),
+                      ),
+                    ),
+                  ],
+                ),
+                EditAccountField(
+                  field: 'About me',
+                  textController: bioTextController,
+                  hintText: 'What your service/offering is',
+                  onChanged: (value) {
+                    bio = value;
+                    changesMade = true;
+                  },
+                ),
+                EditAccountField(
+                  field: 'Experience',
+                  textController: experienceTextController,
+                  hintText: 'E.g. how you developed your skills',
+                  onChanged: (value) {
 
-                  experience = value;
-
-                },
-              ),
-              EditAccountField(
-                field: "Price",
-                onChanged: (value) {
-                  changesMade = true;
-                  pricing = value;
+                    experience = value;
 
                   },
-                textController: priceTextController,
-                hintText: "E.g. for experience, £10 per job etc.",
-              ),
-              //TODO Implement the following fields
-              EditAccountField(
-                field: "Portfolio Pictures",
-                isEditable: false,
-                onChanged: (value) {},
-                textController: TextEditingController(),
-              ),
-              EditAccountField(
-                field: "Tags",
-                isEditable: false,
-                onChanged: (value) {},
-                textController: TextEditingController(),
-              ),
+                ),
+                EditAccountField(
+                  field: "Price",
+                  onChanged: (value) {
+                    changesMade = true;
+                    pricing = value;
 
-              //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
-              EditAccountField(
-                field: "Website Links",
-                isEditable: false,
-                onChanged: (value) {},
-                textController: TextEditingController(),
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              Divider(
-                height: 10,
-              ),
-              RoundedButton(
-                buttonTitle: fromRegistration
-                    ? "Cancel (you can make one later)"
-                    : "Delete provider account",
-                buttonColor: Color(kGenchiBlue),
-                onPressed: () async {
-                  Platform.isIOS
-                      ? showAlertIOS(context: context, actionFunction: () async {
-                        setState(() => showSpinner = true);
+                    },
+                  textController: priceTextController,
+                  hintText: "E.g. for experience, £10 per job etc.",
+                ),
+                //TODO Implement the following fields
+                EditAccountField(
+                  field: "Portfolio Pictures",
+                  isEditable: false,
+                  onChanged: (value) {},
+                  textController: TextEditingController(),
+                ),
+                EditAccountField(
+                  field: "Tags",
+                  isEditable: false,
+                  onChanged: (value) {},
+                  textController: TextEditingController(),
+                ),
 
-                          await firestoreAPI.deleteProvider(provider: providerUser);
-                          await authProvider.updateCurrentUserData();
-                          changesMade = false;
-                          setState(() => showSpinner = false);
-
-                          Navigator.pushNamedAndRemoveUntil(context,
-                              HomeScreen.id, (Route<dynamic> route) => false);
-                        }, alertMessage: 'Delete Account')
-                      : showAlertAndroid(context: context, actionFunction: () async {
+                //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
+                EditAccountField(
+                  field: "Website Links",
+                  isEditable: false,
+                  onChanged: (value) {},
+                  textController: TextEditingController(),
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Divider(
+                  height: 10,
+                ),
+                RoundedButton(
+                  buttonTitle: fromRegistration
+                      ? "Cancel (you can make one later)"
+                      : "Delete provider account",
+                  buttonColor: Color(kGenchiBlue),
+                  onPressed: () async {
+                    Platform.isIOS
+                        ? showAlertIOS(context: context, actionFunction: () async {
                           setState(() => showSpinner = true);
 
-                          await firestoreAPI.deleteProvider(provider : providerUser);
-                          await authProvider.updateCurrentUserData();
-                          changesMade = false;
-                          setState(() => showSpinner = false);
+                            await firestoreAPI.deleteProvider(provider: providerUser);
+                            await authProvider.updateCurrentUserData();
+                            changesMade = false;
+                            setState(() => showSpinner = false);
 
-                          Navigator.pushNamedAndRemoveUntil(context,
-                              HomeScreen.id, (Route<dynamic> route) => false);
-                        },alertMessage: "Delete Account");
-                },
-              ),
-            ],
+                            Navigator.pushNamedAndRemoveUntil(context,
+                                HomeScreen.id, (Route<dynamic> route) => false);
+                          }, alertMessage: 'Delete Account')
+                        : showAlertAndroid(context: context, actionFunction: () async {
+                            setState(() => showSpinner = true);
+
+                            await firestoreAPI.deleteProvider(provider : providerUser);
+                            await authProvider.updateCurrentUserData();
+                            changesMade = false;
+                            setState(() => showSpinner = false);
+
+                            Navigator.pushNamedAndRemoveUntil(context,
+                                HomeScreen.id, (Route<dynamic> route) => false);
+                          },alertMessage: "Delete Account");
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

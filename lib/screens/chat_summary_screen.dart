@@ -52,6 +52,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
           elevation: 2.0,
           brightness: Brightness.light,
           bottom: TabBar(
+            indicatorColor: Color(kGenchiOrange),
             labelColor: Color(kGenchiBlue),
             labelStyle: TextStyle(
               fontSize: 20,
@@ -95,7 +96,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                         return CircularProgress();
                       }
 
-                      //ToDo: if you have no messages display some feedback
                       final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
                       if(chatsAndProviders.isEmpty){
@@ -145,6 +145,20 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       );
                     },
                   ),
+//                StreamBuilder(
+//                  stream: firestoreAPI.streamUserChatsAndProviders(chatIds: currentUser.chats),
+//                  builder: (context,snapshot){
+//                      if (!snapshot.hasData) {
+//                        return CircularProgress();
+//                      }
+//
+//                      final chats = snapshot.data.documents;
+//                      List<MessageListItem> chatWidgets = [];
+//
+//
+//
+//                  },
+//                )
                 ],
               ),
             ),

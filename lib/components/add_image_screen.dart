@@ -74,7 +74,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
         //TODO: MUST check to see what this looks like, seems to be crashing
         androidUiSettings: AndroidUiSettings(
           toolbarColor: Color(kGenchiGreen),
-          toolbarWidgetColor: Color(kGenchiOrange),
+          toolbarWidgetColor: Color(kGenchiCream),
           backgroundColor: Color(kGenchiCream),
           toolbarTitle: 'Crop Photo',
         ),

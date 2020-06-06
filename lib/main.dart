@@ -48,8 +48,7 @@ class Genchi extends StatelessWidget {
           ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
           ProviderScreen.id: (context) => ProviderScreen(),
           SearchProviderScreen.id: (context) => SearchProviderScreen(),
-          EditProviderAccountScreen.id: (context) =>
-              EditProviderAccountScreen(),
+          EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
         },
       ),
     );

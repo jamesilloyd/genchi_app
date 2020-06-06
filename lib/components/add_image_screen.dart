@@ -10,12 +10,14 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 /* TODO: things left to do here:
     -handle timeout/failure errors
@@ -35,6 +37,8 @@ class AddImageScreen extends StatefulWidget {
 }
 
 class _AddImageScreenState extends State<AddImageScreen> {
+
+  bool showSpinner = false;
 
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
   bool uploadStarted = false;
@@ -67,22 +71,27 @@ class _AddImageScreenState extends State<AddImageScreen> {
   //Croper plugin
   Future<void> _cropImage() async {
 
+    setState(() {
+      showSpinner = true;
+    });
+
     File cropped = await ImageCropper.cropImage(
         sourcePath: _imageFile.path,
         cropStyle: CropStyle.circle,
         compressFormat: ImageCompressFormat.png,
-        //TODO: MUST check to see what this looks like, seems to be crashing
         androidUiSettings: AndroidUiSettings(
-          toolbarColor: Color(kGenchiGreen),
-          toolbarWidgetColor: Color(kGenchiCream),
           backgroundColor: Color(kGenchiCream),
           toolbarTitle: 'Crop Photo',
+          toolbarColor: Color(kGenchiGreen),
+          toolbarWidgetColor: Color(kGenchiCream),
+          activeControlsWidgetColor: Color(kGenchiOrange),
         ),
         iosUiSettings: IOSUiSettings(
           title: 'Crop Photo',
         ));
 
     setState(() {
+      showSpinner = false;
       if (cropped != null) {
         noChangesMade = false;
         uploadStarted = false;
@@ -98,150 +107,154 @@ class _AddImageScreenState extends State<AddImageScreen> {
     final providerService = Provider.of<ProviderService>(context);
     ProviderUser currentProvider = providerService.currentProvider;
 
-    return Container(
-      padding: EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Color(kGenchiGreen),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20.0),
-          topRight: Radius.circular(20.0),
+    return ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          progressIndicator: CircularProgress(),
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: Color(kGenchiGreen),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-            child: SizedBox(
-              height: 40,
-              child: Center(
-                child: Text(
-                  'Change Display Picture',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30.0,
-                    color: _iconColor,
-                    fontWeight: FontWeight.w500,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+              child: SizedBox(
+                height: 40,
+                child: Center(
+                  child: Text(
+                    'Change Display Picture',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 30.0,
+                      color: _iconColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.75 - 130,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                _imageFile == null
-                    ? CircleAvatar(
-                        radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
-                        backgroundColor: Color(kGenchiCream),
-                        backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? (widget.isUser ? CachedNetworkImageProvider(currentUser.displayPictureURL) : CachedNetworkImageProvider(currentProvider.displayPictureURL)): null,
-                      )
-                    : CircleAvatar(
-                        backgroundImage: FileImage(_imageFile),
-                        radius:
-                            (MediaQuery.of(context).size.height * 0.75 - 130) *
-                                0.35,
-                        backgroundColor: Color(kGenchiCream),
-                      ),
-                _imageFile == null ? SizedBox(height: 30): SizedBox(
-                  height: 30,
-                  child:  Center(
-                    child: IconButton(
-                      color: _iconColor,
-                      iconSize: 25,
-                      icon: Icon(Icons.crop),
-                      onPressed: _cropImage,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 40,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  width: (MediaQuery.of(context).size.width - 40) / 3,
-                  child: IconButton(
-                    icon: Icon(
-                      Platform.isIOS
-                          ? CupertinoIcons.photo_camera_solid
-                          : Icons.photo_camera,
-                      size: 25,
-                    ),
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    color: _iconColor,
-                  ),
-                ),
-                SizedBox(
-                  width: (MediaQuery.of(context).size.width - 40) / 3,
-                  child: IconButton(
-                    icon: Icon(
-                      Platform.isIOS
-                          ? CupertinoIcons.collections_solid
-                          : Icons.photo_library,
-                      size: 25,
-                    ),
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    color: _iconColor,
-                  ),
-                ),
-                noChangesMade
-                    ? SizedBox(
-                        width: (MediaQuery.of(context).size.width - 40) / 3,
-                        child: IconButton(
-                          icon: Icon(
-                            Platform.isIOS
-                                ? CupertinoIcons.delete_solid
-                                : Icons.delete,
-                            size: 25,
-                          ),
-                          onPressed: () {
-                            Platform.isIOS
-                                ? showAlertIOS(context: context, actionFunction: () async {
-                                  widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
-                                  widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
-                                  Navigator.of(context).pop();
-
-                            }, alertMessage: "Delete Current Picture")
-                                : showAlertAndroid(context: context, actionFunction: () async {
-                                  widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
-                                  widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
-                                  Navigator.of(context).pop();
-
-                            }, alertMessage: "Delete Current Picture");
-                          setState(() {});
-                            },
-                          color: _iconColor,
+            Container(
+              height: MediaQuery.of(context).size.height * 0.75 - 130,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _imageFile == null
+                      ? CircleAvatar(
+                          radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
+                          backgroundColor: Color(kGenchiCream),
+                          backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? (widget.isUser ? CachedNetworkImageProvider(currentUser.displayPictureURL) : CachedNetworkImageProvider(currentProvider.displayPictureURL)): null,
+                        )
+                      : CircleAvatar(
+                          backgroundImage: FileImage(_imageFile),
+                          radius:
+                              (MediaQuery.of(context).size.height * 0.75 - 130) *
+                                  0.35,
+                          backgroundColor: Color(kGenchiCream),
                         ),
-                      )
-                    : SizedBox(
-                        width: (MediaQuery.of(context).size.width - 40) / 3,
-                        child: uploadStarted
-                            ? Uploader(file: _imageFile, isUser: widget.isUser,)
-                            : IconButton(
-                                iconSize: 25,
-                                color: _iconColor,
-                                icon: Icon(
-                                  Platform.isIOS
-                                      ? CupertinoIcons.check_mark_circled
-                                      : Icons.check_circle_outline,
-                                ),
-                                onPressed: () {
-                                  setState(() => uploadStarted = true);
-                                },
-                              ),
+                  _imageFile == null ? SizedBox(height: 30): SizedBox(
+                    height: 30,
+                    child:  Center(
+                      child: IconButton(
+                        color: _iconColor,
+                        iconSize: 25,
+                        icon: Icon(Icons.crop),
+                        onPressed: _cropImage,
                       ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )
-        ],
+            SizedBox(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 40) / 3,
+                    child: IconButton(
+                      icon: Icon(
+                        Platform.isIOS
+                            ? CupertinoIcons.photo_camera_solid
+                            : Icons.photo_camera,
+                        size: 25,
+                      ),
+                      onPressed: () => _pickImage(ImageSource.camera),
+                      color: _iconColor,
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 40) / 3,
+                    child: IconButton(
+                      icon: Icon(
+                        Platform.isIOS
+                            ? CupertinoIcons.collections_solid
+                            : Icons.photo_library,
+                        size: 25,
+                      ),
+                      onPressed: () => _pickImage(ImageSource.gallery),
+                      color: _iconColor,
+                    ),
+                  ),
+                  noChangesMade
+                      ? SizedBox(
+                          width: (MediaQuery.of(context).size.width - 40) / 3,
+                          child: IconButton(
+                            icon: Icon(
+                              Platform.isIOS
+                                  ? CupertinoIcons.delete_solid
+                                  : Icons.delete,
+                              size: 25,
+                            ),
+                            onPressed: () {
+                              Platform.isIOS
+                                  ? showAlertIOS(context: context, actionFunction: () async {
+                                    widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
+                                    widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
+                                    Navigator.of(context).pop();
+
+                              }, alertMessage: "Delete Current Picture")
+                                  : showAlertAndroid(context: context, actionFunction: () async {
+                                    widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
+                                    widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
+                                    Navigator.of(context).pop();
+
+                              }, alertMessage: "Delete Current Picture");
+                            setState(() {});
+                              },
+                            color: _iconColor,
+                          ),
+                        )
+                      : SizedBox(
+                          width: (MediaQuery.of(context).size.width - 40) / 3,
+                          child: uploadStarted
+                              ? Uploader(file: _imageFile, isUser: widget.isUser,)
+                              : IconButton(
+                                  iconSize: 25,
+                                  color: _iconColor,
+                                  icon: Icon(
+                                    Platform.isIOS
+                                        ? CupertinoIcons.check_mark_circled
+                                        : Icons.check_circle_outline,
+                                  ),
+                                  onPressed: () {
+                                    setState(() => uploadStarted = true);
+                                  },
+                                ),
+                        ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

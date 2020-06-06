@@ -26,7 +26,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 
 
-//TODO - DELETE PROVIDER ACCOUNT, CURSOR RESETTING, CHANGES MADE BOOL AND REMOVE KEYBOARD
+//TODO - DELETE PROVIDER ACCOUNT, CHANGES MADE BOOL AND REMOVE KEYBOARD
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
@@ -61,7 +61,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        value: serviceType['name'],
+        value: serviceType['name'].toString(),
       );
       dropdownItems.add(newItem);
     }
@@ -115,7 +115,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     bioTextController.text = provider.bio;
     experienceTextController.text = provider.experience;
     priceTextController.text = provider.pricing;
-
+    print(provider.type);
   }
 
   @override
@@ -131,9 +131,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final EditProviderAccountScreenArguments args =
-        ModalRoute.of(context).settings.arguments ??
-            EditProviderAccountScreenArguments();
+    final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
     bool fromRegistration = args.fromRegistration;
 
     final providerService = Provider.of<ProviderService>(context);
@@ -304,12 +302,14 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 ),
                 //TODO Implement the following fields
                 EditAccountField(
+                  hintText: 'Coming soon',
                   field: "Portfolio Pictures",
                   isEditable: false,
                   onChanged: (value) {},
                   textController: TextEditingController(),
                 ),
                 EditAccountField(
+                  hintText: 'Coming soon',
                   field: "Tags",
                   isEditable: false,
                   onChanged: (value) {},
@@ -318,6 +318,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
                 //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
                 EditAccountField(
+                  hintText: "Coming soon",
                   field: "Website Links",
                   isEditable: false,
                   onChanged: (value) {},

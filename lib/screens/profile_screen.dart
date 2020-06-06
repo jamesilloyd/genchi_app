@@ -118,7 +118,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     for (ProviderUser provider in providers) {
                       ProviderCard pCard = ProviderCard(
-                        //ToDo: implement dp
                         image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
                         name: provider.name,
                         description: provider.bio,
@@ -142,7 +141,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },),
 
-              //TODO: Add in some feedback here
               ProfileOptionTile(
                 text: userIsProvider ? 'Provide Another Service':'Create Provider Profile',
                 onPressed: () async {
@@ -150,6 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   bool createAccount = await showProviderAlert(context: context);
                   if(createAccount){
                     DocumentReference result = await firestoreAPI.addProvider(
+                        //TODO: add changes here for adding automatic dp for provider profile, the problem arises when you need it auto deletes from firestorage
                         ProviderUser(uid: authProvider.currentUser.id),
                         authProvider.currentUser.id);
                     await authProvider.updateCurrentUserData();

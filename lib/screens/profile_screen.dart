@@ -9,6 +9,8 @@ import 'package:genchi_app/constants.dart';
 import 'welcome_screen.dart';
 import 'edit_account_screen.dart';
 import 'provider_screen.dart';
+import 'favourites_screen.dart';
+import 'about_screen.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_option_tile.dart';
@@ -148,8 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   bool createAccount = await showProviderAlert(context: context);
                   if(createAccount){
                     DocumentReference result = await firestoreAPI.addProvider(
-                        //TODO: add changes here for adding automatic dp for provider profile, the problem arises when you need it auto deletes from firestorage
-                        ProviderUser(uid: authProvider.currentUser.id),
+                        ProviderUser(uid: authProvider.currentUser.id, displayPictureURL: currentUser.displayPictureURL,displayPictureFileName: currentUser.displayPictureFileName),
                         authProvider.currentUser.id);
                     await authProvider.updateCurrentUserData();
 
@@ -162,21 +163,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ProfileOptionTile(
+                text: 'Favourite Providers',
+                onPressed: () {
+                  Navigator.pushNamed(context, FavouritesScreen.id);
+                },
+              ),
+              ProfileOptionTile(
                 text: 'Change Details',
                 onPressed: () {
                   Navigator.pushNamed(context, EditAccountScreen.id);
                 },
               ),
-
-              //TODO: open up another page that gives a brief overview, find out more and links to pp and tcs
               ProfileOptionTile(
                   text: 'About Genchi',
-                  onPressed: () async {
-                    if (await canLaunch(GenchiURL)) {
-                      await launch(GenchiURL);
-                    } else {
-                      print("Could not open URL");
-                    }
+                  onPressed: ()  {
+                    Navigator.pushNamed(context, AboutScreen.id);
                   }),
               ProfileOptionTile(
                 text: 'Log Out',

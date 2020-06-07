@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/screens/favourites_screen.dart';
 
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
@@ -15,6 +16,8 @@ import 'screens/edit_account_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
+import 'screens/favourites_screen.dart';
+import 'screens/about_screen.dart';
 
 void main() {
   runApp(Genchi());
@@ -49,6 +52,9 @@ class Genchi extends StatelessWidget {
           ProviderScreen.id: (context) => ProviderScreen(),
           SearchProviderScreen.id: (context) => SearchProviderScreen(),
           EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
+          FavouritesScreen.id: (context) => FavouritesScreen(),
+          AboutScreen.id: (context) => AboutScreen(),
+
         },
       ),
     );

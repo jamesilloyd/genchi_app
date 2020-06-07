@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'favourites_screen.dart';
+
 
 FirebaseUser loggedInUser;
 
@@ -46,10 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('Search'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Platform.isIOS ? CupertinoIcons.heart : Icons.star),
-              title: Text('Favourites'),
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
                   ? CupertinoIcons.conversation_bubble
                   : Icons.message),
@@ -66,8 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if (index == 0) {
           return SearchScreen();
         } else if (index == 1) {
-          return FavouritesScreen();
-        } else if(index==2) {
           return ChatSummaryScreen();
         } else {
           return ProfileScreen();

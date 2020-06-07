@@ -204,6 +204,15 @@ class FirestoreCRUDModel {
     return result;
   }
 
+  Future<DocumentReference> removeUserFavourite({String uid, String favouritePid}) async {
+    await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayRemove([favouritePid])},merge: true);
+  }
+
+  Future<DocumentReference> addUserFavourite({String uid, String favouritePid}) async {
+    await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayUnion([favouritePid])},merge: true);
+  }
+
+
   Future<void> deleteProvider({ProviderUser provider}) async {
     if(provider.chats.isNotEmpty) for(String chatID in provider.chats) {
       print('Deleting chats');

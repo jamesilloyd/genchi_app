@@ -65,3 +65,9 @@ const debugMode = false;
 
 const GenchiURL = 'https://www.genchi.app';
 const GenchiAboutURL = 'https://www.genchi.app/about-us';
+const GenchiFAQsURL = 'https://www.genchi.app/faqs';
+const GenchiTACsURL = 'https://www.genchi.app/termsconditions';
+const GenchiPPURL = 'https://www.genchi.app/private-policy';
+const GenchiHirerURL = 'https://www.genchi.app/hirer';
+const GenchiProviderURL = 'https://www.genchi.app/provider';
+const GenchiFacebookURL = 'https://www.facebook.com/genchiapp/';

@@ -15,6 +15,7 @@ import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/chat.dart';
+import 'package:genchi_app/models/user.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,7 +28,9 @@ class ProviderScreen extends StatefulWidget {
 
 class _ProviderScreenState extends State<ProviderScreen> {
 
+
   FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  bool isFavourite = false;
 
 
   @override
@@ -39,8 +42,11 @@ class _ProviderScreenState extends State<ProviderScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
 
+
     ProviderUser providerUser = providerService.currentProvider;
     bool isUsersProviderProfile = authProvider.currentUser.providerProfiles.contains(providerUser.pid);
+    isFavourite = authProvider.currentUser.favourites.contains(providerUser.pid);
+    print(isFavourite);
 
     return Scaffold(
       appBar: MyAppNavigationBar(
@@ -68,38 +74,52 @@ class _ProviderScreenState extends State<ProviderScreen> {
               SizedBox(
                 height: 10,
               ),
-              Align(
+               Align(
+                 alignment: Alignment.center,
+                 child: RoundedButton(
+                   buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
+                   buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
+                   fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
+                   onPressed: isUsersProviderProfile ? (){
+                     Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
+                   }: () async{
+
+                     List userChats = authProvider.currentUser.chats;
+                     if(kDebugMode) print('Provider Screen: User Chats = $userChats');
+                     List providerChats = providerUser.chats;
+                     if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
+                     List allChats = [userChats,providerChats];
+
+                     final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
+
+                     if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
+
+                     if(commonChatIds.isEmpty) {
+                       print("Empty");
+                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(isDeleted: false),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
+                     } else {
+                       //This is an existing chat
+                       Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
+                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
+                     }
+                   },
+                 )
+               ),
+              if(!isUsersProviderProfile)Align(
                 alignment: Alignment.center,
                 child: RoundedButton(
-                  buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
-                  buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
-                  fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
-                  onPressed: isUsersProviderProfile ? (){
-                    Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
-                  }: () async{
-
-                    List userChats = authProvider.currentUser.chats;
-                    if(kDebugMode) print('Provider Screen: User Chats = $userChats');
-                    List providerChats = providerUser.chats;
-                    if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
-                    List allChats = [userChats,providerChats];
-
-                    final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
-
-                    if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
-
-                    if(commonChatIds.isEmpty) {
-                      print("Empty");
-                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(isDeleted: false),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
-                    } else {
-                      //This is an existing chat
-                      Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
-                      Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
-
-                    }
-
+                  buttonColor: isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
+                  fontColor: Color(kGenchiCream),
+                  buttonTitle: isFavourite ? 'Added to Favourites': 'Add to Favourites',
+                  onPressed: () async {
+//                    setState(() {
+//                      //TODO: may need to add in circular progress bar
+//                    });
+                    isFavourite ? firestoreAPI.removeUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid) : firestoreAPI.addUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid);
+                    await authProvider.updateCurrentUserData();
+                    setState((){});
                   },
-                )
+                ),
               ),
               Divider(),
               Container(

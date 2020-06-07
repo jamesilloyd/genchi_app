@@ -87,32 +87,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                 );
               },
             )
-
-//            ListView(
-//              children: <Widget>[
-//                ProviderCard(
-//                  image: AssetImage("images/Logo_Clear.png"),
-//                  name: 'Rotter',
-//                  description: 'I am rotter',
-//                  onTap: () {
-//                    Navigator.pushNamed(context, ProviderScreen.id);
-//                  },
-//                ),
-//                ProviderCard(
-//                  image: AssetImage("images/Logo_Clear.png"),
-//                  name: 'James',
-//                  onTap: () {},
-//                  description: "I am James",
-//                ),
-//                ProviderCard(
-//                  image: AssetImage("images/Logo_Clear.png"),
-//                  name: 'Hector',
-//                  onTap: () {},
-//                  description:
-//                      "I am Hectoooooooooooooooooooooooooooooooooooooooooooooor",
-//                ),
-//              ],
-//            ),
           ),
         ));
   }

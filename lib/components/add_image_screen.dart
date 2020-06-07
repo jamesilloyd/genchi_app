@@ -129,7 +129,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                 height: 40,
                 child: Center(
                   child: Text(
-                    'Change Display Picture',
+                    'Change All Display Pictures',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 30.0,
@@ -288,7 +288,7 @@ class _UploaderState extends State<Uploader> {
     final providerService = Provider.of<ProviderService>(context, listen: false);
 
     try {
-      filePath = widget.isUser ? 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png' : 'images/providers/displayPicture/${providerService.currentProvider.pid}${DateTime.now()}.png';
+      filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
       StorageReference ref = _storage.ref().child(filePath);
       print('Uploading image');
       _uploadTask = ref.putFile(widget.file);
@@ -296,13 +296,26 @@ class _UploaderState extends State<Uploader> {
       print('downloading url');
       String downloadUrl = await storageSnapshot.ref.getDownloadURL();
       print(downloadUrl);
+
+
       String oldFileName = widget.isUser ? authProvider.currentUser.displayPictureFileName : providerService.currentProvider.displayPictureFileName;
-      print('Updating firestore');
-      widget.isUser ? await firestoreAPI.updateUser(
-          user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl),
-          uid: authProvider.currentUser.id) : await firestoreAPI.updateProvider(provider: ProviderUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl),pid: providerService.currentProvider.pid);
-      print('Updating current user');
-      widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(providerService.currentProvider.pid);
+      print('Updating firestore user');
+
+      await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
+
+      print('Updating firestore providers');
+
+      for(String pid in authProvider.currentUser.providerProfiles) {
+        await firestoreAPI.updateProvider(provider: ProviderUser(displayPictureFileName: filePath,displayPictureURL: downloadUrl), pid: pid);
+      }
+
+      print('Updating current user and provider');
+      if(widget.isUser) {
+        await authProvider.updateCurrentUserData();
+      } else {
+        await authProvider.updateCurrentUserData();
+        await providerService.updateCurrentProvider(providerService.currentProvider.pid);
+      }
       print('Deleting old file');
       if (oldFileName != null)
         await FirebaseStorage.instance.ref().child(oldFileName).delete();

@@ -17,6 +17,7 @@ import 'package:genchi_app/models/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
@@ -51,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
     userIsProvider = args.userIsProvider;
     if (thisChat == null) thisChat = args.chat;
     provider = args.provider;
+    print(provider.pid);
     user = args.user;
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
 //    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
@@ -60,8 +62,8 @@ class _ChatScreenState extends State<ChatScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        appBar: MyAppNavigationBar(
-            barTitle: userIsProvider ? user.name : provider.name),
+        appBar: ChatNavigationBar(
+            barTitle: userIsProvider ? user.name : provider.name, provider: provider, imageURL: userIsProvider ? user.displayPictureURL : provider.displayPictureURL,),
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

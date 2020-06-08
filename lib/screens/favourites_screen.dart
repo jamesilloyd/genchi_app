@@ -12,77 +12,77 @@ import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
-
+import 'package:genchi_app/models/CRUDModel.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
-
-
 class FavouritesScreen extends StatelessWidget {
-
   static const id = 'favourites_screen';
 
   final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
-
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
     for (var pid in userFavourites) {
       providers.add(await firestoreAPI.getProviderById(pid));
     }
+//    someObjects.sort((a, b) => a.someProperty.compareTo(b.someProperty));
+    providers.sort((a,b) => a.type.compareTo(b.type));
     return providers;
-  };
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final providerService = Provider.of<ProviderService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     User currentUser = authProvider.currentUser;
 
     return Scaffold(
-      appBar: MyAppNavigationBar(barTitle: 'Favourites',),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: FutureBuilder(
-          //This function returns a list of providerUsers
-          future: getUsersFavourites(currentUser.favourites),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+      appBar: MyAppNavigationBar(
+        barTitle: 'Favourites',
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20.0),
+        children: <Widget>[
+          FutureBuilder(
+            //This function returns a list of providerUsers
+            future: getUsersFavourites(currentUser.favourites),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return CircularProgress();
+              }
+              final List<ProviderUser> providers = snapshot.data;
 
-              return CircularProgress();
-            }
-            final List<ProviderUser> providers = snapshot.data;
+              List<ProviderCard> providerCards = [];
 
-            List<ProviderCard> providerCards = [];
+              for (ProviderUser provider in providers) {
+                ProviderCard pCard = ProviderCard(
+                  image: provider.displayPictureURL == null
+                      ? AssetImage("images/Logo_Clear.png")
+                      : CachedNetworkImageProvider(provider.displayPictureURL),
+                  name: provider.name,
+                  description: provider.bio,
+                  service: provider.type,
+                  onTap: () async {
+                    await providerService.updateCurrentProvider(provider.pid);
+                    Navigator.pushNamed(context, ProviderScreen.id,
+                        arguments: ProviderScreenArguments(provider: provider));
+                  },
+                );
 
-            for (ProviderUser provider in providers) {
-              ProviderCard pCard = ProviderCard(
-                image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
-                name: provider.name,
-                description: provider.bio,
-                service: provider.type,
-                onTap: () async {
+                providerCards.add(pCard);
+              }
 
-                  await providerService.updateCurrentProvider(provider.pid);
-                  Navigator.pushNamed(context, ProviderScreen.id,
-                      arguments:
-                      ProviderScreenArguments(provider: provider));
-                },
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: providerCards,
               );
-
-              providerCards.add(pCard);
-            }
-
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: providerCards,
-            );
-          },),
+            },
+          ),
+        ],
       ),
     );
   }

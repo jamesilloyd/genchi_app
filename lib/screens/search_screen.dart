@@ -32,29 +32,77 @@ class _SearchScreenState extends State<SearchScreen> {
     print('Search screen activated');
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: "Search"),
-      body: Center(
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20.0,
-          mainAxisSpacing: 20.0,
-          padding: EdgeInsets.all(20.0),
-          childAspectRatio: 1.618,
-          children: List.generate(
-            servicesListMap.length,
-            (index) {
-              Map service = servicesListMap[index];
-              return SearchServiceTile(
-                onPressed: () {
-                  Navigator.pushNamed(context, SearchProviderScreen.id,
-                      arguments: SearchProviderScreenArguments(service: service));
-                },
-                buttonTitle: service['plural'],
-                imageAddress: service['imageAddress'],
-              );
-            },
+      body: CustomScrollView(
+        slivers: <Widget>[
+           SliverAppBar(
+            pinned: false,
+            backgroundColor: Color(kGenchiBlue),
+            expandedHeight: 100.0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Container(color: Color(kGenchiOrange),
+                  child: Text('Search Bar')),
+            ),
           ),
-        ),
-      ),
+          SliverGrid(
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200.0,
+              mainAxisSpacing: 10.0,
+              crossAxisSpacing: 10.0,
+              childAspectRatio: 4.0,
+            ),
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.teal[100 * (index % 9)],
+                  child: Text('Grid Item $index'),
+                );
+              },
+              childCount: 20,
+            ),
+          ),
+          SliverFixedExtentList(
+            itemExtent: 50.0,
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.lightBlue[100 * (index % 9)],
+                  child: Text('List Item $index'),
+                );
+              },
+            ),
+          ),
+        ],
+      )
+
+//      Stack(
+//        children: <Widget>[
+//          Center(
+//                child: GridView.count(
+//                  crossAxisCount: 2,
+//                  crossAxisSpacing: 20.0,
+//                  mainAxisSpacing: 20.0,
+//                  padding: EdgeInsets.all(20.0),
+//                  childAspectRatio: 1.618,
+//                  children: List.generate(
+//                    servicesListMap.length,
+//                    (index) {
+//                      Map service = servicesListMap[index];
+//                      return SearchServiceTile(
+//                        onPressed: () {
+//                          Navigator.pushNamed(context, SearchProviderScreen.id,
+//                              arguments: SearchProviderScreenArguments(service: service));
+//                        },
+//                        buttonTitle: service['plural'],
+//                        imageAddress: service['imageAddress'],
+//                      );
+//                    },
+//                  ),
+//                ),
+//              ),
+//        ],
+//      ),
     );
   }
 }

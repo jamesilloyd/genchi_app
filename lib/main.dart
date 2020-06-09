@@ -4,6 +4,7 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/screens/search_manual_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -25,12 +26,9 @@ void main() {
 
 class Genchi extends StatelessWidget {
 
-  //TODO: how to add images with correct resolutions (do we need to add three) - looks very granular on the app
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      //ToDo to be updated (1)
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
@@ -54,7 +52,7 @@ class Genchi extends StatelessWidget {
           EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
           FavouritesScreen.id: (context) => FavouritesScreen(),
           AboutScreen.id: (context) => AboutScreen(),
-
+          SearchManualScreen.id: (context) => SearchManualScreen(),
         },
       ),
     );

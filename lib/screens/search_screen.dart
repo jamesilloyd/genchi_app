@@ -12,6 +12,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/screens/search_manual_screen.dart';
 
 import 'search_provider_screen.dart';
 
@@ -54,7 +55,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   expandedHeight: 100.0,
                   flexibleSpace: FlexibleSpaceBar(
                     centerTitle: true,
-                    title: SearchBar(searchTextController: searchTextController),
+//                    title: SearchBarButton(),
+                    title: SearchBarButton(),
                   ),
                 ),
                 SliverGrid.count(

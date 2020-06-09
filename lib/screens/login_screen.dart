@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Provider.of<AuthenticationService>(context);
     return GestureDetector(
       onTap: (){
-        FocusScope.of(context).unfocus();
+        FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,

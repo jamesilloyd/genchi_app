@@ -59,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return GestureDetector(
       onTap: (){
-        FocusScope.of(context).unfocus();
+        FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
         appBar: ChatNavigationBar(

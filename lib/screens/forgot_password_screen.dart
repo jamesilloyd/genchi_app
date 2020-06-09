@@ -33,7 +33,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return GestureDetector(
       onTap: (){
-        FocusScope.of(context).unfocus();
+        FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
         backgroundColor: Color(kGenchiGreen),

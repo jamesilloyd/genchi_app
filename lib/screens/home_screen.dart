@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-              title: Text('Search'),
+              title: Text('Search',style: TextStyle(fontFamily: 'FuturaPT'),),
             ),
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS

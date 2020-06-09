@@ -69,7 +69,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
       onWillPop: _onWillPop,
       child: GestureDetector(
         onTap: (){
-          FocusScope.of(context).unfocus();
+          FocusScope.of(context).requestFocus(new FocusNode());
         },
         child: Scaffold(
           appBar: AppBar(

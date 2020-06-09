@@ -32,7 +32,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     return GestureDetector(
       onTap: (){
-        FocusScope.of(context).unfocus();
+        FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,

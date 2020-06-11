@@ -5,6 +5,7 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 
 import 'chat_screen.dart';
 
@@ -98,19 +99,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
 
                       final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
-                      if(chatsAndProviders.isEmpty){
-                       return  Container(
-                         height: 30,
-                         child: Center(
-                           child: Text(
-                             'No Messages',
-                             style: TextStyle(
-                               fontSize: 20,
-                             ),
-                           ),
-                         ),
-                       );
-                      };
+
 
                       List<MessageListItem> chatWidgets = [];
 
@@ -133,11 +122,30 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                               await firestoreAPI.updateChat(chat: chat);
                               Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: false,provider: provider,user: currentUser, isFirstInstance: false));
                             },
+                            hideChat: () async {
+                              bool deleteChat = await showDeleteChatAlert(context: context);
+                              if(deleteChat) await firestoreAPI.hideChat(chat: chat, forProvider: false);
+                              if(deleteChat) setState(() {});
+                            },
                           );
 
-                          chatWidgets.add(chatWidget);
+                          if(!chat.isHiddenFromUser) chatWidgets.add(chatWidget);
                         },
                       );
+
+                      if(chatsAndProviders.isEmpty|chatWidgets.isEmpty){
+                        return  Container(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'No Messages',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        );
+                      };
 
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -197,20 +205,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                           userProviderChatsAndUsers = snapshot.data;
 
 
-                          if(userProviderChatsAndUsers.isEmpty){
-                            return  Container(
-                              height: 30,
-                              child: Center(
-                                child: Text(
-                                  'No Messages',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            );
-                          };
-
 
                           List<MessageListItem> chatWidgets = [];
 
@@ -239,14 +233,33 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                       await firestoreAPI.updateChat(chat: chat);
                                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: true, provider: provider, user: user));
                                     },
+                                    hideChat: () async {
+                                      bool deleteChat = await showDeleteChatAlert(context: context);
+                                      if(deleteChat) await firestoreAPI.hideChat(chat: chat, forProvider: true);
+                                      if(deleteChat) setState(() {});
+                                    },
                                   );
 
-                                  chatWidgets.add(chatWidget);
+                                  if(!chat.isHiddenFromProvider) chatWidgets.add(chatWidget);
                                 },
                               );
                             },
                           );
 
+
+                          if(userProviderChatsAndUsers.isEmpty | chatWidgets.isEmpty){
+                            return  Container(
+                              height: 30,
+                              child: Center(
+                                child: Text(
+                                  'No Messages',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                            );
+                          };
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -14,15 +14,17 @@ class MessageListItem extends StatelessWidget {
   final bool hasUnreadMessage;
   final Function onTap;
   final String service;
+  final Function hideChat;
 
   const MessageListItem({
     Key key,
     this.image,
+    @required this.hideChat,
     this.name,
     this.lastMessage,
     this.time,
     this.hasUnreadMessage,
-    this.onTap,
+    @required this.onTap,
     this.service,
   }) : super(key: key);
 
@@ -120,7 +122,7 @@ class MessageListItem extends StatelessWidget {
           caption: 'Archive',
           color: Colors.red[900],
           icon: Icons.archive,
-          onTap: () {},
+          onTap: hideChat,
         ),
       ],
     );

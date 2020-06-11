@@ -172,7 +172,7 @@ class FirestoreCRUDModel {
 
   Future addMessageToChat({String chatId, ChatMessage chatMessage, bool providerIsSender}) async {
 
-    Chat chat = Chat(lastMessage: chatMessage.text, time: chatMessage.time);
+    Chat chat = Chat(lastMessage: chatMessage.text, time: chatMessage.time, isHiddenFromProvider: false, isHiddenFromUser: false);
 
     providerIsSender ? chat.userHasUnreadMessage = true : chat.providerHasUnreadMessage = true;
 
@@ -193,7 +193,7 @@ class FirestoreCRUDModel {
 
   Future<DocumentReference> addNewChat({String uid, String pid, String providersUid}) async {
 
-    Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid);
+    Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid, isHiddenFromUser: false, isHiddenFromProvider:  false);
 
     DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
       await updateChat(chat: Chat(chatid: docRef.documentID));
@@ -230,7 +230,6 @@ class FirestoreCRUDModel {
       await deleteChat(chat: chat);
     }
 
-
     if(provider.isFavouritedBy.isNotEmpty) for(String uid in provider.isFavouritedBy) {
       if(debugMode) print('CRUDModel: Removing provider from hirer: $uid favourites');
       await removeUserFavourite(uid: uid, favouritePid: provider.pid);
@@ -242,6 +241,7 @@ class FirestoreCRUDModel {
     await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
     if(debugMode) print('CRUDModel: deleteProvider complete');
   }
+
 
   Future<void> deleteChat({Chat chat}) async {
     await _chatCollectionRef.document(chat.chatid).delete();
@@ -257,6 +257,14 @@ class FirestoreCRUDModel {
   Future<void> deleteProviderDisplayPicture({ProviderUser provider}) async {
     await FirebaseStorage.instance.ref().child(provider.displayPictureFileName).delete();
     await _providersCollectionRef.document(provider.pid).setData({'displayPictureFileName': FieldValue.delete(),'displayPictureURL':FieldValue.delete()},merge: true);
+  }
+
+  Future<void> hideChat({Chat chat, bool forProvider}) async {
+    if(debugMode) print('CRUDModel: hideChat called');
+    forProvider ? chat.isHiddenFromProvider = true : chat.isHiddenFromUser = true;
+    print(chat.isHiddenFromUser);
+    print(chat.isHiddenFromProvider);
+     await updateChat(chat: chat);
   }
 
 

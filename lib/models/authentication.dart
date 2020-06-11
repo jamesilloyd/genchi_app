@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'CRUDModel.dart';
 import 'provider.dart';
-
+import 'package:genchi_app/constants.dart';
 
 //ToDo: (1) Once everything is currently working, just leave as is, however once complete try and implement FilledStacks provider and firebase examples
 //https://github.com/FilledStacks/flutter-tutorials
@@ -112,7 +112,7 @@ class ProviderService extends ChangeNotifier {
   //ToDo to be updated (1)
   Future updateCurrentProvider(pid) async {
 
-    print("populating provider");
+    if(debugMode) print("updateCurrentProvider called: populating provider");
     if (pid != null) {
       _currentProvider = await _firestoreCRUDModel.getProviderById(pid);
       notifyListeners();

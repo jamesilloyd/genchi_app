@@ -336,6 +336,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       : "Delete provider account",
                   buttonColor: Color(kGenchiBlue),
                   onPressed: () async {
+                    //Update the provider before deleting
+                    print(providerUser.isFavouritedBy);
+                    await providerService.updateCurrentProvider(providerUser.pid);
+
+                    //Get most up to data provider
+                    providerUser = Provider.of<ProviderService>(context, listen: false).currentProvider;
+                    print(providerUser.isFavouritedBy);
                     Platform.isIOS
                         ? showAlertIOS(context: context, actionFunction: () async {
                           setState(() => showSpinner = true);
@@ -350,6 +357,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                           }, alertMessage: 'Delete Account')
                         : showAlertAndroid(context: context, actionFunction: () async {
                             setState(() => showSpinner = true);
+
 
                             await firestoreAPI.deleteProvider(provider : providerUser);
                             await authProvider.updateCurrentUserData();

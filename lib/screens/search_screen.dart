@@ -39,50 +39,37 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     print('Search screen activated');
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
-    },
+      },
       child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: MyAppNavigationBar(barTitle: "Search"),
-          body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: CustomScrollView(
-              slivers: <Widget>[
-                SliverAppBar(
-                  backgroundColor: Colors.white,
-                  pinned: false,
-                  expandedHeight: 100.0,
-                  flexibleSpace: FlexibleSpaceBar(
-                    centerTitle: true,
-//                    title: SearchBarButton(),
-                    title: SearchBarButton(),
-                  ),
-                ),
-                SliverGrid.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20.0,
-                  mainAxisSpacing: 20.0,
-                  childAspectRatio: 1.618,
-                  children: List.generate(
-                    servicesListMap.length,
-                    (index) {
-                      Map service = servicesListMap[index];
-                      return SearchServiceTile(
-                        onPressed: () {
-                          Navigator.pushNamed(context, SearchProviderScreen.id,
-                              arguments: SearchProviderScreenArguments(
-                                  service: service));
-                        },
-                        buttonTitle: service['plural'],
-                        imageAddress: service['imageAddress'],
-                      );
-                    },
-                  ),
-                ),
-              ],
+        backgroundColor: Colors.white,
+        appBar: MyAppNavigationBar(barTitle: "Search"),
+        body: Center(
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 20.0,
+            mainAxisSpacing: 20.0,
+            padding: EdgeInsets.all(20.0),
+            childAspectRatio: 1.618,
+            children: List.generate(
+              servicesListMap.length,
+              (index) {
+                Map service = servicesListMap[index];
+                return SearchServiceTile(
+                  onPressed: () {
+                    Navigator.pushNamed(context, SearchProviderScreen.id,
+                        arguments:
+                            SearchProviderScreenArguments(service: service));
+                  },
+                  buttonTitle: service['plural'],
+                  imageAddress: service['imageAddress'],
+                );
+              },
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }

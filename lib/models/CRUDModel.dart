@@ -5,6 +5,7 @@ import 'user.dart';
 import 'provider.dart';
 import 'chat.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:genchi_app/constants.dart';
 
 //This class is specifically for Profile CRUD
 
@@ -205,28 +206,47 @@ class FirestoreCRUDModel {
   }
 
   Future<DocumentReference> removeUserFavourite({String uid, String favouritePid}) async {
+    if(debugMode) print('CRUDModel: removeUserFavourite called for hirer $uid on provider $favouritePid');
     await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayRemove([favouritePid])},merge: true);
+    await _providersCollectionRef.document(favouritePid).setData({'isFavouritedBy' : FieldValue.arrayRemove([uid])},merge: true);
   }
 
   Future<DocumentReference> addUserFavourite({String uid, String favouritePid}) async {
+    if(debugMode) print('CRUDModel: addUserFavourite called for hirer $uid on provider $favouritePid');
     await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayUnion([favouritePid])},merge: true);
+    await _providersCollectionRef.document(favouritePid).setData({'isFavouritedBy' : FieldValue.arrayUnion([uid])},merge: true);
   }
 
 
   Future<void> deleteProvider({ProviderUser provider}) async {
+
+    //TODO: may be worth doing try and catch blocks here!!!!!!!!!!
+    if(debugMode) print('CRUDModel: deleteProvider called on ${provider.pid}');
+
     if(provider.chats.isNotEmpty) for(String chatID in provider.chats) {
-      print('Deleting chats');
-      await updateChat(chat: Chat(chatid: chatID, isDeleted : true, lastMessage: 'Provider No Longer Exists'));
+      if(debugMode) print('CRUDModel: Deleting chat $chatID}');
+      //TODO: currently the chat gets deleted and also from the hirer's array, would be better to provide feedback to the hirer
+      Chat chat = await getChatById(chatID);
+      await deleteChat(chat: chat);
     }
-    if(provider.displayPictureFileName!=null) await FirebaseStorage.instance.ref().child(provider.displayPictureFileName).delete();
+
+
+    if(provider.isFavouritedBy.isNotEmpty) for(String uid in provider.isFavouritedBy) {
+      if(debugMode) print('CRUDModel: Removing provider from hirer: $uid favourites');
+      await removeUserFavourite(uid: uid, favouritePid: provider.pid);
+    }
+
+    //Delete the provider
     await _providersCollectionRef.document(provider.pid).delete();
+    //Remove provider from users array
     await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
+    if(debugMode) print('CRUDModel: deleteProvider complete');
   }
 
   Future<void> deleteChat({Chat chat}) async {
     await _chatCollectionRef.document(chat.chatid).delete();
     await _providersCollectionRef.document(chat.pid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
-    await _providersCollectionRef.document(chat.uid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
+    await _usersCollectionRef.document(chat.uid).setData({'chats': FieldValue.arrayRemove([chat.chatid])},merge: true);
   }
 
   Future<void> deleteUserDisplayPicture({User user}) async {

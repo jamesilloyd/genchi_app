@@ -61,7 +61,7 @@ const kGenchiCream = 0xfff9f8eb;
 const kGenchiGreen = 0xff76b39d;
 
 //ToDo: start implementing print statements depending on this value e.g. if(debugMode) print("Home screen - ${}");
-const debugMode = false;
+const debugMode = true;
 
 const GenchiURL = 'https://www.genchi.app';
 const GenchiAboutURL = 'https://www.genchi.app/about-us';

@@ -24,7 +24,9 @@ class FavouritesScreen extends StatelessWidget {
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
+    if(debugMode) print('Favourite Screen: user favourite pids $userFavourites ');
     for (var pid in userFavourites) {
+
       providers.add(await firestoreAPI.getProviderById(pid));
     }
 //    someObjects.sort((a, b) => a.someProperty.compareTo(b.someProperty));
@@ -54,6 +56,8 @@ class FavouritesScreen extends StatelessWidget {
                 return CircularProgress();
               }
               final List<ProviderUser> providers = snapshot.data;
+
+              if(debugMode) print('Favourite Screen: Providers from firebase: $providers');
 
               List<ProviderCard> providerCards = [];
 

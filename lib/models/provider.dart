@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 class ProviderUser extends ChangeNotifier {
-
   String uid;
   String pid;
   String name;
@@ -12,7 +11,9 @@ class ProviderUser extends ChangeNotifier {
   String experience;
   String type;
   String pricing;
+  bool isDeleted;
   List<dynamic> chats;
+  List<dynamic> isFavouritedBy;
 
   ProviderUser(
       {this.uid,
@@ -25,6 +26,8 @@ class ProviderUser extends ChangeNotifier {
       this.type,
       this.chats,
       this.pricing,
+      this.isDeleted,
+      this.isFavouritedBy,
       this.experience});
 
   ProviderUser.fromMap(Map snapshot)
@@ -38,7 +41,9 @@ class ProviderUser extends ChangeNotifier {
 //        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'] ?? '',
         chats = snapshot['chats'] ?? [],
+        isDeleted = snapshot['isDeleted'] ?? false,
         experience = snapshot['experience'] ?? '',
+        isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         type = snapshot['type'] ?? '';
 
   toJson() {
@@ -48,12 +53,15 @@ class ProviderUser extends ChangeNotifier {
       if (name != null) "name": name ?? '',
       if (pricing != null) "pricing": pricing ?? '',
       if (displayPictureURL != null) "displayPictureURL": displayPictureURL,
-      if (displayPictureFileName != null) "displayPictureFileName": displayPictureFileName,
+      if (displayPictureFileName != null)
+        "displayPictureFileName": displayPictureFileName,
       if (bio != null) "bio": bio,
       if (type != null) 'type': type,
+      if (isDeleted != null) 'isDeleted': isDeleted,
       if (timeStamp != null) 'timeStamp': timeStamp,
-      if(chats != null) 'chats' : chats,
-      if(experience != null) 'experience' : experience,
+      if (chats != null) 'chats': chats,
+      if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,
+      if (experience != null) 'experience': experience,
     };
   }
 }

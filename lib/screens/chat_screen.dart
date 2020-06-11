@@ -126,13 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     FlatButton(
-                      onPressed: thisChat.isDeleted
-                          ? () {
-                              print('Provider does not exist');
-                              Scaffold.of(context)
-                                  .showSnackBar(kProviderDoesNotExistSnackBar);
-                            }
-                          : (messageText != null
+                      onPressed: (messageText != null
                               ? (isFirstInstance
                                   ? () async {
                                       print('Message text is not null and this is the first instance');

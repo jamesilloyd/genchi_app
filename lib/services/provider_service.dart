@@ -8,7 +8,7 @@ import 'package:genchi_app/constants.dart';
 //ToDo: may be able to integrate this into CRUDModel
 class ProviderService extends ChangeNotifier {
 
-  final FirestoreCRUDModel _firestoreCRUDModel = FirestoreCRUDModel();
+  final FirestoreAPIService _firestoreCRUDModel = FirestoreAPIService();
 
   //ToDo to be updated (1)
   ProviderUser _currentProvider;

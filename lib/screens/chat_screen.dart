@@ -33,7 +33,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   final messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;

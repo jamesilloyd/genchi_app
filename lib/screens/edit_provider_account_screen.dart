@@ -25,9 +25,9 @@ import 'home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+//TODO: change these to just use text editing controllers
 
 
-//TODO - DELETE PROVIDER ACCOUNT, CHANGES MADE BOOL AND REMOVE KEYBOARD
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
   @override
@@ -37,11 +37,12 @@ class EditProviderAccountScreen extends StatefulWidget {
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
   TextEditingController experienceTextController = TextEditingController();
   TextEditingController priceTextController = TextEditingController();
+  TextEditingController serviceTextController = TextEditingController();
 
   String name;
   String bio;
@@ -52,7 +53,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   bool changesMade = false;
 
-  DropdownButton<String> androidDropdownButton(currentService) {
+
+  servicePicker({String currentService, @required TextEditingController controller}){
+
+    return Platform.isIOS ? iOSPicker(currentService: currentService, controller: controller) : androidDropdownButton(currentService: currentService, controller: controller);
+  }
+
+  DropdownButton<String> androidDropdownButton({String currentService, @required TextEditingController controller}) {
     List<DropdownMenuItem<String>> dropdownItems = [];
     for (Map serviceType in servicesListMap) {
       var newItem = DropdownMenuItem(
@@ -67,17 +74,17 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       dropdownItems.add(newItem);
     }
     return DropdownButton<String>(
-      value: service ?? (currentService == '' ? 'Other' : currentService),
+      value: controller.text!='' ? controller.text : (currentService == '' ? 'Other' : currentService),
       items: dropdownItems,
       onChanged: (value) {
         setState(() {
-          service = value;
+          controller.text = value;
         });
       },
     );
   }
 
-  CupertinoPicker iOSPicker(currentService) {
+  CupertinoPicker iOSPicker({String currentService, @required TextEditingController controller}) {
     List<Text> pickerItems = [];
     for (Map serviceType in servicesListMap) {
       var newItem = Text(serviceType['name']);
@@ -91,7 +98,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
-        service = pickerItems[selectedIndex].data;
+        controller.text = pickerItems[selectedIndex].data;
       },
       children: pickerItems,
     );
@@ -116,7 +123,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     bioTextController.text = provider.bio;
     experienceTextController.text = provider.experience;
     priceTextController.text = provider.pricing;
-    print(provider.type);
+    serviceTextController.text = provider.type;
   }
 
   @override
@@ -126,6 +133,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     bioTextController.dispose();
     experienceTextController.dispose();
     priceTextController.dispose();
+    serviceTextController.dispose();
   }
 
   @override
@@ -173,7 +181,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   });
 
                   await firestoreAPI.updateProvider(provider:
-                  ProviderUser(name: name, type: service, bio: bio, experience: experience, pricing: pricing),
+                  ProviderUser(name: name, type: serviceTextController.text, bio: bio, experience: experience, pricing: pricing),
                       pid: providerUser.pid);
                   await authProvider.updateCurrentUserData();
                   await providerService.updateCurrentProvider(providerUser.pid);
@@ -265,9 +273,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       height: Platform.isIOS ? 100.0 : 50.0,
                       child: Container(
                         color: Color(kGenchiCream),
-                        child: Platform.isIOS
-                            ? iOSPicker(providerUser.type)
-                            : androidDropdownButton(providerUser.type),
+                        child: servicePicker(controller: serviceTextController, currentService: providerUser.type),
                       ),
                     ),
                   ],
@@ -286,9 +292,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: experienceTextController,
                   hintText: 'E.g. how you developed your skills',
                   onChanged: (value) {
-
                     experience = value;
-
+                    changesMade = true;
                   },
                 ),
                 EditAccountField(
@@ -296,7 +301,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   onChanged: (value) {
                     changesMade = true;
                     pricing = value;
-
                     },
                   textController: priceTextController,
                   hintText: "E.g. for experience, £10 per job etc.",
@@ -317,7 +321,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: TextEditingController(),
                 ),
 
-                //TODO: fb as well? probably want to centralise on here if possible, but may be useful for societies?
                 EditAccountField(
                   hintText: "Coming soon",
                   field: "Website Links",

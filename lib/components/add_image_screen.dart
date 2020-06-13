@@ -42,7 +42,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   bool showSpinner = false;
 
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool uploadStarted = false;
   File _imageFile;
   bool noChangesMade = true;
@@ -279,7 +279,7 @@ class Uploader extends StatefulWidget {
 
 
 class _UploaderState extends State<Uploader> {
-  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   final FirebaseStorage _storage = FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
 
   StorageUploadTask _uploadTask;

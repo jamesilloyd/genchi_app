@@ -29,7 +29,7 @@ class RegSequenceScreen extends StatefulWidget {
 //TODO link or popup box about what each one is?
 //TODO This 100% needs to be in the form of a popup
 class _RegSequenceScreenState extends State<RegSequenceScreen> {
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   @override
   Widget build(BuildContext context) {

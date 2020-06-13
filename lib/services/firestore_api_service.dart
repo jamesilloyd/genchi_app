@@ -4,22 +4,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 import '../models/provider.dart';
 import '../models/chat.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:genchi_app/constants.dart';
 
-//This class is specifically for Profile CRUD
 
 //TODO: FIRST THING AFTER MVP RELEASE use the .where function to easily filter providers/chats etc.
-class FirestoreCRUDModel {
-
+class FirestoreAPIService {
 
   CollectionReference _usersCollectionRef = Firestore.instance.collection('users');
   CollectionReference _providersCollectionRef = Firestore.instance.collection('providers');
   CollectionReference _chatCollectionRef = Firestore.instance.collection('chats');
+  CollectionReference _taskCollectionRef = Firestore.instance.collection('tasks');
 
   List<User> users;
   List<ProviderUser> providers;
-
 
   Future<List<User>> fetchUsers() async {
     var result = await _usersCollectionRef.getDocuments();
@@ -95,9 +94,7 @@ class FirestoreCRUDModel {
 
   Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers({List<dynamic> usersPids}) async {
 
-
     Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
-
 
     for (String pid in usersPids) {
 
@@ -168,6 +165,22 @@ class FirestoreCRUDModel {
   Future addUser(User user) async {
     var result = await _usersCollectionRef.add(user.toJson());
     return result;
+  }
+
+  Future updateTask({Task task, String taskId}) async {
+    await _taskCollectionRef.document(taskId).setData(task.toJson(),merge: true);
+  }
+
+  Future<DocumentReference> addTask({@required Task task, @required String uid}) async {
+
+    DocumentReference result = await _taskCollectionRef.add(task.toJson()).then((docRef) async {
+      await updateTask(task: Task(taskId: docRef.documentID), taskId: docRef.documentID,);
+      await _usersCollectionRef.document(uid).setData({'posts':FieldValue.arrayUnion([docRef.documentID])},merge: true);
+      return docRef;
+    });
+
+    return result;
+
   }
 
   Future addMessageToChat({String chatId, ChatMessage chatMessage, bool providerIsSender}) async {

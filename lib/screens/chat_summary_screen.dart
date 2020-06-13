@@ -24,7 +24,7 @@ class ChatSummaryScreen extends StatefulWidget {
 }
 
 class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   @override
   Widget build(BuildContext context) {

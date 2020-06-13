@@ -31,7 +31,7 @@ class ProviderScreen extends StatefulWidget {
 class _ProviderScreenState extends State<ProviderScreen> {
 
 
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool isFavourite = false;
 
 

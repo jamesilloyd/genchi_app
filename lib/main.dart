@@ -15,6 +15,7 @@ import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
+import 'package:genchi_app/screens/post_task_screen.dart';
 
 
 import 'services/provider_service.dart';
@@ -55,6 +56,7 @@ class Genchi extends StatelessWidget {
           FavouritesScreen.id: (context) => FavouritesScreen(),
           AboutScreen.id: (context) => AboutScreen(),
           SearchManualScreen.id: (context) => SearchManualScreen(),
+          PostTaskScreen.id: (context) => PostTaskScreen(),
         },
       ),
     );

@@ -28,7 +28,7 @@ class SearchProviderScreen extends StatefulWidget {
 
 class _SearchProviderScreenState extends State<SearchProviderScreen> {
 
-  FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   //ToDo: add this to CRUDModel
   Future<List<ProviderUser>> getProvidersByService(serviceType) async {

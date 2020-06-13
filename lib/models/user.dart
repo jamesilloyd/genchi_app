@@ -10,6 +10,7 @@ class User extends ChangeNotifier {
   List<dynamic> providerProfiles;
   List<dynamic> chats;
   List<dynamic> favourites;
+  List<dynamic> posts;
 
   User(
       {this.id,
@@ -20,6 +21,7 @@ class User extends ChangeNotifier {
       this.timeStamp,
       this.providerProfiles,
       this.favourites,
+      this.posts,
       this.chats});
 
   User.fromMap(Map snapshot)
@@ -30,19 +32,22 @@ class User extends ChangeNotifier {
         id = snapshot['id'] ?? '',
         providerProfiles = snapshot['providerProfiles'] ?? [],
         favourites = snapshot['favourites'] ?? [],
+        posts = snapshot['posts'] ?? [],
         chats = snapshot['chats'] ?? [];
 
   toJson() {
     return {
       if (email != null) "email": email,
       if (name != null) "name": name ?? '',
-      if (displayPictureFileName != null) "displayPictureFileName": displayPictureFileName,
-      if (displayPictureURL != null) 'displayPictureURL' : displayPictureURL,
+      if (displayPictureFileName != null)
+        "displayPictureFileName": displayPictureFileName,
+      if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
       if (id != null) 'id': id,
       if (timeStamp != null) 'timeStamp': timeStamp,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
-      if (chats != null) 'chats' : chats,
-      if (favourites != null) 'favourites' : favourites,
+      if (chats != null) 'chats': chats,
+      if (favourites != null) 'favourites': favourites,
+      if (posts != null) 'posts': posts,
     };
   }
 }

@@ -28,7 +28,7 @@ class EditAccountScreen extends StatefulWidget {
 class _EditAccountScreenState extends State<EditAccountScreen> {
 
   bool changesMade = false;
-  final FirestoreCRUDModel fireStoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
   bool showSpinner = false;
   String name;
   String email;
@@ -191,8 +191,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 context: context,
                                 actionFunction: () async {
                                   setState(() => showSpinner = true);
-                                  await authProvider.sendResetEmail(
-                                      email: currentUser.email);
+                                  await authProvider.sendResetEmail(email: currentUser.email);
                                   Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
                                   setState(() => showSpinner = false);
                                   Navigator.of(context).pop();

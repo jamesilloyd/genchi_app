@@ -1,9 +1,13 @@
-import '../models/user.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'firestore_api_service.dart';
-import '../models/provider.dart';
+
+import 'package:genchi_app/services/firestore_api_service.dart';
+
 import 'package:genchi_app/constants.dart';
+
+import 'package:genchi_app/models/user.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 //ToDo: (1) Once everything is currently working, just leave as is, however once complete try and implement FilledStacks provider and firebase examples
 //https://github.com/FilledStacks/flutter-tutorials
@@ -11,7 +15,7 @@ import 'package:genchi_app/constants.dart';
 class AuthenticationService extends ChangeNotifier {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirestoreCRUDModel _firestoreCRUDModel = FirestoreCRUDModel();
+  final FirestoreAPIService _firestoreCRUDModel = FirestoreAPIService();
 
   //ToDo to be updated (1)
   User _currentUser;
@@ -58,9 +62,6 @@ class AuthenticationService extends ChangeNotifier {
       if (authResult != null) {
         print("register successful");
         FirebaseUser user = await _firebaseAuth.currentUser();
-
-        //ToDo: do we want to send verification email?
-//      await user.sendEmailVerification();
 
         //create new user in firestore
         final DateTime timestamp = DateTime.now();

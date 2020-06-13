@@ -72,7 +72,7 @@ Future<void> showAlertAndroid(
 }
 
 Future<bool> showYesNoAlert(
-    {BuildContext context, String title, String message}) {
+    {@required BuildContext context, @required String title}) {
   return showDialog(
     context: context,
     child: Platform.isIOS

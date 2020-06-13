@@ -6,11 +6,13 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 
-import 'welcome_screen.dart';
-import 'edit_account_screen.dart';
-import 'provider_screen.dart';
-import 'favourites_screen.dart';
-import 'about_screen.dart';
+
+import 'package:genchi_app/screens/post_task_screen.dart';
+import 'package:genchi_app/screens/welcome_screen.dart';
+import 'package:genchi_app/screens/edit_account_screen.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
+import 'package:genchi_app/screens/favourites_screen.dart';
+import 'package:genchi_app/screens/about_screen.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_option_tile.dart';
@@ -18,7 +20,7 @@ import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
-/**/
+
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/provider.dart';
@@ -28,10 +30,8 @@ import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
 
 User currentUser;
 
@@ -41,12 +41,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   String userName;
   List<ProviderUser> providers;
 
-
-  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   //ToDo: this can all go into CRUDModel
   Future<List<ProviderUser>> getUsersProviders(usersPids) async {
@@ -57,10 +55,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return providers;
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     print('Profile screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
@@ -77,8 +73,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView(
             padding: EdgeInsets.all(20.0),
             children: <Widget>[
-              DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,),
-              SizedBox(height:20),
+              DisplayPicture(
+                imageUrl: currentUser.displayPictureURL,
+                height: 0.25,
+              ),
+              SizedBox(height: 20),
               Divider(
                 height: 0,
               ),
@@ -108,54 +107,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               FutureBuilder(
-                  //This function returns a list of providerUsers
-                  future: getUsersProviders(currentUser.providerProfiles),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
+                //This function returns a list of providerUsers
+                future: getUsersProviders(currentUser.providerProfiles),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgress();
+                  }
+                  final List<ProviderUser> providers = snapshot.data;
 
-                      return CircularProgress();
-                    }
-                    final List<ProviderUser> providers = snapshot.data;
+                  List<ProviderCard> providerCards = [];
 
-                    List<ProviderCard> providerCards = [];
-
-                    for (ProviderUser provider in providers) {
-                      ProviderCard pCard = ProviderCard(
-                        image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
-                        name: provider.name,
-                        description: provider.bio,
-                        service: provider.type,
-                        onTap: () async {
-
-                          await providerService.updateCurrentProvider(provider.pid);
-                          Navigator.pushNamed(context, ProviderScreen.id,
-                              arguments:
-                                  ProviderScreenArguments(provider: provider));
-                        },
-                      );
-
-                      providerCards.add(pCard);
-                    }
-
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: providerCards,
+                  for (ProviderUser provider in providers) {
+                    ProviderCard pCard = ProviderCard(
+                      image: provider.displayPictureURL == null
+                          ? AssetImage("images/Logo_Clear.png")
+                          : CachedNetworkImageProvider(
+                              provider.displayPictureURL),
+                      name: provider.name,
+                      description: provider.bio,
+                      service: provider.type,
+                      onTap: () async {
+                        await providerService
+                            .updateCurrentProvider(provider.pid);
+                        Navigator.pushNamed(context, ProviderScreen.id,
+                            arguments:
+                                ProviderScreenArguments(provider: provider));
+                      },
                     );
-                  },),
 
+                    providerCards.add(pCard);
+                  }
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: providerCards,
+                  );
+                },
+              ),
               ProfileOptionTile(
-                text: userIsProvider ? 'Provide Another Service':'Create Provider Profile',
+                text: userIsProvider
+                    ? 'Provide Another Service'
+                    : 'Create Provider Profile',
                 onPressed: () async {
-
-                  bool createAccount = await showProviderAlert(context: context);
-                  if(createAccount){
+                  bool createAccount =
+                      await showProviderAlert(context: context);
+                  if (createAccount) {
                     DocumentReference result = await firestoreAPI.addProvider(
-                        ProviderUser(uid: authProvider.currentUser.id, displayPictureURL: currentUser.displayPictureURL,displayPictureFileName: currentUser.displayPictureFileName),
+                        ProviderUser(
+                            uid: authProvider.currentUser.id,
+                            displayPictureURL: currentUser.displayPictureURL,
+                            displayPictureFileName:
+                                currentUser.displayPictureFileName),
                         authProvider.currentUser.id);
                     await authProvider.updateCurrentUserData();
 
-                    await providerService.updateCurrentProvider(result.documentID);
+                    await providerService
+                        .updateCurrentProvider(result.documentID);
 
                     Navigator.pushNamed(context, ProviderScreen.id,
                         arguments: ProviderScreenArguments(
@@ -176,26 +184,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ProfileOptionTile(
-                  text: 'About Genchi',
-                  onPressed: ()  {
-                    Navigator.pushNamed(context, AboutScreen.id);
-                  }),
+                text: 'About Genchi',
+                onPressed: () {
+                  Navigator.pushNamed(context, AboutScreen.id);
+                },
+              ),
+              ProfileOptionTile(
+                text: 'Post Task',
+                onPressed: () {
+                  Navigator.pushNamed(context, PostTaskScreen.id);
+                },
+              ),
               ProfileOptionTile(
                 text: 'Log Out',
                 onPressed: () {
                   Platform.isIOS
-                      ? showAlertIOS(context: context, actionFunction: () async {
-                          await authProvider.signUserOut();
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                  (Route<dynamic> route) => false);
-                        }, alertMessage: "Log out")
-                      : showAlertAndroid(context: context,actionFunction: () async {
-                          await authProvider.signUserOut();
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                  (Route<dynamic> route) => false);
-                        }, alertMessage: "Log out");
+                      ? showAlertIOS(
+                          context: context,
+                          actionFunction: () async {
+                            await authProvider.signUserOut();
+                            Navigator.of(context, rootNavigator: true)
+                                .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                    (Route<dynamic> route) => false);
+                          },
+                          alertMessage: "Log out")
+                      : showAlertAndroid(
+                          context: context,
+                          actionFunction: () async {
+                            await authProvider.signUserOut();
+                            Navigator.of(context, rootNavigator: true)
+                                .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                    (Route<dynamic> route) => false);
+                          },
+                          alertMessage: "Log out");
                 },
               ),
             ],

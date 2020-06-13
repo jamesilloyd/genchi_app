@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   TextEditingController searchTextController = TextEditingController();
 
-  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   @override
   void dispose() {

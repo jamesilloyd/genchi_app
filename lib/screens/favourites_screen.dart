@@ -22,7 +22,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 class FavouritesScreen extends StatelessWidget {
   static const id = 'favourites_screen';
 
-  final FirestoreCRUDModel firestoreAPI = FirestoreCRUDModel();
+  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];

@@ -7,7 +7,7 @@ import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/constants.dart';
 import 'reg_sequence_screen.dart';

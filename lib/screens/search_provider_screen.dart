@@ -8,8 +8,10 @@ import 'provider_screen.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
-import 'package:genchi_app/models/authentication.dart';
+
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';

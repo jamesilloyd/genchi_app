@@ -7,7 +7,7 @@ import 'chat_summary_screen.dart';
 import 'dart:io' show Platform;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 

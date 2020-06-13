@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'user.dart';
-import 'provider.dart';
-import 'chat.dart';
+import '../models/user.dart';
+import '../models/provider.dart';
+import '../models/chat.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:genchi_app/constants.dart';
 

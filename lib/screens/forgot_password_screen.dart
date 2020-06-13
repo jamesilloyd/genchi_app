@@ -8,7 +8,7 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/password_error_text.dart';

@@ -1,14 +1,18 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 
-import 'display_picture.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
+
+import 'package:genchi_app/components/display_picture.dart';
+
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/provider.dart';
 
-import 'package:genchi_app/screens/provider_screen.dart';
+import 'package:genchi_app/services/provider_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget {

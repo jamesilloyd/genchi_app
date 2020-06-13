@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
-import 'package:genchi_app/models/authentication.dart';
+
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -288,6 +290,7 @@ class _UploaderState extends State<Uploader> {
     final providerService = Provider.of<ProviderService>(context, listen: false);
 
     try {
+      //TODO: put this into cloud_storage_service
       filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
       StorageReference ref = _storage.ref().child(filePath);
       print('Uploading image');

@@ -7,7 +7,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
 import 'reg_sequence_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 
 class RegistrationScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:genchi_app/screens/favourites_screen.dart';
 
+import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
@@ -9,16 +9,18 @@ import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
-import 'screens/search_provider_screen.dart';
-import 'screens/reg_sequence_screen.dart';
-import 'package:provider/provider.dart';
-import 'models/authentication.dart';
-import 'screens/edit_account_screen.dart';
-import 'screens/forgot_password_screen.dart';
-import 'screens/provider_screen.dart';
+import 'package:genchi_app/screens/search_provider_screen.dart';
+import 'package:genchi_app/screens/reg_sequence_screen.dart';
+import 'package:genchi_app/screens/edit_account_screen.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
-import 'screens/favourites_screen.dart';
-import 'screens/about_screen.dart';
+import 'package:genchi_app/screens/about_screen.dart';
+
+
+import 'services/provider_service.dart';
+import 'services/authentication_service.dart';
+
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(Genchi());

@@ -11,10 +11,11 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
-import 'package:genchi_app/components/discard_changes_alert.dart';
 
-import 'package:genchi_app/models/authentication.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
+
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/provider.dart';

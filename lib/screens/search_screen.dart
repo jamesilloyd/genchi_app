@@ -9,7 +9,7 @@ import 'package:genchi_app/components/search_bar.dart';
 
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';

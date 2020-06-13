@@ -9,10 +9,10 @@ import 'package:genchi_app/components/platform_alerts.dart';
 
 import 'chat_screen.dart';
 
-import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/authentication.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 
@@ -123,7 +123,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                               Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: false,provider: provider,user: currentUser, isFirstInstance: false));
                             },
                             hideChat: () async {
-                              bool deleteChat = await showDeleteChatAlert(context: context);
+                              bool deleteChat = await showYesNoAlert(context: context, title: "Are you sure you want delete chat?");
                               if(deleteChat) await firestoreAPI.hideChat(chat: chat, forProvider: false);
                               if(deleteChat) setState(() {});
                             },
@@ -234,7 +234,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: true, provider: provider, user: user));
                                     },
                                     hideChat: () async {
-                                      bool deleteChat = await showDeleteChatAlert(context: context);
+                                      bool deleteChat = await showYesNoAlert(context: context, title: "Are you sure you want delete chat?");
                                       if(deleteChat) await firestoreAPI.hideChat(chat: chat, forProvider: true);
                                       if(deleteChat) setState(() {});
                                     },

@@ -5,8 +5,8 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 
-import 'package:genchi_app/models/authentication.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/user.dart';
 
 import 'package:genchi_app/components/rounded_button.dart';
@@ -15,7 +15,6 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
-import 'package:genchi_app/components/discard_changes_alert.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';

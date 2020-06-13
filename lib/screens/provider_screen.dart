@@ -11,11 +11,13 @@ import 'edit_provider_account_screen.dart';
 import 'chat_screen.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
 import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/user.dart';
+
+import 'package:genchi_app/services/provider_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

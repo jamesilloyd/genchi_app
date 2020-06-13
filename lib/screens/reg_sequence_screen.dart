@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/components/create_hirer_alert.dart';
 import 'package:genchi_app/constants.dart';
+
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'home_screen.dart';
 import 'edit_provider_account_screen.dart';
+
+import 'package:genchi_app/components/platform_alerts.dart';
+
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'package:genchi_app/models/CRUDModel.dart';
 import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/models/authentication.dart';
-import 'package:provider/provider.dart';
 import 'package:genchi_app/models/user.dart';
+
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
+
+import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:genchi_app/components/create_provider_alert.dart';
+
 
 class RegSequenceScreen extends StatefulWidget {
   static const String id = "reg_sequence_screen";

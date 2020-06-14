@@ -44,11 +44,12 @@ class _ProviderScreenState extends State<ProviderScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
 
-
     ProviderUser providerUser = providerService.currentProvider;
     bool isUsersProviderProfile = authProvider.currentUser.providerProfiles.contains(providerUser.pid);
     isFavourite = authProvider.currentUser.favourites.contains(providerUser.pid);
-    print(isFavourite);
+
+    if(debugMode) print('Provider screen: is favourite: $isFavourite');
+    if(debugMode) print('Provider screen: is users p. profile: $isUsersProviderProfile');
 
     return Scaffold(
       appBar: MyAppNavigationBar(

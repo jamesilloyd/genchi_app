@@ -79,8 +79,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
     return CupertinoPicker(
       scrollController: FixedExtentScrollController(
-        initialItem:
-            servicesListMap.indexWhere((service) => service['name'] == 'Other'),
+        initialItem: servicesListMap.indexWhere((service) => service['name'] == 'Other'),
       ),
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,

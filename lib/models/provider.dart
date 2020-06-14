@@ -14,6 +14,7 @@ class ProviderUser extends ChangeNotifier {
   bool isDeleted;
   List<dynamic> chats;
   List<dynamic> isFavouritedBy;
+  List<dynamic> tasksApplied;
 
   ProviderUser(
       {this.uid,
@@ -28,6 +29,7 @@ class ProviderUser extends ChangeNotifier {
       this.pricing,
       this.isDeleted,
       this.isFavouritedBy,
+      this.tasksApplied,
       this.experience});
 
   ProviderUser.fromMap(Map snapshot)
@@ -44,6 +46,7 @@ class ProviderUser extends ChangeNotifier {
         isDeleted = snapshot['isDeleted'] ?? false,
         experience = snapshot['experience'] ?? '',
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
+  tasksApplied = snapshot['tasksApplied'] ?? [],
         type = snapshot['type'] ?? '';
 
   toJson() {
@@ -62,6 +65,7 @@ class ProviderUser extends ChangeNotifier {
       if (chats != null) 'chats': chats,
       if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,
       if (experience != null) 'experience': experience,
+      if (tasksApplied != null) 'tasksApplied' : tasksApplied,
     };
   }
 }

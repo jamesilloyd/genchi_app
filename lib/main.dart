@@ -5,6 +5,7 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
+import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -16,6 +17,7 @@ import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
+import 'package:genchi_app/services/task_service.dart';
 
 
 import 'services/provider_service.dart';
@@ -35,6 +37,7 @@ class Genchi extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
+        ChangeNotifierProvider(create: (_) => TaskService()),
       ],
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'FuturaPT'),
@@ -57,6 +60,7 @@ class Genchi extends StatelessWidget {
           AboutScreen.id: (context) => AboutScreen(),
           SearchManualScreen.id: (context) => SearchManualScreen(),
           PostTaskScreen.id: (context) => PostTaskScreen(),
+          TaskScreen.id : (context) => TaskScreen(),
         },
       ),
     );

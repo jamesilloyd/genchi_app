@@ -46,14 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  //ToDo: this can all go into CRUDModel
-  Future<List<ProviderUser>> getUsersProviders(usersPids) async {
-    List<ProviderUser> providers = [];
-    for (var pid in usersPids) {
-      providers.add(await firestoreAPI.getProviderById(pid));
-    }
-    return providers;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               FutureBuilder(
                 //This function returns a list of providerUsers
-                future: getUsersProviders(currentUser.providerProfiles),
+                future: firestoreAPI.getUsersProviders(usersPids: currentUser.providerProfiles),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return CircularProgress();

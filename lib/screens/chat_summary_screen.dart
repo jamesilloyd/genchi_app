@@ -100,7 +100,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
 
-
                       List<MessageListItem> chatWidgets = [];
 
                       chatsAndProviders.forEach(

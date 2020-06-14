@@ -17,10 +17,8 @@ class FirestoreAPIService {
   CollectionReference _chatCollectionRef = Firestore.instance.collection('chats');
   CollectionReference _taskCollectionRef = Firestore.instance.collection('tasks');
 
-  List<User> users;
-  List<ProviderUser> providers;
-
   Future<List<User>> fetchUsers() async {
+    List<User> users;
     var result = await _usersCollectionRef.getDocuments();
     users = result.documents
         .map((doc) => User.fromMap(doc.data))
@@ -29,9 +27,17 @@ class FirestoreAPIService {
   }
 
   Future<List<ProviderUser>> fetchProviders() async {
+    List<ProviderUser> providers;
     var result = await _providersCollectionRef.getDocuments();
     providers = result.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
     return providers;
+  }
+
+  Future<List<Task>> fetchTasks() async {
+    List<Task> tasks;
+    var result = await _taskCollectionRef.getDocuments();
+    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
+    return tasks;
   }
 
   Stream<QuerySnapshot> fetchChatStream(String chatId) {
@@ -61,20 +67,20 @@ class FirestoreAPIService {
   }
 
   Future<ProviderUser> getProviderById(String pid) async {
-    var doc = await _providersCollectionRef.document(pid).get();
+    DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
     return ProviderUser.fromMap(doc.data);
   }
 
+  Future<Task> getTaskById({String taskId}) async {
+    DocumentSnapshot doc = await _taskCollectionRef.document(taskId).get();
+    return Task.fromMap(doc.data);
+  }
+
   Stream<QuerySnapshot> streamUserChatsAndProviders({List<dynamic> chatIds}) {
-    
     return _chatCollectionRef.where('uid', arrayContainsAny: chatIds).orderBy('time', descending: true).snapshots();
-
-
   }
 
   Future<Map<Chat, ProviderUser>> getUserChatsAndProviders({List<dynamic> chatIds}) async {
-
-//    _chatCollectionRef
 
     Map<Chat, ProviderUser> chatAndProviders = {};
     List<Chat> chats = [];
@@ -218,33 +224,47 @@ class FirestoreAPIService {
     return result;
   }
 
+  Future<DocumentReference> applyToTask({String taskId, String providerId}) async {
+    if(debugMode) print('FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
+    await _taskCollectionRef.document(taskId).setData({'applicantIds': FieldValue.arrayUnion([providerId])},merge: true);
+    await _providersCollectionRef.document(providerId).setData({'tasksApplied': FieldValue.arrayUnion([taskId])},merge: true);
+  }
+
   Future<DocumentReference> removeUserFavourite({String uid, String favouritePid}) async {
-    if(debugMode) print('CRUDModel: removeUserFavourite called for hirer $uid on provider $favouritePid');
+    if(debugMode) print('FirestoreAPI: removeUserFavourite called for hirer $uid on provider $favouritePid');
     await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayRemove([favouritePid])},merge: true);
     await _providersCollectionRef.document(favouritePid).setData({'isFavouritedBy' : FieldValue.arrayRemove([uid])},merge: true);
   }
 
   Future<DocumentReference> addUserFavourite({String uid, String favouritePid}) async {
-    if(debugMode) print('CRUDModel: addUserFavourite called for hirer $uid on provider $favouritePid');
+    if(debugMode) print('FirestoreAPI: addUserFavourite called for hirer $uid on provider $favouritePid');
     await _usersCollectionRef.document(uid).setData({'favourites' : FieldValue.arrayUnion([favouritePid])},merge: true);
     await _providersCollectionRef.document(favouritePid).setData({'isFavouritedBy' : FieldValue.arrayUnion([uid])},merge: true);
+  }
+
+  Future<List<ProviderUser>> getUsersProviders({List usersPids}) async {
+    List<ProviderUser> providers = [];
+    for (var pid in usersPids) {
+      providers.add(await getProviderById(pid));
+    }
+    return providers;
   }
 
 
   Future<void> deleteProvider({ProviderUser provider}) async {
 
     //TODO: may be worth doing try and catch blocks here!!!!!!!!!!
-    if(debugMode) print('CRUDModel: deleteProvider called on ${provider.pid}');
+    if(debugMode) print('FirestoreAPI: deleteProvider called on ${provider.pid}');
 
     if(provider.chats.isNotEmpty) for(String chatID in provider.chats) {
-      if(debugMode) print('CRUDModel: Deleting chat $chatID}');
+      if(debugMode) print('FirestoreAPI: Deleting chat $chatID}');
       //TODO: currently the chat gets deleted and also from the hirer's array, would be better to provide feedback to the hirer
       Chat chat = await getChatById(chatID);
       await deleteChat(chat: chat);
     }
 
     if(provider.isFavouritedBy.isNotEmpty) for(String uid in provider.isFavouritedBy) {
-      if(debugMode) print('CRUDModel: Removing provider from hirer: $uid favourites');
+      if(debugMode) print('FirestoreAPI: Removing provider from hirer: $uid favourites');
       await removeUserFavourite(uid: uid, favouritePid: provider.pid);
     }
 
@@ -252,7 +272,7 @@ class FirestoreAPIService {
     await _providersCollectionRef.document(provider.pid).delete();
     //Remove provider from users array
     await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
-    if(debugMode) print('CRUDModel: deleteProvider complete');
+    if(debugMode) print('FirestoreAPI: deleteProvider complete');
   }
 
 
@@ -273,7 +293,7 @@ class FirestoreAPIService {
   }
 
   Future<void> hideChat({Chat chat, bool forProvider}) async {
-    if(debugMode) print('CRUDModel: hideChat called');
+    if(debugMode) print('FirestoreAPI: hideChat called');
     forProvider ? chat.isHiddenFromProvider = true : chat.isHiddenFromUser = true;
     print(chat.isHiddenFromUser);
     print(chat.isHiddenFromProvider);

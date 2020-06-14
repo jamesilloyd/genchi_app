@@ -109,6 +109,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
     final providerService = Provider.of<ProviderService>(context);
     ProviderUser currentProvider = providerService.currentProvider;
 
+    //TODO: clean up showModalBottomSheetWidgets
     return ModalProgressHUD(
           inAsyncCall: showSpinner,
           progressIndicator: CircularProgress(),

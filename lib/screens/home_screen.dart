@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/task_summary_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
@@ -24,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  //ToDo: look into why the screens are being called (leading to extra firestore reads)
+  //TODO: look into why the screens are being called (leading to extra firestore reads)
   @override
   Widget build(BuildContext context) {
 
@@ -46,6 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('Search',style: TextStyle(fontFamily: 'FuturaPT'),),
             ),
             BottomNavigationBarItem(
+              icon: Icon(Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
+              title: Text('Tasks'),
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
                   ? CupertinoIcons.conversation_bubble
                   : Icons.message),
@@ -62,8 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
         if (index == 0) {
           return SearchScreen();
         } else if (index == 1) {
+          return TaskSummaryScreen();
+        } else if(index == 2 ) {
           return ChatSummaryScreen();
-        } else {
+        }else {
           return ProfileScreen();
         }
       },

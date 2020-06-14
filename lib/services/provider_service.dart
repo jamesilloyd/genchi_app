@@ -5,7 +5,6 @@ import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/constants.dart';
 
 
-//ToDo: may be able to integrate this into CRUDModel
 class ProviderService extends ChangeNotifier {
 
   final FirestoreAPIService _firestoreCRUDModel = FirestoreAPIService();

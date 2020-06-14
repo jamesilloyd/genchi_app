@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../models/provider.dart';
 import '../models/chat.dart';
@@ -224,10 +225,11 @@ class FirestoreAPIService {
     return result;
   }
 
-  Future<DocumentReference> applyToTask({String taskId, String providerId}) async {
+  Future<DocumentReference> applyToTask({@required String taskId, @required String providerId, @required String userId}) async {
     if(debugMode) print('FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
     await _taskCollectionRef.document(taskId).setData({'applicantIds': FieldValue.arrayUnion([providerId])},merge: true);
     await _providersCollectionRef.document(providerId).setData({'tasksApplied': FieldValue.arrayUnion([taskId])},merge: true);
+    await _usersCollectionRef.document(userId).setData({'providerAppliedTasks': FieldValue.arrayUnion([taskId])},merge: true);
   }
 
   Future<DocumentReference> removeUserFavourite({String uid, String favouritePid}) async {
@@ -248,6 +250,26 @@ class FirestoreAPIService {
       providers.add(await getProviderById(pid));
     }
     return providers;
+  }
+
+  Future<List<Task>> getTasks({List postIds}) async {
+    if(debugMode) print('FirestoreAPI: getTasks called for $postIds');
+    List<Task> tasks = [];
+    for(var taskId in postIds) {
+      tasks.add(await getTaskById(taskId: taskId));
+    }
+    return tasks;
+  }
+
+  Future<List<Task>> getProviderTasks({List pids}) async {
+    if(debugMode) print('FirestoreAPI: getProviderTasks called for $pids');
+    List<ProviderUser> providers = await getUsersProviders(usersPids: pids);
+    List<Task> tasks = [];
+    for(ProviderUser provider in providers) {
+      tasks.addAll(await getTasks(postIds: provider.tasksApplied));
+    }
+
+    return tasks;
   }
 
 

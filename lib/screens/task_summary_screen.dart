@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/task_service.dart';
 
 import 'package:provider/provider.dart';
 
 class TaskSummaryScreen extends StatelessWidget {
 
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
+
   @override
   Widget build(BuildContext context) {
     print('Task Screen Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
+    final taskProvider = Provider.of<TaskService>(context);
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
-
 
     return DefaultTabController(
       length: userIsProvider ? 2 : 1,
@@ -72,6 +81,49 @@ class TaskSummaryScreen extends StatelessWidget {
                   Divider(
                     height: 0,
                   ),
+                  FutureBuilder(
+                    future: firestoreAPI.getTasks(postIds: currentUser.posts),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return CircularProgress();
+                      }
+
+                      final List<Task> userPosts = snapshot.data;
+
+                      if(userPosts.isEmpty){
+                        return  Container(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'You have not posted a task',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      List<TaskCard> taskWidgets = [];
+
+                      for(Task post in userPosts) {
+                        TaskCard tCard = TaskCard(
+                            task: post,
+                            onTap: () async {
+                              await taskProvider.updateCurrentTask(taskId: post.taskId);
+                              Navigator.pushNamed(context, TaskScreen.id);
+                            }
+                        );
+                        taskWidgets.add(tCard);
+                      }
+
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: taskWidgets,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -95,6 +147,50 @@ class TaskSummaryScreen extends StatelessWidget {
                   ),
                   Divider(
                     height: 0,
+                  ),
+
+                  FutureBuilder(
+                    future: firestoreAPI.getProviderTasks(pids: currentUser.providerProfiles),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return CircularProgress();
+                      }
+
+                      final List<Task> userPosts = snapshot.data;
+
+                      if(userPosts.isEmpty){
+                        return  Container(
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              'You have not posted a task',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      List<TaskCard> taskWidgets = [];
+
+                      for(Task post in userPosts) {
+
+                        TaskCard tCard = TaskCard(
+                            task: post,
+                            onTap: () async {
+                              await taskProvider.updateCurrentTask(taskId: post.taskId);
+                              Navigator.pushNamed(context, TaskScreen.id);
+                            }
+                        );
+                        taskWidgets.add(tCard);
+                      }
+
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: taskWidgets,
+                      );
+                    },
                   ),
                 ],
               ),

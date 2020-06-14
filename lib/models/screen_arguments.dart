@@ -11,7 +11,6 @@ class SearchProviderScreenArguments {
   SearchProviderScreenArguments({@required this.service});
 }
 
-
 class EditProviderAccountScreenArguments {
   final bool fromRegistration;
 

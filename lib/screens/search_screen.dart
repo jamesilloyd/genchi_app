@@ -101,7 +101,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     final List<Widget> widgets = [];
 
                     for (Task task in tasks) {
-                      print(task.title);
                       final widget = TaskCard(
                         task: task,
                         onTap: () async {

@@ -3,9 +3,6 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/screens/provider_screen.dart';
 
-import 'package:genchi_app/components/display_picture.dart';
-
-import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/provider_service.dart';

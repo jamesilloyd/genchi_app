@@ -100,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               FutureBuilder(
                 //This function returns a list of providerUsers
-                future: firestoreAPI.getUsersProviders(usersPids: currentUser.providerProfiles),
+                future: firestoreAPI.getProviders(pids: currentUser.providerProfiles),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return CircularProgress();

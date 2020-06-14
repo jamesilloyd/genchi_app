@@ -34,6 +34,12 @@ class FirestoreAPIService {
     return providers;
   }
 
+  Future<List<ProviderUser>> getProvidersByService({String serviceType}) async {
+    QuerySnapshot result = await _providersCollectionRef.where('type', isEqualTo: serviceType).getDocuments();
+    List<ProviderUser> allProviders = result.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
+    return allProviders;
+  }
+
   Future<List<Task>> fetchTasks() async {
     List<Task> tasks;
     var result = await _taskCollectionRef.getDocuments();
@@ -81,7 +87,7 @@ class FirestoreAPIService {
     return _chatCollectionRef.where('uid', arrayContainsAny: chatIds).orderBy('time', descending: true).snapshots();
   }
 
-  Future<Map<Chat, ProviderUser>> getUserChatsAndProviders({List<dynamic> chatIds}) async {
+  Future<Map<Chat, ProviderUser>> getChatsAndProviders({List<dynamic> chatIds}) async {
 
     Map<Chat, ProviderUser> chatAndProviders = {};
     List<Chat> chats = [];
@@ -227,8 +233,10 @@ class FirestoreAPIService {
 
   Future<DocumentReference> applyToTask({@required String taskId, @required String providerId, @required String userId}) async {
     if(debugMode) print('FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
+
     await _taskCollectionRef.document(taskId).setData({'applicantIds': FieldValue.arrayUnion([providerId])},merge: true);
     await _providersCollectionRef.document(providerId).setData({'tasksApplied': FieldValue.arrayUnion([taskId])},merge: true);
+    //Needed for checking if the user has already applied to a task without retrieving all their provider accounts (messy but we can go back)
     await _usersCollectionRef.document(userId).setData({'providerAppliedTasks': FieldValue.arrayUnion([taskId])},merge: true);
   }
 
@@ -244,9 +252,9 @@ class FirestoreAPIService {
     await _providersCollectionRef.document(favouritePid).setData({'isFavouritedBy' : FieldValue.arrayUnion([uid])},merge: true);
   }
 
-  Future<List<ProviderUser>> getUsersProviders({List usersPids}) async {
+  Future<List<ProviderUser>> getProviders({List pids}) async {
     List<ProviderUser> providers = [];
-    for (var pid in usersPids) {
+    for (var pid in pids) {
       providers.add(await getProviderById(pid));
     }
     return providers;
@@ -263,7 +271,7 @@ class FirestoreAPIService {
 
   Future<List<Task>> getProviderTasks({List pids}) async {
     if(debugMode) print('FirestoreAPI: getProviderTasks called for $pids');
-    List<ProviderUser> providers = await getUsersProviders(usersPids: pids);
+    List<ProviderUser> providers = await getProviders(pids: pids);
     List<Task> tasks = [];
     for(ProviderUser provider in providers) {
       tasks.addAll(await getTasks(postIds: provider.tasksApplied));

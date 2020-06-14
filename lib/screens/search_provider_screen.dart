@@ -30,18 +30,6 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  //ToDo: add this to CRUDModel
-  Future<List<ProviderUser>> getProvidersByService(serviceType) async {
-    List<ProviderUser> providers = [];
-    //TODO change this so it finds provider by service type
-    List<ProviderUser> allProviders = await firestoreAPI.fetchProviders();
-    for(ProviderUser provider in allProviders){
-      if(provider.type == serviceType) providers.add(provider);
-    }
-
-    return providers;
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -56,7 +44,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: FutureBuilder(
-              future: getProvidersByService(service['name']),
+              future: firestoreAPI.getProvidersByService(serviceType: service['name']),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgress();

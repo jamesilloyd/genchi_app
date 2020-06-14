@@ -91,7 +91,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   ),
                   //TODO: this must be changed to streambuilder
                   FutureBuilder(
-                    future: firestoreAPI.getUserChatsAndProviders(chatIds: currentUser.chats),
+                    future: firestoreAPI.getChatsAndProviders(chatIds: currentUser.chats),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return CircularProgress();
@@ -233,6 +233,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: true, provider: provider, user: user));
                                     },
                                     hideChat: () async {
+                                      //TODO: probably need to change this so that we selectively choose which chats "where hide = false"
                                       bool deleteChat = await showYesNoAlert(context: context, title: "Are you sure you want delete chat?");
                                       if(deleteChat) await firestoreAPI.hideChat(chat: chat, forProvider: true);
                                       if(deleteChat) setState(() {});

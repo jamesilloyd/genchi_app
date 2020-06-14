@@ -8,7 +8,8 @@ class Task {
   String title;
   String details;
   String date;
-  List<dynamic> applicantIds;
+  List<dynamic> chosenApplicantIds;
+  List<dynamic> applicantChatIds;
 
 
   Task({
@@ -18,7 +19,8 @@ class Task {
     this.title,
     this.details,
     this.date,
-    this.applicantIds,
+    this.chosenApplicantIds,
+    this.applicantChatIds,
     });
 
   Task.fromMap(Map snapshot) :
@@ -28,7 +30,8 @@ class Task {
         title = snapshot['title'] ?? '',
         details = snapshot['details'] ?? '',
         date = snapshot['date'] ?? '',
-        applicantIds = snapshot['applicantIds'] ?? [];
+        applicantChatIds = snapshot['applicantChatIds'] ?? [],
+        chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [];
 
   toJson() {
     return {
@@ -38,7 +41,8 @@ class Task {
       if(title != null) 'title' : title,
       if(details != null) 'details' : details,
       if(date != null) 'date' : date,
-      if(applicantIds != null) 'applicantIds' : applicantIds,
+      if(chosenApplicantIds != null) 'chosenApplicantIds' : chosenApplicantIds,
+      if(applicantChatIds != null) 'applicantChatIds' : applicantChatIds,
     };
   }
 

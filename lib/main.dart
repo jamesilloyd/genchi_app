@@ -25,6 +25,8 @@ import 'services/authentication_service.dart';
 
 import 'package:provider/provider.dart';
 
+//TODO go through components and turn them into widgets rather than classes
+
 void main() {
   runApp(Genchi());
 }

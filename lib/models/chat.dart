@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Chat {
   String pid;
-  String providerdsUid;
   String uid;
   String chatid;
+  String taskid;
+  bool isForTask;
   bool userHasUnreadMessage;
   bool providerHasUnreadMessage;
   bool isHiddenFromUser;
@@ -14,40 +15,47 @@ class Chat {
 
   Chat(
       {this.pid,
-      this.providerdsUid,
       this.uid,
       this.chatid,
+      this.taskid,
       this.userHasUnreadMessage,
       this.providerHasUnreadMessage,
       this.lastMessage,
       this.isHiddenFromProvider,
       this.isHiddenFromUser,
+      this.isForTask,
       this.time});
 
   Chat.fromMap(Map snapshot)
       : pid = snapshot['pid'] ?? '',
-        providerdsUid = snapshot['providerdsUid'] ?? '',
         uid = snapshot['uid'] ?? '',
         userHasUnreadMessage = snapshot['userHasUnreadMessage'] ?? false,
-        providerHasUnreadMessage =snapshot['providerHasUnreadMessage'] ?? false,
+        providerHasUnreadMessage =
+            snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         chatid = snapshot['chatid'] ?? '',
         isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromUser = snapshot['isHiddenFromUser'] ?? false,
+        isForTask = snapshot['isForTask'] ?? false,
+        taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {
     return {
       if (pid != null) "pid": pid,
-      if (providerdsUid != null) "providerdsUid": providerdsUid ?? '',
       if (uid != null) "uid": uid,
       if (chatid != null) 'chatid': chatid,
-      if (providerHasUnreadMessage != null) 'providerHasUnreadMessage': providerHasUnreadMessage,
-      if (userHasUnreadMessage != null) 'userHasUnreadMessage': userHasUnreadMessage,
+      if (providerHasUnreadMessage != null)
+        'providerHasUnreadMessage': providerHasUnreadMessage,
+      if (userHasUnreadMessage != null)
+        'userHasUnreadMessage': userHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,
-      if (isHiddenFromProvider != null) "isHiddenFromProvider": isHiddenFromProvider,
-      if (isHiddenFromUser != null) "isHiddenFromUser" : isHiddenFromUser,
+      if (isHiddenFromProvider != null)
+        "isHiddenFromProvider": isHiddenFromProvider,
+      if (isHiddenFromUser != null) "isHiddenFromUser": isHiddenFromUser,
       if (time != null) "time": time,
+      if (isForTask != null) 'isForTask': isForTask,
+      if (taskid != null) 'taskid': taskid
     };
   }
 }

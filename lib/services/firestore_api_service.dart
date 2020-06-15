@@ -105,6 +105,23 @@ class FirestoreAPIService {
 
   }
 
+  Future<Map<Chat, ProviderUser>> getTaskChatsAndProviders({List<dynamic> chatIdsAndPids}) async {
+
+    if(debugMode) print('FirestoreAPI: getTaskChatsAndProviders called');
+    //TODO: this has been done very badly, we should be returning a list not a map
+    Map<Chat, ProviderUser> chatAndProviders = {};
+    List<Chat> chats = [];
+    for (Map chatAndPid in chatIdsAndPids) {
+      //TODO don't like green text here...
+      Chat chat = await getChatById(chatAndPid['chatId']);
+      ProviderUser provider = await getProviderById(chatAndPid['pid']);
+      chatAndProviders[chat] = provider;
+    }
+    //TODO add in chronology
+    return chatAndProviders;
+
+  }
+
   Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers({List<dynamic> usersPids}) async {
 
     Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
@@ -217,9 +234,9 @@ class FirestoreAPIService {
     return result;
   }
 
-  Future<DocumentReference> addNewChat({String uid, String pid, String providersUid}) async {
+  Future<DocumentReference> addNewChat({String uid, String pid}) async {
 
-    Chat chat = Chat(uid: uid, pid: pid, providerdsUid: providersUid, isHiddenFromUser: false, isHiddenFromProvider:  false);
+    Chat chat = Chat(uid: uid, pid: pid, isHiddenFromUser: false, isHiddenFromProvider:  false, isForTask: false);
 
     DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
       await updateChat(chat: Chat(chatid: docRef.documentID));
@@ -234,10 +251,15 @@ class FirestoreAPIService {
   Future<DocumentReference> applyToTask({@required String taskId, @required String providerId, @required String userId}) async {
     if(debugMode) print('FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
 
-    await _taskCollectionRef.document(taskId).setData({'applicantIds': FieldValue.arrayUnion([providerId])},merge: true);
+    Chat chat = Chat(taskid: taskId,uid: userId, pid: providerId, isHiddenFromUser: false, isHiddenFromProvider:  false, isForTask: true);
+    DocumentReference result = await _chatCollectionRef.add(chat.toJson()).then( (docRef) async {
+      await updateChat(chat: Chat(chatid: docRef.documentID));
+      return docRef;
+    });
+
+    //TODO, can we please make arrayUnion func under the class (what if the green names change)
+    await _taskCollectionRef.document(taskId).setData({'applicantChatsAndPids': FieldValue.arrayUnion([{'chatId' : result.documentID, 'pid' : providerId}])},merge: true);
     await _providersCollectionRef.document(providerId).setData({'tasksApplied': FieldValue.arrayUnion([taskId])},merge: true);
-    //Needed for checking if the user has already applied to a task without retrieving all their provider accounts (messy but we can go back)
-    await _usersCollectionRef.document(userId).setData({'providerAppliedTasks': FieldValue.arrayUnion([taskId])},merge: true);
   }
 
   Future<DocumentReference> removeUserFavourite({String uid, String favouritePid}) async {

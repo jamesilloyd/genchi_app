@@ -19,7 +19,6 @@ import 'package:genchi_app/services/provider_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
@@ -35,7 +34,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  final messageTextController = TextEditingController();
+  final TextEditingController messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   String messageText;
 
@@ -46,6 +45,13 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isFirstInstance;
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    messageTextController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
@@ -54,10 +60,9 @@ class _ChatScreenState extends State<ChatScreen> {
     userIsProvider = args.userIsProvider;
     if (thisChat == null) thisChat = args.chat;
     provider = args.provider;
-    print(provider.pid);
     user = args.user;
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
-//    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
+    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
 
     return GestureDetector(
       onTap: (){
@@ -117,8 +122,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         textCapitalization: TextCapitalization.sentences,
                         controller: messageTextController,
                         onChanged: (value) {
-                          //Do something with the user input.
-                          setState(() => messageText = value);
+                          //TODO see how this is done in edit account screens
+                          messageText = value;
                         },
                         cursorColor: Color(kGenchiOrange),
                         style: TextStyle(
@@ -128,53 +133,61 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     FlatButton(
-                      onPressed: (messageText != null
-                              ? (isFirstInstance
-                                  ? () async {
-                                      setState(() => messageTextController.clear());
+                      onPressed: () async {
 
-                                      if(debugMode) print('Chat screen: message text is not null and this is the first instance so creating new chat ');
-                                      DocumentReference result =
-                                          await firestoreAPI.addNewChat(
-                                              uid: authProvider.currentUser.id,
-                                              pid: provider.pid,
-                                              providersUid: provider.uid,
-                                          );
-                                      await authProvider.updateCurrentUserData();
-                                      await providerService.updateCurrentProvider(provider.pid);
+                        setState(() {});
+                        if(messageText!=null) {
+                          if(isFirstInstance) {
 
-                                      thisChat = await firestoreAPI.getChatById(result.documentID);
+                            setState(() => messageTextController.clear());
 
-                                      await firestoreAPI.addMessageToChat(
-                                          chatId: thisChat.chatid,
-                                          chatMessage: ChatMessage(
-                                              sender: userIsProvider
-                                                  ? provider.pid
-                                                  : user.id,
-                                              text: messageText,
-                                              time: Timestamp.now()),
-                                          providerIsSender:
-                                              userIsProvider ? true : false);
-                                      setState(() {
-                                        isFirstInstance = false;
-                                      });
-                                    }
-                                  : () async {
-                                      if(debugMode) print('Chat screen: Message text is not null and this is NOT the first instance');
-                                      setState(
-                                          () => messageTextController.clear());
-                                      await firestoreAPI.addMessageToChat(
-                                          chatId: thisChat.chatid,
-                                          chatMessage: ChatMessage(
-                                              sender: userIsProvider
-                                                  ? provider.pid
-                                                  : user.id,
-                                              text: messageText,
-                                              time: Timestamp.now()),
-                                          providerIsSender:
-                                              userIsProvider ? true : false);
-                                    })
-                              : () {if(debugMode) print('Chat screen: Message text is null');}),
+                            if(debugMode) print('Chat screen: message text is not null and this is the first instance so creating new chat ');
+                            DocumentReference result =
+                            await firestoreAPI.addNewChat(
+                              uid: authProvider.currentUser.id,
+                              pid: provider.pid,
+                            );
+                            await authProvider.updateCurrentUserData();
+                            await providerService.updateCurrentProvider(provider.pid);
+
+                            thisChat = await firestoreAPI.getChatById(result.documentID);
+
+                            await firestoreAPI.addMessageToChat(
+                                chatId: thisChat.chatid,
+                                chatMessage: ChatMessage(
+                                    sender: userIsProvider
+                                        ? provider.pid
+                                        : user.id,
+                                    text: messageText,
+                                    time: Timestamp.now()),
+                                providerIsSender:
+                                userIsProvider ? true : false);
+                            setState(() {
+                              isFirstInstance = false;
+                            });
+
+                          } else {
+                            if(debugMode) print('Chat screen: Message text is not null and this is NOT the first instance');
+//                                      messageText = messageTextController.text;
+                            setState(
+                                    () => messageTextController.clear());
+                            await firestoreAPI.addMessageToChat(
+                                chatId: thisChat.chatid,
+                                chatMessage: ChatMessage(
+                                    sender: userIsProvider
+                                        ? provider.pid
+                                        : user.id,
+                                    text: messageText,
+                                    time: Timestamp.now()),
+                                providerIsSender:
+                                userIsProvider ? true : false);
+                          }
+                        } else {
+                          if(debugMode) print('Chat screen: Message text is null');
+                        }
+
+                      },
+
                       child: Text(
                         'Send',
                         style: TextStyle(

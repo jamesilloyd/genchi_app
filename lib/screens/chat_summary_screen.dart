@@ -99,7 +99,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
 
                       final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
 
-
                       List<MessageListItem> chatWidgets = [];
 
                       chatsAndProviders.forEach(
@@ -116,7 +115,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                             time: chat.time,
                             hasUnreadMessage: chat.userHasUnreadMessage,
                             onTap: () async {
-                              print('Navigating');
                               chat.userHasUnreadMessage = false;
                               await firestoreAPI.updateChat(chat: chat);
                               Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: chat, userIsProvider: false,provider: provider,user: currentUser, isFirstInstance: false));

@@ -38,9 +38,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final ProviderScreenArguments args = ModalRoute.of(context).settings.arguments;
-//    ProviderUser provider = args.provider;
-
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
 
@@ -52,165 +49,163 @@ class _ProviderScreenState extends State<ProviderScreen> {
     if(debugMode) print('Provider screen: is users p. profile: $isUsersProviderProfile');
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: MyAppNavigationBar(
         barTitle: providerUser.name ?? "",
       ),
-      body: Container(
-        color: Colors.white,
-        child: Center(
-          child: ListView(
-            padding: EdgeInsets.all(20.0),
-            children: <Widget>[
-              DisplayPicture(imageUrl: providerUser.displayPictureURL,height: 0.2,),
-              SizedBox(height: 10),
-              Container(
-                child: Text(
-                  providerUser.name ?? "",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(kGenchiBlue),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w500,
-                  ),
+      body: Center(
+        child: ListView(
+          padding: EdgeInsets.all(20.0),
+          children: <Widget>[
+            DisplayPicture(imageUrl: providerUser.displayPictureURL,height: 0.2,),
+            SizedBox(height: 10),
+            Container(
+              child: Text(
+                providerUser.name ?? "",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(
-                height: 10,
-              ),
-               Align(
-                 alignment: Alignment.center,
-                 child: RoundedButton(
-                   buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
-                   buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
-                   fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
-                   onPressed: isUsersProviderProfile ? (){
-                     Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
-                   }: () async{
+            ),
+            SizedBox(
+              height: 10,
+            ),
+             Align(
+               alignment: Alignment.center,
+               child: RoundedButton(
+                 buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
+                 buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
+                 fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
+                 onPressed: isUsersProviderProfile ? (){
+                   Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
+                 }: () async{
 
-                     List userChats = authProvider.currentUser.chats;
-                     if(kDebugMode) print('Provider Screen: User Chats = $userChats');
-                     List providerChats = providerUser.chats;
-                     if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
-                     List allChats = [userChats,providerChats];
+                   List userChats = authProvider.currentUser.chats;
+                   if(kDebugMode) print('Provider Screen: User Chats = $userChats');
+                   List providerChats = providerUser.chats;
+                   if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
+                   List allChats = [userChats,providerChats];
 
-                     final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
+                   final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
 
-                     if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
+                   if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
 
-                     if(commonChatIds.isEmpty) {
-                       print("Empty");
-                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
-                     } else {
-                       //This is an existing chat
-                       Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
-                       Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
-                     }
-                   },
-                 )
-               ),
-              if(!isUsersProviderProfile)Align(
-                alignment: Alignment.center,
-                child: RoundedButton(
-                  buttonColor: isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
-                  fontColor: Color(kGenchiCream),
-                  buttonTitle: isFavourite ? 'Added to Favourites': 'Add to Favourites',
-                  onPressed: () async {
+                   if(commonChatIds.isEmpty) {
+                     print("Empty");
+                     Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
+                   } else {
+                     //This is an existing chat
+                     Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
+                     Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
+                   }
+                 },
+               )
+             ),
+            if(!isUsersProviderProfile)Align(
+              alignment: Alignment.center,
+              child: RoundedButton(
+                buttonColor: isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
+                fontColor: Color(kGenchiCream),
+                buttonTitle: isFavourite ? 'Added to Favourites': 'Add to Favourites',
+                onPressed: () async {
 //                    setState(() {
 //                      //TODO: may need to add in circular progress bar
 //                    });
-                    isFavourite ? firestoreAPI.removeUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid) : firestoreAPI.addUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid);
-                    await authProvider.updateCurrentUserData();
-                    setState((){});
-                  },
-                ),
+                  isFavourite ? firestoreAPI.removeUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid) : firestoreAPI.addUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid);
+                  await authProvider.updateCurrentUserData();
+                  setState((){});
+                },
               ),
-              Divider(),
-              Container(
-                child: Text(
-                  "Service",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Color(kGenchiBlue),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(
-                providerUser.type ?? "",
+            ),
+            Divider(),
+            Container(
+              child: Text(
+                "Service",
+                textAlign: TextAlign.left,
                 style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w500
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                child: Text(
-                  "About Me",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Color(kGenchiBlue),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(
-                providerUser.bio ?? "",
-                style: TextStyle(
-                  fontSize: 16.0,
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(
-                height: 10,
+            ),
+            Text(
+              providerUser.type ?? "",
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w500
               ),
-              Container(
-                child: Text(
-                  "Experience",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Color(kGenchiBlue),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(
-                providerUser.experience ?? "",
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Text(
+                "About Me",
+                textAlign: TextAlign.left,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(
-                height: 10,
+            ),
+            Text(
+              providerUser.bio ?? "",
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
               ),
-              Container(
-                child: Text(
-                  "Pricing",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Color(kGenchiBlue),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(
-                providerUser.pricing,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Text(
+                "Experience",
+                textAlign: TextAlign.left,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(
-                height: 10,
+            ),
+            Text(
+              providerUser.experience ?? "",
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
               ),
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Text(
+                "Pricing",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Text(
+              providerUser.pricing,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+          ],
         ),
       ),
     );

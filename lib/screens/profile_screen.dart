@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 
-
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';

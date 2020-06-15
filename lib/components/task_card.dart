@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 
 
 class TaskCard extends StatelessWidget {
@@ -31,8 +32,18 @@ class TaskCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14),
           ),
-          trailing: Text(
-            task.service,
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                task.service,
+              ),
+              Text(
+                getSummaryTime(time: task.time),
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
           ),
         ),
         Divider(

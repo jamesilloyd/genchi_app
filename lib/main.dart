@@ -19,7 +19,6 @@ import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/task_service.dart';
 
-
 import 'services/provider_service.dart';
 import 'services/authentication_service.dart';
 

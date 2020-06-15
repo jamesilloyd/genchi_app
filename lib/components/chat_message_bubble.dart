@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 
 class MessageBubble extends StatelessWidget {
   MessageBubble({this.sender, this.text, this.isMe, this.time});
@@ -11,27 +11,6 @@ class MessageBubble extends StatelessWidget {
   final bool isMe;
   final Timestamp time;
 
-  String getTime() {
-
-
-    if(time.toDate().weekday == DateTime.now().weekday) {
-
-      var formatter = new DateFormat.Hm();
-      String formatted = formatter.format(time.toDate());
-
-      return formatted;
-
-    } else if(time.toDate().difference(DateTime.now()).inDays < 7) {
-      var formatter = new DateFormat.E().add_Hm();
-      String formatted = formatter.format(time.toDate());
-      return formatted;
-
-    } else {
-      var formatter = new DateFormat.MMMMd().add_Hm();
-      String formatted = formatter.format(time.toDate());
-      return formatted;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +55,10 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  getTime(),
+                  getMessageBubbleTime(time: time),
                   textAlign: isMe ? TextAlign.right : TextAlign.left,
                   style: TextStyle(
-                    color: Color(kGenchiBlue),
+                    color: Colors.black45,
                     fontSize: 12,
                   ),
                 )

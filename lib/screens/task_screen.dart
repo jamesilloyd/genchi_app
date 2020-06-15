@@ -44,7 +44,7 @@ class TaskScreen extends StatelessWidget {
             return CircularProgress();
           }
 
-          final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
+          final List<Map<String, dynamic>> chatsAndProviders = snapshot.data;
 
           if (chatsAndProviders.isEmpty) {
             return Center(
@@ -57,6 +57,7 @@ class TaskScreen extends StatelessWidget {
               ),
             );
           }
+
 
           List<Widget> widgets = [
             Center(
@@ -75,9 +76,9 @@ class TaskScreen extends StatelessWidget {
             ),
           ];
 
-          chatsAndProviders.forEach((key, value) {
-            Chat chat = key;
-            ProviderUser provider = value;
+          for(Map chatAndProvider in chatsAndProviders) {
+            Chat chat = chatAndProvider['chat'];
+            ProviderUser provider = chatAndProvider['provider'];
 
             MessageListItem chatWidget = MessageListItem(
                 image: provider.displayPictureURL == null ? AssetImage(
@@ -105,7 +106,8 @@ class TaskScreen extends StatelessWidget {
             );
 
             widgets.add(chatWidget);
-          });
+
+          }
 
           return Column(
             children: widgets,
@@ -125,7 +127,7 @@ class TaskScreen extends StatelessWidget {
             return CircularProgress();
           }
 
-          final Map<Chat, ProviderUser> chatsAndProviders = snapshot.data;
+          final List<Map<String, dynamic>> chatsAndProviders = snapshot.data;
 
           if (chatsAndProviders.isEmpty) {
             return Center(
@@ -156,9 +158,9 @@ class TaskScreen extends StatelessWidget {
             ),
           ];
 
-          chatsAndProviders.forEach((key, value) {
-            Chat chat = key;
-            ProviderUser provider = value;
+          for(Map chatAndProvider in chatsAndProviders) {
+            Chat chat = chatAndProvider['chat'];
+            ProviderUser provider = chatAndProvider['provider'];
 
             MessageListItem chatWidget = MessageListItem(
                 image: provider.displayPictureURL == null ? AssetImage(
@@ -185,7 +187,8 @@ class TaskScreen extends StatelessWidget {
             );
 
             widgets.add(chatWidget);
-          });
+
+          }
 
           return Column(
             children: widgets,

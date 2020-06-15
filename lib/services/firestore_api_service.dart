@@ -44,6 +44,7 @@ class FirestoreAPIService {
     List<Task> tasks;
     var result = await _taskCollectionRef.getDocuments();
     tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
+    tasks.sort((a,b) => b.time.compareTo(a.time));
     return tasks;
   }
 
@@ -87,50 +88,71 @@ class FirestoreAPIService {
     return _chatCollectionRef.where('uid', arrayContainsAny: chatIds).orderBy('time', descending: true).snapshots();
   }
 
-  Future<Map<Chat, ProviderUser>> getChatsAndProviders({List<dynamic> chatIds}) async {
+  Future<List<Map<String, dynamic>>> getChatsAndProviders({List<dynamic> chatIds}) async {
 
-    Map<Chat, ProviderUser> chatAndProviders = {};
+    List<Map<String, dynamic>> chatsAndProviders = [];
+
     List<Chat> chats = [];
+
     for (String chatId in chatIds) {
       Chat chat = await getChatById(chatId);
       chats.add(chat);
     }
 
     chats.sort((a,b) => b.time.compareTo(a.time));
+    print('');
+
+
     for (Chat chat in chats) {
+      Map<String, dynamic> chatAndProvider = {};
       ProviderUser provider = await getProviderById(chat.pid);
-      chatAndProviders[chat] = provider;
+      chatAndProvider['chat'] = chat;
+      chatAndProvider['provider'] = provider;
+      chatsAndProviders.add(chatAndProvider);
     }
-    return chatAndProviders;
+    return chatsAndProviders;
 
   }
 
-  Future<Map<Chat, ProviderUser>> getTaskChatsAndProviders({List<dynamic> chatIdsAndPids}) async {
+  Future<List<Map<String,dynamic>>> getTaskChatsAndProviders({List<dynamic> chatIdsAndPids}) async {
 
     if(debugMode) print('FirestoreAPI: getTaskChatsAndProviders called');
-    //TODO: this has been done very badly, we should be returning a list not a map
-    Map<Chat, ProviderUser> chatAndProviders = {};
+
+    List<Map<String,dynamic>> chatAndProviders = [];
     List<Chat> chats = [];
-    for (Map chatAndPid in chatIdsAndPids) {
+
+    if(chatIdsAndPids.isNotEmpty) for (Map chatAndPid in chatIdsAndPids) {
+      Map<String,dynamic> chatAndProvider = {};
       //TODO don't like green text here...
+      if(debugMode) print('FirestoreAPI: getTaskChatsAndProviders found applicant with chat ${chatAndPid['chatId']} and provider ${chatAndPid['pid']}');
       Chat chat = await getChatById(chatAndPid['chatId']);
       ProviderUser provider = await getProviderById(chatAndPid['pid']);
-      chatAndProviders[chat] = provider;
-    }
-    //TODO add in chronology
-    return chatAndProviders;
+      chatAndProvider['chat'] = chat;
+      chatAndProvider['provider'] = provider;
 
+      chatAndProviders.add(chatAndProvider);
+    }
+
+    chatAndProviders.sort((a,b) {
+      Chat chatB = b['chat'];
+      Chat chatA = a['chat'];
+      return chatB.time.compareTo(chatA.time);
+    });
+
+
+    print('alksdjbflajskdblfasnjdfa $chatAndProviders');
+
+    return chatAndProviders;
   }
 
-  Future<Map<ProviderUser, Map<Chat, User>>> getUserProviderChatsAndUsers({List<dynamic> usersPids}) async {
+  Future<List<Map<String, dynamic>>> getUserProviderChatsAndHirers({List<dynamic> usersPids}) async {
 
-    Map<ProviderUser, Map<Chat, User>> userProviderChatsAndUsers = {};
+    List<Map<String, dynamic>> userProviderChatsAndUsers = [];
+
+    List<Chat> chats = [];
 
     for (String pid in usersPids) {
-
-      List<Chat> chats = [];
       Map<Chat, User> chatsAndUsers = {};
-
       ProviderUser provider = await getProviderById(pid);
 
       if(provider.chats.isNotEmpty) {
@@ -139,14 +161,20 @@ class FirestoreAPIService {
           chats.add(chat);
         }
 
-        chats.sort((a,b) => b.time.compareTo(a.time));
-
         for (Chat chat in chats) {
+          Map<String,dynamic> providerChatHirer = {};
           User chatUser = await getUserById(chat.uid);
-          chatsAndUsers[chat] = chatUser;
+          providerChatHirer['chat'] = chat;
+          providerChatHirer['provider'] = provider;
+          providerChatHirer['hirer'] = chatUser;
+          userProviderChatsAndUsers.add(providerChatHirer);
         }
-        userProviderChatsAndUsers[provider] = chatsAndUsers;
       }
+      userProviderChatsAndUsers.sort((a,b) {
+        Chat chatB = b['chat'];
+        Chat chatA = a['chat'];
+         return chatB.time.compareTo(chatA.time);
+      });
 
     }
 

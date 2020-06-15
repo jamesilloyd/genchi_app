@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 import 'package:intl/intl.dart';
 
 class MessageListItem extends StatelessWidget {
@@ -27,30 +28,7 @@ class MessageListItem extends StatelessWidget {
     @required this.onTap,
     this.service,
   }) : super(key: key);
-
-
-  String getTime() {
-
-
-    if(time.toDate().weekday == DateTime.now().weekday) {
-
-      var formatter = new DateFormat.Hm();
-      String formatted = formatter.format(time.toDate());
-
-      return formatted;
-
-    } else if(time.toDate().difference(DateTime.now()).inDays < 7) {
-      var formatter = new DateFormat.E().add_Hm();
-      String formatted = formatter.format(time.toDate());
-      return formatted;
-
-    } else {
-      var formatter = new DateFormat.MMMMd().add_Hm();
-      String formatted = formatter.format(time.toDate());
-      return formatted;
-    }
-  }
-
+  
 
 
   @override
@@ -100,7 +78,7 @@ class MessageListItem extends StatelessWidget {
                           : SizedBox(height: 15.0),
                       SizedBox(height:6),
                       Text(
-                        getTime(),
+                        getSummaryTime(time: time),
                         style: TextStyle(fontSize: 12),
                       ),
                     ],

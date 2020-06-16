@@ -5,6 +5,7 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
+import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
@@ -25,18 +26,14 @@ import 'services/authentication_service.dart';
 import 'package:provider/provider.dart';
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
-void main() async {
+void main()  {
 
-  WidgetsFlutterBinding.ensureInitialized();
-  bool loggedIn = await AuthenticationService().isUserLoggedIn();
-  runApp(Genchi(initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,));
+  runApp(Genchi());
 }
 
 class Genchi extends StatelessWidget {
 
-  final String initialRoute;
 
-  Genchi({this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -46,28 +43,48 @@ class Genchi extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProviderService()),
         ChangeNotifierProvider(create: (_) => TaskService()),
       ],
-      child: MaterialApp(
-        theme: ThemeData(fontFamily: 'FuturaPT'),
-        initialRoute: initialRoute,
-        routes: {
-          WelcomeScreen.id: (context) => WelcomeScreen(),
-          LoginScreen.id: (context) => LoginScreen(),
-          RegistrationScreen.id: (context) => RegistrationScreen(),
-          ChatScreen.id: (context) => ChatScreen(),
-          HomeScreen.id: (context) => HomeScreen(),
-          RegSequenceScreen.id: (context) => RegSequenceScreen(),
-          EditAccountScreen.id: (context) => EditAccountScreen(),
-          ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
-          ProviderScreen.id: (context) => ProviderScreen(),
-          SearchProviderScreen.id: (context) => SearchProviderScreen(),
-          EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
-          FavouritesScreen.id: (context) => FavouritesScreen(),
-          AboutScreen.id: (context) => AboutScreen(),
-          SearchManualScreen.id: (context) => SearchManualScreen(),
-          PostTaskScreen.id: (context) => PostTaskScreen(),
-          TaskScreen.id : (context) => TaskScreen(),
-        },
-      ),
+      child: StartUp(),
     );
   }
 }
+
+class StartUp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: Provider.of<AuthenticationService>(context, listen: false).isUserLoggedIn(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData){
+          bool loggedIn = snapshot.data;
+
+          return MaterialApp(
+            theme: ThemeData(fontFamily: 'FuturaPT'),
+            initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
+            routes: {
+              WelcomeScreen.id: (context) => WelcomeScreen(),
+              LoginScreen.id: (context) => LoginScreen(),
+              RegistrationScreen.id: (context) => RegistrationScreen(),
+              ChatScreen.id: (context) => ChatScreen(),
+              HomeScreen.id: (context) => HomeScreen(),
+              RegSequenceScreen.id: (context) => RegSequenceScreen(),
+              EditAccountScreen.id: (context) => EditAccountScreen(),
+              ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
+              ProviderScreen.id: (context) => ProviderScreen(),
+              SearchProviderScreen.id: (context) => SearchProviderScreen(),
+              EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
+              FavouritesScreen.id: (context) => FavouritesScreen(),
+              AboutScreen.id: (context) => AboutScreen(),
+              SearchManualScreen.id: (context) => SearchManualScreen(),
+              PostTaskScreen.id: (context) => PostTaskScreen(),
+              TaskScreen.id : (context) => TaskScreen(),
+            },
+          );
+        }
+        /// The async function is still loading
+        return SplashScreen();
+      },
+
+    );
+  }
+}
+

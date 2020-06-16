@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/edit_account_text_field.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/profile_option_tile.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 
@@ -8,6 +11,7 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -16,7 +20,6 @@ import 'package:genchi_app/services/task_service.dart';
 import 'package:provider/provider.dart';
 
 class TaskSummaryScreen extends StatelessWidget {
-
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   @override
@@ -28,43 +31,56 @@ class TaskSummaryScreen extends StatelessWidget {
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return DefaultTabController(
-      length: userIsProvider ? 2 : 1,
-      child: Scaffold(
-        appBar: AppBar(
-            iconTheme: IconThemeData(
-              color: Colors.black,
-            ),
-            title: Text(
-              'Tasks',
-              style: TextStyle(
+        length: userIsProvider ? 2 : 1,
+        child: Scaffold(
+          appBar: AppBar(
+              iconTheme: IconThemeData(
                 color: Colors.black,
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
               ),
-            ),
-            backgroundColor: Color(kGenchiGreen),
-            elevation: 2.0,
-            brightness: Brightness.light,
-            bottom: TabBar(
-                indicatorColor: Color(kGenchiOrange),
-                labelColor: Colors.black,
-                labelStyle: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'FuturaPT',
+              title: Text(
+                'Tasks',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 30,
                   fontWeight: FontWeight.w500,
                 ),
-                tabs: [
-                  Tab(text: 'Posted'),
-                  if(userIsProvider) Tab(text: 'Applied'),
-                ]
-            )
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            SafeArea(
-              child: ListView(
+              ),
+              backgroundColor: Color(kGenchiGreen),
+              elevation: 2.0,
+              brightness: Brightness.light,
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    size: 30,
+                  ),
+                  onPressed: () async {
+
+                    bool postTask = await showYesNoAlert(context: context, title: 'Post Task?');
+                    if(postTask) Navigator.pushNamed(context, PostTaskScreen.id);
+
+
+                  },
+                )
+              ],
+              bottom: TabBar(
+                  indicatorColor: Color(kGenchiOrange),
+                  labelColor: Colors.black,
+                  labelStyle: TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'FuturaPT',
+                    fontWeight: FontWeight.w500,
+                  ),
+                  tabs: [
+                    Tab(text: 'Posted'),
+                    if (userIsProvider) Tab(text: 'Applied'),
+                  ])),
+          body: TabBarView(
+            children: <Widget>[
+              ListView(
                 padding: const EdgeInsets.all(10),
                 children: <Widget>[
+                  //TODO: Change this name
                   Container(
                     height: 50,
                     child: Center(
@@ -91,8 +107,8 @@ class TaskSummaryScreen extends StatelessWidget {
 
                       final List<Task> userPosts = snapshot.data;
 
-                      if(userPosts.isEmpty){
-                        return  Container(
+                      if (userPosts.isEmpty) {
+                        return Container(
                           height: 30,
                           child: Center(
                             child: Text(
@@ -107,15 +123,18 @@ class TaskSummaryScreen extends StatelessWidget {
 
                       List<Widget> taskWidgets = [];
 
-                      for(Task post in userPosts) {
+                      for (Task post in userPosts) {
                         Widget tCard = TaskCard(
-                            image: currentUser.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(currentUser.displayPictureURL),
+                            image: currentUser.displayPictureURL == null
+                                ? AssetImage("images/Logo_Clear.png")
+                                : CachedNetworkImageProvider(
+                                    currentUser.displayPictureURL),
                             task: post,
                             onTap: () async {
-                              await taskProvider.updateCurrentTask(taskId: post.taskId);
+                              await taskProvider.updateCurrentTask(
+                                  taskId: post.taskId);
                               Navigator.pushNamed(context, TaskScreen.id);
-                            }
-                        );
+                            });
                         taskWidgets.add(tCard);
                       }
 
@@ -128,83 +147,84 @@ class TaskSummaryScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            if(userIsProvider) SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.all(10),
-                children: <Widget>[
-                  Container(
-                    height: 50,
-                    child: Center(
-                      child: Text(
-                        'Your Applied Tasks',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(kGenchiBlue),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 25.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 0,
-                  ),
-
-                  FutureBuilder(
-                    future: firestoreAPI.getProviderTasksAndHirers(pids: currentUser.providerProfiles),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return CircularProgress();
-                      }
-
-                      final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
-
-
-                      if(tasksAndHirers.isEmpty){
-                        return  Container(
-                          height: 30,
-                          child: Center(
-                            child: Text(
-                              'You have not applied to any tasks',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
+              if (userIsProvider)
+                SafeArea(
+                  child: ListView(
+                    padding: const EdgeInsets.all(10),
+                    children: <Widget>[
+                      Container(
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            'Your Applied Tasks',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(kGenchiBlue),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 25.0,
                             ),
                           ),
-                        );
-                      }
-                      List<Widget> taskWidgets = [];
+                        ),
+                      ),
+                      Divider(
+                        height: 0,
+                      ),
+                      FutureBuilder(
+                        future: firestoreAPI.getProviderTasksAndHirers(
+                            pids: currentUser.providerProfiles),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgress();
+                          }
 
-                      for (Map taskAndHirer in tasksAndHirers) {
+                          final List<Map<String, dynamic>> tasksAndHirers =
+                              snapshot.data;
 
-                        Task task = taskAndHirer['task'];
-                        User hirer = taskAndHirer['hirer'];
+                          if (tasksAndHirers.isEmpty) {
+                            return Container(
+                              height: 30,
+                              child: Center(
+                                child: Text(
+                                  'You have not applied to any tasks',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          List<Widget> taskWidgets = [];
 
-                        Widget tCard = TaskCard(
-                            image: hirer.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(hirer.displayPictureURL),
-                            task: task,
-                            onTap: () async {
-                              await taskProvider.updateCurrentTask(taskId: task.taskId);
-                              Navigator.pushNamed(context, TaskScreen.id);
-                            }
-                        );
-                        taskWidgets.add(tCard);
-                      }
+                          for (Map taskAndHirer in tasksAndHirers) {
+                            Task task = taskAndHirer['task'];
+                            User hirer = taskAndHirer['hirer'];
 
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: taskWidgets,
-                      );
-                    },
+                            Widget tCard = TaskCard(
+                                image: hirer.displayPictureURL == null
+                                    ? AssetImage("images/Logo_Clear.png")
+                                    : CachedNetworkImageProvider(
+                                        hirer.displayPictureURL),
+                                task: task,
+                                onTap: () async {
+                                  await taskProvider.updateCurrentTask(
+                                      taskId: task.taskId);
+                                  Navigator.pushNamed(context, TaskScreen.id);
+                                });
+                            taskWidgets.add(tCard);
+                          }
+
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: taskWidgets,
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        )
-      );
+                ),
+            ],
+          ),
+        ));
   }
 }

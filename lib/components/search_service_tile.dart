@@ -15,7 +15,12 @@ class SearchServiceTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
-        color: Color(kGenchiGreen),
+        color: Color(kGenchiOrange),
+        boxShadow: [ BoxShadow(
+          color: Colors.grey,
+          offset: Offset(0.0, 2.0), //(x,y)
+          blurRadius: 2.0,
+        ),]
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(5.0),
@@ -32,7 +37,7 @@ class SearchServiceTile extends StatelessWidget {
                     child: Text(
                       buttonTitle,
                       style: TextStyle(
-                        color: Color(kGenchiCream),
+                        color: Color(kGenchiBlue),
                         fontSize: 15.0,
                       ),
                     ),

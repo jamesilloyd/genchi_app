@@ -73,17 +73,17 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         child: Scaffold(
           appBar: AppBar(
             iconTheme: IconThemeData(
-              color: Color(kGenchiBlue),
+              color: Colors.black,
             ),
             title: Text(
               'Edit Details',
               style: TextStyle(
-                color: Color(kGenchiBlue),
+                color: Colors.black,
                 fontSize: 30,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            backgroundColor: Color(kGenchiCream),
+            backgroundColor: Color(kGenchiGreen),
             elevation: 2.0,
             brightness: Brightness.light,
             actions: <Widget>[
@@ -91,7 +91,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 icon: Icon(
                   Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
                   size: 30,
-                  color: Color(kGenchiBlue),
+                  color: Colors.black,
                 ),
                 onPressed: () async {
                   setState(() {

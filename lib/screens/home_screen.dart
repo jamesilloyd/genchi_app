@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/task_summary_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
@@ -26,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   //TODO: look into why the screens are being called (leading to extra firestore reads)
+
   @override
   Widget build(BuildContext context) {
 
@@ -34,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final HomeScreenArguments args = ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
+    print('Home screen: user is ${authProvider.currentUser.id}');
 
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(

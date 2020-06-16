@@ -24,13 +24,19 @@ import 'services/authentication_service.dart';
 
 import 'package:provider/provider.dart';
 
-//TODO go through components and turn them into widgets rather than classes
+//TODO go through components and turn them into widgets rather than classes (builder function is heavy)
+void main() async {
 
-void main() {
-  runApp(Genchi());
+  WidgetsFlutterBinding.ensureInitialized();
+  bool loggedIn = await AuthenticationService().isUserLoggedIn();
+  runApp(Genchi(initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,));
 }
 
 class Genchi extends StatelessWidget {
+
+  final String initialRoute;
+
+  Genchi({this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +48,7 @@ class Genchi extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'FuturaPT'),
-        //ToDo: need to implement correct start up logic
-        home: WelcomeScreen(),
-        initialRoute: WelcomeScreen.id,
+        initialRoute: initialRoute,
         routes: {
           WelcomeScreen.id: (context) => WelcomeScreen(),
           LoginScreen.id: (context) => LoginScreen(),

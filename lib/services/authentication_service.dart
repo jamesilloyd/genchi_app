@@ -25,6 +25,7 @@ class AuthenticationService extends ChangeNotifier {
   Future _populateCurrentUser(FirebaseUser user) async {
     print("populating current user");
     if (user != null) {
+      if(debugMode) print('Authentication service _populateCurrentUser: user ${user.uid}');
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       notifyListeners();
     }

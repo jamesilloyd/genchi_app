@@ -34,7 +34,7 @@ class Task {
         time = snapshot['time'] ?? Timestamp.now(),
         chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [];
 
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {
       if (taskId != null) 'taskId': taskId,
       if (hirerId != null) 'hirerId': hirerId,

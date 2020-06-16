@@ -52,6 +52,20 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
 
                 final List<ProviderUser> providers = snapshot.data;
 
+                if (providers.isEmpty) {
+                  return Container(
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        'No Providers Yet',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 List<ProviderCard> providerCards = [];
 
                 for (ProviderUser provider in providers) {

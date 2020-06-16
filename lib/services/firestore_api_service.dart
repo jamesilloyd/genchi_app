@@ -40,12 +40,24 @@ class FirestoreAPIService {
     return allProviders;
   }
 
-  Future<List<Task>> fetchTasks() async {
+  Future<List<Map<String,dynamic>>> fetchTasksAndHirers({List taskIds}) async {
+
+    if(debugMode) print('FirestoreAPI: fetchTasksAndHirers called');
+
+    ///This function is for fetching all the tasks for the tasks feed
+
+    List<Map<String,dynamic>> tasksAndHirers = [];
     List<Task> tasks;
     var result = await _taskCollectionRef.getDocuments();
     tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
     tasks.sort((a,b) => b.time.compareTo(a.time));
-    return tasks;
+    for(Task task in tasks) {
+      Map<String,dynamic> taskAndHirer = {};
+      taskAndHirer['task'] = task;
+      taskAndHirer['hirer'] = await getUserById(task.hirerId);
+      tasksAndHirers.add(taskAndHirer);
+    }
+    return tasksAndHirers;
   }
 
   Stream<QuerySnapshot> fetchChatStream(String chatId) {
@@ -183,17 +195,6 @@ class FirestoreAPIService {
 
 
 
-  Future removeUser(String uid) async {
-    await _usersCollectionRef.document(uid).delete();
-    return;
-  }
-
-  Future removeProvider(String pid) async {
-    await _providersCollectionRef.document(pid).delete();
-    return;
-  }
-
-
   Future updateUser({User user, String uid}) async {
     await _usersCollectionRef.document(uid).setData(user.toJson(),merge: true);
     return;
@@ -316,18 +317,32 @@ class FirestoreAPIService {
     for(var taskId in postIds) {
       tasks.add(await getTaskById(taskId: taskId));
     }
+    tasks.sort((a,b) => b.time.compareTo(a.time));
     return tasks;
   }
 
-  Future<List<Task>> getProviderTasks({List pids}) async {
+  Future<List<Map<String,dynamic>>> getProviderTasksAndHirers({List pids}) async {
+
+    ///This function takes a list pids and gets the tasks applied for by each provider
+
     if(debugMode) print('FirestoreAPI: getProviderTasks called for $pids');
-    List<ProviderUser> providers = await getProviders(pids: pids);
+
+    List<Map<String,dynamic>> tasksAndHirers = [];
     List<Task> tasks = [];
+
+    List<ProviderUser> providers = await getProviders(pids: pids);
     for(ProviderUser provider in providers) {
       tasks.addAll(await getTasks(postIds: provider.tasksApplied));
     }
+    tasks.sort((a,b) => b.time.compareTo(a.time));
+    for(Task task in tasks) {
+      Map<String,dynamic> taskAndHirer = {};
+      taskAndHirer['task'] = task;
+      taskAndHirer['hirer'] = await getUserById(task.hirerId);
+      tasksAndHirers.add(taskAndHirer);
+    }
 
-    return tasks;
+    return tasksAndHirers;
   }
 
 
@@ -343,14 +358,15 @@ class FirestoreAPIService {
       await deleteChat(chat: chat);
     }
 
+    ///Remove provider from any hirer favourites
     if(provider.isFavouritedBy.isNotEmpty) for(String uid in provider.isFavouritedBy) {
       if(debugMode) print('FirestoreAPI: Removing provider from hirer: $uid favourites');
       await removeUserFavourite(uid: uid, favouritePid: provider.pid);
     }
 
-    //Delete the provider
+    ///Delete the provider
     await _providersCollectionRef.document(provider.pid).delete();
-    //Remove provider from users array
+    ///Remove provider from users array
     await _usersCollectionRef.document(provider.uid).setData({'providerProfiles': FieldValue.arrayRemove([provider.pid])},merge: true);
     if(debugMode) print('FirestoreAPI: deleteProvider complete');
   }

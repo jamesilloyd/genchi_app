@@ -231,7 +231,7 @@ class TaskScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: MyAppNavigationBar(
-        barTitle: currentTask.title,
+        barTitle: 'Task',
       ),
       body: ListView(
         padding: EdgeInsets.all(20),
@@ -240,6 +240,9 @@ class TaskScreen extends StatelessWidget {
           Text(currentTask.date),
           Text(currentTask.service),
           Text(currentTask.details),
+          Divider(
+            thickness: 1,
+          ),
           buildVariableSection(
             task: currentTask,
             hasApplied: hasApplied,

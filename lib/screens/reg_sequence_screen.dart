@@ -18,13 +18,12 @@ import 'package:genchi_app/services/provider_service.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class RegSequenceScreen extends StatefulWidget {
   static const String id = "reg_sequence_screen";
+
   @override
   _RegSequenceScreenState createState() => _RegSequenceScreenState();
 }
-
 
 //TODO link or popup box about what each one is?
 //TODO This 100% needs to be in the form of a popup
@@ -33,7 +32,8 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationService authProvider = Provider.of<AuthenticationService>(context);
+    AuthenticationService authProvider =
+        Provider.of<AuthenticationService>(context);
     ProviderService providerService = Provider.of<ProviderService>(context);
 
     return Scaffold(
@@ -91,12 +91,16 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                         child: RaisedButton(
                           color: Color(kGenchiOrange),
                           onPressed: () async {
-
-                            bool createHirer = await showHirerAlert(context:context);
-                            if(createHirer) {
-                              Navigator.pushNamedAndRemoveUntil(context,
-                                  HomeScreen.id, (
-                                      Route<dynamic> route) => false);
+                            bool createHirer = await showYesNoAlert(
+                                context: context,
+                                title: 'Create Hirer Account?',
+                                body:
+                                    "Are you ready to hire students with skills in the Cambridge community?");
+                            if (createHirer) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  HomeScreen.id,
+                                  (Route<dynamic> route) => false);
                             }
                           },
                           child: Padding(
@@ -119,8 +123,9 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Expanded(child: Image.asset('images/hirer.png',fit: BoxFit.contain)),
-
+                                Expanded(
+                                    child: Image.asset('images/hirer.png',
+                                        fit: BoxFit.contain)),
                               ],
                             ),
                           ),
@@ -137,31 +142,33 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                         child: RaisedButton(
                           color: Color(kGenchiBlue),
                           onPressed: () async {
-
-                            bool createProvider = await showProviderAlert(context: context);
-                            if(createProvider) {
-                              DocumentReference result = await firestoreAPI
-                                  .addProvider(ProviderUser(
-                                  uid: authProvider.currentUser.id),
-                                  authProvider.currentUser.id);
+                            bool createProvider = await showYesNoAlert(
+                                context: context,
+                                title: 'Create Provider Account',
+                                body: "Are you ready to provide your skills to the Cambridge community?");
+                            if (createProvider) {
+                              DocumentReference result =
+                                  await firestoreAPI.addProvider(
+                                      ProviderUser(
+                                          uid: authProvider.currentUser.id),
+                                      authProvider.currentUser.id);
                               await authProvider.updateCurrentUserData();
 
                               ProviderUser newProvider = await firestoreAPI
                                   .getProviderById(result.documentID);
-                              await providerService.updateCurrentProvider(
-                                  result.documentID);
+                              await providerService
+                                  .updateCurrentProvider(result.documentID);
 
                               print(newProvider);
 
                               Navigator.pushNamedAndRemoveUntil(
                                   context,
                                   EditProviderAccountScreen.id,
-                                      (Route<dynamic> route) => false,
+                                  (Route<dynamic> route) => false,
                                   arguments: EditProviderAccountScreenArguments(
                                       fromRegistration: true,
                                       provider: newProvider));
                             }
-
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
@@ -183,7 +190,9 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Expanded(child: Image.asset('images/provider.png',fit: BoxFit.contain)),
+                                Expanded(
+                                    child: Image.asset('images/provider.png',
+                                        fit: BoxFit.contain)),
                               ],
                             ),
                           ),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -57,22 +58,22 @@ class _SearchScreenState extends State<SearchScreen> {
           backgroundColor: Colors.white,
           appBar: AppBar(
               iconTheme: IconThemeData(
-                color: Color(kGenchiBlue),
+                color: Colors.black,
               ),
               title: Text(
                 'Search',
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
+                  color: Colors.black,
                   fontSize: 30,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              backgroundColor: Color(kGenchiCream),
+              backgroundColor: Color(kGenchiGreen),
               elevation: 2.0,
               brightness: Brightness.light,
               bottom: TabBar(
                   indicatorColor: Color(kGenchiOrange),
-                  labelColor: Color(kGenchiBlue),
+                  labelColor: Colors.black,
                   labelStyle: TextStyle(
                     fontSize: 20,
                     fontFamily: 'FuturaPT',
@@ -88,7 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: FutureBuilder(
-                  future: firestoreAPI.fetchTasks(),
+                  future: firestoreAPI.fetchTasksAndHirers(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return Center(
@@ -96,15 +97,21 @@ class _SearchScreenState extends State<SearchScreen> {
                       );
                     }
 
-                    final List<Task> tasks = snapshot.data;
+                    final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
 
                     final List<Widget> widgets = [];
 
-                    for (Task task in tasks) {
+                    for (Map taskAndHirer in tasksAndHirers) {
+
+                      Task task = taskAndHirer['task'];
+                      User hirer = taskAndHirer['hirer'];
+
                       final widget = TaskCard(
+                        image: hirer.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(hirer.displayPictureURL),
                         task: task,
                         onTap: () async {
-                          await taskProvider.updateCurrentTask(taskId: task.taskId);
+                          await taskProvider.updateCurrentTask(
+                              taskId: task.taskId);
                           Navigator.pushNamed(context, TaskScreen.id);
                         },
                       );

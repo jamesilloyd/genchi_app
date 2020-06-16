@@ -72,7 +72,7 @@ Future<void> showAlertAndroid(
 }
 
 Future<bool> showYesNoAlert(
-    {@required BuildContext context, @required String title}) {
+    {@required BuildContext context, @required String title, String body}) {
   return showDialog(
     context: context,
     child: Platform.isIOS
@@ -81,6 +81,9 @@ Future<bool> showYesNoAlert(
               title,
               style: TextStyle(fontFamily: 'FuturaPT'),
             ),
+             content: body!=null ? Text(
+                body,
+                style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)):null,
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text("No",
@@ -117,6 +120,10 @@ Future<bool> showYesNoAlert(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
+                    if (body != null)
+                      Text(body,
+                          style:
+                              TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -151,258 +158,3 @@ Future<bool> showYesNoAlert(
           ),
   );
 }
-
-
-Future<bool> showProviderAlert({BuildContext context}) {
-  return showDialog(
-    context: context,
-    child: Platform.isIOS
-        ? CupertinoAlertDialog(
-      title: Text(
-        "Create Provider Account",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      content: Text(
-          "Are you ready to provide your skills to the Cambridge community?",
-          style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
-      actions: <Widget>[
-        CupertinoDialogAction(
-          child: Text("Not now",
-              style: TextStyle(
-                  fontFamily: 'FuturaPT',
-                  color: Color(kGenchiOrange),
-                  fontWeight: FontWeight.w600)),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(false);
-          },
-        ),
-        CupertinoDialogAction(
-          child: Text(
-            "Yes",
-            style: TextStyle(
-                fontFamily: 'FuturaPT',
-                color: Color(kGenchiGreen),
-                fontWeight: FontWeight.w600),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(true);
-          },
-        ),
-      ],
-    )
-        : SimpleDialog(
-      title: Text(
-        "Create Provider Account",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Text(
-                  "Are you ready to provide your skills to the Cambridge community?",
-                  style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  SimpleDialogOption(
-                    child: Text("Not now",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiOrange),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true)
-                          .pop(false);
-                    },
-                  ),
-                  SimpleDialogOption(
-                    child: Text("Yes",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiGreen),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true)
-                          .pop(true);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-Future<bool> showHirerAlert({BuildContext context}) {
-  return showDialog(
-    context: context,
-    child: Platform.isIOS
-        ? CupertinoAlertDialog(
-      title: Text(
-        "Create Hirer Account",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      content: Text(
-          "Are you ready to hire students with skills in the Cambridge community?",
-          style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
-      actions: <Widget>[
-        CupertinoDialogAction(
-          child: Text("Not now",
-              style: TextStyle(
-                  fontFamily: 'FuturaPT',
-                  color: Color(kGenchiOrange),
-                  fontWeight: FontWeight.w600)),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(false);
-          },
-        ),
-        CupertinoDialogAction(
-          child: Text(
-            "Yes",
-            style: TextStyle(
-                fontFamily: 'FuturaPT',
-                color: Color(kGenchiGreen),
-                fontWeight: FontWeight.w600),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(true);
-          },
-        ),
-      ],
-    )
-        : SimpleDialog(
-      title: Text(
-        "Create Hirer Account",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Text(
-                  "Are you ready to hire students with skills in the Cambridge community?",
-                  style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  SimpleDialogOption(
-                    child: Text("Not now",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiOrange),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(false);
-                    },
-                  ),
-                  SimpleDialogOption(
-                    child: Text("Yes",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiGreen),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(true);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-Future<bool> showDiscardChangesAlert({BuildContext context}) {
-  return showDialog(
-    context: context,
-    child: Platform.isIOS
-        ? CupertinoAlertDialog(
-      title: Text(
-        "Are you sure you want to discard changes?",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      actions: <Widget>[
-        CupertinoDialogAction(
-          child: Text("No",
-              style: TextStyle(
-                  fontFamily: 'FuturaPT',
-                  color: Color(kGenchiOrange),
-                  fontWeight: FontWeight.w600)),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(false);
-          },
-        ),
-        CupertinoDialogAction(
-          child: Text(
-            "Yes",
-            style: TextStyle(
-                fontFamily: 'FuturaPT',
-                color: Color(kGenchiGreen),
-                fontWeight: FontWeight.w600),
-          ),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(true);
-
-          },
-        ),
-      ],
-    )
-        : SimpleDialog(
-      title: Text(
-        "Are you sure you want to discard changes?",
-        style: TextStyle(fontFamily: 'FuturaPT'),
-      ),
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  SimpleDialogOption(
-                    child: Text("No",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiOrange),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(false);
-
-                    },
-                  ),
-                  SimpleDialogOption(
-                    child: Text("Yes",
-                        style: TextStyle(
-                            fontFamily: 'FuturaPT',
-                            color: Color(kGenchiGreen),
-                            fontWeight: FontWeight.w600)),
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(true);
-
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-

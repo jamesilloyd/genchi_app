@@ -21,17 +21,17 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
   Widget build(BuildContext context) {
     return AppBar(
       iconTheme: IconThemeData(
-        color: Color(kGenchiBlue),
+        color: Colors.black,
       ),
       title: Text(
         barTitle,
         style: TextStyle(
-          color: Color(kGenchiBlue),
+          color: Colors.black,
           fontSize: 30,
           fontWeight: FontWeight.w500,
         ),
       ),
-      backgroundColor: Color(kGenchiCream),
+      backgroundColor: Color(kGenchiGreen),
       elevation: 2.0,
       brightness: Brightness.light,
     );
@@ -54,7 +54,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
     final providerService = Provider.of<ProviderService>(context);
     return AppBar(
       iconTheme: IconThemeData(
-        color: Color(kGenchiBlue),
+        color: Colors.black,
       ),
       title: GestureDetector(
         onTap: () async {
@@ -74,7 +74,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
             Text(
               barTitle,
               style: TextStyle(
-                color: Color(kGenchiBlue),
+                color: Colors.black,
                 fontSize: 30,
                 fontWeight: FontWeight.w500,
               ),
@@ -82,7 +82,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ),
-      backgroundColor: Color(kGenchiCream),
+      backgroundColor: Color(kGenchiGreen),
       elevation: 2.0,
       brightness: Brightness.light,
     );

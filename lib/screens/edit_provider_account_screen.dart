@@ -109,7 +109,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     print('in here');
 
     if(changesMade){
-      bool discard = await showDiscardChangesAlert(context:context);
+      bool discard = await showYesNoAlert(context:context, title: 'Are you sure you want to discard changes?');
       if(!discard) return false;
     }
     return true;

@@ -71,6 +71,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: 20),
               Divider(
                 height: 0,
+                thickness: 1,
+              ),
+              ProfileOptionTile(
+                text: 'Post Task',
+                onPressed: () async {
+                  bool createAccount = await showYesNoAlert(context: context, title: 'Post task?');
+                  if(createAccount) Navigator.pushNamed(context, PostTaskScreen.id);
+                },
               ),
               if (userIsProvider)
                 Column(
@@ -93,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     Divider(
                       height: 0,
-//                      color: Color(kGenchiBlue),
+                      thickness: 1,
                     ),
                   ],
                 ),
@@ -142,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     : 'Create Provider Profile',
                 onPressed: () async {
                   bool createAccount =
-                      await showProviderAlert(context: context);
+                      await showYesNoAlert(context: context,title: 'Create Provider Account?',body: "Are you ready to provide your skills to the Cambridge community?");
                   if (createAccount) {
                     DocumentReference result = await firestoreAPI.addProvider(
                         ProviderUser(
@@ -178,12 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 text: 'About Genchi',
                 onPressed: () {
                   Navigator.pushNamed(context, AboutScreen.id);
-                },
-              ),
-              ProfileOptionTile(
-                text: 'Post Task',
-                onPressed: () {
-                  Navigator.pushNamed(context, PostTaskScreen.id);
                 },
               ),
               ProfileOptionTile(

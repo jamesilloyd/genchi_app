@@ -38,6 +38,7 @@ class AddImageScreen extends StatefulWidget {
   _AddImageScreenState createState() => _AddImageScreenState();
 }
 
+
 class _AddImageScreenState extends State<AddImageScreen> {
 
   bool showSpinner = false;
@@ -68,7 +69,6 @@ class _AddImageScreenState extends State<AddImageScreen> {
       _imageFile = null;
     });
   }
-
 
   //Croper plugin
   Future<void> _cropImage() async {
@@ -128,18 +128,30 @@ class _AddImageScreenState extends State<AddImageScreen> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-              child: SizedBox(
-                height: 40,
-                child: Center(
-                  child: Text(
-                    'Change All Display Pictures',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      color: _iconColor,
-                      fontWeight: FontWeight.w500,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Row(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 40,
+                      child: Center(
+                        child: Text(
+                          'Change All Display Pictures',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 30.0,
+                            color: _iconColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: 20,),
+                    GestureDetector(
+                      onTap: (){Navigator.pop(context);},
+                      child: Icon(Icons.close, color: Color(kGenchiCream),),
+                    )
+                  ],
                 ),
               ),
             ),

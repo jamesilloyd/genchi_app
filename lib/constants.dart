@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 
+Divider kGenchiBoldDivider() {
+
+  return Divider(
+    height: 0,
+    thickness: 1,
+    color: Colors.black45,
+  );
+
+}
+
 const kForgotPasswordSnackbar = SnackBar(
   backgroundColor: Color(kGenchiOrange),
   duration: Duration(seconds: 3),

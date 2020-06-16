@@ -23,7 +23,6 @@ class ProfileOptionTile extends StatelessWidget {
                 fit: BoxFit.contain,
                 child: Text(
                   text,
-                  textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Color(kGenchiBlue),
                     fontWeight: FontWeight.w400,
@@ -36,7 +35,7 @@ class ProfileOptionTile extends StatelessWidget {
         ),
         Divider(
           height: 0,
-//          color: Color(kGenchiBlue),
+          thickness: 1,
         ),
       ],
     );

@@ -43,43 +43,13 @@ class ProviderCard extends StatelessWidget {
                     style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
                   ),
                 ),
-//                    trailing: Column(
-//                      crossAxisAlignment: CrossAxisAlignment.center,
-//                      mainAxisAlignment: MainAxisAlignment.center,
-//                      children: <Widget>[
-//                        Text(
-//                          time,
-//                          style: TextStyle(fontSize: 12),
-//                        ),
-//                        hasUnreadMessage
-//                            ? Container(
-//                          margin: const EdgeInsets.only(top: 5.0),
-//                          height: 18,
-//                          width: 18,
-//                          decoration: BoxDecoration(
-//                              color: Color(kGenchiOrange),
-//                              borderRadius: BorderRadius.all(
-//                                Radius.circular(25.0),
-//                              )),
-//                          child: Center(
-//                            child: Text(
-//                              newMesssageCount.toString(),
-//                              style: TextStyle(fontSize: 11),
-//                            ),),
-//                        )
-//                            : SizedBox()
-//                      ],
-//                    ),
                 onTap: onTap,
               ),
             ),
           ],
         ),
         Divider(
-//          endIndent: 12.0,
-//          indent: 12.0,
           height: 0,
-//          color: Color(kGenchiBlue),
         ),
       ],
     );

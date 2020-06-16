@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/task_card.dart';
@@ -31,22 +32,22 @@ class TaskSummaryScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
             iconTheme: IconThemeData(
-              color: Color(kGenchiBlue),
+              color: Colors.black,
             ),
             title: Text(
               'Tasks',
               style: TextStyle(
-                color: Color(kGenchiBlue),
+                color: Colors.black,
                 fontSize: 30,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            backgroundColor: Color(kGenchiCream),
+            backgroundColor: Color(kGenchiGreen),
             elevation: 2.0,
             brightness: Brightness.light,
             bottom: TabBar(
                 indicatorColor: Color(kGenchiOrange),
-                labelColor: Color(kGenchiBlue),
+                labelColor: Colors.black,
                 labelStyle: TextStyle(
                   fontSize: 20,
                   fontFamily: 'FuturaPT',
@@ -104,10 +105,11 @@ class TaskSummaryScreen extends StatelessWidget {
                         );
                       }
 
-                      List<TaskCard> taskWidgets = [];
+                      List<Widget> taskWidgets = [];
 
                       for(Task post in userPosts) {
-                        TaskCard tCard = TaskCard(
+                        Widget tCard = TaskCard(
+                            image: currentUser.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(currentUser.displayPictureURL),
                             task: post,
                             onTap: () async {
                               await taskProvider.updateCurrentTask(taskId: post.taskId);
@@ -150,20 +152,21 @@ class TaskSummaryScreen extends StatelessWidget {
                   ),
 
                   FutureBuilder(
-                    future: firestoreAPI.getProviderTasks(pids: currentUser.providerProfiles),
+                    future: firestoreAPI.getProviderTasksAndHirers(pids: currentUser.providerProfiles),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return CircularProgress();
                       }
 
-                      final List<Task> userPosts = snapshot.data;
+                      final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
 
-                      if(userPosts.isEmpty){
+
+                      if(tasksAndHirers.isEmpty){
                         return  Container(
                           height: 30,
                           child: Center(
                             child: Text(
-                              'You have not posted a task',
+                              'You have not applied to any tasks',
                               style: TextStyle(
                                 fontSize: 20,
                               ),
@@ -171,14 +174,18 @@ class TaskSummaryScreen extends StatelessWidget {
                           ),
                         );
                       }
-                      List<TaskCard> taskWidgets = [];
+                      List<Widget> taskWidgets = [];
 
-                      for(Task post in userPosts) {
+                      for (Map taskAndHirer in tasksAndHirers) {
 
-                        TaskCard tCard = TaskCard(
-                            task: post,
+                        Task task = taskAndHirer['task'];
+                        User hirer = taskAndHirer['hirer'];
+
+                        Widget tCard = TaskCard(
+                            image: hirer.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(hirer.displayPictureURL),
+                            task: task,
                             onTap: () async {
-                              await taskProvider.updateCurrentTask(taskId: post.taskId);
+                              await taskProvider.updateCurrentTask(taskId: task.taskId);
                               Navigator.pushNamed(context, TaskScreen.id);
                             }
                         );

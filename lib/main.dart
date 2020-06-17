@@ -26,14 +26,13 @@ import 'services/authentication_service.dart';
 import 'package:provider/provider.dart';
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
+//TODO all my futures are wrong! PLEASE FIX THEM ASAP
 void main()  {
 
   runApp(Genchi());
 }
 
 class Genchi extends StatelessWidget {
-
-
 
   @override
   Widget build(BuildContext context) {

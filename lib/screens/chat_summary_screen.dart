@@ -237,11 +237,14 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                   chat.providerHasUnreadMessage = false;
                                   await firestoreAPI.updateChat(chat: chat);
                                   Navigator.pushNamed(context, ChatScreen.id,
-                                      arguments: ChatScreenArguments(
-                                          chat: chat,
-                                          userIsProvider: true,
-                                          provider: provider,
-                                          user: hirer));
+                                          arguments: ChatScreenArguments(
+                                              chat: chat,
+                                              userIsProvider: true,
+                                              provider: provider,
+                                              user: hirer))
+                                      .then((value) {
+                                    setState(() {});
+                                  });
                                 },
                                 hideChat: () async {
                                   //TODO: probably need to change this so that we selectively choose which chats "where hide = false"

@@ -23,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 PageController pageController;
 
 class _HomeScreenState extends State<HomeScreen> {
+
   int _page;
 
   //TODO: look into why the screens are being called (leading to extra firestore reads)
@@ -51,7 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
     print('Home screen: user is ${authProvider.currentUser.id}');
 
     return Scaffold(
-      body: screens.elementAt(_page ?? startingIndex),
+//      body: screens.elementAt(_page ?? startingIndex),
+      body: IndexedStack(
+        index: _page ?? startingIndex,
+        children: screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _page ?? startingIndex,
           showUnselectedLabels: true,

@@ -45,9 +45,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-
   @override
   Widget build(BuildContext context) {
+//    super.build(context);
     print('Profile screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);

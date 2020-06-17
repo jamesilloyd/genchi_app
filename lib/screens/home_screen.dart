@@ -13,44 +13,62 @@ import 'package:genchi_app/services/authentication_service.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 
-
-FirebaseUser loggedInUser;
-
 class HomeScreen extends StatefulWidget {
-
   static const String id = "home_screen";
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+PageController pageController;
+
 class _HomeScreenState extends State<HomeScreen> {
+  int _page;
 
   //TODO: look into why the screens are being called (leading to extra firestore reads)
 
+  void onPageChanged(int page) {
+    setState(() {
+      this._page = page;
+    });
+  }
+
+  static List<Widget> screens = [
+    SearchScreen(),
+    TaskSummaryScreen(),
+    ChatSummaryScreen(),
+    ProfileScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
-
     print('home screen activated');
 
-    final HomeScreenArguments args = ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
+    final HomeScreenArguments args =
+        ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
 
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        currentIndex: startingIndex,
-          backgroundColor: Color(kGenchiCream),
-          activeColor: Color(kGenchiOrange),
-          inactiveColor: Color(kGenchiBlue),
-          items: [
+    return Scaffold(
+      body: screens.elementAt(_page ?? startingIndex),
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _page ?? startingIndex,
+          showUnselectedLabels: true,
+          selectedItemColor: Color(kGenchiOrange),
+          unselectedItemColor: Color(kGenchiBlue),
+          onTap: onPageChanged,
+          items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-              title: Text('Search',style: TextStyle(fontFamily: 'FuturaPT'),),
+              title: Text(
+                'Search',
+                style: TextStyle(fontFamily: 'FuturaPT'),
+              ),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
+              icon: Icon(
+                  Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
               title: Text('Tasks'),
             ),
             BottomNavigationBarItem(
@@ -61,22 +79,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Platform.isIOS
-                  ? (authProvider.currentUser.providerProfiles.isEmpty ? CupertinoIcons.profile_circled : CupertinoIcons.group )
-                  : (authProvider.currentUser.providerProfiles.isEmpty ? Icons.account_circle : Icons.group)),
-              title: Text(authProvider.currentUser.providerProfiles.isEmpty ? 'Profile' : 'Profiles'),
+                  ? (authProvider.currentUser.providerProfiles.isEmpty
+                      ? CupertinoIcons.profile_circled
+                      : CupertinoIcons.group)
+                  : (authProvider.currentUser.providerProfiles.isEmpty
+                      ? Icons.account_circle
+                      : Icons.group)),
+              title: Text(authProvider.currentUser.providerProfiles.isEmpty
+                  ? 'Profile'
+                  : 'Profiles'),
             ),
           ]),
-      tabBuilder: (context, index) {
-        if (index == 0) {
-          return SearchScreen();
-        } else if (index == 1) {
-          return TaskSummaryScreen();
-        } else if(index == 2 ) {
-          return ChatSummaryScreen();
-        }else {
-          return ProfileScreen();
-        }
-      },
     );
   }
 }

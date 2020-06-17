@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                    Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
+                    Platform.isIOS ? CupertinoIcons.folder : Icons.folder_open),
                 title: Text('Tasks'),
               ),
               BottomNavigationBarItem(

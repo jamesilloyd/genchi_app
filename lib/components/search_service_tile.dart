@@ -18,8 +18,8 @@ class SearchServiceTile extends StatelessWidget {
         color: Color(kGenchiOrange),
         boxShadow: [ BoxShadow(
           color: Colors.grey,
-          offset: Offset(0.0, 2.0), //(x,y)
-          blurRadius: 2.0,
+          offset: Offset(0.0, 1.0), //(x,y)
+          blurRadius: 1.0,
         ),]
       ),
       child: ClipRRect(

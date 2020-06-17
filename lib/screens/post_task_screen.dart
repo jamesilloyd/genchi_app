@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -206,6 +207,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                 date: date,
                                 details: details,
                                 service: serviceController.text,
+                                time: Timestamp.now(),
                                 price: price,
                                 hirerId: authProvider.currentUser.id),
                             uid: authProvider.currentUser.id);

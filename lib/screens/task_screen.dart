@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
+
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/message_list_item.dart';
@@ -9,6 +12,7 @@ import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
+import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
@@ -18,24 +22,26 @@ import 'package:genchi_app/models/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 
-class TaskScreen extends StatelessWidget {
+class TaskScreen extends StatefulWidget {
   static const id = 'task_screen';
 
+  @override
+  _TaskScreenState createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  //TODO look at how to update task message (showing unread message)
-
-  Widget buildVariableSection({@required bool isUsersTask,
-    @required bool hasApplied,
-    @required bool userIsProvider,
-    @required String hirerid,
-    @required List<dynamic> usersAppliedChatAndProviderId,
-    @required Function applyFunction,
-    @required Task task}) {
+  Widget buildVariableSection(
+      {@required bool isUsersTask,
+      @required bool hasApplied,
+      @required bool userIsProvider,
+      @required String hirerid,
+      @required List<dynamic> usersAppliedChatAndProviderId,
+      @required Function applyFunction,
+      @required Task task}) {
     if (isUsersTask) {
-      //TODO show applicants
-
-      //TODO this is exactly the same functionality as under userisprovider, please refactor
+      ///User is looking at their own task
       return FutureBuilder(
         future: firestoreAPI.getTaskChatsAndProviders(
             chatIdsAndPids: task.applicantChatsAndPids),
@@ -58,7 +64,6 @@ class TaskScreen extends StatelessWidget {
             );
           }
 
-
           List<Widget> widgets = [
             Center(
               child: Text(
@@ -71,19 +76,18 @@ class TaskScreen extends StatelessWidget {
             ),
             Divider(
               height: 5,
-              color: Colors.black,
               thickness: 1,
             ),
           ];
 
-          for(Map chatAndProvider in chatsAndProviders) {
+          for (Map chatAndProvider in chatsAndProviders) {
             Chat chat = chatAndProvider['chat'];
             ProviderUser provider = chatAndProvider['provider'];
 
             MessageListItem chatWidget = MessageListItem(
-                image: provider.displayPictureURL == null ? AssetImage(
-                    "images/Logo_Clear.png") : CachedNetworkImageProvider(
-                    provider.displayPictureURL),
+                image: provider.displayPictureURL == null
+                    ? AssetImage("images/Logo_Clear.png")
+                    : CachedNetworkImageProvider(provider.displayPictureURL),
                 name: provider.name,
                 service: provider.type,
                 lastMessage: chat.lastMessage,
@@ -94,19 +98,21 @@ class TaskScreen extends StatelessWidget {
                   User hirer = await firestoreAPI.getUserById(hirerid);
                   await firestoreAPI.updateChat(chat: chat);
                   Navigator.pushNamed(context, ChatScreen.id,
-                      arguments: ChatScreenArguments(chat: chat,
-                          userIsProvider: false,
-                          provider: provider,
-                          user: hirer,
-                          isFirstInstance: false));
+                          arguments: ChatScreenArguments(
+                              chat: chat,
+                              userIsProvider: false,
+                              provider: provider,
+                              user: hirer,
+                              isFirstInstance: false))
+                      .then((value) {
+                    setState(() {});
+                  });
                 },
 
                 //TODO add ability to delete applicant
-                hideChat: () {}
-            );
+                hideChat: () {});
 
             widgets.add(chatWidget);
-
           }
 
           return Column(
@@ -115,10 +121,48 @@ class TaskScreen extends StatelessWidget {
         },
       );
     } else if (!userIsProvider) {
-      //TODO display this a little nicer
-      return Center(child: Text('Create a provider account to apply'));
+      ///User cannot apply as they do not have a provider account
+      return FutureBuilder(
+        future: firestoreAPI.getUserById(task.hirerId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgress();
+          }
+
+          User hirer = snapshot.data;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Hirer',
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              HirerCard(hirer: hirer),
+              Divider(
+                thickness: 1,
+              ),
+              Center(
+                  child: Text(
+                'Create a provider account to apply',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Color(kGenchiBlue),
+                    fontWeight: FontWeight.w500),
+              )),
+            ],
+          );
+        },
+      );
     } else if (hasApplied) {
-      //TODO add the single message between you and the hirer
+      ///User has already applied to the task, so their message will be displayed
       return FutureBuilder(
         future: firestoreAPI.getTaskChatsAndProviders(
             chatIdsAndPids: usersAppliedChatAndProviderId),
@@ -142,6 +186,30 @@ class TaskScreen extends StatelessWidget {
           }
 
           List<Widget> widgets = [
+            Text(
+              'Hirer',
+              style: TextStyle(
+                color: Color(kGenchiBlue),
+                fontSize: 25.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FutureBuilder(
+              future: firestoreAPI.getUserById(task.hirerId),
+              builder: (context, snapshot) {
+                if(!snapshot.hasData){
+                  return Text('');
+                }
+                User hirer = snapshot.data;
+                return HirerCard(hirer: hirer);
+              },
+            ),
+            Divider(
+              thickness: 1,
+            ),
             Center(
               child: Text(
                 'Your Application',
@@ -151,56 +219,91 @@ class TaskScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Divider(
+            SizedBox(
               height: 5,
-              color: Colors.black,
-              thickness: 1,
-            ),
+            )
           ];
 
-          for(Map chatAndProvider in chatsAndProviders) {
+          for (Map chatAndProvider in chatsAndProviders) {
             Chat chat = chatAndProvider['chat'];
             ProviderUser provider = chatAndProvider['provider'];
 
             MessageListItem chatWidget = MessageListItem(
-                image: provider.displayPictureURL == null ? AssetImage(
-                    "images/Logo_Clear.png") : CachedNetworkImageProvider(
-                    provider.displayPictureURL),
+                image: provider.displayPictureURL == null
+                    ? AssetImage("images/Logo_Clear.png")
+                    : CachedNetworkImageProvider(provider.displayPictureURL),
                 name: provider.name,
                 service: provider.type,
                 lastMessage: chat.lastMessage,
                 time: chat.time,
                 hasUnreadMessage: chat.providerHasUnreadMessage,
-                onTap:  () async {
+                onTap: () async {
                   chat.providerHasUnreadMessage = false;
                   User hirer = await firestoreAPI.getUserById(hirerid);
                   await firestoreAPI.updateChat(chat: chat);
                   Navigator.pushNamed(context, ChatScreen.id,
-                      arguments: ChatScreenArguments(chat: chat,
-                          userIsProvider: true,
-                          provider: provider,
-                          user: hirer,
-                          isFirstInstance: false));
+                          arguments: ChatScreenArguments(
+                              chat: chat,
+                              userIsProvider: true,
+                              provider: provider,
+                              user: hirer,
+                              isFirstInstance: false))
+                      .then((value) {
+                    setState(() {});
+                  });
                 },
                 //TODO: add ability to delete application
-                hideChat: () {}
-            );
+                hideChat: () {});
 
             widgets.add(chatWidget);
-
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: widgets,
           );
         },
       );
     } else if (!hasApplied) {
-      return RoundedButton(
-        fontColor: Color(kGenchiCream),
-        buttonColor: Color(kGenchiBlue),
-        buttonTitle: 'Apply',
-        onPressed: applyFunction,
+      ///User has not applied, so apply button is shown
+      return FutureBuilder(
+        future: firestoreAPI.getUserById(task.hirerId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgress();
+          }
+
+          User hirer = snapshot.data;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Hirer',
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              HirerCard(hirer: hirer),
+              Divider(
+                thickness: 1,
+              ),
+              Center(
+                child: RoundedButton(
+                  fontColor: Color(kGenchiCream),
+                  buttonColor: Color(kGenchiBlue),
+                  buttonTitle: 'Apply',
+                  onPressed: applyFunction,
+                ),
+              ),
+            ],
+          );
+        },
       );
     } else {
       return Center(
@@ -230,16 +333,112 @@ class TaskScreen extends StatelessWidget {
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return Scaffold(
-      appBar: MyAppNavigationBar(
-        barTitle: 'Task',
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.black,
+        ),
+        title: Text(
+          'Task',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 30,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: Color(kGenchiGreen),
+        elevation: 2.0,
+        brightness: Brightness.light,
+        actions: <Widget>[
+          if (isUsersTask)
+            IconButton(
+              icon: Icon(
+                Platform.isIOS ? CupertinoIcons.settings : Icons.settings,
+                size: 30,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+
+                Navigator.pushNamed(context, EditTaskScreen.id);
+
+
+              },
+            )
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.all(20),
         children: <Widget>[
-          Text(currentTask.title),
-          Text(currentTask.date),
-          Text(currentTask.service),
-          Text(currentTask.details),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  currentTask.title,
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
+                      color: Color(kGenchiBlue)),
+                ),
+              ),
+              Text(
+                currentTask.service,
+//                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Divider(thickness: 1),
+          Container(
+            child: Text(
+              "Details",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Color(kGenchiBlue),
+                fontSize: 25.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            currentTask.details ?? "",
+            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(height: 10),
+          Container(
+            child: Text(
+              "Timings",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Color(kGenchiBlue),
+                fontSize: 25.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            currentTask.date ?? "",
+            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(height: 10),
+          Container(
+            child: Text(
+              "Price",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Color(kGenchiBlue),
+                fontSize: 25.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            currentTask.price ?? "",
+            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(height: 5),
           Divider(
             thickness: 1,
           ),
@@ -259,73 +458,67 @@ class TaskScreen extends StatelessWidget {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20.0),
                           topRight: Radius.circular(20.0))),
-                  builder: (context) =>
-                      Container(
-                        height: MediaQuery
-                            .of(context)
-                            .size
-                            .height * 0.75,
-                        padding: EdgeInsets.all(20.0),
-                        decoration: BoxDecoration(
-                          color: Color(kGenchiCream),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20.0),
-                            topRight: Radius.circular(20.0),
-                          ),
-                        ),
-                        child: ListView(
-                          children: <Widget>[
-                            Center(
-                                child: Text(
-                                  'Apply with which provider account?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                )),
-                            FutureBuilder(
-                              //This function returns a list of providerUsers
-                              future: firestoreAPI.getProviders(
-                                  pids: currentUser.providerProfiles),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return CircularProgress();
-                                }
-                                final List<ProviderUser> providers = snapshot
-                                    .data;
-
-                                List<ProviderCard> providerCards = [];
-
-                                for (ProviderUser provider in providers) {
-                                  ProviderCard pCard = ProviderCard(
-                                    image: provider.displayPictureURL == null
-                                        ? AssetImage("images/Logo_Clear.png")
-                                        : CachedNetworkImageProvider(
-                                        provider.displayPictureURL),
-                                    name: provider.name,
-                                    description: provider.bio,
-                                    service: provider.type,
-                                    onTap: () {
-                                      Navigator.pop(context, provider.pid);
-                                    },
-                                  );
-
-                                  providerCards.add(pCard);
-                                }
-
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .stretch,
-                                  children: providerCards,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                  builder: (context) => Container(
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    padding: EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Color(kGenchiCream),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0),
+                        topRight: Radius.circular(20.0),
                       ),
+                    ),
+                    child: ListView(
+                      children: <Widget>[
+                        Center(
+                            child: Text(
+                          'Apply with which provider account?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )),
+                        FutureBuilder(
+                          //This function returns a list of providerUsers
+                          future: firestoreAPI.getProviders(
+                              pids: currentUser.providerProfiles),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return CircularProgress();
+                            }
+                            final List<ProviderUser> providers = snapshot.data;
+
+                            List<ProviderCard> providerCards = [];
+
+                            for (ProviderUser provider in providers) {
+                              ProviderCard pCard = ProviderCard(
+                                image: provider.displayPictureURL == null
+                                    ? AssetImage("images/Logo_Clear.png")
+                                    : CachedNetworkImageProvider(
+                                        provider.displayPictureURL),
+                                name: provider.name,
+                                description: provider.bio,
+                                service: provider.type,
+                                onTap: () {
+                                  Navigator.pop(context, provider.pid);
+                                },
+                              );
+
+                              providerCards.add(pCard);
+                            }
+
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: providerCards,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 );
                 if (debugMode)
                   print('Task Screen: applied with pid $selectedProviderId');

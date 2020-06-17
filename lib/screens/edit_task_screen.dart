@@ -1,0 +1,264 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/edit_account_text_field.dart';
+
+import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/task_service.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
+
+class EditTaskScreen extends StatefulWidget {
+  static const id = 'edit_task_screen';
+
+  @override
+  _EditTaskScreenState createState() => _EditTaskScreenState();
+}
+
+class _EditTaskScreenState extends State<EditTaskScreen> {
+  bool changesMade = false;
+  bool showSpinner = false;
+  String title;
+  String details;
+  String date;
+  String price;
+  String service;
+
+  TextEditingController titleController = TextEditingController();
+  TextEditingController detailsController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController serviceController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    Task task = Provider.of<TaskService>(context, listen: false).currentTask;
+    titleController.text = task.title;
+    detailsController.text = task.details;
+    dateController.text = task.date;
+    serviceController.text = task.service;
+    priceController.text = task.price;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    titleController.dispose();
+    detailsController.dispose();
+    dateController.dispose();
+    serviceController.dispose();
+    priceController.dispose();
+  }
+
+  final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
+
+  Future<bool> _onWillPop() async {
+    if (changesMade) {
+      bool discard = await showYesNoAlert(
+          context: context, title: 'Are you sure you want to discard changes?');
+      if (!discard) return false;
+    }
+    return true;
+  }
+
+  servicePicker(
+      {String currentService, @required TextEditingController controller}) {
+    return Platform.isIOS
+        ? iOSPicker(currentService: currentService, controller: controller)
+        : androidDropdownButton(
+            currentService: currentService, controller: controller);
+  }
+
+  DropdownButton<String> androidDropdownButton(
+      {String currentService, @required TextEditingController controller}) {
+    List<DropdownMenuItem<String>> dropdownItems = [];
+    for (Map serviceType in servicesListMap) {
+      var newItem = DropdownMenuItem(
+        child: Text(
+          serviceType['name'],
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        value: serviceType['name'].toString(),
+      );
+      dropdownItems.add(newItem);
+    }
+    return DropdownButton<String>(
+      value: controller.text != ''
+          ? controller.text
+          : (currentService == '' ? 'Other' : currentService),
+      items: dropdownItems,
+      onChanged: (value) {
+        setState(() {
+          controller.text = value;
+        });
+      },
+    );
+  }
+
+  CupertinoPicker iOSPicker(
+      {String currentService, @required TextEditingController controller}) {
+    List<Text> pickerItems = [];
+    for (Map serviceType in servicesListMap) {
+      var newItem = Text(serviceType['name']);
+      pickerItems.add(newItem);
+    }
+
+    return CupertinoPicker(
+      scrollController: FixedExtentScrollController(
+        initialItem: servicesListMap
+            .indexWhere((service) => service['name'] == currentService),
+      ),
+      backgroundColor: Color(kGenchiCream),
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        controller.text = pickerItems[selectedIndex].data;
+      },
+      children: pickerItems,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final taskService = Provider.of<TaskService>(context);
+
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+              color: Colors.black,
+            ),
+            title: Text(
+              'Edit Task',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: Color(kGenchiGreen),
+            elevation: 1.0,
+            brightness: Brightness.light,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Platform.isIOS
+                      ? CupertinoIcons.check_mark_circled
+                      : Icons.check_circle_outline,
+                  size: 30,
+                  color: Colors.black,
+                ),
+                onPressed: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
+
+                  await fireStoreAPI.updateTask(
+                      task: Task(
+                          title: title,
+                          service: serviceController.text,
+                          details: details,
+                          price: price,
+                          date: date),
+                      taskId: taskService.currentTask.taskId);
+
+                  await taskService.updateCurrentTask(taskId: taskService.currentTask.taskId);
+
+                  setState(() {
+                    changesMade = false;
+                    showSpinner = false;
+                  });
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+          body: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            progressIndicator: CircularProgress(),
+            child: ListView(
+              padding: EdgeInsets.all(20.0),
+              children: <Widget>[
+                EditAccountField(
+                  field: "Title",
+                  textController: titleController,
+                  hintText: 'Summary of the task',
+                  onChanged: (value) {
+                    title = value;
+                    changesMade = true;
+                  },
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: 30.0,
+                    ),
+                    Text(
+                      'Service',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w500,
+                        color: Color(kGenchiBlue),
+                      ),
+                    ),
+                    SizedBox(height: 5.0),
+                    SizedBox(
+                      height: Platform.isIOS ? 100.0 : 50.0,
+                      child: Container(
+                        color: Color(kGenchiCream),
+                        child: servicePicker(
+                            controller: serviceController,
+                            currentService: taskService.currentTask.service),
+                      ),
+                    ),
+                  ],
+                ),
+                EditAccountField(
+                  field: "Date",
+                  textController: dateController,
+                  hintText: 'The timeframe of the task',
+                  onChanged: (value) {
+                    date = value;
+                    changesMade = true;
+                  },
+                ),
+                EditAccountField(
+                  field: "Details",
+                  textController: detailsController,
+                  hintText: 'Estimated pay for the task',
+                  onChanged: (value) {
+                    details = value;
+                    changesMade = true;
+                  },
+                ),
+                EditAccountField(
+                  field: "Price",
+                  textController: priceController,
+                  hintText: 'Provide further details of the task',
+                  onChanged: (value) {
+                    price = value;
+                    changesMade = true;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

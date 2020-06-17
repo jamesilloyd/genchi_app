@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/edit_task_screen.dart';
 
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
@@ -28,7 +30,6 @@ import 'package:provider/provider.dart';
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
 void main()  {
-
   runApp(Genchi());
 }
 
@@ -57,7 +58,7 @@ class StartUp extends StatelessWidget {
           bool loggedIn = snapshot.data;
 
           return MaterialApp(
-            theme: ThemeData(fontFamily: 'FuturaPT'),
+            theme: ThemeData(fontFamily: 'FuturaPT', canvasColor: Color(kGenchiCream),scaffoldBackgroundColor: Colors.white),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {
               WelcomeScreen.id: (context) => WelcomeScreen(),
@@ -76,6 +77,7 @@ class StartUp extends StatelessWidget {
               SearchManualScreen.id: (context) => SearchManualScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
               TaskScreen.id : (context) => TaskScreen(),
+              EditTaskScreen.id : (context) => EditTaskScreen(),
             },
           );
         }

@@ -52,49 +52,50 @@ class _HomeScreenState extends State<HomeScreen> {
     print('Home screen: user is ${authProvider.currentUser.id}');
 
     return Scaffold(
-//      body: screens.elementAt(_page ?? startingIndex),
-      body: IndexedStack(
-        index: _page ?? startingIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _page ?? startingIndex,
-          showUnselectedLabels: true,
-          selectedItemColor: Color(kGenchiOrange),
-          unselectedItemColor: Color(kGenchiBlue),
-          onTap: onPageChanged,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-              title: Text(
-                'Search',
-                style: TextStyle(fontFamily: 'FuturaPT'),
+      body: screens.elementAt(_page ?? startingIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
+        child: BottomNavigationBar(
+          elevation:4,
+            currentIndex: _page ?? startingIndex,
+            showUnselectedLabels: true,
+            selectedItemColor: Color(kGenchiOrange),
+            unselectedItemColor: Color(kGenchiBlue),
+            onTap: onPageChanged,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+                title: Text(
+                  'Search',
+                  style: TextStyle(fontFamily: 'FuturaPT'),
+                ),
               ),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                  Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
-              title: Text('Tasks'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Platform.isIOS
-                  ? CupertinoIcons.conversation_bubble
-                  : Icons.message),
-              title: Text('Messages'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Platform.isIOS
-                  ? (authProvider.currentUser.providerProfiles.isEmpty
-                      ? CupertinoIcons.profile_circled
-                      : CupertinoIcons.group)
-                  : (authProvider.currentUser.providerProfiles.isEmpty
-                      ? Icons.account_circle
-                      : Icons.group)),
-              title: Text(authProvider.currentUser.providerProfiles.isEmpty
-                  ? 'Profile'
-                  : 'Profiles'),
-            ),
-          ]),
+              BottomNavigationBarItem(
+                icon: Icon(
+                    Platform.isIOS ? CupertinoIcons.folder_solid : Icons.folder),
+                title: Text('Tasks'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Platform.isIOS
+                    ? CupertinoIcons.conversation_bubble
+                    : Icons.message),
+                title: Text('Messages'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Platform.isIOS
+                    ? (authProvider.currentUser.providerProfiles.isEmpty
+                        ? CupertinoIcons.profile_circled
+                        : CupertinoIcons.group)
+                    : (authProvider.currentUser.providerProfiles.isEmpty
+                        ? Icons.account_circle
+                        : Icons.group)),
+                title: Text(authProvider.currentUser.providerProfiles.isEmpty
+                    ? 'Profile'
+                    : 'Profiles'),
+              ),
+            ]),
+      ),
     );
   }
 }

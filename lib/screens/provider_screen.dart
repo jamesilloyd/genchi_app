@@ -73,54 +73,63 @@ class _ProviderScreenState extends State<ProviderScreen> {
             SizedBox(
               height: 10,
             ),
-             Align(
-               alignment: Alignment.center,
-               child: RoundedButton(
-                 buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
-                 buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
-                 fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
-                 onPressed: isUsersProviderProfile ? (){
-                   Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
-                 }: () async{
+             Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: <Widget>[
+                 Expanded(
+                   flex: 1,
 
-                   List userChats = authProvider.currentUser.chats;
-                   if(kDebugMode) print('Provider Screen: User Chats = $userChats');
-                   List providerChats = providerUser.chats;
-                   if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
-                   List allChats = [userChats,providerChats];
+                   child: RoundedButton(
+                     buttonColor: isUsersProviderProfile ?  Color(kGenchiGreen) : Color(kGenchiOrange),
+                     buttonTitle: isUsersProviderProfile ? 'Edit Provider Profile' : 'Message',
+                     fontColor: isUsersProviderProfile ?  Colors.white : Color(kGenchiBlue),
+                     onPressed: isUsersProviderProfile ? (){
+                       Navigator.pushNamed(context, EditProviderAccountScreen.id, arguments: EditProviderAccountScreenArguments(provider: providerUser));
+                     } : () async {
 
-                   final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
+                       List userChats = authProvider.currentUser.chats;
+                       if(kDebugMode) print('Provider Screen: User Chats = $userChats');
+                       List providerChats = providerUser.chats;
+                       if(kDebugMode) print('Provider Screen: Provider Chats = $providerChats');
+                       List allChats = [userChats,providerChats];
 
-                   if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
+                       final commonChatIds = allChats.fold<Set>(allChats.first.toSet(), (a, b) => a.intersection(b.toSet()));
 
-                   if(commonChatIds.isEmpty) {
-                     print("Empty");
-                     Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
-                   } else {
-                     //This is an existing chat
-                     Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
-                     Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
-                   }
-                 },
-               )
-             ),
-            if(!isUsersProviderProfile)Align(
-              alignment: Alignment.center,
-              child: RoundedButton(
-                buttonColor: isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
-                fontColor: Color(kGenchiCream),
-                buttonTitle: isFavourite ? 'Added to Favourites': 'Add to Favourites',
-                onPressed: () async {
+                       if(kDebugMode) print('Provider Screen: Common Chats = $commonChatIds');
+
+                       if(commonChatIds.isEmpty) {
+                         print("Empty");
+                         Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
+                       } else {
+                         //This is an existing chat
+                         Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
+                         Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
+                       }
+                     },
+                   ),
+                 ),
+                 if(!isUsersProviderProfile) SizedBox(width: 10,),
+                 if(!isUsersProviderProfile) Expanded(
+                   flex: 1,
+                   child: RoundedButton(
+                     buttonColor: isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
+                     fontColor: Color(kGenchiCream),
+                     buttonTitle: isFavourite ? 'Added to Favourites': 'Add to Favourites',
+                     onPressed: () async {
 //                    setState(() {
 //                      //TODO: may need to add in circular progress bar
 //                    });
-                  isFavourite ? firestoreAPI.removeUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid) : firestoreAPI.addUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid);
-                  await authProvider.updateCurrentUserData();
-                  setState((){});
-                },
-              ),
+                       isFavourite ? firestoreAPI.removeUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid) : firestoreAPI.addUserFavourite(uid: authProvider.currentUser.id, favouritePid: providerUser.pid);
+                       await authProvider.updateCurrentUserData();
+                       setState((){});
+                     },
+                   ),
+                 ),
+               ],
+             ),
+            Divider(
+              thickness: 1,
             ),
-            Divider(),
             Container(
               child: Text(
                 "Service",

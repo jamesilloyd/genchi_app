@@ -30,13 +30,17 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
   String title;
   String date;
   String details;
+  String price;
 
   TextEditingController titleController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController serviceController = TextEditingController();
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+
+  //TODO how can we refactor this?
 
   servicePicker({@required TextEditingController controller}) {
     return Platform.isIOS
@@ -103,6 +107,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
     detailsController.dispose();
     dateController.dispose();
     serviceController.dispose();
+    priceController.dispose();
   }
 
   @override
@@ -170,6 +175,14 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       details = value;
                     },
                     textController: detailsController,
+                    hintText: 'Estimated pay for the task',
+                  ),
+                  EditAccountField(
+                    field: 'Price',
+                    onChanged: (value) {
+                      price = value;
+                    },
+                    textController: priceController,
                     hintText: 'Provide further details of the task',
                   ),
                   SizedBox(
@@ -193,6 +206,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                 date: date,
                                 details: details,
                                 service: serviceController.text,
+                                price: price,
                                 hirerId: authProvider.currentUser.id),
                             uid: authProvider.currentUser.id);
 

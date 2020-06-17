@@ -48,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
 //    super.build(context);
-    print('Profile screen activated');
+    print('Profile screen: activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);

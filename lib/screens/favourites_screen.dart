@@ -44,6 +44,7 @@ class FavouritesScreen extends StatelessWidget {
     User currentUser = authProvider.currentUser;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: MyAppNavigationBar(
         barTitle: 'Favourites',
       ),
@@ -58,6 +59,20 @@ class FavouritesScreen extends StatelessWidget {
                 return CircularProgress();
               }
               final List<ProviderUser> providers = snapshot.data;
+
+              if (providers.isEmpty) {
+                return Container(
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      'You Have No Favourites',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                );
+              }
 
               if(debugMode) print('Favourite Screen: Providers from firebase: $providers');
 

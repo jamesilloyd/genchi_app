@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/search_service_tile.dart';
-import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/search_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/task_card.dart';
@@ -112,7 +111,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         onTap: () async {
                           await taskProvider.updateCurrentTask(
                               taskId: task.taskId);
-                          Navigator.pushNamed(context, TaskScreen.id);
+                          Navigator.pushNamed(context, TaskScreen.id).then((value) {
+                            setState(() {});
+                          });
                         },
                       );
 

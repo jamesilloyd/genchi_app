@@ -33,6 +33,7 @@ class TaskSummaryScreen extends StatelessWidget {
     return DefaultTabController(
         length: userIsProvider ? 2 : 1,
         child: Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black,
@@ -97,6 +98,7 @@ class TaskSummaryScreen extends StatelessWidget {
                   ),
                   Divider(
                     height: 0,
+                    thickness: 1,
                   ),
                   FutureBuilder(
                     future: firestoreAPI.getTasks(postIds: currentUser.posts),
@@ -168,6 +170,7 @@ class TaskSummaryScreen extends StatelessWidget {
                       ),
                       Divider(
                         height: 0,
+                        thickness: 1,
                       ),
                       FutureBuilder(
                         future: firestoreAPI.getProviderTasksAndHirers(

@@ -37,12 +37,13 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
     return DefaultTabController(
       length: userIsProvider ? 2 : 1,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
             iconTheme: IconThemeData(
               color: Colors.black,
             ),
             title: Text(
-              'Messages',
+              'Private Messages',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 30,
@@ -86,6 +87,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   ),
                   Divider(
                     height: 0,
+                    thickness: 1,
                   ),
                   //TODO: this must be changed to streambuilder
                   FutureBuilder(
@@ -124,7 +126,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                     userIsProvider: false,
                                     provider: provider,
                                     user: currentUser,
-                                    isFirstInstance: false));
+                                    isFirstInstance: false)).then((value) {
+                              setState(() {});
+                            });
                           },
                           hideChat: () async {
                             bool deleteChat = await showYesNoAlert(
@@ -153,7 +157,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                           ),
                         );
                       }
-                      ;
+
 
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -202,6 +206,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                         ),
                         Divider(
                           height: 0,
+                          thickness: 1,
                         ),
                         FutureBuilder(
                           future: firestoreAPI.getUserProviderChatsAndHirers(

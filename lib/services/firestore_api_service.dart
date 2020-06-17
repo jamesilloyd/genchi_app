@@ -205,6 +205,11 @@ class FirestoreAPIService {
     return;
   }
 
+  Future updateTask({Task task, String taskId}) async {
+    await _taskCollectionRef.document(taskId).setData(task.toJson(),merge: true);
+    return;
+  }
+
   Future updateChat({Chat chat}) async {
     await _chatCollectionRef.document(chat.chatid).setData(chat.toJson(),merge: true);
   }
@@ -226,9 +231,6 @@ class FirestoreAPIService {
     return result;
   }
 
-  Future updateTask({Task task, String taskId}) async {
-    await _taskCollectionRef.document(taskId).setData(task.toJson(),merge: true);
-  }
 
   Future<DocumentReference> addTask({@required Task task, @required String uid}) async {
 

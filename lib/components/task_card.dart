@@ -50,6 +50,7 @@ Widget TaskCard(
         endIndent: 12.0,
         indent: 12.0,
         height: 0,
+        thickness: 1,
       )
     ],
   );

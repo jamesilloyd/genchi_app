@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -22,6 +23,7 @@ import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -31,8 +33,8 @@ import 'package:genchi_app/services/provider_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-User currentUser;
 
 class ProfileScreen extends StatefulWidget {
   @override

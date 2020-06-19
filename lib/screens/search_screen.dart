@@ -28,7 +28,9 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+//TODO for some reason keeping the page alive is not working
+class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClientMixin{
+
   List<User> users;
   List<ProviderUser> providers;
 
@@ -37,6 +39,10 @@ class _SearchScreenState extends State<SearchScreen> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool showSpinner = false;
+  Future searchTasksFuture;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
@@ -45,7 +51,17 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+
+
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final taskProvider = Provider.of<TaskService>(context);
 
     print('Search screen activated');
@@ -90,60 +106,67 @@ class _SearchScreenState extends State<SearchScreen> {
                     ])),
             body: TabBarView(
               children: <Widget>[
-                SafeArea(
-                    child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: FutureBuilder(
-                    future: firestoreAPI.fetchTasksAndHirers(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(
-                          child: CircularProgress(),
+                RefreshIndicator(
+                  color: Color(kGenchiOrange),
+                  backgroundColor: Colors.white,
+                  onRefresh: () async {
+                    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+                  },
+                  child: SafeArea(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: FutureBuilder(
+                      future: searchTasksFuture,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: CircularProgress(),
+                          );
+                        }
+
+                        final List<Map<String, dynamic>> tasksAndHirers =
+                            snapshot.data;
+
+                        final List<Widget> widgets = [SizedBox(height: 10,)];
+
+                        for (Map taskAndHirer in tasksAndHirers) {
+                          Task task = taskAndHirer['task'];
+                          User hirer = taskAndHirer['hirer'];
+
+                          final widget = TaskCard(
+                            image: hirer.displayPictureURL == null
+                                ? AssetImage("images/Logo_Clear.png")
+                                : CachedNetworkImageProvider(
+                                    hirer.displayPictureURL),
+                            task: task,
+                            onTap: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+
+                              await taskProvider.updateCurrentTask(
+                                  taskId: task.taskId);
+
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              Navigator.pushNamed(context, TaskScreen.id)
+                                  .then((value) {
+                                setState(() {});
+                              });
+                            },
+                          );
+
+                          widgets.add(widget);
+                        }
+
+                        return ListView(
+                          children: widgets,
                         );
-                      }
-
-                      final List<Map<String, dynamic>> tasksAndHirers =
-                          snapshot.data;
-
-                      final List<Widget> widgets = [SizedBox(height: 10,)];
-
-                      for (Map taskAndHirer in tasksAndHirers) {
-                        Task task = taskAndHirer['task'];
-                        User hirer = taskAndHirer['hirer'];
-
-                        final widget = TaskCard(
-                          image: hirer.displayPictureURL == null
-                              ? AssetImage("images/Logo_Clear.png")
-                              : CachedNetworkImageProvider(
-                                  hirer.displayPictureURL),
-                          task: task,
-                          onTap: () async {
-                            setState(() {
-                              showSpinner = true;
-                            });
-
-                            await taskProvider.updateCurrentTask(
-                                taskId: task.taskId);
-
-                            setState(() {
-                              showSpinner = false;
-                            });
-                            Navigator.pushNamed(context, TaskScreen.id)
-                                .then((value) {
-                              setState(() {});
-                            });
-                          },
-                        );
-
-                        widgets.add(widget);
-                      }
-
-                      return ListView(
-                        children: widgets,
-                      );
-                    },
-                  ),
-                )),
+                      },
+                    ),
+                  )),
+                ),
                 SafeArea(
                   child: Center(
                     child: GridView.count(

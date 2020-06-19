@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/constants.dart';
@@ -6,6 +7,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'edit_provider_account_screen.dart';
 import 'chat_screen.dart';
@@ -21,6 +23,8 @@ import 'package:genchi_app/services/firestore_api_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+//TODO create a new screen for creating your provider account
 
 class ProviderScreen extends StatefulWidget {
   static const String id = "provider_screen";
@@ -213,6 +217,31 @@ class _ProviderScreenState extends State<ProviderScreen> {
             ),
             SizedBox(
               height: 10,
+            ),
+            Container(
+              child: Text(
+                "Further Links",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            RichText(
+              //This needs to be assembled using a for loop
+              text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: 'This is a link',
+                        style: TextStyle(
+                            color: Colors.blue
+                        ),
+                        recognizer: TapGestureRecognizer()..onTap = (){launch('https://www.genchi.app');}
+                    )
+                  ]
+              ),
             ),
           ],
         ),

@@ -305,6 +305,10 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: priceTextController,
                   hintText: "E.g. for experience, £10 per job etc.",
                 ),
+                /*TODO for this we need to have two fields on a row (one for the name and one for the url)
+                   then we need to have an optional button for adding more rows
+                 */
+
                 EditAccountField(
                   hintText: "Add links to any additional websites or resources",
                   field: "Website Links",
@@ -327,6 +331,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   onChanged: (value) {},
                   textController: TextEditingController(),
                 ),
+
                 SizedBox(
                   height: 10.0,
                 ),
@@ -339,11 +344,11 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       : "Delete provider account",
                   buttonColor: Color(kGenchiBlue),
                   onPressed: () async {
-                    //Update the provider before deleting
+                    ///Update the provider before deleting
 
                     await providerService.updateCurrentProvider(providerUser.pid);
 
-                    //Get most up to data provider
+                    ///Get most up to data provider
                     providerUser = Provider.of<ProviderService>(context, listen: false).currentProvider;
 
                     Platform.isIOS

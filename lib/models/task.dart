@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 class Task {
   String taskId;
   String hirerId;
@@ -8,10 +9,14 @@ class Task {
   String details;
   String date;
   String price;
-  List<Map<String,dynamic>> chosenApplicantIds;
+  List<dynamic> chosenApplicantIds;
   List<dynamic> applicantChatsAndPids;
   Timestamp time;
-  String applicant;
+  String applicantId;
+  String chatId;
+  Map applicantAndChat;
+
+
 
   Task({
     this.taskId,
@@ -24,7 +29,15 @@ class Task {
     this.chosenApplicantIds,
     this.applicantChatsAndPids,
     this.time,
-  });
+  })
+  //TODO look at how we can do this in here.
+//      :
+//      applicantAndChat = applicantChatsAndPids[0],
+//  applicantId = applicantChatsAndPids[0]['pid'],
+//  chatId = applicantChatsAndPids[0]['chatId']
+  ;
+
+
 
   Task.fromMap(Map snapshot)
       : taskId = snapshot['taskId'] ?? '',
@@ -33,7 +46,7 @@ class Task {
         title = snapshot['title'] ?? '',
         details = snapshot['details'] ?? '',
         date = snapshot['date'] ?? '',
-        applicantChatsAndPids = snapshot['applicantChatsAndPids'] ?? [],
+        applicantChatsAndPids = snapshot['chosenApplicantIds'] ?? [],
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
         chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [];
@@ -54,3 +67,4 @@ class Task {
     };
   }
 }
+

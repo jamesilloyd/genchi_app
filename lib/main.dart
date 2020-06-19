@@ -29,12 +29,11 @@ import 'package:provider/provider.dart';
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
-void main()  {
+void main() {
   runApp(Genchi());
 }
 
 class Genchi extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -52,13 +51,18 @@ class StartUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<AuthenticationService>(context, listen: false).isUserLoggedIn(),
+      future: Provider.of<AuthenticationService>(context, listen: false)
+          .isUserLoggedIn(),
       builder: (context, snapshot) {
-        if (snapshot.hasData){
+        if (snapshot.hasData) {
           bool loggedIn = snapshot.data;
-
           return MaterialApp(
-            theme: ThemeData(fontFamily: 'FuturaPT', canvasColor: Color(kGenchiCream),scaffoldBackgroundColor: Colors.white),
+            theme: ThemeData(
+              fontFamily: 'FuturaPT',
+              canvasColor: Color(kGenchiCream),
+              scaffoldBackgroundColor: Colors.white,
+              indicatorColor: Color(kGenchiOrange),
+            ),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {
               WelcomeScreen.id: (context) => WelcomeScreen(),
@@ -71,21 +75,21 @@ class StartUp extends StatelessWidget {
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
               ProviderScreen.id: (context) => ProviderScreen(),
               SearchProviderScreen.id: (context) => SearchProviderScreen(),
-              EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
+              EditProviderAccountScreen.id: (context) =>
+                  EditProviderAccountScreen(),
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),
               SearchManualScreen.id: (context) => SearchManualScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
-              TaskScreen.id : (context) => TaskScreen(),
-              EditTaskScreen.id : (context) => EditTaskScreen(),
+              TaskScreen.id: (context) => TaskScreen(),
+              EditTaskScreen.id: (context) => EditTaskScreen(),
             },
           );
         }
+
         /// The async function is still loading
         return SplashScreen();
       },
-
     );
   }
 }
-

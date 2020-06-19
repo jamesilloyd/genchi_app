@@ -9,7 +9,7 @@ import 'package:genchi_app/models/task.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:genchi_app/constants.dart';
 
-//TODO: FIRST THING AFTER MVP RELEASE use the .where function to easily filter providers/chats etc.
+
 class FirestoreAPIService {
   CollectionReference _usersCollectionRef =
       Firestore.instance.collection('users');
@@ -97,6 +97,11 @@ class FirestoreAPIService {
   Future<Task> getTaskById({String taskId}) async {
     DocumentSnapshot doc = await _taskCollectionRef.document(taskId).get();
     return Task.fromMap(doc.data);
+  }
+
+  Future<DocumentSnapshot> getTaskById123({String taskId}) async {
+    DocumentSnapshot doc = await _taskCollectionRef.document(taskId).get();
+    return doc;
   }
 
   Stream<QuerySnapshot> streamUserChatsAndProviders({List<dynamic> chatIds}) {

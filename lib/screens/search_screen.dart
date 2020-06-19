@@ -92,7 +92,7 @@ class _SearchScreenState extends State<SearchScreen> {
               children: <Widget>[
                 SafeArea(
                     child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: FutureBuilder(
                     future: firestoreAPI.fetchTasksAndHirers(),
                     builder: (context, snapshot) {
@@ -102,29 +102,34 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }
 
-                      final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
+                      final List<Map<String, dynamic>> tasksAndHirers =
+                          snapshot.data;
 
-                      final List<Widget> widgets = [];
+                      final List<Widget> widgets = [SizedBox(height: 10,)];
 
                       for (Map taskAndHirer in tasksAndHirers) {
-
                         Task task = taskAndHirer['task'];
                         User hirer = taskAndHirer['hirer'];
 
                         final widget = TaskCard(
-                          image: hirer.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(hirer.displayPictureURL),
+                          image: hirer.displayPictureURL == null
+                              ? AssetImage("images/Logo_Clear.png")
+                              : CachedNetworkImageProvider(
+                                  hirer.displayPictureURL),
                           task: task,
                           onTap: () async {
                             setState(() {
                               showSpinner = true;
                             });
 
-                            await taskProvider.updateCurrentTask(taskId: task.taskId);
+                            await taskProvider.updateCurrentTask(
+                                taskId: task.taskId);
 
                             setState(() {
                               showSpinner = false;
                             });
-                            Navigator.pushNamed(context, TaskScreen.id).then((value) {
+                            Navigator.pushNamed(context, TaskScreen.id)
+                                .then((value) {
                               setState(() {});
                             });
                           },

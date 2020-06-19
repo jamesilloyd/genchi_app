@@ -6,6 +6,7 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
@@ -255,6 +256,28 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     changesMade = true;
                   },
                 ),
+                SizedBox(height: 10),
+                Divider(height: 10),
+                RoundedButton(
+                  buttonTitle: 'Delete task',
+                  buttonColor: Color(kGenchiBlue),
+                  onPressed: ()async{
+                    //TODO add in functionality to delete tasks
+                    ///Ask user if they want to delete task
+                    bool deleteTask = await showYesNoAlert(context: context, title: 'Are you sure you want to delete this task?');
+
+                    if(deleteTask){
+                      setState(() {
+                        showSpinner = true;
+                      });
+//                      await fireStoreAPI.deleteTask();
+                      ///what other stuff needs to be done here?
+
+
+
+                    }
+                  },
+                )
               ],
             ),
           ),

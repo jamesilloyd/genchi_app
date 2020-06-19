@@ -11,7 +11,6 @@ class ProviderUser extends ChangeNotifier {
   String experience;
   String type;
   String pricing;
-  bool isDeleted;
   List<dynamic> chats;
   List<dynamic> isFavouritedBy;
   List<dynamic> tasksApplied;
@@ -27,7 +26,6 @@ class ProviderUser extends ChangeNotifier {
       this.type,
       this.chats,
       this.pricing,
-      this.isDeleted,
       this.isFavouritedBy,
       this.tasksApplied,
       this.experience});
@@ -43,10 +41,9 @@ class ProviderUser extends ChangeNotifier {
 //        timeStamp = snapshot['timestamp'],
         bio = snapshot['bio'] ?? '',
         chats = snapshot['chats'] ?? [],
-        isDeleted = snapshot['isDeleted'] ?? false,
         experience = snapshot['experience'] ?? '',
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
-  tasksApplied = snapshot['tasksApplied'] ?? [],
+        tasksApplied = snapshot['tasksApplied'] ?? [],
         type = snapshot['type'] ?? '';
 
   toJson() {
@@ -60,7 +57,6 @@ class ProviderUser extends ChangeNotifier {
         "displayPictureFileName": displayPictureFileName,
       if (bio != null) "bio": bio,
       if (type != null) 'type': type,
-      if (isDeleted != null) 'isDeleted': isDeleted,
       if (timeStamp != null) 'timeStamp': timeStamp,
       if (chats != null) 'chats': chats,
       if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,

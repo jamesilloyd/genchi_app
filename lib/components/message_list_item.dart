@@ -16,6 +16,7 @@ class MessageListItem extends StatelessWidget {
   final Function onTap;
   final String service;
   final Function hideChat;
+  final String deleteMessage;
 
   const MessageListItem({
     Key key,
@@ -27,6 +28,7 @@ class MessageListItem extends StatelessWidget {
     this.hasUnreadMessage,
     @required this.onTap,
     this.service,
+    this.deleteMessage = 'Archive'
   }) : super(key: key);
   
 
@@ -98,9 +100,9 @@ class MessageListItem extends StatelessWidget {
       ),
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'Archive',
+          caption: deleteMessage,
           color: Colors.red[900],
-          icon: Icons.archive,
+          icon: Icons.delete,
           onTap: hideChat,
         ),
       ],

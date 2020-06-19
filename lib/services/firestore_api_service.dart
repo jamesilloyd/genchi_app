@@ -237,12 +237,6 @@ class FirestoreAPIService {
     return;
   }
 
-  Future addProviderByID(ProviderUser provider) async {
-    var result = await _providersCollectionRef
-        .document(provider.pid)
-        .setData(provider.toJson());
-    return;
-  }
 
   Future addUser(User user) async {
     var result = await _usersCollectionRef.add(user.toJson());
@@ -333,8 +327,7 @@ class FirestoreAPIService {
       @required String providerId,
       @required String userId}) async {
     if (debugMode)
-      print(
-          'FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
+      print('FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
 
     Chat chat = Chat(
         taskid: taskId,
@@ -343,7 +336,7 @@ class FirestoreAPIService {
         isHiddenFromUser: false,
         isHiddenFromProvider: false,
         isForTask: true);
-    DocumentReference result =
+    DocumentReference chatResult =
         await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
       await updateChat(chat: Chat(chatid: docRef.documentID));
       return docRef;
@@ -352,12 +345,43 @@ class FirestoreAPIService {
     //TODO, can we please make arrayUnion func under the class (what if the green names change)
     await _taskCollectionRef.document(taskId).setData({
       'applicantChatsAndPids': FieldValue.arrayUnion([
-        {'chatId': result.documentID, 'pid': providerId}
+        {'chatId': chatResult.documentID, 'pid': providerId}
       ])
     }, merge: true);
+
     await _providersCollectionRef.document(providerId).setData({
       'tasksApplied': FieldValue.arrayUnion([taskId])
     }, merge: true);
+
+    return chatResult;
+  }
+
+
+  Future<DocumentReference> removeTaskApplicant({@required String providerId, @required String chatId, @required String taskId}) async {
+    if(debugMode) print('FirestoreAPI: removeTaskApplicant called for task $taskId by provider $providerId');
+    ///Remove from task array
+    await _taskCollectionRef.document(taskId).setData({'applicantChatsAndPids': FieldValue.arrayRemove([
+      {'chatId': chatId, 'pid': providerId}
+    ])},merge: true);
+
+    ///Remove from provider array
+    await _providersCollectionRef.document(providerId).setData({'tasksApplied':FieldValue.arrayRemove([taskId])},merge: true);
+
+    ///Delete all subcollection messages
+    await _chatCollectionRef
+        .document(chatId)
+        .collection('messages')
+        .getDocuments()
+        .then((snapshot) {
+      if (snapshot.documents.isNotEmpty)
+        for (DocumentSnapshot doc in snapshot.documents) {
+          doc.reference.delete();
+        }
+    });
+
+    ///Deleting the chat
+    await _chatCollectionRef.document(chatId).delete();
+
   }
 
   Future<DocumentReference> removeUserFavourite(
@@ -435,7 +459,7 @@ class FirestoreAPIService {
 
     if (provider.chats.isNotEmpty)
       for (String chatID in provider.chats) {
-        if (debugMode) print('FirestoreAPI: Deleting chat $chatID}');
+        if (debugMode) print('FirestoreAPI: deleteProvider Deleting chat $chatID}');
         //TODO: currently the chat gets deleted and also from the hirer's array, would be better to provide feedback to the hirer
         Chat chat = await getChatById(chatID);
         await deleteChat(chat: chat);
@@ -445,9 +469,17 @@ class FirestoreAPIService {
     if (provider.isFavouritedBy.isNotEmpty)
       for (String uid in provider.isFavouritedBy) {
         if (debugMode)
-          print('FirestoreAPI: Removing provider from hirer: $uid favourites');
+          print('FirestoreAPI: deleteProvider Removing provider from hirer: $uid favourites');
         await removeUserFavourite(uid: uid, favouritePid: provider.pid);
       }
+
+    ///Remove provider from tasks they have applied to
+    if(provider.tasksApplied.isNotEmpty) for(String taskId in provider.tasksApplied) {
+      if(debugMode) print('FirestoreAPI: deleteProvider Removing provider application from task $taskId');
+      Task appliedTask = await getTaskById(taskId: taskId);
+      String chatId = appliedTask.applicantChatsAndPids.where((element) => element['pid'] == provider.pid).elementAt(0)['chatId'];
+      await removeTaskApplicant(providerId: provider.pid, chatId: chatId, taskId: taskId);
+    }
 
     ///Delete the provider
     await _providersCollectionRef.document(provider.pid).delete();
@@ -485,6 +517,8 @@ class FirestoreAPIService {
     ///Deleting the chat
     await _chatCollectionRef.document(chat.chatid).delete();
   }
+
+
 
   Future<void> deleteUserDisplayPicture({User user}) async {
     await FirebaseStorage.instance

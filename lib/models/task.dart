@@ -8,9 +8,10 @@ class Task {
   String details;
   String date;
   String price;
-  List<dynamic> chosenApplicantIds;
+  List<Map<String,dynamic>> chosenApplicantIds;
   List<dynamic> applicantChatsAndPids;
   Timestamp time;
+  String applicant;
 
   Task({
     this.taskId,

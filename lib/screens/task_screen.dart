@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
@@ -5,6 +6,7 @@ import 'dart:io' show Platform;
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/message_list_item.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
@@ -20,6 +22,7 @@ import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
 class TaskScreen extends StatefulWidget {
@@ -30,6 +33,8 @@ class TaskScreen extends StatefulWidget {
 }
 
 class _TaskScreenState extends State<TaskScreen> {
+
+  bool showSpinner = false;
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   Widget buildVariableSection(
@@ -94,9 +99,15 @@ class _TaskScreenState extends State<TaskScreen> {
                 time: chat.time,
                 hasUnreadMessage: chat.userHasUnreadMessage,
                 onTap: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
                   chat.userHasUnreadMessage = false;
                   User hirer = await firestoreAPI.getUserById(hirerid);
                   await firestoreAPI.updateChat(chat: chat);
+                  setState(() {
+                    showSpinner = false;
+                  });
                   Navigator.pushNamed(context, ChatScreen.id,
                           arguments: ChatScreenArguments(
                               chat: chat,
@@ -236,11 +247,18 @@ class _TaskScreenState extends State<TaskScreen> {
                 service: provider.type,
                 lastMessage: chat.lastMessage,
                 time: chat.time,
+                deleteMessage: 'Withdraw',
                 hasUnreadMessage: chat.providerHasUnreadMessage,
                 onTap: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
                   chat.providerHasUnreadMessage = false;
                   User hirer = await firestoreAPI.getUserById(hirerid);
                   await firestoreAPI.updateChat(chat: chat);
+                  setState(() {
+                    showSpinner = false;
+                  });
                   Navigator.pushNamed(context, ChatScreen.id,
                           arguments: ChatScreenArguments(
                               chat: chat,
@@ -252,8 +270,30 @@ class _TaskScreenState extends State<TaskScreen> {
                     setState(() {});
                   });
                 },
-                //TODO: add ability to delete application
-                hideChat: () {});
+
+                hideChat: () async {
+
+                  bool withdraw = await showYesNoAlert(context: context, title: 'Withdraw your application?');
+
+                  if(withdraw) {
+                    setState(() {
+                      showSpinner = true;
+                    });
+
+                    await firestoreAPI.removeTaskApplicant(
+                        providerId: provider.pid,
+                        chatId: chat.chatid,
+                        taskId: chat.taskid);
+
+                    Provider.of<TaskService>(context, listen: false).updateCurrentTask(taskId: task.taskId);
+
+                    setState(() {
+                      showSpinner = false;
+                    });
+
+                  }
+
+                });
 
             widgets.add(chatWidget);
           }
@@ -365,177 +405,198 @@ class _TaskScreenState extends State<TaskScreen> {
             )
         ],
       ),
-      body: ListView(
-        padding: EdgeInsets.all(20),
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  currentTask.title,
-                  style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w600,
-                      color: Color(kGenchiBlue)),
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        progressIndicator: CircularProgress(),
+        child: ListView(
+          padding: EdgeInsets.all(20),
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    currentTask.title,
+                    style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: Color(kGenchiBlue)),
+                  ),
                 ),
-              ),
-              Text(
-                currentTask.service,
+                Text(
+                  currentTask.service,
 //                textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            Divider(thickness: 1),
+            Container(
+              child: Text(
+                "Details",
+                textAlign: TextAlign.left,
                 style: TextStyle(
-                  fontSize: 20,
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-            ],
-          ),
-          Divider(thickness: 1),
-          Container(
-            child: Text(
-              "Details",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Color(kGenchiBlue),
-                fontSize: 25.0,
-                fontWeight: FontWeight.w500,
+            ),
+            Text(
+              currentTask.details ?? "",
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+            ),
+            SizedBox(height: 10),
+            Container(
+              child: Text(
+                "Timings",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-          Text(
-            currentTask.details ?? "",
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-          ),
-          SizedBox(height: 10),
-          Container(
-            child: Text(
-              "Timings",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Color(kGenchiBlue),
-                fontSize: 25.0,
-                fontWeight: FontWeight.w500,
+            Text(
+              currentTask.date ?? "",
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+            ),
+            SizedBox(height: 10),
+            Container(
+              child: Text(
+                "Price",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: Color(kGenchiBlue),
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-          Text(
-            currentTask.date ?? "",
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-          ),
-          SizedBox(height: 10),
-          Container(
-            child: Text(
-              "Price",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Color(kGenchiBlue),
-                fontSize: 25.0,
-                fontWeight: FontWeight.w500,
-              ),
+            Text(
+              currentTask.price ?? "",
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
-          ),
-          Text(
-            currentTask.price ?? "",
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-          ),
-          SizedBox(height: 5),
-          Divider(
-            thickness: 1,
-          ),
-          buildVariableSection(
-            task: currentTask,
-            hasApplied: hasApplied,
-            usersAppliedChatAndProviderId: usersAppliedChatAndProviderid,
-            isUsersTask: isUsersTask,
-            userIsProvider: userIsProvider,
-            hirerid: currentTask.hirerId,
-            applyFunction: () async {
-              if (userIsProvider) {
-                String selectedProviderId = await showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
+            SizedBox(height: 5),
+            Divider(
+              thickness: 1,
+            ),
+            buildVariableSection(
+              task: currentTask,
+              hasApplied: hasApplied,
+              usersAppliedChatAndProviderId: usersAppliedChatAndProviderid,
+              isUsersTask: isUsersTask,
+              userIsProvider: userIsProvider,
+              hirerid: currentTask.hirerId,
+              applyFunction: () async {
+                if (userIsProvider) {
+                  String selectedProviderId = await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0))),
+                    builder: (context) => Container(
+                      height: MediaQuery.of(context).size.height * 0.75,
+                      padding: EdgeInsets.all(20.0),
+                      decoration: BoxDecoration(
+                        color: Color(kGenchiCream),
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20.0),
-                          topRight: Radius.circular(20.0))),
-                  builder: (context) => Container(
-                    height: MediaQuery.of(context).size.height * 0.75,
-                    padding: EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: Color(kGenchiCream),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                        ),
+                      ),
+                      child: ListView(
+                        children: <Widget>[
+                          Center(
+                              child: Text(
+                            'Apply with which provider account?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )),
+                          FutureBuilder(
+                            //This function returns a list of providerUsers
+                            future: firestoreAPI.getProviders(
+                                pids: currentUser.providerProfiles),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return CircularProgress();
+                              }
+                              final List<ProviderUser> providers = snapshot.data;
+
+                              List<ProviderCard> providerCards = [];
+
+                              for (ProviderUser provider in providers) {
+                                ProviderCard pCard = ProviderCard(
+                                  image: provider.displayPictureURL == null
+                                      ? AssetImage("images/Logo_Clear.png")
+                                      : CachedNetworkImageProvider(
+                                          provider.displayPictureURL),
+                                  name: provider.name,
+                                  description: provider.bio,
+                                  service: provider.type,
+                                  onTap: () {
+                                    Navigator.pop(context, provider.pid);
+                                  },
+                                );
+
+                                providerCards.add(pCard);
+                              }
+
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: providerCards,
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    child: ListView(
-                      children: <Widget>[
-                        Center(
-                            child: Text(
-                          'Apply with which provider account?',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )),
-                        FutureBuilder(
-                          //This function returns a list of providerUsers
-                          future: firestoreAPI.getProviders(
-                              pids: currentUser.providerProfiles),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return CircularProgress();
-                            }
-                            final List<ProviderUser> providers = snapshot.data;
+                  );
+                  if (debugMode)
+                    print('Task Screen: applied with pid $selectedProviderId');
 
-                            List<ProviderCard> providerCards = [];
-
-                            for (ProviderUser provider in providers) {
-                              ProviderCard pCard = ProviderCard(
-                                image: provider.displayPictureURL == null
-                                    ? AssetImage("images/Logo_Clear.png")
-                                    : CachedNetworkImageProvider(
-                                        provider.displayPictureURL),
-                                name: provider.name,
-                                description: provider.bio,
-                                service: provider.type,
-                                onTap: () {
-                                  Navigator.pop(context, provider.pid);
-                                },
-                              );
-
-                              providerCards.add(pCard);
-                            }
-
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: providerCards,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-                if (debugMode)
-                  print('Task Screen: applied with pid $selectedProviderId');
-
-                if (selectedProviderId != null) {
-                  await firestoreAPI.applyToTask(
-                      taskId: currentTask.taskId,
-                      providerId: selectedProviderId,
-                      userId: currentUser.id);
-                  await authProvider.updateCurrentUserData();
-                  await taskProvider.updateCurrentTask(
-                      taskId: currentTask.taskId);
+                  if (selectedProviderId != null) {
+                    setState(() {
+                      showSpinner = true;
+                    });
+                    DocumentReference chatRef = await firestoreAPI.applyToTask(
+                        taskId: currentTask.taskId,
+                        providerId: selectedProviderId,
+                        userId: currentUser.id);
+                    await authProvider.updateCurrentUserData();
+                    await taskProvider.updateCurrentTask(taskId: currentTask.taskId);
+                    Chat newChat = await firestoreAPI.getChatById(chatRef.documentID);
+                    ProviderUser providerProfile = await firestoreAPI.getProviderById(selectedProviderId);
+                    //TODO: pass the hirer into the the screen as an argument ? how does this link with taskProviderService
+                    User hirer = await firestoreAPI.getUserById(currentTask.hirerId);
+                    setState(() {
+                      showSpinner = false;
+                    });
+                    Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreenArguments(
+                        chat: newChat,
+                        userIsProvider: true,
+                        provider: providerProfile,
+                        user: hirer,
+                        isFirstInstance: false)).then((value) {
+                          setState(() {});
+                    });
+                  }
                 }
-              }
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

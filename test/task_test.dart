@@ -12,7 +12,7 @@ void main() {
       service: 'Service',
       date: 'Date',
       hirerId: 'hirerId',
-      chosenApplicantIds: ['applicant1', 'applicant2'],
+//      chosenApplicantIds: ['applicant1', 'applicant2'],
 //        applicantChatsAndPids: [{'chat':}]
     );
 
@@ -22,7 +22,7 @@ void main() {
       'title' : task.title,
       'details' : task.details,
       'date' : task.date,
-      'chosenApplicantIds' : task.chosenApplicantIds,
+//      'chosenApplicantIds' : task.chosenApplicantIds,
       'time' : task.time};
 
 

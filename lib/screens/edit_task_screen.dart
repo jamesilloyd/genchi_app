@@ -239,7 +239,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Details",
                   textController: detailsController,
-                  hintText: 'Estimated pay for the task',
+                  hintText: 'Provide further details of the task',
                   onChanged: (value) {
                     details = value;
                     changesMade = true;
@@ -248,7 +248,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Price",
                   textController: priceController,
-                  hintText: 'Provide further details of the task',
+                  hintText: 'Estimated pay for the task',
+
                   onChanged: (value) {
                     price = value;
                     changesMade = true;

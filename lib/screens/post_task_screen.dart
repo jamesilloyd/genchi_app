@@ -176,7 +176,8 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       details = value;
                     },
                     textController: detailsController,
-                    hintText: 'Estimated pay for the task',
+                    hintText: 'Provide further details of the task',
+
                   ),
                   EditAccountField(
                     field: 'Price',
@@ -184,7 +185,8 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       price = value;
                     },
                     textController: priceController,
-                    hintText: 'Provide further details of the task',
+                    hintText: 'Estimated pay for the task',
+
                   ),
                   SizedBox(
                     height: 20,

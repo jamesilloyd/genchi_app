@@ -305,6 +305,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: priceTextController,
                   hintText: "E.g. for experience, £10 per job etc.",
                 ),
+                EditAccountField(
+                  hintText: "Add links to any additional websites or resources",
+                  field: "Website Links",
+                  isEditable: false,
+                  onChanged: (value) {},
+                  textController: TextEditingController(),
+                ),
                 //TODO Implement the following fields
                 EditAccountField(
                   hintText: 'Coming soon',
@@ -316,14 +323,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 EditAccountField(
                   hintText: 'Coming soon',
                   field: "Tags",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
-                ),
-
-                EditAccountField(
-                  hintText: "Coming soon",
-                  field: "Website Links",
                   isEditable: false,
                   onChanged: (value) {},
                   textController: TextEditingController(),

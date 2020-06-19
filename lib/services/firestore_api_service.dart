@@ -108,11 +108,13 @@ class FirestoreAPIService {
 
   Future<List<Map<String, dynamic>>> getChatsAndProviders(
       {List<dynamic> chatIds}) async {
+    if (debugMode) print('FirestoreAPI: getChatsAndProviders called');
     List<Map<String, dynamic>> chatsAndProviders = [];
 
     List<Chat> chats = [];
 
     for (String chatId in chatIds) {
+      if (debugMode) print('FirestoreAPI: getChatsAndProviders getting chat $chatId');
       Chat chat = await getChatById(chatId);
       chats.add(chat);
     }
@@ -122,6 +124,7 @@ class FirestoreAPIService {
 
     for (Chat chat in chats) {
       Map<String, dynamic> chatAndProvider = {};
+      if (debugMode) print('FirestoreAPI: getChatsAndProviders getting provider ${chat.pid}');
       ProviderUser provider = await getProviderById(chat.pid);
       chatAndProvider['chat'] = chat;
       chatAndProvider['provider'] = provider;
@@ -158,8 +161,6 @@ class FirestoreAPIService {
       return chatB.time.compareTo(chatA.time);
     });
 
-    print('alksdjbflajskdblfasnjdfa $chatAndProviders');
-
     return chatAndProviders;
   }
 
@@ -171,19 +172,20 @@ class FirestoreAPIService {
     for (String pid in usersPids) {
       List<Chat> providerChats = [];
       if (debugMode)
-        print('FirestoreAPI: getUserProviderChatsAndHirers searching chats for pid $pid');
+        print(
+            'FirestoreAPI: getUserProviderChatsAndHirers searching chats for pid $pid');
       Map<Chat, User> chatsAndUsers = {};
       ProviderUser provider = await getProviderById(pid);
 
       if (provider.chats.isNotEmpty) {
         for (String chatId in provider.chats) {
           if (debugMode)
-            print('FirestoreAPI: getUserProviderChatsAndHirers pid $pid has chat $chatId');
+            print(
+                'FirestoreAPI: getUserProviderChatsAndHirers pid $pid has chat $chatId');
           Chat chat = await getChatById(chatId);
           providerChats.add(chat);
         }
       }
-
 
       for (Chat chat in providerChats) {
         Map<String, dynamic> providerChatHirer = {};
@@ -195,12 +197,11 @@ class FirestoreAPIService {
       }
     }
 
-      userProviderChatsAndUsers.sort((a, b) {
-        Chat chatB = b['chat'];
-        Chat chatA = a['chat'];
-        return chatB.time.compareTo(chatA.time);
-      });
-
+    userProviderChatsAndUsers.sort((a, b) {
+      Chat chatB = b['chat'];
+      Chat chatA = a['chat'];
+      return chatB.time.compareTo(chatA.time);
+    });
 
     return userProviderChatsAndUsers;
   }
@@ -459,13 +460,30 @@ class FirestoreAPIService {
   }
 
   Future<void> deleteChat({Chat chat}) async {
-    await _chatCollectionRef.document(chat.chatid).delete();
+    ///Deleting chat from provider's array
     await _providersCollectionRef.document(chat.pid).setData({
       'chats': FieldValue.arrayRemove([chat.chatid])
     }, merge: true);
+
+    ///Deleting chat from hirer's array
     await _usersCollectionRef.document(chat.uid).setData({
       'chats': FieldValue.arrayRemove([chat.chatid])
     }, merge: true);
+
+    ///Deleting messages attached to the chat
+    await _chatCollectionRef
+        .document(chat.chatid)
+        .collection('messages')
+        .getDocuments()
+        .then((snapshot) {
+      if (snapshot.documents.isNotEmpty)
+        for (DocumentSnapshot doc in snapshot.documents) {
+          doc.reference.delete();
+        }
+    });
+
+    ///Deleting the chat
+    await _chatCollectionRef.document(chat.chatid).delete();
   }
 
   Future<void> deleteUserDisplayPicture({User user}) async {

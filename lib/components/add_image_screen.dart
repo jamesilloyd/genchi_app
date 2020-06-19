@@ -33,7 +33,6 @@ class AddImageScreen extends StatefulWidget {
 
   AddImageScreen({Key key, @required this.isUser}) : super(key: key);
 
-
   @override
   _AddImageScreenState createState() => _AddImageScreenState();
 }

@@ -48,10 +48,29 @@ class _LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 Container(
                   height: MediaQuery.of(context).size.height * .3,
-                  child: Hero(
-                    tag: 'logo',
-                    child: Container(
-                      child: Image.asset('images/LogoAndName.png'),
+                  child: SafeArea(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios
+                            ),
+                            color: Color(kGenchiBlue),
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                        Hero(
+                          tag: 'logo',
+                          child: Container(
+                            child: Image.asset('images/LogoAndName.png'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

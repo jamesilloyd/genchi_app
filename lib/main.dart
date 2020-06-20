@@ -24,12 +24,16 @@ import 'package:genchi_app/services/task_service.dart';
 
 import 'services/provider_service.dart';
 import 'services/authentication_service.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 
 import 'package:provider/provider.dart';
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
 void main() {
+  Crashlytics.instance.enableInDevMode = true;
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
   runApp(Genchi());
 }
 

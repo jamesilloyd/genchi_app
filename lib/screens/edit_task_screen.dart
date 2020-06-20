@@ -8,8 +8,11 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -130,6 +133,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final taskService = Provider.of<TaskService>(context);
+    final authProvider = Provider.of<AuthenticationService>(context);
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -270,9 +274,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       setState(() {
                         showSpinner = true;
                       });
-//                      await fireStoreAPI.deleteTask();
-                      ///what other stuff needs to be done here?
+                      await fireStoreAPI.deleteTask(task: taskService.currentTask);
+                      await authProvider.updateCurrentUserData();
 
+                      setState(() {
+                        showSpinner = false;
+                      });
+
+                      Navigator.pushNamedAndRemoveUntil(context,
+                          HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 1));
 
 
                     }

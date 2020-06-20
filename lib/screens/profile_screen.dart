@@ -34,6 +34,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -73,6 +74,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Divider(
                 height: 0,
                 thickness: 1,
+              ),
+              ProfileOptionTile(
+                text: 'Crash',
+                onPressed: ()  {
+                  Crashlytics.instance.crash();
+                },
               ),
               ProfileOptionTile(
                 text: 'Post Task',

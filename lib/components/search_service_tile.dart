@@ -38,7 +38,7 @@ class SearchServiceTile extends StatelessWidget {
                       buttonTitle,
                       style: TextStyle(
                         color: Color(kGenchiBlue),
-                        fontSize: 15.0,
+                        fontSize: 16.0,
                       ),
                     ),
                   ),

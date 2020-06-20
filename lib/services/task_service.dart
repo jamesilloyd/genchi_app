@@ -17,7 +17,7 @@ class TaskService extends ChangeNotifier {
 
   Future updateCurrentTask({String taskId}) async {
 
-    if(debugMode) print("updateCurrentTask called: populating task");
+    if(debugMode) print("updateCurrentTask called: populating task $taskId");
     if (taskId != null) {
       _currentTask = await _firestoreAPI.getTaskById(taskId: taskId);
       notifyListeners();

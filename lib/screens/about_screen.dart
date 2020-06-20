@@ -23,7 +23,7 @@ class AboutScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Container(
-              height: 200,
+              height: MediaQuery.of(context).size.height*0.15,
               child: Image.asset('images/Logo_Clear.png'),
             ),
           ),

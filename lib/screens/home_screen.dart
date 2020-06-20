@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //TODO: look into why the screens are being called (leading to extra firestore reads)
 
   void onPageChanged(int page) {
+
     setState(() {
       this._page = page;
     });

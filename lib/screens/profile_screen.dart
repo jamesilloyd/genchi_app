@@ -34,7 +34,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -82,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileOptionTile(
                 text: 'Crash',
                 onPressed: () {
-                  Crashlytics.instance.crash();
+                throw Exception('ERORRRORR');
                 },
               ),
               ProfileOptionTile(
@@ -100,88 +99,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   isPressable: false,
                   onPressed: () {},
                 ),
-              if (userIsProvider)
-                FutureBuilder(
-                  //This function returns a list of providerUsers
-                  future: firestoreAPI.getProviders(
-                      pids: currentUser.providerProfiles),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return CircularProgress();
-                    }
-                    final List<ProviderUser> providers = snapshot.data;
+              if (userIsProvider) Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: FutureBuilder(
+                    //This function returns a list of providerUsers
+                    future: firestoreAPI.getProviders(
+                        pids: currentUser.providerProfiles),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return CircularProgress();
+                      }
+                      final List<ProviderUser> providers = snapshot.data;
 
-                    List<Widget> providerCards = [];
+                      List<Widget> providerCards = [];
 
-                    for (ProviderUser provider in providers) {
-                      Widget pCard = ProviderAccountCard(
-                          height: (MediaQuery.of(context).size.height * 0.1),
-                          provider: provider,
-                          onPressed: () async {
-                            await providerService.updateCurrentProvider(provider.pid);
-                            Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
-                          });
-                      providerCards.add(pCard);
-                    }
+                      for (ProviderUser provider in providers) {
+                        Widget pCard = ProviderAccountCard(
+                            height: (MediaQuery.of(context).size.height * 0.1),
+                            provider: provider,
+                            onPressed: () async {
+                              await providerService.updateCurrentProvider(provider.pid);
+                              Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
+                            });
+                        providerCards.add(pCard);
+                      }
 
-                    ///add the "add provider" card
-                    providerCards.add(
-                      AddProviderCard(
-                          height: (MediaQuery.of(context).size.height * 0.1),
-                          onPressed: () async {
-                            bool createAccount = await showYesNoAlert(
-                                context: context,
-                                title: 'Create Provider Account?',
-                                body:
-                                "Are you ready to provide your skills to the Cambridge community?");
-                            if (createAccount) {
-                              DocumentReference result = await firestoreAPI.addProvider(
-                                  ProviderUser(
-                                      uid: authProvider.currentUser.id,
-                                      displayPictureURL: currentUser.displayPictureURL,
-                                      displayPictureFileName:
-                                      currentUser.displayPictureFileName),
-                                  authProvider.currentUser.id);
-                              await authProvider.updateCurrentUserData();
+                      ///add the "add provider" card
+                      providerCards.add(
+                        AddProviderCard(
+                            height: (MediaQuery.of(context).size.height * 0.1),
+                            onPressed: () async {
+                              bool createAccount = await showYesNoAlert(
+                                  context: context,
+                                  title: 'Create Provider Account?',
+                                  body:
+                                  "Are you ready to provide your skills to the Cambridge community?");
+                              if (createAccount) {
+                                DocumentReference result = await firestoreAPI.addProvider(
+                                    ProviderUser(
+                                        uid: authProvider.currentUser.id,
+                                        displayPictureURL: currentUser.displayPictureURL,
+                                        displayPictureFileName:
+                                        currentUser.displayPictureFileName),
+                                    authProvider.currentUser.id);
+                                await authProvider.updateCurrentUserData();
 
-                              await providerService
-                                  .updateCurrentProvider(result.documentID);
+                                await providerService
+                                    .updateCurrentProvider(result.documentID);
 
-                              Navigator.pushNamed(context, ProviderScreen.id,
-                                  arguments: ProviderScreenArguments(
-                                      provider: providerService.currentProvider));
-                            }
-                          },
+                                Navigator.pushNamed(context, ProviderScreen.id,
+                                    arguments: ProviderScreenArguments(
+                                        provider: providerService.currentProvider));
+                              }
+                            },
 
-                      ),
-                    );
+                        ),
+                      );
 
-                    //TODO come back to formatting
-                    return Container(
-                      height: 110,
-                      child: ListView(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        scrollDirection: Axis.horizontal,
-                        children: providerCards,
-                      ),
-                    );
-                  },
+                      //TODO come back to formatting
+                      return Container(
+                        height: 90,
+                        child: ListView(
+//                        padding: EdgeInsets.symmetric(vertical: 10),
+                          scrollDirection: Axis.horizontal,
+                          children: providerCards,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               Divider(
                 height: 0,
                 thickness: 1,
                 color: Colors.black,
               ),
-              ProfileOptionTile(
-                text: userIsProvider
-                    ? 'Provide Another Service'
-                    : 'Create Provider Profile',
+              if(!userIsProvider) ProfileOptionTile (
+                text: 'Create Provider Profile',
                 onPressed: () async {
                   bool createAccount = await showYesNoAlert(
                       context: context,
                       title: 'Create Provider Account?',
-                      body:
-                          "Are you ready to provide your skills to the Cambridge community?");
+                      body: "Are you ready to provide your skills to the Cambridge community?");
                   if (createAccount) {
                     DocumentReference result = await firestoreAPI.addProvider(
                         ProviderUser(

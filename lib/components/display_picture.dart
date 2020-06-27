@@ -11,11 +11,13 @@ class DisplayPicture extends StatelessWidget {
     @required this.imageUrl,
     @required this.height,
     this.border = false,
+    this.isEdit = false,
   }) : super(key: key);
 
   final String imageUrl;
   final double height;
   final bool border;
+  final bool isEdit;
 
 
   @override
@@ -30,7 +32,7 @@ class DisplayPicture extends StatelessWidget {
 //              fit: BoxFit.contain,
               imageUrl: imageUrl,
               placeholder: (context, url) => Container(height: 50, width:50,
-                  child: Center(child: CircularProgress())),
+                  child: Container(child: Center(child: CircularProgress()))),
               imageBuilder: (context, imageProvider) => Container(
                 width: 50.0,
                 height: 50.0,
@@ -46,10 +48,16 @@ class DisplayPicture extends StatelessWidget {
               height: 50.0,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                color: Color(0xffC4C4C4),
                 border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
-                image: DecorationImage(
-                  //TODO change this
-                  image: AssetImage('images/Logo_Clear.png'),),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Icon(
+                  isEdit ? Icons.add : Icons.person,
+                  color: isEdit ? Colors.black : Color(0xff585858),
+                  size: isEdit ? 12 : 40,
+                ),
               ),
             ),
           ),

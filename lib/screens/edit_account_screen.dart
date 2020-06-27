@@ -156,7 +156,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             ),
                         );
                       },
-                      child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25),
+                      child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,border: true,isEdit: true,),
                     ),
                     EditAccountField(
                       field: "Name",

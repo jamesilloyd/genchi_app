@@ -28,11 +28,7 @@ import 'services/provider_service.dart';
 import 'services/authentication_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-
 import 'package:provider/provider.dart';
-
-FirebaseAnalytics analytics = FirebaseAnalytics();
-
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
@@ -43,6 +39,7 @@ void main() {
 }
 
 class Genchi extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -57,6 +54,7 @@ class Genchi extends StatelessWidget {
 }
 
 class StartUp extends StatelessWidget {
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

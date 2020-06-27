@@ -36,7 +36,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -60,8 +59,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+      backgroundColor: Colors.transparent,
       body: Container(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          image: DecorationImage(
+            image: AssetImage('images/Logo_Clear.png'),
+            alignment: Alignment(2.5,1.2),
+            colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
+          ),
+        ),
         child: Center(
           child: ListView(
             padding: EdgeInsets.all(20.0),
@@ -69,96 +76,112 @@ class _ProfileScreenState extends State<ProfileScreen> {
               DisplayPicture(
                 imageUrl: currentUser.displayPictureURL,
                 height: 0.25,
+                border: true,
               ),
-              SizedBox(height: 20),
-              Divider(
-                height: 0,
-                thickness: 1,
-              ),
+              SizedBox(height: 5),
               ProfileOptionTile(
                 text: 'Crash',
-                onPressed: ()  {
+                onPressed: () {
                   Crashlytics.instance.crash();
                 },
               ),
               ProfileOptionTile(
                 text: 'Post Task',
                 onPressed: () async {
-                  bool createAccount = await showYesNoAlert(context: context, title: 'Post task?');
-                  if(createAccount) Navigator.pushNamed(context, PostTaskScreen.id);
+                  bool createAccount = await showYesNoAlert(
+                      context: context, title: 'Post task?');
+                  if (createAccount)
+                    Navigator.pushNamed(context, PostTaskScreen.id);
                 },
               ),
               if (userIsProvider)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Container(
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'Your Provider Accounts',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color(kGenchiBlue),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 25.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Divider(
-                      height: 0,
-                      thickness: 1,
-                    ),
-                  ],
+                ProfileOptionTile(
+                  text: 'Provider Accounts',
+                  isPressable: false,
+                  onPressed: () {},
                 ),
-              FutureBuilder(
-                //This function returns a list of providerUsers
-                future: firestoreAPI.getProviders(pids: currentUser.providerProfiles),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircularProgress();
-                  }
-                  final List<ProviderUser> providers = snapshot.data;
+              if (userIsProvider)
+                FutureBuilder(
+                  //This function returns a list of providerUsers
+                  future: firestoreAPI.getProviders(
+                      pids: currentUser.providerProfiles),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircularProgress();
+                    }
+                    final List<ProviderUser> providers = snapshot.data;
 
-                  List<ProviderCard> providerCards = [];
+                    List<Widget> providerCards = [];
 
-                  for (ProviderUser provider in providers) {
-                    ProviderCard pCard = ProviderCard(
-                      image: provider.displayPictureURL == null
-                          ? AssetImage("images/Logo_Clear.png")
-                          : CachedNetworkImageProvider(
-                              provider.displayPictureURL),
-                      name: provider.name,
-                      description: provider.bio,
-                      service: provider.type,
-                      onTap: () async {
-                        await providerService
-                            .updateCurrentProvider(provider.pid);
-                        Navigator.pushNamed(context, ProviderScreen.id,
-                            arguments:
-                                ProviderScreenArguments(provider: provider));
-                      },
+                    for (ProviderUser provider in providers) {
+                      Widget pCard = ProviderAccountCard(
+                          height: (MediaQuery.of(context).size.height * 0.1),
+                          provider: provider,
+                          onPressed: () async {
+                            await providerService.updateCurrentProvider(provider.pid);
+                            Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
+                          });
+                      providerCards.add(pCard);
+                    }
+
+                    ///add the "add provider" card
+                    providerCards.add(
+                      AddProviderCard(
+                          height: (MediaQuery.of(context).size.height * 0.1),
+                          onPressed: () async {
+                            bool createAccount = await showYesNoAlert(
+                                context: context,
+                                title: 'Create Provider Account?',
+                                body:
+                                "Are you ready to provide your skills to the Cambridge community?");
+                            if (createAccount) {
+                              DocumentReference result = await firestoreAPI.addProvider(
+                                  ProviderUser(
+                                      uid: authProvider.currentUser.id,
+                                      displayPictureURL: currentUser.displayPictureURL,
+                                      displayPictureFileName:
+                                      currentUser.displayPictureFileName),
+                                  authProvider.currentUser.id);
+                              await authProvider.updateCurrentUserData();
+
+                              await providerService
+                                  .updateCurrentProvider(result.documentID);
+
+                              Navigator.pushNamed(context, ProviderScreen.id,
+                                  arguments: ProviderScreenArguments(
+                                      provider: providerService.currentProvider));
+                            }
+                          },
+
+                      ),
                     );
 
-                    providerCards.add(pCard);
-                  }
-
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: providerCards,
-                  );
-                },
+                    //TODO come back to formatting
+                    return Container(
+                      height: 110,
+                      child: ListView(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        scrollDirection: Axis.horizontal,
+                        children: providerCards,
+                      ),
+                    );
+                  },
+                ),
+              Divider(
+                height: 0,
+                thickness: 1,
+                color: Colors.black,
               ),
               ProfileOptionTile(
                 text: userIsProvider
                     ? 'Provide Another Service'
                     : 'Create Provider Profile',
                 onPressed: () async {
-                  bool createAccount =
-                      await showYesNoAlert(context: context,title: 'Create Provider Account?',body: "Are you ready to provide your skills to the Cambridge community?");
+                  bool createAccount = await showYesNoAlert(
+                      context: context,
+                      title: 'Create Provider Account?',
+                      body:
+                          "Are you ready to provide your skills to the Cambridge community?");
                   if (createAccount) {
                     DocumentReference result = await firestoreAPI.addProvider(
                         ProviderUser(
@@ -179,13 +202,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ProfileOptionTile(
-                text: 'Favourite Providers',
+                text: 'Favourites',
                 onPressed: () {
                   Navigator.pushNamed(context, FavouritesScreen.id);
                 },
               ),
               ProfileOptionTile(
-                text: 'Change Details',
+                text: 'Account Settings',
                 onPressed: () {
                   Navigator.pushNamed(context, EditAccountScreen.id);
                 },

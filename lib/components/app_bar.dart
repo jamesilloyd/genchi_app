@@ -23,6 +23,7 @@ class MyAppNavigationBar extends StatelessWidget implements PreferredSizeWidget 
       iconTheme: IconThemeData(
         color: Colors.black,
       ),
+      centerTitle: true,
       title: Text(
         barTitle,
         style: TextStyle(

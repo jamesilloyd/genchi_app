@@ -61,8 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation:4,
             currentIndex: _page ?? startingIndex,
             showUnselectedLabels: true,
-            selectedItemColor: Color(kGenchiOrange),
-            unselectedItemColor: Color(kGenchiBlue),
+            selectedItemColor: Color(kGenchiCream),
+            unselectedItemColor: Colors.black,
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(

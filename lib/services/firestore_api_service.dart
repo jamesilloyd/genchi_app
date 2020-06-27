@@ -137,6 +137,7 @@ class FirestoreAPIService {
       chatAndProvider['provider'] = provider;
       chatsAndProviders.add(chatAndProvider);
     }
+    if (debugMode) print('FirestoreAPI: getChatsAndProviders finished');
     return chatsAndProviders;
   }
 
@@ -562,26 +563,18 @@ class FirestoreAPIService {
     await _chatCollectionRef.document(chat.chatid).delete();
   }
 
-  Future<void> deleteUserDisplayPicture({User user}) async {
-    await FirebaseStorage.instance
-        .ref()
-        .child(user.displayPictureFileName)
-        .delete();
+  Future<void> deleteDisplayPicture({User user}) async{
+    await FirebaseStorage.instance.ref().child(user.displayPictureFileName).delete();
     await _usersCollectionRef.document(user.id).setData({
       'displayPictureFileName': FieldValue.delete(),
       'displayPictureURL': FieldValue.delete()
     }, merge: true);
-  }
-
-  Future<void> deleteProviderDisplayPicture({ProviderUser provider}) async {
-    await FirebaseStorage.instance
-        .ref()
-        .child(provider.displayPictureFileName)
-        .delete();
-    await _providersCollectionRef.document(provider.pid).setData({
-      'displayPictureFileName': FieldValue.delete(),
-      'displayPictureURL': FieldValue.delete()
-    }, merge: true);
+    if(user.providerProfiles.isNotEmpty) for(String pid in user.providerProfiles) {
+      await _providersCollectionRef.document(pid).setData({
+        'displayPictureFileName': FieldValue.delete(),
+        'displayPictureURL': FieldValue.delete()
+      }, merge: true);
+    }
   }
 
   Future<void> hideChat({Chat chat, bool forProvider}) async {

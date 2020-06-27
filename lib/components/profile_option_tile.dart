@@ -4,8 +4,9 @@ import 'package:genchi_app/constants.dart';
 class ProfileOptionTile extends StatelessWidget {
   final String text;
   final Function onPressed;
+  final bool isPressable;
 
-  const ProfileOptionTile({this.text, @required this.onPressed});
+  const ProfileOptionTile({this.text, @required this.onPressed,this.isPressable = true});
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +16,38 @@ class ProfileOptionTile extends StatelessWidget {
       children: <Widget>[
         Container(
           height: 50,
-          child: FlatButton(
+          child: isPressable ? FlatButton(
+            padding: EdgeInsets.all(0),
             onPressed: onPressed,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0,0,0,5),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ): Padding(
+            padding: const EdgeInsets.fromLTRB(0,0,0,5),
             child: Align(
-              alignment: Alignment.center,
+              alignment: Alignment.bottomLeft,
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: Text(
                   text,
                   style: TextStyle(
-                    color: Color(kGenchiBlue),
+                    color: Colors.black,
                     fontWeight: FontWeight.w400,
-                    fontSize: 25.0,
+                    fontSize: 20.0,
                   ),
                 ),
               ),
@@ -36,6 +57,7 @@ class ProfileOptionTile extends StatelessWidget {
         Divider(
           height: 0,
           thickness: 1,
+          color: Colors.black,
         ),
       ],
     );

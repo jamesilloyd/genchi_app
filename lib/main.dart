@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
@@ -28,6 +30,9 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 
 import 'package:provider/provider.dart';
+
+FirebaseAnalytics analytics = FirebaseAnalytics();
+
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
@@ -61,9 +66,12 @@ class StartUp extends StatelessWidget {
         if (snapshot.hasData) {
           bool loggedIn = snapshot.data;
           return MaterialApp(
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ],
             theme: ThemeData(
               fontFamily: 'FuturaPT',
-              canvasColor: Color(kGenchiCream),
+              canvasColor: Color(kGenchiGreen),
               scaffoldBackgroundColor: Colors.white,
               indicatorColor: Color(kGenchiOrange),
             ),

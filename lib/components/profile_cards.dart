@@ -1,11 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
 
-
 class ProviderCard extends StatelessWidget {
-
   final String name;
   final ImageProvider image;
   final String service;
@@ -13,7 +12,12 @@ class ProviderCard extends StatelessWidget {
   final String description;
 
   //ToDo: easier to pass provider class than initialise all the provider attributes
-  ProviderCard({this.image, this.name, this.service = '', @required this.onTap, this.description = ''});
+  ProviderCard(
+      {this.image,
+      this.name,
+      this.service = '',
+      @required this.onTap,
+      this.description = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class ProviderCard extends StatelessWidget {
               flex: 10,
               child: ListTile(
                 title: Text(
-                  (service != '') ? '$name - $service': name,
+                  (service != '') ? '$name - $service' : name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
@@ -39,10 +43,12 @@ class ProviderCard extends StatelessWidget {
                 ),
                 subtitle: Container(
                   child: Text(
-                    description.length > 30 ? '${description.substring(0,30)}...' : description,
+                    description.length > 30
+                        ? '${description.substring(0, 30)}...'
+                        : description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                   ),
                 ),
                 onTap: onTap,
@@ -59,10 +65,86 @@ class ProviderCard extends StatelessWidget {
   }
 }
 
+Widget ProviderAccountCard(
+    {@required double height, @required Function onPressed, @required ProviderUser provider}) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+    child: Center(
+      child: Container(
+        width: 160,
+        height: 90,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: kGenchiLightOrange,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: FlatButton(
+            onPressed: onPressed,
+            padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  provider.name,
+                  style: TextStyle(fontSize: 20, color: Colors.black),
+                ),
+                Text(
+                  provider.type,
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                SizedBox(height: 5,),
+                Expanded(
+                  child: Text(
+                    provider.bio,
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    style: TextStyle(fontSize: 14, color: Color(0xff7D7D7D)),
+                  ),
+                ),
+                Container(
+                  height: 5,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget AddProviderCard(
+    {@required double height, @required Function onPressed}) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+    child: Center(
+      child: Container(
+        width: 80 * 2.0,
+        height: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: kGenchiLightOrange,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: FlatButton(
+            onPressed: onPressed,
+            child: Icon(
+              Icons.add,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 Widget HirerCard({@required User hirer}) {
   return Row(
     children: <Widget>[
-
       Expanded(
         child: ListTile(
           title: Text(
@@ -75,8 +157,7 @@ Widget HirerCard({@required User hirer}) {
           leading: CircleAvatar(
             backgroundImage: hirer.displayPictureURL == null
                 ? AssetImage("images/Logo_Clear.png")
-                : CachedNetworkImageProvider(
-                hirer.displayPictureURL),
+                : CachedNetworkImageProvider(hirer.displayPictureURL),
             radius: 30,
             backgroundColor: Color(kGenchiCream),
           ),
@@ -89,7 +170,7 @@ Widget HirerCard({@required User hirer}) {
 //              style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
 //            ),
 //          ),
-            //TODO add in hirer view screen
+          //TODO add in hirer view screen
 //          onTap: onTap,
         ),
       ),

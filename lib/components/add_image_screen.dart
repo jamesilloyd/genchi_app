@@ -103,6 +103,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if(debugMode) print('Add Image Screen: Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
     final providerService = Provider.of<ProviderService>(context);
@@ -163,7 +164,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                       ? CircleAvatar(
                           radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
                           backgroundColor: Color(kGenchiCream),
-                          backgroundImage: (widget.isUser ? currentUser.displayPictureURL : currentProvider.displayPictureURL) !=null ? (widget.isUser ? CachedNetworkImageProvider(currentUser.displayPictureURL) : CachedNetworkImageProvider(currentProvider.displayPictureURL)): null,
+                          backgroundImage: currentUser.displayPictureURL != null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
                         )
                       : CircleAvatar(
                           backgroundImage: FileImage(_imageFile),
@@ -228,21 +229,19 @@ class _AddImageScreenState extends State<AddImageScreen> {
                                   : Icons.delete,
                               size: 25,
                             ),
-                            onPressed: () {
-                              Platform.isIOS
-                                  ? showAlertIOS(context: context, actionFunction: () async {
-                                    widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
-                                    widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
-                                    Navigator.of(context).pop();
-
-                              }, alertMessage: "Delete Current Picture")
-                                  : showAlertAndroid(context: context, actionFunction: () async {
-                                    widget.isUser ? await firestoreAPI.deleteUserDisplayPicture(user: currentUser) : await firestoreAPI.deleteProviderDisplayPicture(provider: currentProvider);
-                                    widget.isUser ? await authProvider.updateCurrentUserData() : await providerService.updateCurrentProvider(currentProvider.pid);
-                                    Navigator.of(context).pop();
-
-                              }, alertMessage: "Delete Current Picture");
-                            setState(() {});
+                            onPressed: () async {
+                              bool delete = await showYesNoAlert(context: context, title: 'Delete Current Picture?');
+                              if(delete) {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                await firestoreAPI.deleteDisplayPicture(user: currentUser);
+                                await authProvider.updateCurrentUserData();
+                                if(!widget.isUser) await providerService.updateCurrentProvider(currentProvider.pid);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                              }
                               },
                             color: _iconColor,
                           ),
@@ -276,10 +275,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
 
 
-
-
-
-// Widget used to handle the management of sending files
+/// Widget used to handle the management of sending files
 class Uploader extends StatefulWidget {
   final File file;
   final bool isUser;
@@ -332,8 +328,7 @@ class _UploaderState extends State<Uploader> {
         await providerService.updateCurrentProvider(providerService.currentProvider.pid);
       }
       print('Deleting old file');
-      if (oldFileName != null)
-        await FirebaseStorage.instance.ref().child(oldFileName).delete();
+      if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();
       return true;
     } catch (e) {
       print(e);

@@ -10,10 +10,13 @@ class DisplayPicture extends StatelessWidget {
     Key key,
     @required this.imageUrl,
     @required this.height,
+    this.border = false,
   }) : super(key: key);
 
   final String imageUrl;
   final double height;
+  final bool border;
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,7 @@ class DisplayPicture extends StatelessWidget {
                 height: 50.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
                   image: DecorationImage(
                       image: imageProvider, fit: BoxFit.cover),
                 ),
@@ -42,7 +46,9 @@ class DisplayPicture extends StatelessWidget {
               height: 50.0,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
                 image: DecorationImage(
+                  //TODO change this
                   image: AssetImage('images/Logo_Clear.png'),),
               ),
             ),

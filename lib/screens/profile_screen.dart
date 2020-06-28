@@ -70,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Center(
           child: ListView(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.symmetric(vertical: 20.0),
             children: <Widget>[
               DisplayPicture(
                 imageUrl: currentUser.displayPictureURL,
@@ -78,21 +78,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: true,
               ),
               SizedBox(height: 5),
-              ProfileOptionTile(
-                text: 'Crash',
-                onPressed: () {
-                throw Exception('ERORRRORR');
-                },
-              ),
-              ProfileOptionTile(
-                text: 'Post Task',
-                onPressed: () async {
-                  bool createAccount = await showYesNoAlert(
-                      context: context, title: 'Post task?');
-                  if (createAccount)
-                    Navigator.pushNamed(context, PostTaskScreen.id);
-                },
-              ),
+//              ProfileOptionTile(
+//                text: 'Crash',
+//                onPressed: () {
+//                throw Exception('ERORRRORR');
+//                },
+//              ),
+//              ProfileOptionTile(
+//                text: 'Post Task',
+//                onPressed: () async {
+//                  bool createAccount = await showYesNoAlert(
+//                      context: context, title: 'Post task?');
+//                  if (createAccount)
+//                    Navigator.pushNamed(context, PostTaskScreen.id);
+//                },
+//              ),
               if (userIsProvider)
                 ProfileOptionTile(
                   text: 'Provider Accounts',
@@ -158,9 +158,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       //TODO come back to formatting
                       return Container(
-                        height: 90,
+                        height: 100,
                         child: ListView(
-//                        padding: EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.fromLTRB(20,0,0,0),
                           scrollDirection: Axis.horizontal,
                           children: providerCards,
                         ),
@@ -168,10 +168,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
-              Divider(
-                height: 0,
-                thickness: 1,
-                color: Colors.black,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(
+                  height: 0,
+                  thickness: 1,
+                  color: Colors.black,
+                ),
               ),
               if(!userIsProvider) ProfileOptionTile (
                 text: 'Create Provider Profile',

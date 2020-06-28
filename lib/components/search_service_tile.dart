@@ -7,7 +7,6 @@ class SearchServiceTile extends StatelessWidget {
 
   final String buttonTitle;
   final Function onPressed;
-
   final String imageAddress;
 
   @override
@@ -15,13 +14,12 @@ class SearchServiceTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
-        color: kGenchiLightOrange,
-//TODO sort out shadow problem
-//        boxShadow: [ BoxShadow(
-//          color: Colors.grey,
-//          offset: Offset(0.0, 1.0), //(x,y)
-//          blurRadius: 1.0,
-//        ),]
+        color: Color(kGenchiLightOrange),
+        boxShadow: [ BoxShadow(
+          color: Colors.grey,
+          offset: Offset(0.0, 1.0), //(x,y)
+          blurRadius: 1.0,
+        ),]
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(5.0),

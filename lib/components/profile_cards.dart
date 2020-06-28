@@ -65,8 +65,11 @@ class ProviderCard extends StatelessWidget {
   }
 }
 
+///These are the cards that will appear on a user's profile tab
 Widget ProviderAccountCard(
-    {@required double height, @required Function onPressed, @required ProviderUser provider}) {
+    {@required double height,
+    @required Function onPressed,
+    @required ProviderUser provider}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
@@ -74,14 +77,20 @@ Widget ProviderAccountCard(
         width: 160,
         height: 90,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
-          color: kGenchiLightOrange,
-        ),
+            borderRadius: BorderRadius.circular(12.0),
+            color: Color(kGenchiLightOrange),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.0, 1.0), //(x,y)
+                blurRadius: 1.0,
+              ),
+            ]),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12.0),
           child: FlatButton(
             onPressed: onPressed,
-            padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -94,12 +103,14 @@ Widget ProviderAccountCard(
                   provider.type,
                   style: TextStyle(fontSize: 18, color: Colors.black),
                 ),
-                SizedBox(height: 5,),
+                SizedBox(
+                  height: 5,
+                ),
                 Expanded(
                   child: Text(
                     provider.bio,
                     maxLines: 1,
-                    overflow: TextOverflow.fade,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14, color: Color(0xff7D7D7D)),
                   ),
                 ),
@@ -121,12 +132,18 @@ Widget AddProviderCard(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
       child: Container(
-        width: 80 * 2.0,
-        height: 100,
+        width: 160,
+        height: 90,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
-          color: kGenchiLightOrange,
-        ),
+            borderRadius: BorderRadius.circular(12.0),
+            color: Color(kGenchiLightOrange),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.0, 1.0), //(x,y)
+                blurRadius: 1.0,
+              ),
+            ]),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12.0),
           child: FlatButton(

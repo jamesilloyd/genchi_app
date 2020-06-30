@@ -42,22 +42,6 @@ class _MessageHandlerState extends State<MessageHandler> {
          );
 
          Scaffold.of(context).showSnackBar(snackbar);
-//        showDialog(
-//          context: context,
-//          builder: (context) => AlertDialog(
-//            content: ListTile(
-//              title: Text(message['aps']['alert']['title']),
-//              subtitle: Text(message['aps']['alert']['body']),
-//            ),
-//            actions: <Widget>[
-//              FlatButton(
-//                color: Colors.amber,
-//                child: Text('Ok'),
-//                onPressed: () => Navigator.of(context).pop(),
-//              ),
-//            ],
-//          ),
-//        );
       },
 //      onBackgroundMessage: myB,
       onLaunch: (Map<String, dynamic> message) async {
@@ -111,25 +95,5 @@ class _MessageHandlerState extends State<MessageHandler> {
         'platform': Platform.operatingSystem // optional
       });
     }
-  }
-
-  Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-    if (message.containsKey('data')) {
-      // Handle data message
-      final dynamic data = message['data'];
-    }
-
-    if (message.containsKey('notification')) {
-      // Handle notification message
-      final dynamic notification = message['notification'];
-    }
-
-    // Or do other work.
-  }
-
-  /// Subscribe the user to a topic
-  _subscribeToTopic() async {
-    // Subscribe the user to a topic
-    _fcm.subscribeToTopic('puppies');
   }
 }

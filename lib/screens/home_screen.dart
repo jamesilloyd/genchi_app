@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
@@ -41,6 +45,65 @@ class _HomeScreenState extends State<HomeScreen> {
     ChatSummaryScreen(),
     ProfileScreen(),
   ];
+
+  final Firestore _db = Firestore.instance;
+  final FirebaseMessaging _fcm = FirebaseMessaging();
+
+  StreamSubscription iosSubscription;
+
+  _saveDeviceToken() async {
+    /// Get the current user id
+    String uid = await Provider.of<AuthenticationService>(context,listen: false).currentUser.id;
+
+    /// Get the token for this device
+    String fcmToken = await _fcm.getToken();
+
+    /// Save it to Firestore
+    if (fcmToken != null && uid != null) {
+
+      var tokens = _db
+          .collection('users')
+          .document(uid).setData({
+        'fcmTokens': FieldValue.arrayUnion([fcmToken])
+      }, merge: true);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (Platform.isIOS) {
+      iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
+        print(data);
+        _saveDeviceToken();
+      });
+
+      _fcm.requestNotificationPermissions(IosNotificationSettings());
+    } else {
+      _saveDeviceToken();
+    }
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // TODO optional
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        // TODO optional
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    if (iosSubscription != null) iosSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

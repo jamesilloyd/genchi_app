@@ -11,6 +11,7 @@ class User extends ChangeNotifier {
   List<dynamic> chats;
   List<dynamic> favourites;
   List<dynamic> posts;
+  List<dynamic> fcmTokens;
 
   User(
       {this.id,
@@ -22,6 +23,7 @@ class User extends ChangeNotifier {
       this.providerProfiles,
       this.favourites,
       this.posts,
+      this.fcmTokens,
       this.chats});
 
   User.fromMap(Map snapshot)
@@ -32,6 +34,7 @@ class User extends ChangeNotifier {
         id = snapshot['id'] ?? '',
         providerProfiles = snapshot['providerProfiles'] ?? [],
         favourites = snapshot['favourites'] ?? [],
+        fcmTokens = snapshot['fcmTokens'] ?? [],
         posts = snapshot['posts'] ?? [],
         chats = snapshot['chats'] ?? [];
 
@@ -48,6 +51,7 @@ class User extends ChangeNotifier {
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
       if (posts != null) 'posts': posts,
+      if (fcmTokens != null) 'fcmTokens' : fcmTokens,
     };
   }
 }

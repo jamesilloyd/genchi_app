@@ -101,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
                       fontWeight: FontWeight.w500,
                     ),
                     tabs: [
-                      Tab(text: 'Tasks'),
+                      Tab(text: 'Jobs'),
                       Tab(text: 'Providers'),
                     ])),
             body: TabBarView(

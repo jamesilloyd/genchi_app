@@ -50,7 +50,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                   color: Colors.black,
                 ),
                 title: Text(
-                  'Tasks',
+                  'Jobs',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 30,
@@ -86,7 +86,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                           child: FlatButton(
                             onPressed: () async {
                               bool postTask = await showYesNoAlert(
-                                  context: context, title: 'Post Task?');
+                                  context: context, title: 'Post Job?');
                               if (postTask)
                                 Navigator.pushNamed(context, PostTaskScreen.id);
                             },
@@ -95,7 +95,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                               child: FittedBox(
                                 fit: BoxFit.contain,
                                 child: Text(
-                                  '+ Add Task',
+                                  '+ Add Job',
                                   style: TextStyle(
                                     color: Color(kGenchiBlue),
                                     fontWeight: FontWeight.w500,
@@ -116,7 +116,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                       height: 50,
                       child: Center(
                         child: Text(
-                          'Your Posted Tasks',
+                          'Your Posted Jobs',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(kGenchiBlue),
@@ -144,7 +144,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                             height: 30,
                             child: Center(
                               child: Text(
-                                'You have not posted a task',
+                                'You have not posted a job',
                                 style: TextStyle(
                                   fontSize: 20,
                                 ),
@@ -196,7 +196,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                           height: 50,
                           child: Center(
                             child: Text(
-                              'Your Applied Tasks',
+                              'Your Applied Jobs',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(kGenchiBlue),
@@ -226,7 +226,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                                 height: 30,
                                 child: Center(
                                   child: Text(
-                                    'You have not applied to any tasks',
+                                    'You have not applied to any jobs',
                                     style: TextStyle(
                                       fontSize: 20,
                                     ),

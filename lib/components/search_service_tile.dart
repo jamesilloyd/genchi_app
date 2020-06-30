@@ -15,7 +15,7 @@ class SearchServiceTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
         color: Color(kGenchiLightOrange),
-        boxShadow: [ BoxShadow(
+        boxShadow: [BoxShadow(
           color: Colors.grey,
           offset: Offset(0.0, 1.0), //(x,y)
           blurRadius: 1.0,
@@ -32,12 +32,13 @@ class SearchServiceTile extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   flex: 1,
-                  child: Container(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(
                       buttonTitle,
                       style: TextStyle(
                         color: Color(kGenchiBlue),
-                        fontSize: 16.0,
+                        fontSize: 18.0,
                       ),
                     ),
                   ),

@@ -11,6 +11,7 @@ import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
+import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
@@ -32,7 +33,13 @@ import 'package:provider/provider.dart';
 
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+//final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+
 void main() {
+//  _firebaseMessaging.requestNotificationPermissions()
   Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
   runApp(Genchi());
@@ -69,7 +76,7 @@ class StartUp extends StatelessWidget {
             ],
             theme: ThemeData(
               fontFamily: 'FuturaPT',
-              canvasColor: Color(kGenchiGreen),
+              canvasColor: Colors.white,
               scaffoldBackgroundColor: Colors.white,
               indicatorColor: Color(kGenchiOrange),
             ),
@@ -93,6 +100,7 @@ class StartUp extends StatelessWidget {
               PostTaskScreen.id: (context) => PostTaskScreen(),
               TaskScreen.id: (context) => TaskScreen(),
               EditTaskScreen.id: (context) => EditTaskScreen(),
+              TestScreen.id: (context) => TestScreen(),
             },
           );
         }

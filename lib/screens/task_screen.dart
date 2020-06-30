@@ -378,7 +378,7 @@ class _TaskScreenState extends State<TaskScreen> {
           color: Colors.black,
         ),
         title: Text(
-          'Task',
+          'Job',
           style: TextStyle(
             color: Colors.black,
             fontSize: 30,

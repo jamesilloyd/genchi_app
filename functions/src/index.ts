@@ -7,3 +7,8 @@ export const helloWorld = functions.https.onRequest((request, response) => {
  console.log('Hello!')
  response.send("Hello from Firebase!");
 });
+
+export const sendHelloNotificaiton = functions.https.onRequest((request,response) => {
+    console.log('Hello notification!')
+    response.send("You should have received a notification");
+})

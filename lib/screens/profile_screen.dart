@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/screens/post_task_screen.dart';
+import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/screens/provider_screen.dart';
@@ -56,34 +57,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
-    return Scaffold(
-      appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          image: DecorationImage(
-            image: AssetImage('images/Logo_Clear.png'),
-            alignment: Alignment(2.5,1.2),
-            colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
+    return Stack(
+      children: <Widget>[
+        Align(
+          alignment: Alignment(0,1.14),
+          child: Container(
+            height: MediaQuery.of(context).size.height*0.29,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                image: AssetImage('images/Logo_Clear.png'),
+                alignment: Alignment(1.3,0),
+                colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
+              ),
+            ),
           ),
         ),
-        child: Center(
-          child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 20.0),
-            children: <Widget>[
-              DisplayPicture(
-                imageUrl: currentUser.displayPictureURL,
-                height: 0.25,
-                border: true,
-              ),
-              SizedBox(height: 5),
+        Scaffold(
+          appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+          backgroundColor: Colors.transparent,
+          body: Container(
+            child: Center(
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                children: <Widget>[
+                  DisplayPicture(
+                    imageUrl: currentUser.displayPictureURL,
+                    height: 0.25,
+                    border: true,
+                  ),
+                  SizedBox(height: 5),
 //              ProfileOptionTile(
 //                text: 'Crash',
 //                onPressed: () {
 //                throw Exception('ERORRRORR');
 //                },
 //              ),
+                  ProfileOptionTile(
+                    text: 'Test Screen',
+                    onPressed: ()  {
+                     Navigator.pushNamed(context, TestScreen.id);
+                    },
+                  ),
 //              ProfileOptionTile(
 //                text: 'Post Task',
 //                onPressed: () async {
@@ -93,161 +108,173 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                    Navigator.pushNamed(context, PostTaskScreen.id);
 //                },
 //              ),
-              if (userIsProvider)
-                ProfileOptionTile(
-                  text: 'Provider Accounts',
-                  isPressable: false,
-                  onPressed: () {},
-                ),
-              if (userIsProvider) Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: FutureBuilder(
-                    //This function returns a list of providerUsers
-                    future: firestoreAPI.getProviders(
-                        pids: currentUser.providerProfiles),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return CircularProgress();
+                  if (userIsProvider)
+                    ProfileOptionTile(
+                      text: 'Provider Accounts',
+                      isPressable: false,
+                      onPressed: () {},
+                    ),
+                  if (userIsProvider) Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: FutureBuilder(
+                        //This function returns a list of providerUsers
+                        future: firestoreAPI.getProviders(
+                            pids: currentUser.providerProfiles),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgress();
+                          }
+                          final List<ProviderUser> providers = snapshot.data;
+
+                          List<Widget> providerCards = [];
+
+                          for (ProviderUser provider in providers) {
+                            Widget pCard = ProviderAccountCard(
+                                width: (MediaQuery.of(context).size.width - 20 * 3)/2.2,
+                                provider: provider,
+                                onPressed: () async {
+                                  await providerService.updateCurrentProvider(provider.pid);
+                                  Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
+                                });
+                            providerCards.add(pCard);
+                          }
+
+                          ///add the "add provider" card
+                          providerCards.add(
+                            AddProviderCard(
+                                width: (MediaQuery.of(context).size.width - 20 * 3)/2.2,
+                                onPressed: () async {
+                                  bool createAccount = await showYesNoAlert(
+                                      context: context,
+                                      title: 'Create Provider Account?',
+                                      body:
+                                      "Are you ready to provide your skills to the Cambridge community?");
+                                  if (createAccount) {
+                                    DocumentReference result = await firestoreAPI.addProvider(
+                                        ProviderUser(
+                                            uid: authProvider.currentUser.id,
+                                            displayPictureURL: currentUser.displayPictureURL,
+                                            displayPictureFileName:
+                                            currentUser.displayPictureFileName),
+                                        authProvider.currentUser.id);
+                                    await authProvider.updateCurrentUserData();
+
+                                    await providerService
+                                        .updateCurrentProvider(result.documentID);
+
+                                    Navigator.pushNamed(context, ProviderScreen.id,
+                                        arguments: ProviderScreenArguments(
+                                            provider: providerService.currentProvider));
+                                  }
+                                },
+
+                            ),
+                          );
+
+                          //TODO come back to formatting
+                          return Container(
+                            height: (MediaQuery.of(context).size.width - 20 * 3)/(2.2*1.77) + 20,
+                            child: ListView(
+                            padding: EdgeInsets.fromLTRB(20,0,0,0),
+                              scrollDirection: Axis.horizontal,
+                              children: providerCards,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  if(userIsProvider) Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Divider(
+                      height: 0,
+                      thickness: 1,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if(!userIsProvider) ProfileOptionTile (
+                    text: 'Create Provider Profile',
+                    onPressed: () async {
+                      bool createAccount = await showYesNoAlert(
+                          context: context,
+                          title: 'Create Provider Account?',
+                          body: "Are you ready to provide your skills to the Cambridge community?");
+                      if (createAccount) {
+                        DocumentReference result = await firestoreAPI.addProvider(
+                            ProviderUser(
+                                uid: authProvider.currentUser.id,
+                                displayPictureURL: currentUser.displayPictureURL,
+                                displayPictureFileName:
+                                    currentUser.displayPictureFileName),
+                            authProvider.currentUser.id);
+                        await authProvider.updateCurrentUserData();
+
+                        await providerService
+                            .updateCurrentProvider(result.documentID);
+
+                        Navigator.pushNamed(context, ProviderScreen.id,
+                            arguments: ProviderScreenArguments(
+                                provider: providerService.currentProvider));
                       }
-                      final List<ProviderUser> providers = snapshot.data;
-
-                      List<Widget> providerCards = [];
-
-                      for (ProviderUser provider in providers) {
-                        Widget pCard = ProviderAccountCard(
-                            height: (MediaQuery.of(context).size.height * 0.1),
-                            provider: provider,
-                            onPressed: () async {
-                              await providerService.updateCurrentProvider(provider.pid);
-                              Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
-                            });
-                        providerCards.add(pCard);
-                      }
-
-                      ///add the "add provider" card
-                      providerCards.add(
-                        AddProviderCard(
-                            height: (MediaQuery.of(context).size.height * 0.1),
-                            onPressed: () async {
-                              bool createAccount = await showYesNoAlert(
-                                  context: context,
-                                  title: 'Create Provider Account?',
-                                  body:
-                                  "Are you ready to provide your skills to the Cambridge community?");
-                              if (createAccount) {
-                                DocumentReference result = await firestoreAPI.addProvider(
-                                    ProviderUser(
-                                        uid: authProvider.currentUser.id,
-                                        displayPictureURL: currentUser.displayPictureURL,
-                                        displayPictureFileName:
-                                        currentUser.displayPictureFileName),
-                                    authProvider.currentUser.id);
-                                await authProvider.updateCurrentUserData();
-
-                                await providerService
-                                    .updateCurrentProvider(result.documentID);
-
-                                Navigator.pushNamed(context, ProviderScreen.id,
-                                    arguments: ProviderScreenArguments(
-                                        provider: providerService.currentProvider));
-                              }
-                            },
-
-                        ),
-                      );
-
-                      //TODO come back to formatting
-                      return Container(
-                        height: 100,
-                        child: ListView(
-                        padding: EdgeInsets.fromLTRB(20,0,0,0),
-                          scrollDirection: Axis.horizontal,
-                          children: providerCards,
-                        ),
-                      );
                     },
                   ),
-                ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Divider(
-                  height: 0,
-                  thickness: 1,
-                  color: Colors.black,
-                ),
+                  ProfileOptionTile(
+                    text: 'Favourites',
+                    onPressed: () {
+                      Navigator.pushNamed(context, FavouritesScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Account Settings',
+                    onPressed: () {
+                      Navigator.pushNamed(context, EditAccountScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'About Genchi',
+                    onPressed: () {
+                      Navigator.pushNamed(context, AboutScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Feedback',
+                    onPressed: () async {
+                      if (await canLaunch(GenchiFeedbackURL)) {
+                        await launch(GenchiFeedbackURL);
+                      } else {
+                        print("Could not open URL");
+                      }
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Log Out',
+                    onPressed: () {
+                      Platform.isIOS
+                          ? showAlertIOS(
+                              context: context,
+                              actionFunction: () async {
+                                await authProvider.signUserOut();
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                        (Route<dynamic> route) => false);
+                              },
+                              alertMessage: "Log out")
+                          : showAlertAndroid(
+                              context: context,
+                              actionFunction: () async {
+                                await authProvider.signUserOut();
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                        (Route<dynamic> route) => false);
+                              },
+                              alertMessage: "Log out");
+                    },
+                  ),
+                ],
               ),
-              if(!userIsProvider) ProfileOptionTile (
-                text: 'Create Provider Profile',
-                onPressed: () async {
-                  bool createAccount = await showYesNoAlert(
-                      context: context,
-                      title: 'Create Provider Account?',
-                      body: "Are you ready to provide your skills to the Cambridge community?");
-                  if (createAccount) {
-                    DocumentReference result = await firestoreAPI.addProvider(
-                        ProviderUser(
-                            uid: authProvider.currentUser.id,
-                            displayPictureURL: currentUser.displayPictureURL,
-                            displayPictureFileName:
-                                currentUser.displayPictureFileName),
-                        authProvider.currentUser.id);
-                    await authProvider.updateCurrentUserData();
-
-                    await providerService
-                        .updateCurrentProvider(result.documentID);
-
-                    Navigator.pushNamed(context, ProviderScreen.id,
-                        arguments: ProviderScreenArguments(
-                            provider: providerService.currentProvider));
-                  }
-                },
-              ),
-              ProfileOptionTile(
-                text: 'Favourites',
-                onPressed: () {
-                  Navigator.pushNamed(context, FavouritesScreen.id);
-                },
-              ),
-              ProfileOptionTile(
-                text: 'Account Settings',
-                onPressed: () {
-                  Navigator.pushNamed(context, EditAccountScreen.id);
-                },
-              ),
-              ProfileOptionTile(
-                text: 'About Genchi',
-                onPressed: () {
-                  Navigator.pushNamed(context, AboutScreen.id);
-                },
-              ),
-              ProfileOptionTile(
-                text: 'Log Out',
-                onPressed: () {
-                  Platform.isIOS
-                      ? showAlertIOS(
-                          context: context,
-                          actionFunction: () async {
-                            await authProvider.signUserOut();
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                    (Route<dynamic> route) => false);
-                          },
-                          alertMessage: "Log out")
-                      : showAlertAndroid(
-                          context: context,
-                          actionFunction: () async {
-                            await authProvider.signUserOut();
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                    (Route<dynamic> route) => false);
-                          },
-                          alertMessage: "Log out");
-                },
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

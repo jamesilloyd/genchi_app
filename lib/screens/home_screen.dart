@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation:4,
             currentIndex: _page ?? startingIndex,
             showUnselectedLabels: true,
-            selectedItemColor: Color(kGenchiCream),
+            selectedItemColor: Color(kGenchiOrange),
             unselectedItemColor: Colors.black,
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 icon: Icon(
                     Platform.isIOS ? CupertinoIcons.folder : Icons.folder_open),
-                title: Text('Tasks'),
+                title: Text('Jobs'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS

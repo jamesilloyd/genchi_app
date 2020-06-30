@@ -67,15 +67,15 @@ class ProviderCard extends StatelessWidget {
 
 ///These are the cards that will appear on a user's profile tab
 Widget ProviderAccountCard(
-    {@required double height,
+    {@required double width,
     @required Function onPressed,
     @required ProviderUser provider}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
       child: Container(
-        width: 160,
-        height: 90,
+        width: width,
+        height: width/1.77,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             color: Color(kGenchiLightOrange),
@@ -95,17 +95,24 @@ Widget ProviderAccountCard(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  provider.name,
-                  style: TextStyle(fontSize: 20, color: Colors.black),
+                Expanded(
+//                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    provider.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
                 ),
-                Text(
-                  provider.type,
-                  style: TextStyle(fontSize: 18, color: Colors.black),
+                Expanded(
+                  child: Text(
+                    provider.type,
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
                 ),
-                SizedBox(
-                  height: 5,
-                ),
+//                SizedBox(
+//                  height: 5,
+//                ),
                 Expanded(
                   child: Text(
                     provider.bio,
@@ -127,13 +134,13 @@ Widget ProviderAccountCard(
 }
 
 Widget AddProviderCard(
-    {@required double height, @required Function onPressed}) {
+    {@required double width, @required Function onPressed}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
       child: Container(
-        width: 160,
-        height: 90,
+        width: width,
+        height: width/1.77,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             color: Color(kGenchiLightOrange),

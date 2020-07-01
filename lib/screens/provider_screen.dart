@@ -105,9 +105,16 @@ class _ProviderScreenState extends State<ProviderScreen> {
                          print("Empty");
                          Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: Chat(),provider: providerUser,user: authProvider.currentUser, isFirstInstance: true));
                        } else {
-                         //This is an existing chat
+                         ///This is an existing chat
                          Chat existingChat = await firestoreAPI.getChatById(commonChatIds.first);
-                         Navigator.pushNamed(context, ChatScreen.id,arguments: ChatScreenArguments(chat: existingChat,provider: providerUser,user: authProvider.currentUser));
+                         ///Check that the chat exists in database
+                         if(existingChat!=null) {
+                           Navigator.pushNamed(context, ChatScreen.id,
+                               arguments: ChatScreenArguments(
+                                   chat: existingChat,
+                                   provider: providerUser,
+                                   user: authProvider.currentUser));
+                         }
                        }
                      },
                    ),

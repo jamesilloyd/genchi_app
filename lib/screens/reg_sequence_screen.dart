@@ -154,12 +154,13 @@ class _RegSequenceScreenState extends State<RegSequenceScreen> {
                                       authProvider.currentUser.id);
                               await authProvider.updateCurrentUserData();
 
+                              ///Should be safe to say that this provider will exist in the database as it has just been created
                               ProviderUser newProvider = await firestoreAPI
                                   .getProviderById(result.documentID);
+
                               await providerService
                                   .updateCurrentProvider(result.documentID);
 
-                              print(newProvider);
 
                               Navigator.pushNamedAndRemoveUntil(
                                   context,

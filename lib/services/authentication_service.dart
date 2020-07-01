@@ -17,17 +17,16 @@ class AuthenticationService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirestoreAPIService _firestoreCRUDModel = FirestoreAPIService();
 
-  //ToDo to be updated (1)
   User _currentUser;
   User get currentUser => _currentUser;
 
-  //ToDo to be updated (1)
   Future _populateCurrentUser(FirebaseUser user) async {
     print("populating current user");
     if (user != null) {
       if(debugMode) print('Authentication service _populateCurrentUser: user ${user.uid}');
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       notifyListeners();
+      //TODO: how to handle error here ???
     }
   }
 

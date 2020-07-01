@@ -12,11 +12,6 @@ const fcm = admin.messaging();
  // Start writing Firebase Functions
  // https://firebase.google.com/docs/functions/typescript
 
-export const helloWorld = functions.https.onRequest((request, response) => {
- console.log('Hello!')
- response.send("Hello from Firebase!");
-});
-
 export const sendToDevice = functions.firestore.document('test/{testId}').onCreate(async snapshot => {
 
     // const test = snapshot.data();
@@ -49,9 +44,6 @@ export const sendToDevice = functions.firestore.document('test/{testId}').onCrea
 
 export const sendPrivateMessageNotification = functions.firestore.document('chats/{chatId}/messages/{messageId}')
     .onCreate( async (snapshot, context) => {
-        // We need to establish: - who is the sender (and their name), who it's going to, what the message said
-
-        console.log(snapshot.data())
 
         const message = snapshot.data();
 
@@ -63,43 +55,38 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
 
         if (chatData) {
 
+            //The user in the chat
+            const user = await db.collection('users').doc(chatData['uid']).get();
+            const userData = user.data();
+
+            // Ther provider in the chat
             const pid = chatData['pid'];
-            
-            // If sender is the provider retrieve the chat user and their token
-            if(pid == message.sender) {
+            const provider = await db.collection('providers').doc(pid).get();
+            const providerData = provider.data();
 
-                const user = await db.collection('users').doc(chatData['uid']).get();
-                const userData = user.data();
+            if(userData && providerData) {
 
-                if(userData) {
-                    senderName = userData['name'];
+                if(pid == message.sender) {
+                // If sender is the provider retrieve the providers name and the user token
+                    senderName = providerData['name'];
                     tokens = userData['fcmTokens'];
-                }
 
-            } else {
-                //Otherwise the user sent the message so we need to find the tokens of the providers uid
+                } else {
+                //Otherwise the user sent the message so we need to find the tokens of the providers uid and the sender name
+                    const providersUser = await db.collection('users').doc(providerData['uid']).get();
+                    const providersUserData = providersUser.data();
 
-                const provider = await db.collection('providers').doc(pid).get();
-                const providerData = provider.data();
-
-                if(providerData) {
-                    const uid = providerData['uid'];
-
-                    const user = await db.collection('users').doc(uid).get();
-                    const userData = user.data();
-
-                    if(userData) {
+                    if(providersUserData){
                         senderName = userData['name'];
-                        tokens = userData['fcmTokens'];
+                        tokens = providersUserData['fcmTokens'];
                     }
                 }
-
             }
 
             const payload : admin.messaging.MessagingPayload = {
 
                 notification : {
-                    title : senderName + 'Private Message',
+                    title : senderName + ' - Private Message',
                     body : message.text,
                     clickAction: 'FLUTTER_NOTIFICATION_CLICK'
                 },

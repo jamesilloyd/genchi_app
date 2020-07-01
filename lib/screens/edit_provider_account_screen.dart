@@ -38,6 +38,7 @@ class EditProviderAccountScreen extends StatefulWidget {
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
   TextEditingController experienceTextController = TextEditingController();
@@ -361,7 +362,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                             setState(() => showSpinner = false);
 
                             Navigator.pushNamedAndRemoveUntil(context,
-                                HomeScreen.id, (Route<dynamic> route) => false);
+                                HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 3));
                           }, alertMessage: 'Delete Account')
                         : showAlertAndroid(context: context, actionFunction: () async {
                             setState(() => showSpinner = true);
@@ -373,7 +374,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                             setState(() => showSpinner = false);
 
                             Navigator.pushNamedAndRemoveUntil(context,
-                                HomeScreen.id, (Route<dynamic> route) => false);
+                                HomeScreen.id, (Route<dynamic> route) => false,arguments: HomeScreenArguments(startingIndex: 3));
                           },alertMessage: "Delete Account");
                   },
                 ),

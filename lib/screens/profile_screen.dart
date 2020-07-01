@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,15 +61,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Stack(
       children: <Widget>[
         Align(
-          alignment: Alignment(0,1.14),
+          alignment: Alignment(0, 1.14),
           child: Container(
-            height: MediaQuery.of(context).size.height*0.29,
+            height: MediaQuery.of(context).size.height * 0.29,
             decoration: BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
                 image: AssetImage('images/Logo_Clear.png'),
-                alignment: Alignment(1.3,0),
-                colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
+                alignment: Alignment(1.3, 0),
+                colorFilter: ColorFilter.mode(
+                    Colors.white.withOpacity(0.2), BlendMode.dstATop),
               ),
             ),
           ),
@@ -87,18 +89,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: true,
                   ),
                   SizedBox(height: 5),
-//              ProfileOptionTile(
-//                text: 'Crash',
-//                onPressed: () {
-//                throw Exception('ERORRRORR');
-//                },
-//              ),
 //                  ProfileOptionTile(
-//                    text: 'Test Screen',
-//                    onPressed: ()  {
-//                     Navigator.pushNamed(context, TestScreen.id);
+//                    text: 'Crash',
+//                    onPressed: () {
+//                      Crashlytics.instance.crash();
+//                      throw Exception('ERORRRORR');
 //                    },
 //                  ),
+                  ProfileOptionTile(
+                    text: 'Test Screen',
+                    onPressed: ()  {
+                     Navigator.pushNamed(context, TestScreen.id);
+                    },
+                  ),
 //              ProfileOptionTile(
 //                text: 'Post Task',
 //                onPressed: () async {
@@ -114,7 +117,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       isPressable: false,
                       onPressed: () {},
                     ),
-                  if (userIsProvider) Padding(
+                  if (userIsProvider)
+                    Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: FutureBuilder(
                         //This function returns a list of providerUsers
@@ -130,11 +134,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           for (ProviderUser provider in providers) {
                             Widget pCard = ProviderAccountCard(
-                                width: (MediaQuery.of(context).size.width - 20 * 3)/2.2,
+                                width: (MediaQuery.of(context).size.width -
+                                        20 * 3) /
+                                    2.2,
                                 provider: provider,
                                 onPressed: () async {
-                                  await providerService.updateCurrentProvider(provider.pid);
-                                  Navigator.pushNamed(context, ProviderScreen.id, arguments: ProviderScreenArguments(provider: provider));
+                                  await providerService
+                                      .updateCurrentProvider(provider.pid);
+                                  Navigator.pushNamed(
+                                      context, ProviderScreen.id,
+                                      arguments: ProviderScreenArguments(
+                                          provider: provider));
                                 });
                             providerCards.add(pCard);
                           }
@@ -142,40 +152,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ///add the "add provider" card
                           providerCards.add(
                             AddProviderCard(
-                                width: (MediaQuery.of(context).size.width - 20 * 3)/2.2,
-                                onPressed: () async {
-                                  bool createAccount = await showYesNoAlert(
-                                      context: context,
-                                      title: 'Create Provider Account?',
-                                      body:
-                                      "Are you ready to provide your skills to the Cambridge community?");
-                                  if (createAccount) {
-                                    DocumentReference result = await firestoreAPI.addProvider(
-                                        ProviderUser(
-                                            uid: authProvider.currentUser.id,
-                                            displayPictureURL: currentUser.displayPictureURL,
-                                            displayPictureFileName:
-                                            currentUser.displayPictureFileName),
-                                        authProvider.currentUser.id);
-                                    await authProvider.updateCurrentUserData();
+                              width:
+                                  (MediaQuery.of(context).size.width - 20 * 3) /
+                                      2.2,
+                              onPressed: () async {
+                                bool createAccount = await showYesNoAlert(
+                                    context: context,
+                                    title: 'Create Provider Account?',
+                                    body:
+                                        "Are you ready to provide your skills to the Cambridge community?");
+                                if (createAccount) {
+                                  DocumentReference result =
+                                      await firestoreAPI.addProvider(
+                                          ProviderUser(
+                                              uid: authProvider.currentUser.id,
+                                              displayPictureURL:
+                                                  currentUser.displayPictureURL,
+                                              displayPictureFileName:
+                                                  currentUser
+                                                      .displayPictureFileName),
+                                          authProvider.currentUser.id);
+                                  await authProvider.updateCurrentUserData();
 
-                                    await providerService
-                                        .updateCurrentProvider(result.documentID);
+                                  await providerService
+                                      .updateCurrentProvider(result.documentID);
 
-                                    Navigator.pushNamed(context, ProviderScreen.id,
-                                        arguments: ProviderScreenArguments(
-                                            provider: providerService.currentProvider));
-                                  }
-                                },
-
+                                  Navigator.pushNamed(
+                                      context, ProviderScreen.id,
+                                      arguments: ProviderScreenArguments(
+                                          provider:
+                                              providerService.currentProvider));
+                                }
+                              },
                             ),
                           );
 
                           //TODO come back to formatting
                           return Container(
-                            height: (MediaQuery.of(context).size.width - 20 * 3)/(2.2*1.77) + 20,
+                            height:
+                                (MediaQuery.of(context).size.width - 20 * 3) /
+                                        (2.2 * 1.77) +
+                                    20,
                             child: ListView(
-                            padding: EdgeInsets.fromLTRB(20,0,0,0),
+                              padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                               scrollDirection: Axis.horizontal,
                               children: providerCards,
                             ),
@@ -183,40 +202,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                     ),
-                  if(userIsProvider) Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(
-                      height: 0,
-                      thickness: 1,
-                      color: Colors.black,
+                  if (userIsProvider)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Divider(
+                        height: 0,
+                        thickness: 1,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  if(!userIsProvider) ProfileOptionTile (
-                    text: 'Create Provider Profile',
-                    onPressed: () async {
-                      bool createAccount = await showYesNoAlert(
-                          context: context,
-                          title: 'Create Provider Account?',
-                          body: "Are you ready to provide your skills to the Cambridge community?");
-                      if (createAccount) {
-                        DocumentReference result = await firestoreAPI.addProvider(
-                            ProviderUser(
-                                uid: authProvider.currentUser.id,
-                                displayPictureURL: currentUser.displayPictureURL,
-                                displayPictureFileName:
-                                    currentUser.displayPictureFileName),
-                            authProvider.currentUser.id);
-                        await authProvider.updateCurrentUserData();
+                  if (!userIsProvider)
+                    ProfileOptionTile(
+                      text: 'Create Provider Profile',
+                      onPressed: () async {
+                        bool createAccount = await showYesNoAlert(
+                            context: context,
+                            title: 'Create Provider Account?',
+                            body:
+                                "Are you ready to provide your skills to the Cambridge community?");
+                        if (createAccount) {
+                          DocumentReference result =
+                              await firestoreAPI.addProvider(
+                                  ProviderUser(
+                                      uid: authProvider.currentUser.id,
+                                      displayPictureURL:
+                                          currentUser.displayPictureURL,
+                                      displayPictureFileName:
+                                          currentUser.displayPictureFileName),
+                                  authProvider.currentUser.id);
+                          await authProvider.updateCurrentUserData();
 
-                        await providerService
-                            .updateCurrentProvider(result.documentID);
+                          await providerService
+                              .updateCurrentProvider(result.documentID);
 
-                        Navigator.pushNamed(context, ProviderScreen.id,
-                            arguments: ProviderScreenArguments(
-                                provider: providerService.currentProvider));
-                      }
-                    },
-                  ),
+                          Navigator.pushNamed(context, ProviderScreen.id,
+                              arguments: ProviderScreenArguments(
+                                  provider: providerService.currentProvider));
+                        }
+                      },
+                    ),
                   ProfileOptionTile(
                     text: 'Favourites',
                     onPressed: () {

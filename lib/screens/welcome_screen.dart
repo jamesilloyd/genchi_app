@@ -1,17 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen.dart';
-import 'package:genchi_app/services/authentication_service.dart';
-import 'package:provider/provider.dart';
 import 'package:genchi_app/constants.dart';
 import 'reg_sequence_screen.dart';
-import 'package:genchi_app/models/screen_arguments.dart';
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -43,34 +37,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         setState(() {});
       },
     );
-
-    //ToDo: ideally want to do this in Main.dart to determine initialRoute
-    isUserAlreadyLoggedIn();
-  }
-
-  //Automatic login
-  //ToDo: move this into main.dart
-  void isUserAlreadyLoggedIn() async {
-    try {
-      final bool loggedIn =
-          await Provider.of<AuthenticationService>(context, listen: false)
-              .isUserLoggedIn();
-      print(loggedIn);
-      if (loggedIn != false) {
-        print("User logged in");
-
-        Navigator.pushReplacementNamed(context, HomeScreen.id);
-      } else {
-        print("No logged in user");
-      }
-    } catch (e) {
-      print("isUserAlreadyLoggedIn $e");
-    }
   }
 
   @override
   void dispose() {
-    //removes the controller after the screen disappears
+    ///removes the controller after the screen disappears
     controller.dispose();
     super.dispose();
   }
@@ -78,7 +49,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//      backgroundColor: animation.value,
       backgroundColor: Color(kGenchiGreen),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),

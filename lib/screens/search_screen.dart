@@ -52,11 +52,9 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
 
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-
-
   }
 
   @override

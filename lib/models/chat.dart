@@ -4,8 +4,6 @@ class Chat {
   String pid;
   String uid;
   String chatid;
-  String taskid;
-  bool isForTask;
   bool userHasUnreadMessage;
   bool providerHasUnreadMessage;
   bool isHiddenFromUser;
@@ -17,13 +15,11 @@ class Chat {
       {this.pid,
       this.uid,
       this.chatid,
-      this.taskid,
       this.userHasUnreadMessage,
       this.providerHasUnreadMessage,
       this.lastMessage,
       this.isHiddenFromProvider,
       this.isHiddenFromUser,
-      this.isForTask,
       this.time});
 
   Chat.fromMap(Map snapshot)
@@ -36,8 +32,6 @@ class Chat {
         chatid = snapshot['chatid'] ?? '',
         isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromUser = snapshot['isHiddenFromUser'] ?? false,
-        isForTask = snapshot['isForTask'] ?? false,
-        taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {
@@ -54,8 +48,6 @@ class Chat {
         "isHiddenFromProvider": isHiddenFromProvider,
       if (isHiddenFromUser != null) "isHiddenFromUser": isHiddenFromUser,
       if (time != null) "time": time,
-      if (isForTask != null) 'isForTask': isForTask,
-      if (taskid != null) 'taskid': taskid
     };
   }
 }

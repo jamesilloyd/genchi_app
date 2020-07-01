@@ -32,7 +32,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Task Screen Activated');
+    print('Task Summary Screen Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
     final taskProvider = Provider.of<TaskService>(context);
     User currentUser = authProvider.currentUser;

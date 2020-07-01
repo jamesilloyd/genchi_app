@@ -147,7 +147,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               color: Colors.black,
             ),
             title: Text(
-              'Edit Task',
+              'Edit Job',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 30,
@@ -200,7 +200,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Title",
                   textController: titleController,
-                  hintText: 'Summary of the task',
+                  hintText: 'Summary of the job',
                   onChanged: (value) {
                     title = value;
                     changesMade = true;
@@ -235,7 +235,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Date",
                   textController: dateController,
-                  hintText: 'The timeframe of the task',
+                  hintText: 'The timeframe of the job',
                   onChanged: (value) {
                     date = value;
                     changesMade = true;
@@ -244,7 +244,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Details",
                   textController: detailsController,
-                  hintText: 'Provide further details of the task',
+                  hintText: 'Provide further details of the job',
                   onChanged: (value) {
                     details = value;
                     changesMade = true;
@@ -253,7 +253,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Price",
                   textController: priceController,
-                  hintText: 'Estimated pay for the task',
+                  hintText: 'Estimated pay for the job',
 
                   onChanged: (value) {
                     price = value;
@@ -263,12 +263,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 SizedBox(height: 10),
                 Divider(height: 10),
                 RoundedButton(
-                  buttonTitle: 'Delete task',
+                  buttonTitle: 'Delete job',
                   buttonColor: Color(kGenchiBlue),
                   onPressed: ()async{
-                    //TODO add in functionality to delete tasks
+
                     ///Ask user if they want to delete task
-                    bool deleteTask = await showYesNoAlert(context: context, title: 'Are you sure you want to delete this task?');
+                    bool deleteTask = await showYesNoAlert(context: context, title: 'Are you sure you want to delete this job?');
 
                     if(deleteTask){
                       setState(() {

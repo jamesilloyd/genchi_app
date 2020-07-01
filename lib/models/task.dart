@@ -10,13 +10,7 @@ class Task {
   String date;
   String price;
   List<dynamic> chosenApplicantIds;
-  List<dynamic> applicantChatsAndPids;
   Timestamp time;
-  String applicantId;
-  String chatId;
-  Map applicantAndChat;
-
-
 
   Task({
     this.taskId,
@@ -27,15 +21,8 @@ class Task {
     this.date,
     this.price,
     this.chosenApplicantIds,
-    this.applicantChatsAndPids,
     this.time,
-  })
-  //TODO look at how we can do this in here.
-//      :
-//      applicantAndChat = applicantChatsAndPids[0],
-//  applicantId = applicantChatsAndPids[0]['pid'],
-//  chatId = applicantChatsAndPids[0]['chatId']
-  ;
+  });
 
 
 
@@ -46,7 +33,6 @@ class Task {
         title = snapshot['title'] ?? '',
         details = snapshot['details'] ?? '',
         date = snapshot['date'] ?? '',
-        applicantChatsAndPids = snapshot['applicantChatsAndPids'] ?? [],
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
         chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [];
@@ -62,8 +48,60 @@ class Task {
       if (date != null) 'date': date,
       if (chosenApplicantIds != null) 'chosenApplicantIds': chosenApplicantIds,
       if (time != null) 'time': time,
-      if (applicantChatsAndPids != null)
-        'applicantChatsAndPids': applicantChatsAndPids,
+    };
+  }
+}
+
+
+
+class TaskApplicant {
+  String pid;
+  String hirerid;
+  String applicationId;
+  String taskid;
+  bool hirerHasUnreadMessage;
+  bool providerHasUnreadMessage;
+  bool isHiddenFromHirer;
+  bool isHiddenFromProvider;
+  String lastMessage;
+  Timestamp time;
+
+  TaskApplicant(
+      {this.pid,
+        this.hirerid,
+        this.applicationId,
+        this.taskid,
+        this.hirerHasUnreadMessage,
+        this.providerHasUnreadMessage,
+        this.lastMessage,
+        this.isHiddenFromProvider,
+        this.isHiddenFromHirer,
+        this.time});
+
+  TaskApplicant.fromMap(Map snapshot)
+      : pid = snapshot['pid'] ?? '',
+        hirerid = snapshot['hirerid'] ?? '',
+        hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
+        providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
+        lastMessage = snapshot['lastMessage'] ?? '',
+        applicationId = snapshot['applicationId'] ?? '',
+        isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
+        isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
+        taskid = snapshot['taskid'] ?? '',
+        time = snapshot['time'] ?? Timestamp.now();
+
+  toJson() {
+    return {
+      if (pid != null) "pid": pid,
+      if (hirerid != null) "hirerid": hirerid,
+      if (applicationId != null) 'applicationId': applicationId,
+      if (providerHasUnreadMessage != null)'providerHasUnreadMessage': providerHasUnreadMessage,
+      if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
+      if (lastMessage != null) 'lastMessage': lastMessage,
+      if (isHiddenFromProvider != null)"isHiddenFromProvider": isHiddenFromProvider,
+      if (isHiddenFromHirer != null) "isHiddenFromHirer": isHiddenFromHirer,
+      if (time != null) "time" : time,
+      if (taskid != null) 'taskid': taskid
     };
   }
 }

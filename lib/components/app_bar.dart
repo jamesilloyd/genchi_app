@@ -72,12 +72,14 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
               backgroundImage: imageURL != null ? CachedNetworkImageProvider(imageURL) : AssetImage("images/Logo_Clear.png"),
             ),
             SizedBox(width: 10),
-            Text(
-              barTitle,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
+            Expanded(
+              child: Text(
+                barTitle,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

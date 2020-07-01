@@ -19,8 +19,14 @@ class TaskService extends ChangeNotifier {
 
     if(debugMode) print("updateCurrentTask called: populating task $taskId");
     if (taskId != null) {
-      _currentTask = await _firestoreAPI.getTaskById(taskId: taskId);
-      notifyListeners();
+      Task task = await _firestoreAPI.getTaskById(taskId: taskId);
+      if(task!=null) {
+        _currentTask = task;
+        notifyListeners();
+      } else {
+        //TODO how to handle this???
+      }
+
     }
   }
 

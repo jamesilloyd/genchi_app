@@ -18,18 +18,16 @@ class AboutScreen extends StatelessWidget {
         barTitle: 'About Genchi',
       ),
       body: ListView(
-        padding: EdgeInsets.all(20.0),
+//        padding: EdgeInsets.all(20.0),
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.fromLTRB(0,15,0,0),
             child: Container(
-              height: MediaQuery.of(context).size.height*0.15,
+              height: MediaQuery.of(context).size.height * 0.15,
               child: Image.asset('images/Logo_Clear.png'),
             ),
           ),
-          Divider(
-            height: 0,
-          ),
+
           ProfileOptionTile(
             text: 'About Us',
             onPressed: () async {
@@ -80,7 +78,8 @@ class AboutScreen extends StatelessWidget {
               }
             },
           ),
-          ProfileOptionTile(text: 'Privacy Policy',
+          ProfileOptionTile(
+            text: 'Privacy Policy',
             onPressed: () async {
               if (await canLaunch(GenchiPPURL)) {
                 await launch(GenchiPPURL);

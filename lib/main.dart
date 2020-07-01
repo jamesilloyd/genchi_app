@@ -3,6 +3,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 
 import 'package:genchi_app/screens/favourites_screen.dart';
@@ -34,12 +35,8 @@ import 'package:provider/provider.dart';
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-//final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
 
 void main() {
-//  _firebaseMessaging.requestNotificationPermissions()
   Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
   runApp(Genchi());
@@ -92,8 +89,7 @@ class StartUp extends StatelessWidget {
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
               ProviderScreen.id: (context) => ProviderScreen(),
               SearchProviderScreen.id: (context) => SearchProviderScreen(),
-              EditProviderAccountScreen.id: (context) =>
-                  EditProviderAccountScreen(),
+              EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),
               SearchManualScreen.id: (context) => SearchManualScreen(),
@@ -101,10 +97,10 @@ class StartUp extends StatelessWidget {
               TaskScreen.id: (context) => TaskScreen(),
               EditTaskScreen.id: (context) => EditTaskScreen(),
               TestScreen.id: (context) => TestScreen(),
+              ApplicationChatScreen.id: (context) => ApplicationChatScreen(),
             },
           );
         }
-
         /// The async function is still loading
         return SplashScreen();
       },

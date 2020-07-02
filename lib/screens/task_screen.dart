@@ -10,11 +10,9 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
-import 'package:genchi_app/screens/chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -546,19 +544,18 @@ class _TaskScreenState extends State<TaskScreen> {
                     setState(() {
                       showSpinner = true;
                     });
+
+
                     DocumentReference chatRef = await firestoreAPI.applyToTask(
                         taskId: currentTask.taskId,
                         providerId: selectedProviderId,
-                        userId: currentUser.id);
-                    await authProvider.updateCurrentUserData();
-                    await taskProvider.updateCurrentTask(
-                        taskId: currentTask.taskId);
-                    Chat newChat =
-                        await firestoreAPI.getChatById(chatRef.documentID);
-                    ProviderUser providerProfile =
-                        await firestoreAPI.getProviderById(selectedProviderId);
-                    User hirer =
-                        await firestoreAPI.getUserById(currentTask.hirerId);
+                        userId: currentTask.hirerId);
+
+                    TaskApplicant taskApplicant = await firestoreAPI.getTaskApplicant(taskId: currentTask.taskId,applicantId:chatRef.documentID,);
+
+
+                    ProviderUser providerProfile = await firestoreAPI.getProviderById(selectedProviderId);
+                    User hirer = await firestoreAPI.getUserById(currentTask.hirerId);
 
                     setState(() {
                       showSpinner = false;
@@ -566,16 +563,15 @@ class _TaskScreenState extends State<TaskScreen> {
 
                     ///Check all necessary documents exist before entering chat
                     if (hirer != null &&
-                        providerProfile != null &&
-                        newChat != null) {
-                      Navigator.pushNamed(context, ChatScreen.id,
-                              arguments: ChatScreenArguments(
-                                  chat: newChat,
-                                  userIsProvider: true,
-                                  provider: providerProfile,
-                                  user: hirer,
-                                  isFirstInstance: false))
-                          .then((value) {
+                        providerProfile != null && taskApplicant != null) {
+
+                      Navigator.pushNamed(context, ApplicationChatScreen.id,arguments: ApplicationChatScreenArguments(
+                        taskApplicant: taskApplicant,
+                        hirer: hirer,
+                        provider: providerProfile,
+                        userIsProvider: true,
+                      )).then((value) {
+                        ///Refresh screen
                         setState(() {});
                       });
                     }

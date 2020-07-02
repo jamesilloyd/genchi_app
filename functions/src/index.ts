@@ -102,8 +102,86 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
             } else {
                 return 0;
             }
-            
 
     };
     
+})
+
+
+export const sendApplicationMessageNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicantId}/messages/{messageId}')
+.onCreate(async (snapshot, context) => {
+
+    const message = snapshot.data();
+
+    const application = await db.collection('tasks').doc(context.params.taskId).collection('applicants').doc(context.params.applicantId).get();
+    const applicationData = application.data();
+
+    const task = await db.collection('tasks').doc(context.params.taskId).get();
+    const taskData = task.data();
+
+    var tokens;
+    var senderName;
+    var taskTitle;
+
+    ///How are we going to get tokens, senderName and taskTitle?
+
+    ///taskTitle -> application -> task -> task.title
+
+    if(applicationData && taskData) {
+
+        //The user in the application
+        const user = await db.collection('users').doc(applicationData['hirerid']).get();
+        const userData = user.data();
+
+        // Ther provider in the application
+        const pid = applicationData['pid'];
+        const provider = await db.collection('providers').doc(pid).get();
+        const providerData = provider.data();
+
+        if(userData && providerData) {
+
+            if(pid == message.sender) {
+                // If sender is the provider retrieve the providers name and the user token
+                    senderName = providerData['name'];
+                    tokens = userData['fcmTokens'];
+
+                } else {
+                //Otherwise the user sent the message so we need to find the tokens of the providers uid and the sender name
+                    const providersUser = await db.collection('users').doc(providerData['uid']).get();
+                    const providersUserData = providersUser.data();
+
+                    if(providersUserData){
+                        senderName = userData['name'];
+                        tokens = providersUserData['fcmTokens'];
+                    }
+                }
+        }
+
+        //Now need to find taskTitle
+
+        taskTitle = taskData['title'];
+
+
+        const payload : admin.messaging.MessagingPayload = {
+
+            notification : {
+                title : senderName + ' - ' + taskTitle,
+                body : message.text,
+                clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+            },
+        };
+    
+        if(tokens != null) {
+            return fcm.sendToDevice(tokens,payload).then((response) => {
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+            console.log('Error sending message:', error);
+            });
+        } else {
+            return 0;
+        }
+
+    }
+
 })

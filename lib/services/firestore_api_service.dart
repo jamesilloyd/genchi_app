@@ -107,6 +107,16 @@ class FirestoreAPIService {
     return doc.exists ? Task.fromMap(doc.data) : null;
   }
 
+  Future getTaskApplicant({String taskId, String applicantId}) async {
+    DocumentSnapshot doc = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .document(applicantId)
+        .get();
+
+    return doc.exists ? TaskApplicant.fromMap(doc.data) : null;
+  }
+
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
     if (debugMode)
@@ -359,7 +369,6 @@ class FirestoreAPIService {
       @required ChatMessage chatMessage,
       @required bool providerIsSender,
       @required String taskId}) async {
-
     TaskApplicant taskApplicant = TaskApplicant(
         lastMessage: chatMessage.text,
         time: chatMessage.time,

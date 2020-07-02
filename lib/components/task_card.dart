@@ -6,7 +6,9 @@ import 'package:genchi_app/constants.dart';
 Widget TaskCard(
     {@required Task task,
     @required ImageProvider image,
-    @required Function onTap}) {
+    @required Function onTap,
+      bool isDisplayTask = true,
+    bool hasUnreadMessage = false}) {
   return Column(
     children: <Widget>[
       ListTile(
@@ -33,6 +35,18 @@ Widget TaskCard(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
+            if(!isDisplayTask) hasUnreadMessage
+                ? Container(
+                    height: 15,
+                    width: 15,
+                    decoration: BoxDecoration(
+                      color: Color(kGenchiOrange),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10.0),
+                      ),
+                    ),
+                  )
+                : SizedBox(height: 15.0),
             Text(
               task.service,
               textAlign: TextAlign.end,

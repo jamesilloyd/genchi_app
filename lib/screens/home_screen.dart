@@ -27,13 +27,11 @@ class HomeScreen extends StatefulWidget {
 PageController pageController;
 
 class _HomeScreenState extends State<HomeScreen> {
-
   int _page;
 
   //TODO: look into why the screens are being called (leading to extra firestore reads)
 
   void onPageChanged(int page) {
-
     setState(() {
       this._page = page;
     });
@@ -53,17 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _saveDeviceToken() async {
     /// Get the current user id
-    String uid = await Provider.of<AuthenticationService>(context,listen: false).currentUser.id;
+    String uid =
+        await Provider.of<AuthenticationService>(context, listen: false)
+            .currentUser
+            .id;
 
     /// Get the token for this device
     String fcmToken = await _fcm.getToken();
 
     /// Save it to Firestore
     if (fcmToken != null && uid != null) {
-
-      var tokens = _db
-          .collection('users')
-          .document(uid).setData({
+      var tokens = _db.collection('users').document(uid).setData({
         'fcmTokens': FieldValue.arrayUnion([fcmToken])
       }, merge: true);
     }
@@ -121,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
         child: BottomNavigationBar(
-          elevation:4,
+            elevation: 4,
             currentIndex: _page ?? startingIndex,
             showUnselectedLabels: true,
             selectedItemColor: Color(kGenchiOrange),
@@ -129,15 +127,48 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                title: Text(
-                  'Search',
-                  style: TextStyle(fontFamily: 'FuturaPT'),
-                ),
+                icon:
+                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+                title: Text('Search'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(
-                    Platform.isIOS ? CupertinoIcons.folder : Icons.folder_open),
+                icon: Icon(Platform.isIOS
+                    ? CupertinoIcons.folder
+                    : Icons.folder_open),
+
+                //TODO WORK OUT HOW TO DO NOTIFICATIONS - problem is in how to get the numbers
+//                Stack(
+//                  children: <Widget>[
+//                    Icon(Platform.isIOS
+//                        ? CupertinoIcons.folder
+//                        : Icons.folder_open),
+//                    Positioned(
+//                      right: -5,
+////                      top: -3,
+//                      child: new Container(
+//                        padding: EdgeInsets.all(1),
+//                        decoration: new BoxDecoration(
+//                          color: Colors.red,
+//                          borderRadius: BorderRadius.circular(10),
+//                        ),
+//                        constraints: BoxConstraints(
+//                          minWidth: 20,
+//                          minHeight: 20,
+//                        ),
+//                        child: Center(
+//                          child: new Text(
+//                            '10',
+//                            style: new TextStyle(
+//                              color: Colors.white,
+//                              fontSize: 8,
+//                            ),
+//                            textAlign: TextAlign.center,
+//                          ),
+//                        ),
+//                      ),
+//                    )
+//                  ],
+//                ),
                 title: Text('Jobs'),
               ),
               BottomNavigationBarItem(

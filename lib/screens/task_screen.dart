@@ -551,7 +551,7 @@ class _TaskScreenState extends State<TaskScreen> {
                         providerId: selectedProviderId,
                         userId: currentTask.hirerId);
 
-                    TaskApplicant taskApplicant = await firestoreAPI.getTaskApplicant(taskId: currentTask.taskId,applicantId:chatRef.documentID,);
+                    TaskApplicant taskApplicant = await firestoreAPI.getTaskApplicantById(taskId: currentTask.taskId,applicantId:chatRef.documentID,);
 
 
                     ProviderUser providerProfile = await firestoreAPI.getProviderById(selectedProviderId);

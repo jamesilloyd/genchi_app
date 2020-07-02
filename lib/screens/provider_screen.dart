@@ -228,7 +228,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
             //TODO finish this off!!!!!!!!!
             Container(
               child: Text(
-                "Further Links",
+                "Website Links",
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   color: Color(kGenchiBlue),
@@ -237,16 +237,30 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 5,),
             RichText(
-              //This needs to be assembled using a for loop
               text: TextSpan(
                   children: [
                     TextSpan(
-                        text: 'This is a link',
+                        text: providerUser.url1['desc'],
                         style: TextStyle(
                             color: Colors.blue
                         ),
-                        recognizer: TapGestureRecognizer()..onTap = (){launch('https://www.genchi.app');}
+                        recognizer: TapGestureRecognizer()..onTap = (){launch(providerUser.url1['link']);}
+                    )
+                  ]
+              ),
+            ),
+            SizedBox(height: 10,),
+            RichText(
+              text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: providerUser.url2['desc'],
+                        style: TextStyle(
+                            color: Colors.blue
+                        ),
+                        recognizer: TapGestureRecognizer()..onTap = (){launch(providerUser.url2['link']);}
                     )
                   ]
               ),

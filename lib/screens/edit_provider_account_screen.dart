@@ -27,16 +27,15 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 //TODO: change these to just use text editing controllers
 
-
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
+
   @override
   _EditProviderAccountScreenState createState() =>
       _EditProviderAccountScreenState();
 }
 
 class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
-
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   TextEditingController nameTextController = TextEditingController();
@@ -45,6 +44,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   TextEditingController priceTextController = TextEditingController();
   TextEditingController serviceTextController = TextEditingController();
 
+  TextEditingController urlDesc1TextController = TextEditingController();
+  TextEditingController urlDesc2TextController = TextEditingController();
+
+  TextEditingController url1TextController = TextEditingController();
+  TextEditingController url2TextController = TextEditingController();
+
+  //TODO is the following necessary? or can textControllers handle this?
   String name;
   String bio;
   String experience;
@@ -54,13 +60,16 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   bool changesMade = false;
 
-
-  servicePicker({String currentService, @required TextEditingController controller}){
-
-    return Platform.isIOS ? iOSPicker(currentService: currentService, controller: controller) : androidDropdownButton(currentService: currentService, controller: controller);
+  servicePicker(
+      {String currentService, @required TextEditingController controller}) {
+    return Platform.isIOS
+        ? iOSPicker(currentService: currentService, controller: controller)
+        : androidDropdownButton(
+            currentService: currentService, controller: controller);
   }
 
-  DropdownButton<String> androidDropdownButton({String currentService, @required TextEditingController controller}) {
+  DropdownButton<String> androidDropdownButton(
+      {String currentService, @required TextEditingController controller}) {
     List<DropdownMenuItem<String>> dropdownItems = [];
     for (Map serviceType in servicesListMap) {
       var newItem = DropdownMenuItem(
@@ -75,7 +84,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
       dropdownItems.add(newItem);
     }
     return DropdownButton<String>(
-      value: controller.text!='' ? controller.text : (currentService == '' ? 'Other' : currentService),
+      value: controller.text != ''
+          ? controller.text
+          : (currentService == '' ? 'Other' : currentService),
       items: dropdownItems,
       onChanged: (value) {
         setState(() {
@@ -85,7 +96,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     );
   }
 
-  CupertinoPicker iOSPicker({String currentService, @required TextEditingController controller}) {
+  CupertinoPicker iOSPicker(
+      {String currentService, @required TextEditingController controller}) {
     List<Text> pickerItems = [];
     for (Map serviceType in servicesListMap) {
       var newItem = Text(serviceType['name']);
@@ -94,7 +106,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
     return CupertinoPicker(
       scrollController: FixedExtentScrollController(
-        initialItem: servicesListMap.indexWhere((service) => service['name'] == currentService),
+        initialItem: servicesListMap
+            .indexWhere((service) => service['name'] == currentService),
       ),
       backgroundColor: Color(kGenchiCream),
       itemExtent: 32.0,
@@ -106,12 +119,12 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   }
 
   Future<bool> _onWillPop() async {
-
     print('in here');
 
-    if(changesMade){
-      bool discard = await showYesNoAlert(context:context, title: 'Are you sure you want to discard changes?');
-      if(!discard) return false;
+    if (changesMade) {
+      bool discard = await showYesNoAlert(
+          context: context, title: 'Are you sure you want to discard changes?');
+      if (!discard) return false;
     }
     return true;
   }
@@ -119,12 +132,19 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   @override
   void initState() {
     super.initState();
-    ProviderUser provider = Provider.of<ProviderService>(context, listen: false).currentProvider;
+    ProviderUser provider =
+        Provider.of<ProviderService>(context, listen: false).currentProvider;
     nameTextController.text = provider.name;
     bioTextController.text = provider.bio;
     experienceTextController.text = provider.experience;
     priceTextController.text = provider.pricing;
     serviceTextController.text = provider.type;
+
+    url1TextController.text = provider.url1['link'];
+    urlDesc1TextController.text = provider.url1['desc'];
+
+    url2TextController.text = provider.url2['link'];
+    urlDesc2TextController.text = provider.url2['desc'];
   }
 
   @override
@@ -135,13 +155,19 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     experienceTextController.dispose();
     priceTextController.dispose();
     serviceTextController.dispose();
+    url1TextController.dispose();
+    urlDesc1TextController.dispose();
+    url2TextController.dispose();
+    urlDesc2TextController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final EditProviderAccountScreenArguments args = ModalRoute.of(context).settings.arguments ?? EditProviderAccountScreenArguments();
+    final EditProviderAccountScreenArguments args =
+        ModalRoute.of(context).settings.arguments ??
+            EditProviderAccountScreenArguments();
     bool fromRegistration = args.fromRegistration;
 
     final providerService = Provider.of<ProviderService>(context);
@@ -150,7 +176,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
         child: Scaffold(
@@ -172,18 +198,34 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
             actions: <Widget>[
               IconButton(
                 icon: Icon(
-                    Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
-                    size: 30,
-                    color: Colors.black,
+                  Platform.isIOS
+                      ? CupertinoIcons.check_mark_circled
+                      : Icons.check_circle_outline,
+                  size: 30,
+                  color: Colors.black,
                 ),
                 onPressed: () async {
                   setState(() {
                     showSpinner = true;
                   });
 
-                  await firestoreAPI.updateProvider(provider:
-                  ProviderUser(name: name, type: serviceTextController.text, bio: bio, experience: experience, pricing: pricing),
+                  await firestoreAPI.updateProvider(
+                      provider: ProviderUser(
+                          name: name,
+                          url1: {
+                            'link': url1TextController.text,
+                            'desc': urlDesc1TextController.text,
+                          },
+                          url2: {
+                            'link': url2TextController.text,
+                            'desc': urlDesc2TextController.text,
+                          },
+                          type: serviceTextController.text,
+                          bio: bio,
+                          experience: experience,
+                          pricing: pricing),
                       pid: providerUser.pid);
+
                   await authProvider.updateCurrentUserData();
                   await providerService.updateCurrentProvider(providerUser.pid);
 
@@ -193,9 +235,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   });
 
                   fromRegistration
-                      ? Navigator.pushNamedAndRemoveUntil(
-                      context, HomeScreen.id, (Route<dynamic> route) => false,
-                      arguments: HomeScreenArguments(startingIndex: 2))
+                      ? Navigator.pushNamedAndRemoveUntil(context,
+                          HomeScreen.id, (Route<dynamic> route) => false,
+                          arguments: HomeScreenArguments(startingIndex: 2))
                       : Navigator.of(context).pop();
                 },
               )
@@ -217,11 +259,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                    height: 5.0
-                ),
+                SizedBox(height: 5.0),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -232,18 +272,16 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       builder: (context) => SingleChildScrollView(
                         child: Container(
                           padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context)
-                                  .viewInsets
-                                  .bottom),
+                              bottom: MediaQuery.of(context).viewInsets.bottom),
                           child: Container(
-                              height: MediaQuery.of(context).size.height *
-                                  0.75,
+                              height: MediaQuery.of(context).size.height * 0.75,
                               child: AddImageScreen(isUser: false)),
                         ),
                       ),
                     );
                   },
-                  child: DisplayPicture(imageUrl: providerUser.displayPictureURL, height: 0.25),
+                  child: DisplayPicture(
+                      imageUrl: providerUser.displayPictureURL, height: 0.25,border: true,),
                 ),
                 EditAccountField(
                   field: "Provider Profile Name",
@@ -252,7 +290,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   onChanged: (value) {
                     name = value;
                     changesMade = true;
-                    print(name);
                   },
                 ),
                 Column(
@@ -274,7 +311,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       height: Platform.isIOS ? 100.0 : 50.0,
                       child: Container(
                         color: Color(kGenchiCream),
-                        child: servicePicker(controller: serviceTextController, currentService: providerUser.type),
+                        child: servicePicker(
+                            controller: serviceTextController,
+                            currentService: providerUser.type),
                       ),
                     ),
                   ],
@@ -302,21 +341,121 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   onChanged: (value) {
                     changesMade = true;
                     pricing = value;
-                    },
+                  },
                   textController: priceTextController,
                   hintText: "E.g. for experience, £10 per job etc.",
                 ),
-                /*TODO for this we need to have two fields on a row (one for the name and one for the url)
-                   then we need to have an optional button for adding more rows
-                 */
 
-                EditAccountField(
-                  hintText: "Add links to any additional websites or resources",
-                  field: "Website Links",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
+                //TODO COME BACK TO THIS, ADDED TEMPORARY SOLUTION FOR DEMO
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: 30.0,
+                    ),
+                    Text(
+                      "Website Links",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w500,
+                        color: Color(kGenchiBlue),
+                      ),
+                    ),
+                    SizedBox(height: 5.0),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            textCapitalization: TextCapitalization.sentences,
+                            maxLines: null,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.left,
+                            onChanged: (value) {
+                              changesMade = true;
+                            },
+                            controller: urlDesc1TextController,
+                            decoration: kTextFieldDecoration.copyWith(
+                                hintText: "URL 1 Description "),
+                            cursorColor: Color(kGenchiOrange),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            textCapitalization: TextCapitalization.none,
+                            maxLines: null,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.left,
+                            onChanged: (value) {
+                              changesMade = true;
+                            },
+                            controller: url1TextController,
+                            decoration: kTextFieldDecoration.copyWith(
+                                hintText: 'URL 1 "https://www..."'),
+                            cursorColor: Color(kGenchiOrange),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            textCapitalization: TextCapitalization.sentences,
+                            maxLines: null,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.left,
+                            onChanged: (value) {
+                              changesMade = true;
+                            },
+                            controller: urlDesc2TextController,
+                            decoration: kTextFieldDecoration.copyWith(
+                                hintText: "URL 2 Description"),
+                            cursorColor: Color(kGenchiOrange),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            textCapitalization: TextCapitalization.none,
+                            maxLines: null,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.left,
+                            onChanged: (value) {
+                              changesMade = true;
+                            },
+                            controller: url2TextController,
+                            decoration: kTextFieldDecoration.copyWith(
+                                hintText: 'URL 2 "https://www..."'),
+                            cursorColor: Color(kGenchiOrange),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+
                 //TODO Implement the following fields
                 EditAccountField(
                   hintText: 'Coming soon',
@@ -347,35 +486,53 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   onPressed: () async {
                     ///Update the provider before deleting
 
-                    await providerService.updateCurrentProvider(providerUser.pid);
+                    await providerService
+                        .updateCurrentProvider(providerUser.pid);
 
                     ///Get most up to data provider
-                    providerUser = Provider.of<ProviderService>(context, listen: false).currentProvider;
+                    providerUser =
+                        Provider.of<ProviderService>(context, listen: false)
+                            .currentProvider;
 
                     Platform.isIOS
-                        ? showAlertIOS(context: context, actionFunction: () async {
-                          setState(() => showSpinner = true);
+                        ? showAlertIOS(
+                            context: context,
+                            actionFunction: () async {
+                              setState(() => showSpinner = true);
 
-                            await firestoreAPI.deleteProvider(provider: providerUser);
-                            await authProvider.updateCurrentUserData();
-                            changesMade = false;
-                            setState(() => showSpinner = false);
+                              await firestoreAPI.deleteProvider(
+                                  provider: providerUser);
+                              await authProvider.updateCurrentUserData();
+                              changesMade = false;
+                              setState(() => showSpinner = false);
 
-                            Navigator.pushNamedAndRemoveUntil(context,
-                                HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 3));
-                          }, alertMessage: 'Delete Account')
-                        : showAlertAndroid(context: context, actionFunction: () async {
-                            setState(() => showSpinner = true);
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  HomeScreen.id,
+                                  (Route<dynamic> route) => false,
+                                  arguments:
+                                      HomeScreenArguments(startingIndex: 3));
+                            },
+                            alertMessage: 'Delete Account')
+                        : showAlertAndroid(
+                            context: context,
+                            actionFunction: () async {
+                              setState(() => showSpinner = true);
 
+                              await firestoreAPI.deleteProvider(
+                                  provider: providerUser);
+                              await authProvider.updateCurrentUserData();
+                              changesMade = false;
+                              setState(() => showSpinner = false);
 
-                            await firestoreAPI.deleteProvider(provider : providerUser);
-                            await authProvider.updateCurrentUserData();
-                            changesMade = false;
-                            setState(() => showSpinner = false);
-
-                            Navigator.pushNamedAndRemoveUntil(context,
-                                HomeScreen.id, (Route<dynamic> route) => false,arguments: HomeScreenArguments(startingIndex: 3));
-                          },alertMessage: "Delete Account");
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  HomeScreen.id,
+                                  (Route<dynamic> route) => false,
+                                  arguments:
+                                      HomeScreenArguments(startingIndex: 3));
+                            },
+                            alertMessage: "Delete Account");
                   },
                 ),
               ],

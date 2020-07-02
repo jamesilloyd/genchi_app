@@ -107,7 +107,7 @@ class FirestoreAPIService {
     return doc.exists ? Task.fromMap(doc.data) : null;
   }
 
-  Future getTaskApplicant({String taskId, String applicantId}) async {
+  Future getTaskApplicantById({String taskId, String applicantId}) async {
     DocumentSnapshot doc = await _taskCollectionRef
         .document(taskId)
         .collection(applicantCollectionName)
@@ -116,6 +116,57 @@ class FirestoreAPIService {
 
     return doc.exists ? TaskApplicant.fromMap(doc.data) : null;
   }
+
+  Future<bool> providerApplicationHasNotification(
+      {@required String taskId, @required String pid}) async {
+    bool hasNotification = false;
+
+    ///Don't need to worry too much about this document not existing as
+    ///it is only called for the tasks that the provider has applied to
+    QuerySnapshot docs = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .where('pid', isEqualTo: pid)
+        .getDocuments();
+
+    if (docs.documents.isNotEmpty)
+      for (DocumentSnapshot doc in docs.documents) {
+        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
+
+        ///If the taskapplicant has an unread messages then mark has notification as true
+        if(taskApplicant.providerHasUnreadMessage) hasNotification = true;
+      }
+
+    return hasNotification;
+  }
+
+
+  Future<bool> hirerTaskHasNotification(
+      {@required String taskId}) async {
+
+
+    bool hasNotification = false;
+
+    ///Don't need to worry too much about this document not existing as
+    ///it is only called for the tasks that the provider has applied to
+    QuerySnapshot docs = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .getDocuments();
+
+    if (docs.documents.isNotEmpty)
+      for (DocumentSnapshot doc in docs.documents) {
+        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
+
+        ///If the hirer has an unread messages then mark has notification as true
+        if(taskApplicant.hirerHasUnreadMessage) hasNotification = true;
+      }
+
+    return hasNotification;
+  }
+
+
+
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
@@ -369,6 +420,8 @@ class FirestoreAPIService {
       @required ChatMessage chatMessage,
       @required bool providerIsSender,
       @required String taskId}) async {
+
+
     TaskApplicant taskApplicant = TaskApplicant(
         lastMessage: chatMessage.text,
         time: chatMessage.time,
@@ -379,18 +432,29 @@ class FirestoreAPIService {
         ? taskApplicant.hirerHasUnreadMessage = true
         : taskApplicant.providerHasUnreadMessage = true;
 
+    ///Update the taskApplicant data
     await _taskCollectionRef
         .document(taskId)
         .collection(applicantCollectionName)
         .document(applicantId)
         .setData(taskApplicant.toJson(), merge: true);
 
+    ///Add the message to the task applicant collection
     var result = await _taskCollectionRef
         .document(taskId)
         .collection(applicantCollectionName)
         .document(applicantId)
         .collection('messages')
         .add(chatMessage.toJson());
+
+    ///If the sender was a provider, mark the task hasNotifications as true
+    ///We can do this as a cloud function
+//    if (providerIsSender) {
+//      Task updatedTask = Task(hasNotifications: true);
+//      await _taskCollectionRef
+//          .document(taskId)
+//          .setData(updatedTask.toJson(), merge: true);
+//    }
 
     return result;
   }
@@ -588,33 +652,81 @@ class FirestoreAPIService {
     return tasks;
   }
 
-  Future<List<Map<String, dynamic>>> getProviderTasksAndHirers(
+
+  Future<List<Map<String,dynamic>>> getUserTasksAndNotifications({List postIds}) async {
+    if (debugMode) print('FirestoreAPI: getUserTasksAndNotifications called for $postIds');
+    ///Get the tasks, check that all the task applicants have no "hirerHasUnreadMessage" bool
+    /// return as a list of maps
+
+    List<Map<String,dynamic>> tasksAndNotifications = [];
+
+    List<Task> allTasks = await getTasks(postIds: postIds);
+
+    for(Task task in allTasks){
+      Map<String,dynamic> taskAndNotification = {};
+      taskAndNotification['task'] = task;
+
+      bool hasNotification = await hirerTaskHasNotification(taskId: task.taskId);
+
+      taskAndNotification['hasNotification'] = hasNotification;
+
+      tasksAndNotifications.add(taskAndNotification);
+
+    }
+
+    return tasksAndNotifications;
+
+  }
+
+
+
+
+
+  Future<List<Map<String, dynamic>>> getProviderTasksAndHirersAndNotifications(
       {List pids}) async {
     ///This function takes a list pids and gets the tasks applied for by each provider
 
     if (debugMode) print('FirestoreAPI: getProviderTasks called for $pids');
 
-    List<Map<String, dynamic>> tasksAndHirers = [];
-    List<Task> tasks = [];
+    List<Map<String, dynamic>> tasksAndHirersAndNotifications = [];
 
     List<ProviderUser> providers = await getProviders(pids: pids);
-    for (ProviderUser provider in providers) {
-      tasks.addAll(await getTasks(postIds: provider.tasksApplied));
-    }
-    tasks.sort((a, b) => b.time.compareTo(a.time));
-    for (Task task in tasks) {
-      Map<String, dynamic> taskAndHirer = {};
-      taskAndHirer['task'] = task;
-      User hirer = await getUserById(task.hirerId);
 
-      ///Check that the hirer exists before adding to list
-      if (hirer != null) {
-        taskAndHirer['hirer'] = hirer;
-        tasksAndHirers.add(taskAndHirer);
+    for (ProviderUser provider in providers) {
+      List<Task> providerTasks = [];
+
+      ///Get tasks the provider has applied to
+      providerTasks.addAll(await getTasks(postIds: provider.tasksApplied));
+
+      ///get the hirer associated with each task
+      for (Task task in providerTasks) {
+        Map<String, dynamic> taskAndHirerAndNotification = {};
+        taskAndHirerAndNotification['task'] = task;
+
+        ///Still going to add the provider in, it may be useful in the future
+        taskAndHirerAndNotification['provider'] = provider;
+
+        bool hasNotification = await providerApplicationHasNotification(
+            taskId: task.taskId, pid: provider.pid);
+        taskAndHirerAndNotification['hasNotification'] = hasNotification;
+
+        User hirer = await getUserById(task.hirerId);
+
+        ///Check that the hirer exists before adding to list
+        if (hirer != null) {
+          taskAndHirerAndNotification['hirer'] = hirer;
+          tasksAndHirersAndNotifications.add(taskAndHirerAndNotification);
+        }
       }
     }
 
-    return tasksAndHirers;
+    tasksAndHirersAndNotifications.sort((a, b) {
+      Task taskA = a['task'];
+      Task taskB = b['task'];
+      return taskB.time.compareTo(taskA.time);
+    });
+
+    return tasksAndHirersAndNotifications;
   }
 
   Future<void> deleteProvider({ProviderUser provider}) async {

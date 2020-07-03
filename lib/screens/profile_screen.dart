@@ -89,13 +89,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: true,
                   ),
                   SizedBox(height: 5),
-//                  ProfileOptionTile(
-//                    text: 'Crash',
-//                    onPressed: () {
-//                      Crashlytics.instance.crash();
+                  ProfileOptionTile(
+                    text: 'Crash',
+                    onPressed: () {
+                      Crashlytics.instance.crash();
 //                      throw Exception('ERORRRORR');
-//                    },
-//                  ),
+                    },
+                  ),
                   ProfileOptionTile(
                     text: 'Test Screen',
                     onPressed: ()  {

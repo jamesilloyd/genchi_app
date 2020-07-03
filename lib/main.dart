@@ -32,6 +32,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:provider/provider.dart';
 
+import 'dart:async';
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 //TODO all my futures are wrong! PLEASE FIX THEM ASAP
 

@@ -23,8 +23,7 @@ if (flutterVersionName == null) {
 
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-apply plugin: 'io.fabric'
-apply plugin: 'com.google.gms.google-services'
+
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -78,3 +77,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
 }
+
+apply plugin: 'io.fabric'
+apply plugin: 'com.google.gms.google-services'

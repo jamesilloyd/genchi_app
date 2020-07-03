@@ -155,21 +155,6 @@ class _TaskScreenState extends State<TaskScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                'Hirer',
-                style: TextStyle(
-                  color: Color(kGenchiBlue),
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              HirerCard(hirer: hirer),
-              Divider(
-                thickness: 1,
-              ),
               Center(
                   child: Text(
                 'Create a provider account to apply',

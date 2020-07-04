@@ -156,7 +156,37 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             ),
                         );
                       },
-                      child: DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,border: true,isEdit: true,),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,border: true,isEdit: true,),
+                          Positioned(
+                            right: (MediaQuery.of(context).size.width -
+                                MediaQuery.of(context).size.height * 0.25) /
+                                2,
+                            top: MediaQuery.of(context).size.height * 0.2,
+                            child: new Container(
+                              height: 30,
+                              width: 30,
+                              padding: EdgeInsets.all(2),
+                              decoration: new BoxDecoration(
+                                  color: Color(kGenchiCream),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                      color: Color(0xff585858), width: 2)),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Center(
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 20,
+                                      color: Color(0xff585858),
+                                    )),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                     EditAccountField(
                       field: "Name",

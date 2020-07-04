@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/constants.dart';
@@ -24,14 +25,37 @@ class ChatSummaryScreen extends StatefulWidget {
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();
 }
 
-class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
+
+class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKeepAliveClientMixin {
+
+  @override
+  bool get wantKeepAlive => true;
+
+
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool showSpinner = false;
 
+  Future<List<Map<String, dynamic>>> buildUserChatSummary(
+      {QuerySnapshot chats}) async {
+    List<Map<String, dynamic>> chatsAndProviders = [];
+
+    for (DocumentSnapshot doc in chats.documents) {
+      Chat chat = Chat.fromMap(doc.data);
+      ProviderUser provider = await firestoreAPI.getProviderById(chat.pid);
+
+      if (provider != null) {
+        chatsAndProviders.add({'chat': chat, 'provider': provider});
+      }
+    }
+
+    return chatsAndProviders;
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('Chat screen activated');
+    super.build(context);
+    print('Chat summary screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
@@ -95,104 +119,88 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       height: 0,
                       thickness: 1,
                     ),
-                    //TODO: this must be changed to streambuilder
-                    FutureBuilder(
-                      future: firestoreAPI.getChatsAndProviders(
-                          chatIds: currentUser.chats),
+                    StreamBuilder(
+                      stream: firestoreAPI.streamUserChatsAndProviders(
+                          userId: currentUser.id),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return CircularProgress();
-                        }
+                        } else {
+                          List<Map<String, dynamic>> chatsAndProviders = snapshot.data;
+                          List<Widget> widgets = [];
 
-                        final List<Map<String, dynamic>> chatsAndProviders =
-                            snapshot.data;
+                          for (Map<String, dynamic> chatAndProvder in chatsAndProviders) {
+                            if(chatAndProvder!=null) {
+                              Chat chat = chatAndProvder['chat'];
+                              ProviderUser provider = chatAndProvder['provider'];
 
-                        List<MessageListItem> chatWidgets = [];
-
-                        for (Map chatAndProvider in chatsAndProviders) {
-                          Chat chat = chatAndProvider['chat'];
-                          ProviderUser provider = chatAndProvider['provider'];
-
-                          MessageListItem chatWidget = MessageListItem(
-                            image: provider.displayPictureURL == null
-                                ? AssetImage("images/Logo_Clear.png")
-                                : CachedNetworkImageProvider(
+                              MessageListItem chatWidget = MessageListItem(
+                                image: provider.displayPictureURL == null
+                                    ? AssetImage("images/Logo_Clear.png")
+                                    : CachedNetworkImageProvider(
                                     provider.displayPictureURL),
-                            name: provider.name,
-                            service: provider.type,
-                            lastMessage: chat.lastMessage,
-                            time: chat.time,
-                            hasUnreadMessage: chat.userHasUnreadMessage,
-                            onTap: () async {
-                              setState(() {
-                                showSpinner = true;
-                              });
-                              chat.userHasUnreadMessage = false;
-                              await firestoreAPI.updateChat(chat: chat);
+                                name: provider.name,
+                                service: provider.type,
+                                lastMessage: chat.lastMessage,
+                                time: chat.time,
+                                hasUnreadMessage: chat.userHasUnreadMessage,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+                                  chat.userHasUnreadMessage = false;
+                                  await firestoreAPI.updateChat(chat: chat);
 
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.pushNamed(context, ChatScreen.id,
-                                  arguments: ChatScreenArguments(
-                                      chat: chat,
-                                      userIsProvider: false,
-                                      provider: provider,
-                                      user: currentUser,
-                                      isFirstInstance: false)).then((value) {
-                                setState(() {});
-                              });
-                            },
-                            hideChat: () async {
-                              bool deleteChat = await showYesNoAlert(
-                                  context: context,
-                                  title: "Are you sure you want delete chat?");
-                              if (deleteChat)
-                                await firestoreAPI.hideChat(
-                                    chat: chat, forProvider: false);
-                              if (deleteChat) setState(() {});
-                            },
-                          );
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                  Navigator.pushNamed(context, ChatScreen.id,
+                                      arguments: ChatScreenArguments(
+                                          chat: chat,
+                                          userIsProvider: false,
+                                          provider: provider,
+                                          user: currentUser,
+                                          isFirstInstance: false));
+                                },
+                                hideChat: () async {
+                                  bool deleteChat = await showYesNoAlert(
+                                      context: context,
+                                      title:
+                                      "Are you sure you want delete chat?");
+                                  if (deleteChat)
+                                    await firestoreAPI.hideChat(
+                                        chat: chat, forProvider: false);
+                                  if (deleteChat) setState(() {});
+                                },
+                              );
 
-                          if (!chat.isHiddenFromUser) chatWidgets.add(chatWidget);
-                        }
+                              if (!chat.isHiddenFromUser) widgets.add(
+                                  chatWidget);
+                            }
+                          }
 
-                        if (chatsAndProviders.isEmpty | chatWidgets.isEmpty) {
-                          return Container(
-                            height: 30,
-                            child: Center(
-                              child: Text(
-                                'No Messages',
-                                style: TextStyle(
-                                  fontSize: 20,
+                          if (chatsAndProviders.isEmpty | widgets.isEmpty) {
+                            return Container(
+                              height: 30,
+                              child: Center(
+                                child: Text(
+                                  'No Messages',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
                                 ),
                               ),
-                            ),
+                            );
+                          }
+
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: widgets,
                           );
                         }
-
-
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: chatWidgets,
-                        );
                       },
-                    ),
-//                StreamBuilder(
-//                  stream: firestoreAPI.streamUserChatsAndProviders(chatIds: currentUser.chats),
-//                  builder: (context,snapshot){
-//                      if (!snapshot.hasData) {
-//                        return CircularProgress();
-//                      }
-//
-//                      final chats = snapshot.data.documents;
-//                      List<MessageListItem> chatWidgets = [];
-//
-//
-//
-//                  },
-//                )
+                    )
                   ],
                 ),
               ),
@@ -221,22 +229,24 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                             height: 0,
                             thickness: 1,
                           ),
-                          FutureBuilder(
-                            future: firestoreAPI.getUserProviderChatsAndHirers(
-                                usersPids: currentUser.providerProfiles),
+                          StreamBuilder(
+                            stream: firestoreAPI.streamUserProviderChatsAndHirers(
+                                userPids: currentUser.providerProfiles),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return CircularProgress();
                               }
 
-                              final List<Map<String, dynamic>> userProviderChatsAndUsers = snapshot.data;
+                              final List<Map<String, dynamic>>
+                                  userProviderChatsAndUsers = snapshot.data;
 
                               List<MessageListItem> chatWidgets = [];
 
-                              for (Map providerChatAndUser in userProviderChatsAndUsers) {
-
+                              for (Map providerChatAndUser
+                                  in userProviderChatsAndUsers) {
                                 Chat chat = providerChatAndUser['chat'];
-                                ProviderUser provider = providerChatAndUser['provider'];
+                                ProviderUser provider =
+                                    providerChatAndUser['provider'];
                                 User hirer = providerChatAndUser['hirer'];
 
                                 MessageListItem chatWidget = MessageListItem(
@@ -248,9 +258,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                   service: provider.type,
                                   lastMessage: chat.lastMessage,
                                   time: chat.time,
-                                  hasUnreadMessage: chat.providerHasUnreadMessage,
+                                  hasUnreadMessage:
+                                      chat.providerHasUnreadMessage,
                                   onTap: () async {
-
                                     setState(() {
                                       showSpinner = true;
                                     });
@@ -265,13 +275,10 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                                 chat: chat,
                                                 userIsProvider: true,
                                                 provider: provider,
-                                                user: hirer))
-                                        .then((value) {
-                                      setState(() {});
-                                    });
+                                                user: hirer));
+
                                   },
                                   hideChat: () async {
-
                                     //TODO: probably need to change this so that we selectively choose which chats "where hide = false"
                                     bool deleteChat = await showYesNoAlert(
                                         context: context,
@@ -281,13 +288,13 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                       showSpinner = true;
                                     });
 
-                                    if (deleteChat) await firestoreAPI.hideChat(
+                                    if (deleteChat)
+                                      await firestoreAPI.hideChat(
                                           chat: chat, forProvider: true);
 
                                     setState(() {
                                       showSpinner = false;
                                     });
-                                    if (deleteChat) setState(() {});
                                   },
                                 );
 

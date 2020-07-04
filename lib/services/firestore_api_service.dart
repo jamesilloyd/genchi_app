@@ -98,6 +98,7 @@ class FirestoreAPIService {
   }
 
   Future getProviderById(String pid) async {
+    if (debugMode) print('FirestoreAPI: getProviderById called on $pid');
     DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
     return doc.exists ? ProviderUser.fromMap(doc.data) : null;
   }
@@ -134,17 +135,13 @@ class FirestoreAPIService {
         TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
 
         ///If the taskapplicant has an unread messages then mark has notification as true
-        if(taskApplicant.providerHasUnreadMessage) hasNotification = true;
+        if (taskApplicant.providerHasUnreadMessage) hasNotification = true;
       }
 
     return hasNotification;
   }
 
-
-  Future<bool> hirerTaskHasNotification(
-      {@required String taskId}) async {
-
-
+  Future<bool> hirerTaskHasNotification({@required String taskId}) async {
     bool hasNotification = false;
 
     ///Don't need to worry too much about this document not existing as
@@ -159,14 +156,11 @@ class FirestoreAPIService {
         TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
 
         ///If the hirer has an unread messages then mark has notification as true
-        if(taskApplicant.hirerHasUnreadMessage) hasNotification = true;
+        if (taskApplicant.hirerHasUnreadMessage) hasNotification = true;
       }
 
     return hasNotification;
   }
-
-
-
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
@@ -185,12 +179,64 @@ class FirestoreAPIService {
     return providers;
   }
 
-  //TODO come back to this
-  Stream<QuerySnapshot> streamUserChatsAndProviders({List<dynamic> chatIds}) {
-    return _chatCollectionRef
-        .where('uid', arrayContainsAny: chatIds)
+  Stream streamUserChatsAndProviders({String userId}) {
+    ///This function is used to stream a users chat summary screen
+    if (debugMode) print('firestoreApi: streamUserChatsAndProviders called');
+
+    Stream chatStream = _chatCollectionRef
+        .where('uid', isEqualTo: userId)
         .orderBy('time', descending: true)
-        .snapshots();
+        .snapshots()
+        .asyncMap((event) async {
+
+          //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
+      var futures = event.documents.map((doc) async {
+        Chat chat = Chat.fromMap(doc.data);
+        ProviderUser provider = await getProviderById(chat.pid);
+
+        if (provider != null) {
+          return {'chat': chat, 'provider': provider};
+        } else
+          return null;
+      });
+
+      return await Future.wait(futures);
+    });
+
+    return chatStream;
+
+  }
+
+
+
+  Stream streamUserProviderChatsAndHirers({List userPids} ){
+    ///This function is used to stream a users provider chat summaries
+    if (debugMode) print('firestoreApi: streamUserProviderChatsAndHirers called');
+
+    Stream chatStream = _chatCollectionRef
+        .where('pid', whereIn: userPids)
+        .orderBy('time', descending: true)
+        .snapshots()
+        .asyncMap((event) async {
+
+      //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
+      var futures = event.documents.map((doc) async {
+        Chat chat = Chat.fromMap(doc.data);
+        ProviderUser provider = await getProviderById(chat.pid);
+        User hirer = await getUserById(chat.uid);
+
+        if (provider != null && hirer != null) {
+          return {'chat': chat, 'provider': provider, 'hirer':hirer};
+        } else
+          return null;
+      });
+
+      return await Future.wait(futures);
+
+    });
+
+
+    return chatStream;
   }
 
   Future<List<Map<String, dynamic>>> getChatsAndProviders(
@@ -420,8 +466,6 @@ class FirestoreAPIService {
       @required ChatMessage chatMessage,
       @required bool providerIsSender,
       @required String taskId}) async {
-
-
     TaskApplicant taskApplicant = TaskApplicant(
         lastMessage: chatMessage.text,
         time: chatMessage.time,
@@ -652,35 +696,32 @@ class FirestoreAPIService {
     return tasks;
   }
 
+  Future<List<Map<String, dynamic>>> getUserTasksAndNotifications(
+      {List postIds}) async {
+    if (debugMode)
+      print('FirestoreAPI: getUserTasksAndNotifications called for $postIds');
 
-  Future<List<Map<String,dynamic>>> getUserTasksAndNotifications({List postIds}) async {
-    if (debugMode) print('FirestoreAPI: getUserTasksAndNotifications called for $postIds');
     ///Get the tasks, check that all the task applicants have no "hirerHasUnreadMessage" bool
     /// return as a list of maps
 
-    List<Map<String,dynamic>> tasksAndNotifications = [];
+    List<Map<String, dynamic>> tasksAndNotifications = [];
 
     List<Task> allTasks = await getTasks(postIds: postIds);
 
-    for(Task task in allTasks){
-      Map<String,dynamic> taskAndNotification = {};
+    for (Task task in allTasks) {
+      Map<String, dynamic> taskAndNotification = {};
       taskAndNotification['task'] = task;
 
-      bool hasNotification = await hirerTaskHasNotification(taskId: task.taskId);
+      bool hasNotification =
+          await hirerTaskHasNotification(taskId: task.taskId);
 
       taskAndNotification['hasNotification'] = hasNotification;
 
       tasksAndNotifications.add(taskAndNotification);
-
     }
 
     return tasksAndNotifications;
-
   }
-
-
-
-
 
   Future<List<Map<String, dynamic>>> getProviderTasksAndHirersAndNotifications(
       {List pids}) async {

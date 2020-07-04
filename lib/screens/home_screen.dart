@@ -29,7 +29,7 @@ PageController pageController;
 class _HomeScreenState extends State<HomeScreen> {
   int _page;
 
-  //TODO: look into why the screens are being called (leading to extra firestore reads)
+  //TODO: MUST DO THIS look into why the screens are being called (leading to extra firestore reads)
 
   void onPageChanged(int page) {
     setState(() {

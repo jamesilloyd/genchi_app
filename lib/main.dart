@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 
@@ -51,6 +53,13 @@ class Genchi extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
+
+        //TODO: how do we stream the current user
+//        StreamProvider<User>.value(
+//
+//          value: Firestore.instance.collection('users').document().snapshots(),
+//
+//        ),
         ChangeNotifierProvider(create: (_) => TaskService()),
       ],
       child: StartUp(),

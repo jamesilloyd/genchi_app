@@ -88,7 +88,8 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
                 notification : {
                     title : senderName + ' - Private Message',
                     body : message.text,
-                    clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+                    clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                    badge : '1'
                 },
             };
 
@@ -167,7 +168,8 @@ export const sendApplicationMessageNotification = functions.firestore.document('
             notification : {
                 title : senderName + ' - ' + taskTitle,
                 body : message.text,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                badge : '1'
             },
         };
     

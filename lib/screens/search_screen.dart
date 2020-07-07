@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
 
                           final widget = TaskCard(
                             image: hirer.displayPictureURL == null
-                                ? AssetImage("images/Logo_Clear.png")
+                                ? null
                                 : CachedNetworkImageProvider(
                                     hirer.displayPictureURL),
                             task: task,

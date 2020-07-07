@@ -67,9 +67,19 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            CircleAvatar(
+            imageURL != null ? CircleAvatar(
               backgroundColor: Color(kGenchiCream),
-              backgroundImage: imageURL != null ? CachedNetworkImageProvider(imageURL) : AssetImage("images/Logo_Clear.png"),
+              backgroundImage: CachedNetworkImageProvider(imageURL),
+            ) : CircleAvatar(
+              backgroundColor: Color(0xffC4C4C4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Icon(
+                  Icons.person,
+                  color: Color(0xff585858),
+                  size: 25,
+                ),
+              ),
             ),
             SizedBox(width: 10),
             Expanded(

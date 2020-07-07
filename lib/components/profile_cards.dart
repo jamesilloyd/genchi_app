@@ -36,7 +36,18 @@ class ProviderCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                leading: CircleAvatar(
+                leading: image == null ? CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Color(0xffC4C4C4),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.person,
+                      color: Color(0xff585858),
+                      size: 35,
+                    ),
+                  ),
+                ) : CircleAvatar(
                   backgroundImage: image,
                   radius: 30,
                   backgroundColor: Color(kGenchiCream),
@@ -178,10 +189,19 @@ Widget HirerCard({@required User hirer}) {
               fontWeight: FontWeight.w500,
             ),
           ),
-          leading: CircleAvatar(
-            backgroundImage: hirer.displayPictureURL == null
-                ? AssetImage("images/Logo_Clear.png")
-                : CachedNetworkImageProvider(hirer.displayPictureURL),
+          leading: hirer.displayPictureURL == null ? CircleAvatar(
+            radius: 30,
+            backgroundColor: Color(0xffC4C4C4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(
+                Icons.person,
+                color: Color(0xff585858),
+                size: 35,
+              ),
+            ),
+          ) : CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(hirer.displayPictureURL),
             radius: 30,
             backgroundColor: Color(kGenchiCream),
           ),

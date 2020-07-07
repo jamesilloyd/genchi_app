@@ -77,7 +77,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                   for (ProviderUser provider in providers) {
 
                     ProviderCard pCard = ProviderCard(
-                      image: provider.displayPictureURL == null ? AssetImage("images/Logo_Clear.png") : CachedNetworkImageProvider(provider.displayPictureURL),
+                      image: provider.displayPictureURL == null ? null : CachedNetworkImageProvider(provider.displayPictureURL),
                       name: provider.name,
                       description: provider.bio,
                       onTap: () async {

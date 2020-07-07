@@ -58,9 +58,20 @@ class MessageListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14),
                   ),
-                  leading: CircleAvatar(
+                  leading: image == null ? CircleAvatar(
                     radius: 30,
+                    backgroundColor: Color(0xffC4C4C4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Icon(
+                        Icons.person,
+                        color: Color(0xff585858),
+                        size: 35,
+                      ),
+                    ),
+                  ) : CircleAvatar(
                     backgroundImage: image,
+                    radius: 30,
                     backgroundColor: Color(kGenchiCream),
                   ),
                   trailing: Column(

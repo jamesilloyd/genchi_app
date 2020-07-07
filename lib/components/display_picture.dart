@@ -7,12 +7,11 @@ import 'package:genchi_app/components/circular_progress.dart';
 class DisplayPicture extends StatelessWidget {
 
   const DisplayPicture({
-    Key key,
     @required this.imageUrl,
     @required this.height,
     this.border = false,
     this.isEdit = false,
-  }) : super(key: key);
+  });
 
   final String imageUrl;
   final double height;
@@ -43,7 +42,7 @@ class DisplayPicture extends StatelessWidget {
                       image: imageProvider, fit: BoxFit.cover),
                 ),
               ),
-            ):Container(
+            ) : Container(
               width: 50.0,
               height: 50.0,
               decoration: BoxDecoration(

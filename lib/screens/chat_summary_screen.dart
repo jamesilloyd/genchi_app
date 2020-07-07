@@ -136,7 +136,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKee
 
                               MessageListItem chatWidget = MessageListItem(
                                 image: provider.displayPictureURL == null
-                                    ? AssetImage("images/Logo_Clear.png")
+                                    ? null
                                     : CachedNetworkImageProvider(
                                     provider.displayPictureURL),
                                 name: provider.name,
@@ -251,7 +251,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKee
 
                                 MessageListItem chatWidget = MessageListItem(
                                   image: hirer.displayPictureURL == null
-                                      ? AssetImage("images/Logo_Clear.png")
+                                      ? null
                                       : CachedNetworkImageProvider(
                                           hirer.displayPictureURL),
                                   name: hirer.name,

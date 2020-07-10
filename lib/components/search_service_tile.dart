@@ -3,55 +3,62 @@ import 'package:genchi_app/constants.dart';
 
 class SearchServiceTile extends StatelessWidget {
   const SearchServiceTile(
-      {this.buttonTitle, @required this.onPressed, this.imageAddress});
+      {this.buttonTitle, @required this.onPressed, this.imageAddress,this.width});
 
   final String buttonTitle;
   final Function onPressed;
   final String imageAddress;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5.0),
-        color: Color(kGenchiLightOrange),
-        boxShadow: [BoxShadow(
-          color: Colors.grey,
-          offset: Offset(0.0, 1.0), //(x,y)
-          blurRadius: 1.0,
-        ),]
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(5.0),
-        child: FlatButton(
-          onPressed: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      buttonTitle,
-                      style: TextStyle(
-                        color: Color(kGenchiBlue),
-                        fontSize: 18.0,
+    return Center(
+      child: Container(
+        height: width/1.6,
+        width: width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: Color(kGenchiLightOrange),
+          boxShadow: [BoxShadow(
+            color: Colors.grey[400],
+            offset: Offset(0.0, 2.0), //(x,y)
+            blurRadius: 2.0,
+          ),]
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: FlatButton(
+            onPressed: onPressed,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(1.0,5,1,0),
+              child: Stack(
+                overflow: Overflow.clip,
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        buttonTitle,
+                        maxLines: 1,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Image.asset(
-                    imageAddress,
-                    fit: BoxFit.contain,
-                    height: 50,
+                  Align(
+                    alignment: Alignment(2,0),
+                    child: Image.asset(
+                      imageAddress,
+                      alignment: Alignment(3,1),
+                      height: 80,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -59,3 +66,19 @@ class SearchServiceTile extends StatelessWidget {
     );
   }
 }
+
+//
+//Align(
+//alignment: Alignment(0, 1.14),
+//child: Container(
+//height: MediaQuery.of(context).size.height * 0.1,
+//decoration: BoxDecoration(
+//image: DecorationImage(
+//image: AssetImage(imageAddress),
+//alignment: Alignment(1.3, 0),
+////                colorFilter: ColorFilter.mode(
+////                    Colors.white.withOpacity(0.2), BlendMode.dstATop),
+//),
+//),
+//),
+//),

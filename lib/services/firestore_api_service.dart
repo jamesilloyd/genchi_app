@@ -40,7 +40,7 @@ class FirestoreAPIService {
     return allProviders;
   }
 
-  Future<List<Map<String, dynamic>>> fetchTasksAndHirers({List taskIds}) async {
+  Future<List<Map<String, dynamic>>> fetchTasksAndHirers() async {
     if (debugMode) print('FirestoreAPI: fetchTasksAndHirers called');
 
     ///This function is for fetching all the tasks for the tasks feed
@@ -48,6 +48,34 @@ class FirestoreAPIService {
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
     var result = await _taskCollectionRef.getDocuments();
+
+    ///Map all the documents into Task objects
+    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
+
+    ///Sort by time posted
+    tasks.sort((a, b) => b.time.compareTo(a.time));
+    for (Task task in tasks) {
+      Map<String, dynamic> taskAndHirer = {};
+      taskAndHirer['task'] = task;
+      var hirer = await getUserById(task.hirerId);
+
+      ///If hirer exists add them to the task list
+      if (hirer != null) {
+        taskAndHirer['hirer'] = hirer;
+        tasksAndHirers.add(taskAndHirer);
+      }
+    }
+    return tasksAndHirers;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService({String service}) async {
+    if (debugMode) print('FirestoreAPI: fetchTasksAndHirersByService called on service $service');
+
+    ///This function is for fetching all the tasks for the tasks feed
+
+    List<Map<String, dynamic>> tasksAndHirers = [];
+    List<Task> tasks;
+    var result = await _taskCollectionRef.where('service', isEqualTo: service).getDocuments();
 
     ///Map all the documents into Task objects
     tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();

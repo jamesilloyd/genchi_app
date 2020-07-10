@@ -68,6 +68,7 @@ const kGenchiBlue = 0xff05004e;
 const kGenchiCream = 0xfff9f8eb;
 const kGenchiGreen = 0xff76b39d;
 const kGenchiLightOrange = 0xffF7BE66;
+const kGenchiBrown = 0xffD3CCAF;
 
 //ToDo: start implementing print statements depending on this value e.g. if(debugMode) print("Home screen - ${}");
 const debugMode = true;

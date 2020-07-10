@@ -187,7 +187,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           );
 
-                          //TODO come back to formatting
                           return Container(
                             height:
                                 (MediaQuery.of(context).size.width - 20 * 3) /

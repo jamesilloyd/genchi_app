@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/components/app_bar.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -11,6 +13,7 @@ import 'package:genchi_app/components/task_card.dart';
 
 import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/services.dart';
@@ -29,8 +32,8 @@ class SearchScreen extends StatefulWidget {
 }
 
 //TODO for some reason keeping the page alive is not working
-class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClientMixin{
-
+class _SearchScreenState extends State<SearchScreen>
+    with AutomaticKeepAliveClientMixin {
   List<User> users;
   List<ProviderUser> providers;
 
@@ -39,7 +42,8 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool showSpinner = false;
-  Future searchTasksFuture;
+
+  Map<String, Future> serviceFutures = {};
 
   @override
   bool get wantKeepAlive => true;
@@ -52,9 +56,130 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
 
   @override
   void initState() {
-
     super.initState();
-    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+    for (Map service in servicesListMap) {
+      serviceFutures[service['name']] =
+          firestoreAPI.fetchTasksAndHirersByService(service: service['name']);
+    }
+  }
+
+  List<Widget> buildServiceTiles() {
+    List<Widget> searchServiceTiles = [];
+
+    for (Map service in servicesListMap) {
+      Widget tile = Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+        child: SearchServiceTile(
+          onPressed: () {
+            Navigator.pushNamed(context, SearchProviderScreen.id,
+                arguments: SearchProviderScreenArguments(service: service));
+          },
+          buttonTitle: service['plural'],
+          imageAddress: service['imageAddress'],
+          width: (MediaQuery.of(context).size.width - 40) / 2.5,
+        ),
+      );
+      searchServiceTiles.add(tile);
+    }
+    return searchServiceTiles;
+  }
+
+  Widget buildJobRows() {
+    List<Widget> columnChildren = [];
+
+    for (Map service in servicesListMap) {
+      List<Widget> widgets = [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+          child: Text(
+            service['name'].toString().toUpperCase(),
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+        FutureBuilder(
+          future: serviceFutures[service['name']],
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container(
+                height: 130,
+                child: Center(
+                  child: CircularProgress(),
+                ),
+              );
+            } else {
+              final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
+
+              if(tasksAndHirers.isEmpty){
+
+                return Container(
+                  height: 40,
+                  child: Center(
+                    child: Text(
+                      'No Jobs Yet',
+                      style: TextStyle(
+                        fontSize: 20
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              final List<Widget> taskWidgets = [];
+
+              for (Map taskAndHirer in tasksAndHirers) {
+                Task task = taskAndHirer['task'];
+                User hirer = taskAndHirer['hirer'];
+
+                final widget = Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                  child: TaskTile(
+                      image: hirer.displayPictureURL == null
+                          ? null
+                          : CachedNetworkImageProvider(hirer.displayPictureURL),
+                      task: task,
+                      name: hirer.name,
+                      width: (MediaQuery.of(context).size.width - 50) / 3.25,
+                      onTap: () async {
+                      setState(() {
+                        showSpinner = true;
+                      });
+
+                      await Provider.of<TaskService>(context, listen: false).updateCurrentTask(taskId: task.taskId);
+
+                      setState(() {
+                        showSpinner = false;
+                      });
+                      Navigator.pushNamed(context, TaskScreen.id);
+
+                      },
+                    ),
+                );
+
+                taskWidgets.add(widget);
+              }
+
+              return Container(
+                height: (MediaQuery.of(context).size.width - 50) * 1.3 / 3.25 + 20,
+                child: Center(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    scrollDirection: Axis.horizontal,
+                    children: taskWidgets,
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+      ];
+
+      columnChildren.addAll(widgets);
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: columnChildren,
+    );
   }
 
   @override
@@ -70,132 +195,113 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
       child: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
-        child: DefaultTabController(
-          initialIndex: 1,
-          length: 2,
-          child: Scaffold(
+        child: Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBar(
-                iconTheme: IconThemeData(
-                  color: Colors.black,
-                ),
-                title: Text(
-                  'Search',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                backgroundColor: Color(kGenchiGreen),
-                elevation: 2.0,
-                brightness: Brightness.light,
-                bottom: TabBar(
-                    indicatorColor: Color(kGenchiOrange),
-                    labelColor: Colors.black,
-                    labelStyle: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'FuturaPT',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    tabs: [
-                      Tab(text: 'Jobs'),
-                      Tab(text: 'Providers'),
-                    ])),
-            body: TabBarView(
-              children: <Widget>[
-                RefreshIndicator(
+            appBar: MyAppNavigationBar(
+              barTitle: 'Search',
+            ),
+            body: SafeArea(
+              child: RefreshIndicator(
                   color: Color(kGenchiOrange),
                   backgroundColor: Colors.white,
                   onRefresh: () async {
-                    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-                  },
-                  child: SafeArea(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: FutureBuilder(
-                      future: searchTasksFuture,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return Center(
-                            child: CircularProgress(),
-                          );
-                        }
 
-                        final List<Map<String, dynamic>> tasksAndHirers =
-                            snapshot.data;
+                    for (Map service in servicesListMap) {
+                      serviceFutures[service['name']] = firestoreAPI.fetchTasksAndHirersByService(service: service['name']);
+                    }
+                    setState(() {});
 
-                        final List<Widget> widgets = [SizedBox(height: 10,)];
-
-                        for (Map taskAndHirer in tasksAndHirers) {
-                          Task task = taskAndHirer['task'];
-                          User hirer = taskAndHirer['hirer'];
-
-                          final widget = TaskCard(
-                            image: hirer.displayPictureURL == null
-                                ? null
-                                : CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
-                            task: task,
-                            onTap: () async {
-                              setState(() {
-                                showSpinner = true;
-                              });
-
-                              await taskProvider.updateCurrentTask(
-                                  taskId: task.taskId);
-
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.pushNamed(context, TaskScreen.id)
-                                  .then((value) {
-                                setState(() {});
-                              });
-                            },
-                          );
-
-                          widgets.add(widget);
-                        }
-
-                        return ListView(
-                          children: widgets,
-                        );
-                      },
-                    ),
-                  )),
-                ),
-                SafeArea(
-                  child: Center(
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 20.0,
-                      mainAxisSpacing: 20.0,
-                      padding: EdgeInsets.all(20.0),
-                      childAspectRatio: 1.618,
-                      children: List.generate(
-                        servicesListMap.length,
-                        (index) {
-                          Map service = servicesListMap[index];
-                          return SearchServiceTile(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                  context, SearchProviderScreen.id,
-                                  arguments: SearchProviderScreenArguments(
-                                      service: service));
-                            },
-                            buttonTitle: service['plural'],
-                            imageAddress: service['imageAddress'],
-                          );
-                        },
+                    },
+                child: ListView(
+                  children: <Widget>[
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'PROVIDERS',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            //TODO add this in when we have more services on the app
+//                            GestureDetector(
+//                              onTap: () {},
+//                              child: Text(
+//                                'See all',
+//                                textAlign: TextAlign.end,
+//                                style: TextStyle(
+//                                    fontWeight: FontWeight.w500,
+//                                    fontSize: 16,
+//                                    color: Color(kGenchiGreen)),
+//                              ),
+//                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                    Container(
+                      height: (MediaQuery.of(context).size.width - 40) /
+                              (2.5 * 1.6) +
+                          10,
+                      child: Center(
+                        child: ListView(
+                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          scrollDirection: Axis.horizontal,
+                          children: buildServiceTiles(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                        crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              'JOBS',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+
+                                Navigator.pushNamed(context, SearchTasksScreen.id);
+
+                              },
+                              child: Text(
+                                'See all',
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: Color(kGenchiGreen)),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Divider(
+                        height: 0,
+                        thickness: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    buildJobRows(),
+                  ],
                 ),
-              ],
+              ),
+            )
             ),
-          ),
-        ),
       ),
     );
   }

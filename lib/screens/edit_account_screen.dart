@@ -98,6 +98,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     showSpinner = true;
                   });
                   print("$name $email");
+
                   await fireStoreAPI.updateUser(user:
                   User(name: name, email: email),
                       uid: currentUser.id);

@@ -1,8 +1,6 @@
 import 'dart:io' show Platform;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -95,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                      Crashlytics.instance.crash();
 ////                      throw Exception('ERORRRORR');
 //                    },
-//                  ),
+////                  ),
 //                  ProfileOptionTile(
 //                    text: 'Test Screen',
 //                    onPressed: ()  {

@@ -276,47 +276,6 @@ class FirestoreAPIService {
   }
 
 
-
-  Future<List<Map<String, dynamic>>> getChatsAndProviders(
-      {List<dynamic> chatIds}) async {
-    ///This is called to get a hirers private messages
-    if (debugMode) print('FirestoreAPI: getChatsAndProviders called');
-    List<Map<String, dynamic>> chatsAndProviders = [];
-
-    List<Chat> chats = [];
-
-    for (String chatId in chatIds) {
-      if (debugMode)
-        print('FirestoreAPI: getChatsAndProviders getting chat $chatId');
-      Chat chat = await getChatById(chatId);
-
-      ///Check that the chat exists
-      if (chat != null) {
-        chats.add(chat);
-      }
-    }
-
-    chats.sort((a, b) => b.time.compareTo(a.time));
-    print('');
-
-    for (Chat chat in chats) {
-      Map<String, dynamic> chatAndProvider = {};
-      if (debugMode)
-        print(
-            'FirestoreAPI: getChatsAndProviders getting provider ${chat.pid}');
-      ProviderUser provider = await getProviderById(chat.pid);
-
-      ///Check that the provider exists
-      if (provider != null) {
-        chatAndProvider['chat'] = chat;
-        chatAndProvider['provider'] = provider;
-        chatsAndProviders.add(chatAndProvider);
-      }
-    }
-    if (debugMode) print('FirestoreAPI: getChatsAndProviders finished');
-    return chatsAndProviders;
-  }
-
   Future<List<Map<String, dynamic>>> getTaskApplicants(
       {@required String taskId}) async {
     ///This is called to get the applicants attached to a task
@@ -415,28 +374,27 @@ class FirestoreAPIService {
   }
 
   Future updateUser({User user, String uid}) async {
-    await _usersCollectionRef.document(uid).setData(user.toJson(), merge: true);
-    return;
+    await _usersCollectionRef.document(uid).updateData(user.toJson());
   }
 
   Future updateProvider({ProviderUser provider, String pid}) async {
     await _providersCollectionRef
         .document(pid)
-        .setData(provider.toJson(), merge: true);
+        .updateData(provider.toJson());
     return;
   }
 
   Future updateTask({Task task, String taskId}) async {
     await _taskCollectionRef
         .document(taskId)
-        .setData(task.toJson(), merge: true);
+        .updateData(task.toJson());
     return;
   }
 
   Future updateChat({Chat chat}) async {
     await _chatCollectionRef
         .document(chat.chatid)
-        .setData(chat.toJson(), merge: true);
+        .updateData(chat.toJson());
   }
 
   Future updateTaskApplicant({TaskApplicant taskApplicant}) async {
@@ -444,7 +402,7 @@ class FirestoreAPIService {
         .document(taskApplicant.taskid)
         .collection(applicantCollectionName)
         .document(taskApplicant.applicationId)
-        .setData(taskApplicant.toJson(), merge: true);
+        .updateData(taskApplicant.toJson());
   }
 
   Future addUserByID(User user) async {
@@ -467,9 +425,9 @@ class FirestoreAPIService {
         task: Task(taskId: docRef.documentID),
         taskId: docRef.documentID,
       );
-      await _usersCollectionRef.document(uid).setData({
+      await _usersCollectionRef.document(uid).updateData({
         'posts': FieldValue.arrayUnion([docRef.documentID])
-      }, merge: true);
+      });
       return docRef;
     });
 
@@ -490,7 +448,8 @@ class FirestoreAPIService {
 
     await _chatCollectionRef
         .document(chatId)
-        .setData(chat.toJson(), merge: true);
+        .updateData(chat.toJson());
+
     var result = await _chatCollectionRef
         .document(chatId)
         .collection('messages')
@@ -519,7 +478,7 @@ class FirestoreAPIService {
         .document(taskId)
         .collection(applicantCollectionName)
         .document(applicantId)
-        .setData(taskApplicant.toJson(), merge: true);
+        .updateData(taskApplicant.toJson());
 
     ///Add the message to the task applicant collection
     var result = await _taskCollectionRef
@@ -528,15 +487,6 @@ class FirestoreAPIService {
         .document(applicantId)
         .collection('messages')
         .add(chatMessage.toJson());
-
-    ///If the sender was a provider, mark the task hasNotifications as true
-    ///We can do this as a cloud function
-//    if (providerIsSender) {
-//      Task updatedTask = Task(hasNotifications: true);
-//      await _taskCollectionRef
-//          .document(taskId)
-//          .setData(updatedTask.toJson(), merge: true);
-//    }
 
     return result;
   }
@@ -550,9 +500,9 @@ class FirestoreAPIService {
         provider: ProviderUser(pid: docRef.documentID),
         pid: docRef.documentID,
       );
-      await _usersCollectionRef.document(uid).setData({
+      await _usersCollectionRef.document(uid).updateData({
         'providerProfiles': FieldValue.arrayUnion([docRef.documentID])
-      }, merge: true);
+      });
       return docRef;
     });
 
@@ -569,12 +519,13 @@ class FirestoreAPIService {
     DocumentReference result =
         await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
       await updateChat(chat: Chat(chatid: docRef.documentID));
-      await _usersCollectionRef.document(uid).setData({
+      await _usersCollectionRef.document(uid).updateData({
         'chats': FieldValue.arrayUnion([docRef.documentID])
-      }, merge: true);
-      await _providersCollectionRef.document(pid).setData({
+      });
+
+      await _providersCollectionRef.document(pid).updateData({
         'chats': FieldValue.arrayUnion([docRef.documentID])
-      }, merge: true);
+      });
       return docRef;
     });
 
@@ -609,9 +560,9 @@ class FirestoreAPIService {
     });
 
     ///Add applicant to provider's tasksApplied
-    await _providersCollectionRef.document(providerId).setData({
+    await _providersCollectionRef.document(providerId).updateData({
       'tasksApplied': FieldValue.arrayUnion([taskId])
-    }, merge: true);
+    });
     return taskApplicantResult;
   }
 
@@ -625,9 +576,9 @@ class FirestoreAPIService {
           'FirestoreAPI: removeTaskApplicant called for task $taskId by provider $providerId');
 
     ///Remove from provider's array
-    await _providersCollectionRef.document(providerId).setData({
+    await _providersCollectionRef.document(providerId).updateData({
       'tasksApplied': FieldValue.arrayRemove([taskId])
-    }, merge: true);
+    });
 
     ///Delete all subcollection messages
     await _taskCollectionRef
@@ -673,9 +624,9 @@ class FirestoreAPIService {
     if (debugMode)
       print(
           'FirestoreAPI: deleteTask removing task from hirer ${task.hirerId}');
-    await _usersCollectionRef.document(task.hirerId).setData({
+    await _usersCollectionRef.document(task.hirerId).updateData({
       'posts': FieldValue.arrayRemove([task.taskId])
-    }, merge: true);
+    });
 
     await _taskCollectionRef.document(task.taskId).delete();
   }
@@ -685,12 +636,12 @@ class FirestoreAPIService {
     if (debugMode)
       print(
           'FirestoreAPI: removeUserFavourite called for hirer $uid on provider $favouritePid');
-    await _usersCollectionRef.document(uid).setData({
+    await _usersCollectionRef.document(uid).updateData({
       'favourites': FieldValue.arrayRemove([favouritePid])
-    }, merge: true);
-    await _providersCollectionRef.document(favouritePid).setData({
+    });
+    await _providersCollectionRef.document(favouritePid).updateData({
       'isFavouritedBy': FieldValue.arrayRemove([uid])
-    }, merge: true);
+    });
   }
 
   Future<DocumentReference> addUserFavourite(
@@ -698,12 +649,12 @@ class FirestoreAPIService {
     if (debugMode)
       print(
           'FirestoreAPI: addUserFavourite called for hirer $uid on provider $favouritePid');
-    await _usersCollectionRef.document(uid).setData({
+    await _usersCollectionRef.document(uid).updateData({
       'favourites': FieldValue.arrayUnion([favouritePid])
-    }, merge: true);
-    await _providersCollectionRef.document(favouritePid).setData({
+    });
+    await _providersCollectionRef.document(favouritePid).updateData({
       'isFavouritedBy': FieldValue.arrayUnion([uid])
-    }, merge: true);
+    });
   }
 
   Future<List<ProviderUser>> getProviders({List pids}) async {
@@ -862,22 +813,22 @@ class FirestoreAPIService {
     await _providersCollectionRef.document(provider.pid).delete();
 
     ///Remove provider from user's array
-    await _usersCollectionRef.document(provider.uid).setData({
+    await _usersCollectionRef.document(provider.uid).updateData({
       'providerProfiles': FieldValue.arrayRemove([provider.pid])
-    }, merge: true);
+    });
     if (debugMode) print('FirestoreAPI: deleteProvider complete');
   }
 
   Future<void> deleteChat({Chat chat}) async {
     ///Deleting chat from provider's array
-    await _providersCollectionRef.document(chat.pid).setData({
+    await _providersCollectionRef.document(chat.pid).updateData({
       'chats': FieldValue.arrayRemove([chat.chatid])
-    }, merge: true);
+    });
 
     ///Deleting chat from hirer's array
-    await _usersCollectionRef.document(chat.uid).setData({
+    await _usersCollectionRef.document(chat.uid).updateData({
       'chats': FieldValue.arrayRemove([chat.chatid])
-    }, merge: true);
+    });
 
     ///Deleting messages attached to the chat
     await _chatCollectionRef
@@ -900,16 +851,17 @@ class FirestoreAPIService {
         .ref()
         .child(user.displayPictureFileName)
         .delete();
-    await _usersCollectionRef.document(user.id).setData({
+    await _usersCollectionRef.document(user.id).updateData({
       'displayPictureFileName': FieldValue.delete(),
       'displayPictureURL': FieldValue.delete()
-    }, merge: true);
+    });
+
     if (user.providerProfiles.isNotEmpty)
       for (String pid in user.providerProfiles) {
-        await _providersCollectionRef.document(pid).setData({
+        await _providersCollectionRef.document(pid).updateData({
           'displayPictureFileName': FieldValue.delete(),
           'displayPictureURL': FieldValue.delete()
-        }, merge: true);
+        });
       }
   }
 

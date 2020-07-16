@@ -32,6 +32,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 //TODO for some reason keeping the page alive is not working
+//TODO can we implement pagination please!!!!
 class _SearchScreenState extends State<SearchScreen>
     with AutomaticKeepAliveClientMixin {
   List<User> users;

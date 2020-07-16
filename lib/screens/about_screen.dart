@@ -14,7 +14,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppNavigationBar(
+      appBar: BasicAppNavigationBar(
         barTitle: 'About Genchi',
       ),
       body: ListView(

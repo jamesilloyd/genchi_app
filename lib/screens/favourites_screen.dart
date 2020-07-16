@@ -33,7 +33,7 @@ class FavouritesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: MyAppNavigationBar(
+      appBar: BasicAppNavigationBar(
         barTitle: 'Favourites',
       ),
       body: ListView(

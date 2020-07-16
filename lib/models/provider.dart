@@ -50,8 +50,8 @@ class ProviderUser extends ChangeNotifier {
         experience = snapshot['experience'] ?? '',
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         tasksApplied = snapshot['tasksApplied'] ?? [],
-        url1 = snapshot['url1'] ?? {'link':'','desc':'',},
-        url2 = snapshot['url2'] ?? {'link':'','desc':'',},
+        url1 = snapshot['url1'] ?? {'link':null,'desc':null,},
+        url2 = snapshot['url2'] ?? {'link':null,'desc':null,},
         type = snapshot['type'] ?? '';
 
   toJson() {

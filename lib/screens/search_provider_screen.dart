@@ -45,7 +45,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: Scaffold(
-          appBar: MyAppNavigationBar(barTitle: service['plural']),
+          appBar: BasicAppNavigationBar(barTitle: service['plural']),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(10.0),

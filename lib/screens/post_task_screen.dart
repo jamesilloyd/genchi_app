@@ -119,7 +119,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
-        appBar: MyAppNavigationBar(
+        appBar: BasicAppNavigationBar(
           barTitle: 'Post Task',
         ),
         body: Builder(

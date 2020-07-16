@@ -13,6 +13,7 @@ class TestScreen extends StatelessWidget {
       await _testCollectionReference.document('12345').updateData({'a': 6});
     } catch (e) {
       print(e);
+      throw e;
     }
   }
 
@@ -46,7 +47,6 @@ class TestScreen extends StatelessWidget {
               buttonTitle: 'Set Data',
               onPressed: ()async{
 
-
                 _testCollectionReference.document('1234').setData({'a':6},merge: true);
 
 
@@ -57,7 +57,12 @@ class TestScreen extends StatelessWidget {
               buttonTitle: 'Update Data',
               onPressed: () async{
 
-               await function();
+                try {
+                  await function();
+                } catch (e){
+                  print(e);
+                  print('Update failed');
+                }
 
               },
             )

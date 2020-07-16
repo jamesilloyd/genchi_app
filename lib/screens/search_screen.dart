@@ -197,7 +197,7 @@ class _SearchScreenState extends State<SearchScreen>
         progressIndicator: CircularProgress(),
         child: Scaffold(
             backgroundColor: Colors.white,
-            appBar: MyAppNavigationBar(
+            appBar: BasicAppNavigationBar(
               barTitle: 'Search',
             ),
             body: SafeArea(
@@ -243,6 +243,15 @@ class _SearchScreenState extends State<SearchScreen>
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Divider(
+                        height: 0,
+                        thickness: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Container(
                       height: (MediaQuery.of(context).size.width - 40) /
                               (2.5 * 1.6) +
@@ -269,21 +278,20 @@ class _SearchScreenState extends State<SearchScreen>
                                 fontSize: 20,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-
-                                Navigator.pushNamed(context, SearchTasksScreen.id);
-
-                              },
-                              child: Text(
-                                'See all',
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                    color: Color(kGenchiGreen)),
-                              ),
-                            )
+                            //TODO: add this when we have more search options
+//                            GestureDetector(
+//                              onTap: () {
+//                                Navigator.pushNamed(context, SearchTasksScreen.id);
+//                              },
+//                              child: Text(
+//                                'See all',
+//                                textAlign: TextAlign.end,
+//                                style: TextStyle(
+//                                    fontWeight: FontWeight.w500,
+//                                    fontSize: 16,
+//                                    color: Color(kGenchiGreen)),
+//                              ),
+//                            )
                           ],
                         ),
                       ),

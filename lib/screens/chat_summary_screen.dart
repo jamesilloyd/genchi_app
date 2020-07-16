@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/app_bar.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -25,12 +27,10 @@ class ChatSummaryScreen extends StatefulWidget {
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();
 }
 
-
-class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKeepAliveClientMixin {
-
+class _ChatSummaryScreenState extends State<ChatSummaryScreen>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
@@ -52,6 +52,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKee
     return chatsAndProviders;
   }
 
+  String filter = 'All';
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -64,274 +66,205 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> with AutomaticKee
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
-      child: DefaultTabController(
-        length: userIsProvider ? 2 : 1,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-              iconTheme: IconThemeData(
-                color: Colors.black,
-              ),
-              title: Text(
-                'Private Messages',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              backgroundColor: Color(kGenchiGreen),
-              elevation: 2.0,
-              brightness: Brightness.light,
-              bottom: TabBar(
-                  indicatorColor: Color(kGenchiOrange),
-                  labelColor: Colors.black,
-                  labelStyle: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'FuturaPT',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  tabs: [
-                    Tab(text: 'Hiring'),
-                    if (userIsProvider) Tab(text: 'Providing'),
-                  ])),
-          body: TabBarView(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: BasicAppNavigationBar(
+          barTitle: 'Private Messages',
+        ),
+
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(10.0),
             children: <Widget>[
-              SafeArea(
-                child: ListView(
-                  padding: const EdgeInsets.all(10.0),
-                  children: <Widget>[
-                    Container(
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'Your Hiring Messages',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color(kGenchiBlue),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 25.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Divider(
-                      height: 0,
-                      thickness: 1,
-                    ),
-                    StreamBuilder(
-                      stream: firestoreAPI.streamUserChatsAndProviders(
-                          userId: currentUser.id),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return CircularProgress();
-                        } else {
-                          List<Map<String, dynamic>> chatsAndProviders = snapshot.data;
-                          List<Widget> widgets = [];
-
-                          for (Map<String, dynamic> chatAndProvder in chatsAndProviders) {
-                            if(chatAndProvder!=null) {
-                              Chat chat = chatAndProvder['chat'];
-                              ProviderUser provider = chatAndProvder['provider'];
-
-                              MessageListItem chatWidget = MessageListItem(
-                                image: provider.displayPictureURL == null
-                                    ? null
-                                    : CachedNetworkImageProvider(
-                                    provider.displayPictureURL),
-                                name: provider.name,
-                                service: provider.type,
-                                lastMessage: chat.lastMessage,
-                                time: chat.time,
-                                hasUnreadMessage: chat.userHasUnreadMessage,
-                                onTap: () async {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-                                  chat.userHasUnreadMessage = false;
-                                  await firestoreAPI.updateChat(chat: chat);
-
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-                                  Navigator.pushNamed(context, ChatScreen.id,
-                                      arguments: ChatScreenArguments(
-                                          chat: chat,
-                                          userIsProvider: false,
-                                          provider: provider,
-                                          user: currentUser,
-                                          isFirstInstance: false));
-                                },
-                                hideChat: () async {
-                                  bool deleteChat = await showYesNoAlert(
-                                      context: context,
-                                      title:
-                                      "Are you sure you want delete chat?");
-                                  if (deleteChat)
-                                    await firestoreAPI.hideChat(
-                                        chat: chat, forProvider: false);
-                                  if (deleteChat) setState(() {});
-                                },
-                              );
-
-                              if (!chat.isHiddenFromUser) widgets.add(
-                                  chatWidget);
-                            }
-                          }
-
-                          if (chatsAndProviders.isEmpty | widgets.isEmpty) {
-                            return Container(
-                              height: 30,
-                              child: Center(
-                                child: Text(
-                                  'No Messages',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: widgets,
-                          );
-                        }
-                      },
-                    )
-                  ],
-                ),
+              if(userIsProvider) Container(
+                  height: 50,
+                  child: PopupMenuButton(
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(filter),
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.filter_list,
+                              color: Color(kGenchiBlue),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            )
+                          ]),
+                      itemBuilder: (_) => <PopupMenuItem<String>>[
+                            new PopupMenuItem<String>(
+                                child: const Text('All'), value: 'All'),
+                            new PopupMenuItem<String>(
+                                child: const Text('Hiring'),
+                                value: 'Hiring'),
+                            new PopupMenuItem<String>(
+                                child: const Text('Providing'),
+                                value: 'Providing'),
+                          ],
+                      onSelected: (value) {
+                        setState(() {
+                          filter = value;
+                        });
+                      })),
+              Divider(
+                height: 0,
+                thickness: 1,
               ),
-              if (userIsProvider)
-                SafeArea(
-                  child: ListView(
-                    padding: const EdgeInsets.all(10.0),
-                    children: <Widget>[
-                      Column(
-                        children: <Widget>[
-                          Container(
-                            height: 50,
-                            child: Center(
-                              child: Text(
-                                'Your Providing Messages',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Color(kGenchiBlue),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 25.0,
-                                ),
-                              ),
+              StreamBuilder(
+                stream: firestoreAPI.streamUserChats(user: currentUser),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgress();
+                  } else {
+                    List chatsHirersAndProviders = [];
+
+                    List list1 = snapshot.data[0];
+                    List list2 = snapshot.data[1];
+                    chatsHirersAndProviders.addAll(list1);
+                    chatsHirersAndProviders.addAll(list2);
+
+                    chatsHirersAndProviders.sort((a, b) {
+                      if (a != null && b != null) {
+                        Chat chatA = a['chat'];
+                        Chat chatB = b['chat'];
+                        return chatB.time.compareTo(chatA.time);
+                      } else
+                        return b.toString().compareTo(a.toString());
+                    });
+
+                    List<Widget> chatWidgets = [];
+
+                    for (Map chatHirerAndProvider in chatsHirersAndProviders) {
+                      if (chatHirerAndProvider != null) {
+                        Chat chat = chatHirerAndProvider['chat'];
+                        ProviderUser provider =
+                            chatHirerAndProvider['provider'];
+                        User hirer = chatHirerAndProvider['hirer'];
+                        bool userIsProvider =
+                            chatHirerAndProvider['userIsProvider'];
+
+                        if (userIsProvider &&
+                            (filter == 'All' || filter == 'Providing')) {
+                          ///Users providing messages
+                          MessageListItem chatWidget = MessageListItem(
+                            image: hirer.displayPictureURL == null
+                                ? null
+                                : CachedNetworkImageProvider(
+                                    hirer.displayPictureURL),
+                            name: hirer.name,
+                            service: provider.type,
+                            lastMessage: chat.lastMessage,
+                            time: chat.time,
+                            hasUnreadMessage: chat.providerHasUnreadMessage,
+                            isHiring: false,
+                            onTap: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              chat.providerHasUnreadMessage = false;
+                              await firestoreAPI.updateChat(chat: chat);
+
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              Navigator.pushNamed(context, ChatScreen.id,
+                                  arguments: ChatScreenArguments(
+                                      chat: chat,
+                                      userIsProvider: true,
+                                      provider: provider,
+                                      user: hirer));
+                            },
+                            hideChat: () async {
+                              //TODO: probably need to change this so that we selectively choose which chats "where hide = false"
+                              bool deleteChat = await showYesNoAlert(
+                                  context: context,
+                                  title: "Are you sure you want delete chat?");
+
+                              if (deleteChat) {
+                                await firestoreAPI.hideChat(
+                                    chat: chat, forProvider: true);
+                              }
+                            },
+                          );
+
+                          if (!chat.isHiddenFromProvider)
+                            chatWidgets.add(chatWidget);
+                        } else if (!userIsProvider &&
+                            (filter == 'All' || filter == 'Hiring')) {
+                          ///Users hiring messages
+                          MessageListItem chatWidget = MessageListItem(
+                            image: provider.displayPictureURL == null
+                                ? null
+                                : CachedNetworkImageProvider(
+                                    provider.displayPictureURL),
+                            name: provider.name,
+                            service: provider.type,
+                            lastMessage: chat.lastMessage,
+                            time: chat.time,
+                            isHiring: true,
+                            hasUnreadMessage: chat.userHasUnreadMessage,
+                            onTap: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              chat.userHasUnreadMessage = false;
+                              await firestoreAPI.updateChat(chat: chat);
+
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              Navigator.pushNamed(context, ChatScreen.id,
+                                  arguments: ChatScreenArguments(
+                                      chat: chat,
+                                      userIsProvider: false,
+                                      provider: provider,
+                                      user: currentUser,
+                                      isFirstInstance: false));
+                            },
+                            hideChat: () async {
+                              bool deleteChat = await showYesNoAlert(
+                                  context: context,
+                                  title: "Are you sure you want delete chat?");
+                              if (deleteChat) {
+                                await firestoreAPI.hideChat(
+                                    chat: chat, forProvider: false);
+                              }
+                            },
+                          );
+
+                          if (!chat.isHiddenFromUser)
+                            chatWidgets.add(chatWidget);
+                        }
+                      }
+                    }
+
+                    if (chatsHirersAndProviders.isEmpty | chatWidgets.isEmpty) {
+                      return Container(
+                        height: 30,
+                        child: Center(
+                          child: Text(
+                            'No Messages',
+                            style: TextStyle(
+                              fontSize: 20,
                             ),
                           ),
-                          Divider(
-                            height: 0,
-                            thickness: 1,
-                          ),
-                          StreamBuilder(
-                            stream: firestoreAPI.streamUserProviderChatsAndHirers(
-                                userPids: currentUser.providerProfiles),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return CircularProgress();
-                              }
+                        ),
+                      );
+                    }
 
-                              final List<Map<String, dynamic>>
-                                  userProviderChatsAndUsers = snapshot.data;
-
-                              List<MessageListItem> chatWidgets = [];
-
-                              for (Map providerChatAndUser
-                                  in userProviderChatsAndUsers) {
-                                Chat chat = providerChatAndUser['chat'];
-                                ProviderUser provider =
-                                    providerChatAndUser['provider'];
-                                User hirer = providerChatAndUser['hirer'];
-
-                                MessageListItem chatWidget = MessageListItem(
-                                  image: hirer.displayPictureURL == null
-                                      ? null
-                                      : CachedNetworkImageProvider(
-                                          hirer.displayPictureURL),
-                                  name: hirer.name,
-                                  service: provider.type,
-                                  lastMessage: chat.lastMessage,
-                                  time: chat.time,
-                                  hasUnreadMessage:
-                                      chat.providerHasUnreadMessage,
-                                  onTap: () async {
-                                    setState(() {
-                                      showSpinner = true;
-                                    });
-                                    chat.providerHasUnreadMessage = false;
-                                    await firestoreAPI.updateChat(chat: chat);
-
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
-                                    Navigator.pushNamed(context, ChatScreen.id,
-                                            arguments: ChatScreenArguments(
-                                                chat: chat,
-                                                userIsProvider: true,
-                                                provider: provider,
-                                                user: hirer));
-
-                                  },
-                                  hideChat: () async {
-                                    //TODO: probably need to change this so that we selectively choose which chats "where hide = false"
-                                    bool deleteChat = await showYesNoAlert(
-                                        context: context,
-                                        title:
-                                            "Are you sure you want delete chat?");
-                                    setState(() {
-                                      showSpinner = true;
-                                    });
-
-                                    if (deleteChat)
-                                      await firestoreAPI.hideChat(
-                                          chat: chat, forProvider: true);
-
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
-                                  },
-                                );
-
-                                if (!chat.isHiddenFromProvider)
-                                  chatWidgets.add(chatWidget);
-                              }
-
-                              if (userProviderChatsAndUsers.isEmpty |
-                                  chatWidgets.isEmpty) {
-                                return Container(
-                                  height: 30,
-                                  child: Center(
-                                    child: Text(
-                                      'No Messages',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: chatWidgets,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: chatWidgets,
+                    );
+                  }
+                },
+              )
             ],
           ),
         ),
+
       ),
     );
   }

@@ -5,7 +5,6 @@ Divider kGenchiBoldDivider() {
     height: 0,
     thickness: 1,
   );
-
 }
 
 const kForgotPasswordSnackbar = SnackBar(

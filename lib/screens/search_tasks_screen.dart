@@ -30,8 +30,11 @@ class _SearchTasksScreenState extends State<SearchTasksScreen> {
 
     super.initState();
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-
   }
+
+//  _AnimatedMovies = AllMovies.where((i) => i.isAnimated).toList();
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -46,7 +49,7 @@ class _SearchTasksScreenState extends State<SearchTasksScreen> {
         progressIndicator: CircularProgress(),
         child: Scaffold(
           backgroundColor: Colors.white,
-          appBar: MyAppNavigationBar(
+          appBar: BasicAppNavigationBar(
             barTitle: 'Search Jobs',
           ),
           body: SafeArea(

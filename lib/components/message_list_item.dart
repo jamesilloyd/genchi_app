@@ -7,7 +7,6 @@ import 'package:genchi_app/services/time_formatting.dart';
 import 'package:intl/intl.dart';
 
 class MessageListItem extends StatelessWidget {
-
   final ImageProvider image;
   final String name;
   final String lastMessage;
@@ -17,21 +16,21 @@ class MessageListItem extends StatelessWidget {
   final String service;
   final Function hideChat;
   final String deleteMessage;
+  final bool isHiring;
 
-  const MessageListItem({
-    Key key,
-    this.image,
-    @required this.hideChat,
-    this.name,
-    this.lastMessage,
-    this.time,
-    this.hasUnreadMessage,
-    @required this.onTap,
-    this.service,
-    this.deleteMessage = 'Archive'
-  }) : super(key: key);
-  
-
+  const MessageListItem(
+      {Key key,
+      this.image,
+      @required this.hideChat,
+      this.name,
+      this.lastMessage,
+      this.time,
+      this.hasUnreadMessage,
+      @required this.onTap,
+        this.isHiring,
+      this.service,
+      this.deleteMessage = 'Archive'})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +44,38 @@ class MessageListItem extends StatelessWidget {
               Expanded(
                 flex: 10,
                 child: ListTile(
-                  title: Text(
-                    "$name - $service",
-                    style: TextStyle(
-                        fontSize: 20,
-                      fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400,
+                  title: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      height: 30,
+                      child: RichText(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: '$name ',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontFamily: 'FuturaPT',
+                              fontWeight: hasUnreadMessage
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                          TextSpan(
+                            text: service,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontFamily: 'FuturaPT',
+                              color: Color(kGenchiOrange),
+                              fontWeight: hasUnreadMessage
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
+                            ),
+                          )
+                        ]),
+                      ),
                     ),
                   ),
                   subtitle: Text(
@@ -58,38 +84,48 @@ class MessageListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14),
                   ),
-                  leading: image == null ? CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color(0xffC4C4C4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(
-                        Icons.person,
-                        color: Color(0xff585858),
-                        size: 35,
-                      ),
-                    ),
-                  ) : CircleAvatar(
-                    backgroundImage: image,
-                    radius: 30,
-                    backgroundColor: Color(kGenchiCream),
-                  ),
+                  leading: image == null
+                      ? CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color(0xffC4C4C4),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Icon(
+                              Icons.person,
+                              color: Color(0xff585858),
+                              size: 35,
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          backgroundImage: image,
+                          radius: 30,
+                          backgroundColor: Color(kGenchiCream),
+                        ),
                   trailing: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Text(
+                        isHiring?'HIRING':'PROVIDING',
+                        style: TextStyle(fontSize: 14,
+                          fontWeight: hasUnreadMessage
+                              ? FontWeight.w500
+                              : FontWeight.w400,),
+                      ),
                       hasUnreadMessage
                           ? Container(
-                        height: 15,
-                        width: 15,
-                        decoration: BoxDecoration(
-                            color: Color(kGenchiOrange),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),),
-                      )
+                              height: 15,
+                              width: 15,
+                              decoration: BoxDecoration(
+                                color: Color(kGenchiOrange),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10.0),
+                                ),
+                              ),
+                            )
                           : SizedBox(height: 15.0),
-                      SizedBox(height:6),
+                      SizedBox(height: 6),
                       Text(
                         getSummaryTime(time: time),
                         style: TextStyle(fontSize: 12),

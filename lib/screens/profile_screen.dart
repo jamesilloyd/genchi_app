@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         Scaffold(
-          appBar: MyAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+          appBar: BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
           backgroundColor: Colors.transparent,
           body: Container(
             child: Center(
@@ -89,19 +89,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: true,
                   ),
                   SizedBox(height: 5),
-                  ProfileOptionTile(
-                    text: 'Crash',
-                    onPressed: () {
-                      Crashlytics.instance.crash();
-//                      throw Exception('ERORRRORR');
-                    },
-                  ),
-                  ProfileOptionTile(
-                    text: 'Test Screen',
-                    onPressed: ()  {
-                     Navigator.pushNamed(context, TestScreen.id);
-                    },
-                  ),
+//                  ProfileOptionTile(
+//                    text: 'Crash',
+//                    onPressed: () {
+//                      Crashlytics.instance.crash();
+////                      throw Exception('ERORRRORR');
+//                    },
+//                  ),
+//                  ProfileOptionTile(
+//                    text: 'Test Screen',
+//                    onPressed: ()  {
+//                     Navigator.pushNamed(context, TestScreen.id);
+//                    },
+//                  ),
 //              ProfileOptionTile(
 //                text: 'Post Task',
 //                onPressed: () async {
@@ -247,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   ProfileOptionTile(
-                    text: 'Account Settings',
+                    text: 'Hiring Account Settings',
                     onPressed: () {
                       Navigator.pushNamed(context, EditAccountScreen.id);
                     },

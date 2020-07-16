@@ -37,7 +37,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       },
       child: Scaffold(
         backgroundColor: Color(kGenchiGreen),
-        appBar: MyAppNavigationBar(
+        appBar: BasicAppNavigationBar(
           barTitle: "Forgot Password",
         ),
         body: Builder(builder: (BuildContext context) {

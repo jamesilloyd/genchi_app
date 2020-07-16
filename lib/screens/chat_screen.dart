@@ -72,6 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
           imageURL: userIsProvider
               ? user.displayPictureURL
               : provider.displayPictureURL,
+          userIsProvider: userIsProvider,
         ),
         body: SafeArea(
           child: ModalProgressHUD(

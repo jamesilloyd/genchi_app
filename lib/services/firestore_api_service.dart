@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../models/provider.dart';
 import '../models/chat.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:rxdart/rxdart.dart';
 
 //TODO WE HAVE TO CHANGE SET DATA TO UPDATE DATA, AS OTHERWISE NEW DOCUMENTS ARE CREATED!!!!
 
@@ -68,14 +69,19 @@ class FirestoreAPIService {
     return tasksAndHirers;
   }
 
-  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService({String service}) async {
-    if (debugMode) print('FirestoreAPI: fetchTasksAndHirersByService called on service $service');
+  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService(
+      {String service}) async {
+    if (debugMode)
+      print(
+          'FirestoreAPI: fetchTasksAndHirersByService called on service $service');
 
     ///This function is for fetching all the tasks for the tasks feed
 
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
-    var result = await _taskCollectionRef.where('service', isEqualTo: service).getDocuments();
+    var result = await _taskCollectionRef
+        .where('service', isEqualTo: service)
+        .getDocuments();
 
     ///Map all the documents into Task objects
     tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
@@ -126,7 +132,7 @@ class FirestoreAPIService {
   }
 
   Future getProviderById(String pid) async {
-    if (debugMode) print('FirestoreAPI: getProviderById called on $pid');
+//    if (debugMode) print('FirestoreAPI: getProviderById called on $pid');
     DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
     return doc.exists ? ProviderUser.fromMap(doc.data) : null;
   }
@@ -207,46 +213,51 @@ class FirestoreAPIService {
     return providers;
   }
 
-  Stream streamUserChatsAndProviders({String userId}) {
-    ///This function is used to stream a users chat summary screen
-    if (debugMode) print('firestoreApi: streamUserChatsAndProviders called');
+  Stream streamUserChats({User user}) {
+    ///This function is used to stream all the private chats a user has (and their provider chats)
+    if (debugMode) print('firestoreApi: streamUserChats called on ${user.id}');
 
-    Stream chatStream = _chatCollectionRef
-        .where('uid', isEqualTo: userId)
+
+    ///Getting all the chats
+    List uidAndPids = user.providerProfiles;
+    uidAndPids.add(user.id);
+
+    Stream stream1 = _chatCollectionRef
+        .where('uid', isEqualTo: user.id)
         .orderBy('time', descending: true)
         .snapshots()
         .asyncMap((event) async {
+      //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still caching old docs)
+      //TODO also, rather than calling getProviderById on every one, we could create a list of all pids and call in one go?
 
-          //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
       var futures = event.documents.map((doc) async {
         Chat chat = Chat.fromMap(doc.data);
-        ProviderUser provider = await getProviderById(chat.pid);
+        ///Check if that chat is for hiring or providing
 
-        if (provider != null) {
-          return {'chat': chat, 'provider': provider};
-        } else
-          return null;
+          ///Chat is for hiring
+          ///Get providers profile
+          ProviderUser provider = await getProviderById(chat.pid);
+
+          if (provider != null) {
+            return {
+              'chat': chat,
+              'provider': provider,
+              'hirer': user,
+              'userIsProvider': false
+            };
+          } else return null;
+
       });
 
       return await Future.wait(futures);
     });
 
-    return chatStream;
-
-  }
-
-
-
-  Stream streamUserProviderChatsAndHirers({List userPids} ){
-    ///This function is used to stream a users provider chat summaries
-    if (debugMode) print('firestoreApi: streamUserProviderChatsAndHirers called');
-
-    Stream chatStream = _chatCollectionRef
-        .where('pid', whereIn: userPids)
+    ///Getting provider chats
+    Stream stream2 = _chatCollectionRef
+        .where('pid', whereIn: user.providerProfiles)
         .orderBy('time', descending: true)
         .snapshots()
         .asyncMap((event) async {
-
       //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
       var futures = event.documents.map((doc) async {
         Chat chat = Chat.fromMap(doc.data);
@@ -254,18 +265,17 @@ class FirestoreAPIService {
         User hirer = await getUserById(chat.uid);
 
         if (provider != null && hirer != null) {
-          return {'chat': chat, 'provider': provider, 'hirer':hirer};
-        } else
-          return null;
+          return {'chat': chat, 'provider': provider, 'hirer': hirer, 'userIsProvider':true};
+        } else return null;
       });
 
       return await Future.wait(futures);
-
     });
 
-
-    return chatStream;
+      return Rx.combineLatest([stream1,stream2], (values) => values);
   }
+
+
 
   Future<List<Map<String, dynamic>>> getChatsAndProviders(
       {List<dynamic> chatIds}) async {

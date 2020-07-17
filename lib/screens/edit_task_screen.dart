@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/drop_down_services.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
@@ -222,12 +223,19 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     ),
                     SizedBox(height: 5.0),
                     SizedBox(
-                      height: Platform.isIOS ? 100.0 : 50.0,
+                      height: 50.0,
                       child: Container(
                         color: Color(kGenchiCream),
-                        child: servicePicker(
-                            controller: serviceController,
-                            currentService: taskService.currentTask.service),
+                        child: DropdownButton<String>(
+                          value: serviceController.text != ''
+                              ? serviceController.text : 'Other',
+                          items: dropDownServiceItems(),
+                          onChanged: (value) {
+                            setState(() {
+                              serviceController.text = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
                   ],

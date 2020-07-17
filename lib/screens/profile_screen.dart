@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                      Crashlytics.instance.crash();
 ////                      throw Exception('ERORRRORR');
 //                    },
-////                  ),
+//                  ),
 //                  ProfileOptionTile(
 //                    text: 'Test Screen',
 //                    onPressed: ()  {

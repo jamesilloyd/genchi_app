@@ -39,9 +39,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
   Widget buildFurtherLinkSection({ProviderUser currentProvider}) {
     List<Widget> widgets = [];
 
-    print(currentProvider.url1);
-    print(currentProvider.url2['link']);
-
     if (currentProvider.url1['link'] != '' && currentProvider.url2['link'] != '') {
       widgets.addAll([
         Container(

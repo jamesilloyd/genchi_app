@@ -219,9 +219,6 @@ class FirestoreAPIService {
 
 
     ///Getting all the chats
-    List uidAndPids = user.providerProfiles;
-    uidAndPids.add(user.id);
-
     Stream stream1 = _chatCollectionRef
         .where('uid', isEqualTo: user.id)
         .orderBy('time', descending: true)

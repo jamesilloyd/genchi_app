@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/components/drop_down_services.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -60,64 +61,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   bool changesMade = false;
 
-  servicePicker(
-      {String currentService, @required TextEditingController controller}) {
-    return Platform.isIOS
-        ? iOSPicker(currentService: currentService, controller: controller)
-        : androidDropdownButton(
-            currentService: currentService, controller: controller);
-  }
-
-  //TODO just turn both of these into dropdown button
-  DropdownButton<String> androidDropdownButton(
-      {String currentService, @required TextEditingController controller}) {
-    List<DropdownMenuItem<String>> dropdownItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = DropdownMenuItem(
-        child: Text(
-          serviceType['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        value: serviceType['name'].toString(),
-      );
-      dropdownItems.add(newItem);
-    }
-    return DropdownButton<String>(
-      value: controller.text != ''
-          ? controller.text
-          : (currentService == '' ? 'Other' : currentService),
-      items: dropdownItems,
-      onChanged: (value) {
-        setState(() {
-          controller.text = value;
-        });
-      },
-    );
-  }
-
-  CupertinoPicker iOSPicker(
-      {String currentService, @required TextEditingController controller}) {
-    List<Text> pickerItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = Text(serviceType['name']);
-      pickerItems.add(newItem);
-    }
-
-    return CupertinoPicker(
-      scrollController: FixedExtentScrollController(
-        initialItem: servicesListMap
-            .indexWhere((service) => service['name'] == currentService),
-      ),
-      backgroundColor: Color(kGenchiCream),
-      itemExtent: 32.0,
-      onSelectedItemChanged: (selectedIndex) {
-        controller.text = pickerItems[selectedIndex].data;
-      },
-      children: pickerItems,
-    );
-  }
 
   Future<bool> _onWillPop() async {
     print('in here');
@@ -342,12 +285,21 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     ),
                     SizedBox(height: 5.0),
                     SizedBox(
-                      height: Platform.isIOS ? 100.0 : 50.0,
+                      height: 50.0,
                       child: Container(
                         color: Color(kGenchiCream),
-                        child: servicePicker(
-                            controller: serviceTextController,
-                            currentService: providerUser.type),
+                        child: DropdownButton<String>(
+                            value: serviceTextController.text != ''
+                                ? serviceTextController.text
+                                : (providerUser.type == '' ? 'Other' : providerUser.type),
+                            items: dropDownServiceItems(),
+                            onChanged: (value) {
+                              setState(() {
+                                changesMade = true;
+                                serviceTextController.text = value;
+                              });
+                            },
+                          ),
                       ),
                     ),
                   ],
@@ -510,7 +462,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   height: 10.0,
                 ),
                 Divider(
-                  height: 10,
+                  height: 30,
                 ),
                 RoundedButton(
                   buttonTitle: fromRegistration

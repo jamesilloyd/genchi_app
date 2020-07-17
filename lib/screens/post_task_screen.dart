@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/drop_down_services.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -41,59 +42,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  //TODO how can we refactor this?
-
-  servicePicker({@required TextEditingController controller}) {
-    return Platform.isIOS
-        ? iOSPicker(controller: controller)
-        : androidDropdownButton(controller: controller);
-  }
-
-  DropdownButton<String> androidDropdownButton(
-      {@required TextEditingController controller}) {
-    List<DropdownMenuItem<String>> dropdownItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = DropdownMenuItem(
-        child: Text(
-          serviceType['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        value: serviceType['name'].toString(),
-      );
-      dropdownItems.add(newItem);
-    }
-    return DropdownButton<String>(
-      value: controller.text != '' ? controller.text : 'Other',
-      items: dropdownItems,
-      onChanged: (value) {
-        setState(() {
-          controller.text = value;
-        });
-      },
-    );
-  }
-
-  CupertinoPicker iOSPicker({@required TextEditingController controller}) {
-    List<Text> pickerItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = Text(serviceType['name']);
-      pickerItems.add(newItem);
-    }
-
-    return CupertinoPicker(
-      scrollController: FixedExtentScrollController(
-        initialItem: servicesListMap.indexWhere((service) => service['name'] == 'Other'),
-      ),
-      backgroundColor: Color(kGenchiCream),
-      itemExtent: 32.0,
-      onSelectedItemChanged: (selectedIndex) {
-        controller.text = pickerItems[selectedIndex].data;
-      },
-      children: pickerItems,
-    );
-  }
 
   @override
   void initState() {
@@ -154,10 +102,19 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       ),
                       SizedBox(height: 5.0),
                       SizedBox(
-                        height: Platform.isIOS ? 100.0 : 50.0,
+                        height: 50.0,
                         child: Container(
                           color: Color(kGenchiCream),
-                          child: servicePicker(controller: serviceController),
+                          child: DropdownButton<String>(
+                            value: serviceController.text != ''
+                                ? serviceController.text : 'Other',
+                            items: dropDownServiceItems(),
+                            onChanged: (value) {
+                              setState(() {
+                                serviceController.text = value;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ],

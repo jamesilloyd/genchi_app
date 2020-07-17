@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? CupertinoIcons.folder
                     : Icons.folder_open),
 
-                //TODO WORK OUT HOW TO DO NOTIFICATIONS - problem is in how to get the numbers
+                //TODO WORK OUT HOW TO DO NOTIFICATIONS - problem is in how to get the numbers - would have to stream the user
 //                Stack(
 //                  children: <Widget>[
 //                    Icon(Platform.isIOS
@@ -169,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //                    )
 //                  ],
 //                ),
-                title: Text('Jobs'),
+                title: Text('My Jobs'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS

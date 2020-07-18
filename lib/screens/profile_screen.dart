@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 
-import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
@@ -29,6 +29,7 @@ import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/hirer_service.dart';
 import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final authProvider = Provider.of<AuthenticationService>(context);
     final providerService = Provider.of<ProviderService>(context);
+    final hirerService = Provider.of<HirerService>(context);
 
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
@@ -82,10 +84,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 children: <Widget>[
-                  DisplayPicture(
-                    imageUrl: currentUser.displayPictureURL,
-                    height: 0.25,
-                    border: true,
+                  GestureDetector(
+                    child: DisplayPicture(
+                      imageUrl: currentUser.displayPictureURL,
+                      height: 0.25,
+                      border: true,
+                    ),
+                    onTap: ()async{
+                      await hirerService.updateCurrentHirer(id: currentUser.id);
+                      Navigator.pushNamed(context, HirerScreen.id);
+                    },
                   ),
                   SizedBox(height: 5),
 //                  ProfileOptionTile(
@@ -141,9 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await providerService
                                       .updateCurrentProvider(provider.pid);
                                   Navigator.pushNamed(
-                                      context, ProviderScreen.id,
-                                      arguments: ProviderScreenArguments(
-                                          provider: provider));
+                                      context, ProviderScreen.id);
                                 });
                             providerCards.add(pCard);
                           }
@@ -176,11 +182,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await providerService
                                       .updateCurrentProvider(result.documentID);
 
-                                  Navigator.pushNamed(
-                                      context, ProviderScreen.id,
-                                      arguments: ProviderScreenArguments(
-                                          provider:
-                                              providerService.currentProvider));
+                                  Navigator.pushNamed(context, ProviderScreen.id);
+                                  Navigator.pushNamed(context, EditProviderAccountScreen.id);
                                 }
                               },
                             ),
@@ -234,6 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               .updateCurrentProvider(result.documentID);
 
                           Navigator.pushNamed(context, ProviderScreen.id);
+                          Navigator.pushNamed(context, EditProviderAccountScreen.id);
 
                         }
                       },

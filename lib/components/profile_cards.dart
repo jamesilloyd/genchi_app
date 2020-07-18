@@ -177,11 +177,12 @@ Widget AddProviderCard(
   );
 }
 
-Widget HirerCard({@required User hirer}) {
+Widget HirerCard({@required User hirer, @required Function onTap}) {
   return Row(
     children: <Widget>[
       Expanded(
         child: ListTile(
+          onTap: onTap,
           title: Text(
             hirer.name,
             style: TextStyle(

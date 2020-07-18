@@ -10,6 +10,7 @@ import 'package:genchi_app/screens/edit_task_screen.dart';
 
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
@@ -27,6 +28,7 @@ import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
+import 'package:genchi_app/services/hirer_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/provider_service.dart';
@@ -53,6 +55,7 @@ class Genchi extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
+        ChangeNotifierProvider(create: (_) => HirerService()),
         ChangeNotifierProvider(create: (_) => ProviderService()),
 
         //TODO: how do we stream the current user
@@ -110,6 +113,7 @@ class StartUp extends StatelessWidget {
               ApplicationChatScreen.id: (context) => ApplicationChatScreen(),
               SearchTasksScreen.id: (context) => SearchTasksScreen(),
               OnboardingScreen.id: (context) => OnboardingScreen(),
+              HirerScreen.id: (context) => HirerScreen(),
             },
           );
         }

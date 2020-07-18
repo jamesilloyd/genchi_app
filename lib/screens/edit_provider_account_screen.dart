@@ -17,7 +17,6 @@ import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/provider_service.dart';
 
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/provider.dart';
 
@@ -109,11 +108,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final EditProviderAccountScreenArguments args =
-        ModalRoute.of(context).settings.arguments ??
-            EditProviderAccountScreenArguments();
-    bool fromRegistration = args.fromRegistration;
-
     final providerService = Provider.of<ProviderService>(context);
     ProviderUser providerUser = providerService.currentProvider;
 
@@ -178,11 +172,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     showSpinner = false;
                   });
 
-                  fromRegistration
-                      ? Navigator.pushNamedAndRemoveUntil(context,
-                          HomeScreen.id, (Route<dynamic> route) => false,
-                          arguments: HomeScreenArguments(startingIndex: 2))
-                      : Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               )
             ],
@@ -465,9 +455,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   height: 30,
                 ),
                 RoundedButton(
-                  buttonTitle: fromRegistration
-                      ? "Cancel (you can make one later)"
-                      : "Delete provider account",
+                  buttonTitle: "Delete provider account",
                   buttonColor: Color(kGenchiBlue),
                   onPressed: () async {
                     ///Update the provider before deleting

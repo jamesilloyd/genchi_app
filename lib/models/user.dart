@@ -4,6 +4,9 @@ class User extends ChangeNotifier {
   String id;
   String email;
   String name;
+  String college;
+  String subject;
+  String bio;
   String displayPictureFileName;
   String displayPictureURL;
   DateTime timeStamp;
@@ -24,11 +27,17 @@ class User extends ChangeNotifier {
       this.favourites,
       this.posts,
       this.fcmTokens,
+      this.college,
+      this.subject,
+      this.bio,
       this.chats});
 
   User.fromMap(Map snapshot)
       : email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
+        college = snapshot['college'] ?? '',
+        subject = snapshot['subject'] ?? '',
+        bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
         displayPictureURL = snapshot['displayPictureURL'],
         id = snapshot['id'] ?? '',
@@ -41,7 +50,10 @@ class User extends ChangeNotifier {
   toJson() {
     return {
       if (email != null) "email": email,
-      if (name != null) "name": name ?? '',
+      if (name != null) "name" : name,
+      if (college != null) "college" : college,
+      if (subject != null) "subject" : subject,
+      if (bio != null) "bio" : bio,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
@@ -51,7 +63,7 @@ class User extends ChangeNotifier {
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
       if (posts != null) 'posts': posts,
-      if (fcmTokens != null) 'fcmTokens' : fcmTokens,
+      if (fcmTokens != null) 'fcmTokens': fcmTokens,
     };
   }
 }

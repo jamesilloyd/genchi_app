@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
-import 'package:genchi_app/components/profile_option_tile.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 
@@ -82,34 +81,18 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        Container(
-                          height: 50,
-                          child: FlatButton(
-                            onPressed: () async {
-                              bool postTask = await showYesNoAlert(
-                                  context: context, title: 'Post Job?');
-                              if (postTask)
-                                Navigator.pushNamed(context, PostTaskScreen.id);
-                            },
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: FittedBox(
-                                fit: BoxFit.contain,
-                                child: Text(
-                                  '+ Add Job',
-                                  style: TextStyle(
-                                    color: Color(kGenchiBlue),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 25.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: 0,
-                          thickness: 1,
+
+                        RoundedButton(
+                          onPressed:  () async {
+      bool postTask = await showYesNoAlert(
+      context: context, title: 'Post Job?');
+      if (postTask)
+      Navigator.pushNamed(context, PostTaskScreen.id);
+      },
+                          buttonColor: Color(kGenchiOrange),
+                          fontColor: Color(kGenchiCream),
+                          buttonTitle: '+ Post Job',
+                          elevation: true,
                         ),
                       ],
                     ),
@@ -120,7 +103,6 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                           'Your Posted Jobs',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Color(kGenchiBlue),
                             fontWeight: FontWeight.w400,
                             fontSize: 25.0,
                           ),
@@ -163,9 +145,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
 
 
                           Widget tCard = TaskCard(
-                              image: currentUser.displayPictureURL == null
-                                  ? AssetImage("images/Logo_Clear.png")
-                                  : CachedNetworkImageProvider(
+                              image: currentUser.displayPictureURL == null ? null: CachedNetworkImageProvider(
                                   currentUser.displayPictureURL),
                               task: task,
                               hasUnreadMessage: userHasNotification,
@@ -209,7 +189,6 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                               'Your Applied Jobs',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Color(kGenchiBlue),
                                 fontWeight: FontWeight.w400,
                                 fontSize: 25.0,
                               ),
@@ -256,7 +235,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
 
                               Widget tCard = TaskCard(
                                   image: hirer.displayPictureURL == null
-                                      ? AssetImage("images/Logo_Clear.png")
+                                      ? null
                                       : CachedNetworkImageProvider(
                                       hirer.displayPictureURL),
                                   task: task,

@@ -14,8 +14,10 @@ import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/hirer_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
@@ -92,6 +94,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     : CachedNetworkImageProvider(provider.displayPictureURL),
                 name: provider.name,
                 service: provider.type,
+                type: 'JOB',
                 lastMessage: taskApplicant.lastMessage,
                 time: taskApplicant.time,
                 hasUnreadMessage: taskApplicant.hirerHasUnreadMessage,
@@ -140,19 +143,7 @@ class _TaskScreenState extends State<TaskScreen> {
       );
     } else if (!userIsProvider) {
       ///User cannot apply as they do not have a provider account
-      return FutureBuilder(
-        ///We probably don't need to check that the user exists here as the
-        ///task would have been deleted if the hirer doesn't exist.
-        ///Worst case scenario the infite scoller appears
-        future: firestoreAPI.getUserById(task.hirerId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgress();
-          }
-
-          User hirer = snapshot.data;
-
-          return Column(
+      return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Center(
@@ -160,13 +151,10 @@ class _TaskScreenState extends State<TaskScreen> {
                 'Create a provider account to apply',
                 style: TextStyle(
                     fontSize: 20,
-                    color: Color(kGenchiBlue),
                     fontWeight: FontWeight.w500),
-              )),
+              ),),
             ],
           );
-        },
-      );
     } else {
       ///User is a provider so it's now a case of seeing if they have applied already
       return FutureBuilder(
@@ -212,7 +200,6 @@ class _TaskScreenState extends State<TaskScreen> {
                 height: 5,
               )
             ];
-
             ///Show user's application
             MessageListItem chatWidget = MessageListItem(
                 image: appliedProvider.displayPictureURL == null
@@ -223,6 +210,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 service: appliedProvider.type,
                 lastMessage: providersApplication.lastMessage,
                 time: providersApplication.time,
+                type: 'JOB',
                 deleteMessage: 'Withdraw',
                 hasUnreadMessage: providersApplication.providerHasUnreadMessage,
                 onTap: () async {
@@ -286,7 +274,6 @@ class _TaskScreenState extends State<TaskScreen> {
             return Center(
               child: RoundedButton(
                 fontColor: Color(kGenchiCream),
-                buttonColor: Color(kGenchiBlue),
                 buttonTitle: 'Apply',
                 onPressed: applyFunction,
               ),
@@ -302,6 +289,7 @@ class _TaskScreenState extends State<TaskScreen> {
     if (debugMode) print('Task Screen: activated');
     final authProvider = Provider.of<AuthenticationService>(context);
     final taskProvider = Provider.of<TaskService>(context);
+    final hirerProvider = Provider.of<HirerService>(context);
     User currentUser = authProvider.currentUser;
     Task currentTask = taskProvider.currentTask;
     bool isUsersTask = currentTask.hirerId == currentUser.id;
@@ -352,7 +340,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w600,
-                        color: Color(kGenchiBlue)),
+                    ),
                   ),
                 ),
                 Text(
@@ -371,7 +359,6 @@ class _TaskScreenState extends State<TaskScreen> {
                 "Details",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -387,7 +374,6 @@ class _TaskScreenState extends State<TaskScreen> {
                 "Timings",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -403,7 +389,6 @@ class _TaskScreenState extends State<TaskScreen> {
                 "Price",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -420,7 +405,6 @@ class _TaskScreenState extends State<TaskScreen> {
             Text(
               'Hirer',
               style: TextStyle(
-                color: Color(kGenchiBlue),
                 fontSize: 25.0,
                 fontWeight: FontWeight.w500,
               ),
@@ -438,7 +422,10 @@ class _TaskScreenState extends State<TaskScreen> {
                   return Text('');
                 }
                 User hirer = snapshot.data;
-                return HirerCard(hirer: hirer);
+                return HirerCard(hirer: hirer, onTap: () async {
+                  await hirerProvider.updateCurrentHirer(id:currentTask.hirerId );
+                  Navigator.pushNamed(context, HirerScreen.id);
+                });
               },
             ),
             Divider(

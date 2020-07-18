@@ -21,9 +21,9 @@ class ProviderService extends ChangeNotifier {
         _currentProvider = provider;
         notifyListeners();
       }
-    }
+      //TODO VERY VERY IMPORTANT how to handle an error here, maybe return a value and then make a snackbar from it
 
-    //TODO how to handle null provider
+    }
   }
 
 

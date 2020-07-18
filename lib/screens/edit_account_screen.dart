@@ -30,11 +30,14 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
   bool showSpinner = false;
-  String name;
-  String email;
+
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController collegeController = TextEditingController();
+  TextEditingController subjectController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
+
 
   Future<bool> _onWillPop() async {
 
@@ -51,6 +54,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     User user = Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     emailController.text = user.email;
+    collegeController.text = user.college;
+    subjectController.text = user.subject;
+    bioController.text = user.bio;
   }
   
   @override
@@ -58,6 +64,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     super.dispose();
     nameController.dispose();
     emailController.dispose();
+    collegeController .dispose();
+    subjectController.dispose();
+    bioController.dispose();
   }
 
   @override
@@ -97,10 +106,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   setState(() {
                     showSpinner = true;
                   });
-                  print("$name $email");
 
                   await fireStoreAPI.updateUser(user:
-                  User(name: name, email: email),
+                  User(name: nameController.text, email: emailController.text,college: collegeController.text,bio: bioController.text, subject: subjectController.text),
                       uid: currentUser.id);
                   await authProvider.updateCurrentUserData();
 
@@ -194,7 +202,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
-                        name = value;
+
                       },
                       textController: nameController,
                     ),
@@ -203,7 +211,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       isEditable: false,
                       onChanged: (value) {
                         changesMade = true;
-                        email = value;
                       },
                       textController: emailController,
                     ),
@@ -212,27 +219,27 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
-                        name = value;
                       },
-                      textController: nameController,
+                      textController: collegeController,
+                      hintText: 'Which college are you in?',
                     ),
                     EditAccountField(
                       field: "Subject",
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
-                        name = value;
                       },
-                      textController: nameController,
+                      textController: subjectController,
+                      hintText: 'What do you study?',
                     ),
                     EditAccountField(
                       field: "About Me",
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
-                        name = value;
                       },
-                      textController: nameController,
+                      textController: bioController,
+                      hintText: 'Interests, Activities, Societies, etc.',
                     ),
                     SizedBox(
                       height: 10.0,

@@ -16,7 +16,7 @@ class MessageListItem extends StatelessWidget {
   final String service;
   final Function hideChat;
   final String deleteMessage;
-  final bool isHiring;
+  final String type;
 
   const MessageListItem(
       {Key key,
@@ -27,7 +27,7 @@ class MessageListItem extends StatelessWidget {
       this.time,
       this.hasUnreadMessage,
       @required this.onTap,
-        this.isHiring,
+        @required this.type,
       this.service,
       this.deleteMessage = 'Archive'})
       : super(key: key);
@@ -107,7 +107,7 @@ class MessageListItem extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text:isHiring ? ' - HIRING' : ' - PROVIDING',
+                            text: ' - $type',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,

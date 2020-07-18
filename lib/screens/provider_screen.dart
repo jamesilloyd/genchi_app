@@ -46,7 +46,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
             "Website Links",
             textAlign: TextAlign.left,
             style: TextStyle(
-              color: Color(kGenchiBlue),
               fontSize: 25.0,
               fontWeight: FontWeight.w500,
             ),
@@ -115,7 +114,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: BasicAppNavigationBar(
-        barTitle: providerUser.name ?? "",
+        barTitle: 'Provider',
       ),
       body: Center(
         child: ListView(
@@ -132,7 +131,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 providerUser.name ?? "",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -159,9 +157,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                     onPressed: isUsersProviderProfile
                         ? () {
                             Navigator.pushNamed(
-                                context, EditProviderAccountScreen.id,
-                                arguments: EditProviderAccountScreenArguments(
-                                    provider: providerUser));
+                                context, EditProviderAccountScreen.id);
                           }
                         : () async {
                             List userChats = authProvider.currentUser.chats;
@@ -247,7 +243,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 "Service",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -265,7 +260,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 "About Me",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -286,7 +280,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 "Experience",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),
@@ -307,7 +300,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 "Pricing",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  color: Color(kGenchiBlue),
                   fontSize: 25.0,
                   fontWeight: FontWeight.w500,
                 ),

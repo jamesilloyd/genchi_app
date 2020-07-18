@@ -170,7 +170,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                             lastMessage: chat.lastMessage,
                             time: chat.time,
                             hasUnreadMessage: chat.providerHasUnreadMessage,
-                            isHiring: false,
+                            type: 'PROVIDING',
                             onTap: () async {
                               setState(() {
                                 showSpinner = true;
@@ -215,7 +215,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                             service: provider.type,
                             lastMessage: chat.lastMessage,
                             time: chat.time,
-                            isHiring: true,
+                            type: 'HIRING',
                             hasUnreadMessage: chat.userHasUnreadMessage,
                             onTap: () async {
                               setState(() {

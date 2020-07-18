@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class RoundedButton extends StatelessWidget {
 
-  const RoundedButton( {this.buttonColor, this.buttonTitle, @required this.onPressed, this.fontColor = Colors.white});
+  const RoundedButton( {this.buttonColor, this.buttonTitle, @required this.onPressed, this.fontColor = Colors.white, this.elevation = false});
 
   final Color buttonColor;
   final String buttonTitle;
   final Function onPressed;
   final Color fontColor;
+  final bool elevation;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class RoundedButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         color: buttonColor,
+        boxShadow: elevation ? [BoxShadow(color: Colors.grey, spreadRadius: 1,blurRadius: 1,offset: Offset(0,1))] : [BoxShadow(color: Colors.transparent)],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
@@ -31,7 +33,7 @@ class RoundedButton extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: fontColor,
-                fontSize: 17.0
+                fontSize: 18.0
               ),
             ),
           ),

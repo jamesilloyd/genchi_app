@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         (2.2 * 1.77) +
                                     20,
                             child: ListView(
-                              padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                              padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                               scrollDirection: Axis.horizontal,
                               children: providerCards,
                             ),
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   if (userIsProvider)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Divider(
                         height: 0,
                         thickness: 1,

@@ -127,7 +127,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 inAsyncCall: showSpinner,
                 progressIndicator: CircularProgress(),
                 child: ListView(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(15.0),
                   children: <Widget>[
                     Center(
                       child: Text(

@@ -10,8 +10,10 @@ Widget TaskCard(
     bool isDisplayTask = true,
     bool hasUnreadMessage = false}) {
   return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: <Widget>[
       ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 0),
         onTap: onTap,
         leading: image == null
             ? CircleAvatar(
@@ -75,8 +77,6 @@ Widget TaskCard(
         ),
       ),
       Divider(
-        endIndent: 12.0,
-        indent: 12.0,
         height: 0,
         thickness: 1,
       )

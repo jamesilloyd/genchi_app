@@ -19,7 +19,7 @@ class RoundedButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         color: buttonColor,
-        boxShadow: elevation ? [BoxShadow(color: Colors.grey, spreadRadius: 1,blurRadius: 1,offset: Offset(0,1))] : [BoxShadow(color: Colors.transparent)],
+        boxShadow: [BoxShadow(color: Colors.grey,blurRadius: 1,spreadRadius: 1, offset: Offset(0,1))],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),

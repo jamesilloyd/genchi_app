@@ -118,7 +118,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
       ),
       body: Center(
         child: ListView(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(15.0),
           children: <Widget>[
             DisplayPicture(
               imageUrl: providerUser.displayPictureURL,

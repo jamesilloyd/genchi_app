@@ -29,6 +29,7 @@ class ProviderCard extends StatelessWidget {
             Expanded(
               flex: 10,
               child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 0),
                 title: Text(
                   (service != '') ? '$name - $service' : name,
                   style: TextStyle(
@@ -54,9 +55,7 @@ class ProviderCard extends StatelessWidget {
                 ),
                 subtitle: Container(
                   child: Text(
-                    description.length > 30
-                        ? '${description.substring(0, 30)}...'
-                        : description,
+                    description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
@@ -182,6 +181,7 @@ Widget HirerCard({@required User hirer, @required Function onTap}) {
     children: <Widget>[
       Expanded(
         child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 0),
           onTap: onTap,
           title: Text(
             hirer.name,

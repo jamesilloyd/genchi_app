@@ -274,8 +274,10 @@ class _TaskScreenState extends State<TaskScreen> {
             return Center(
               child: RoundedButton(
                 fontColor: Color(kGenchiCream),
+                buttonColor: Color(kGenchiGreen),
                 buttonTitle: 'Apply',
                 onPressed: applyFunction,
+                elevation: true,
               ),
             );
           }
@@ -329,7 +331,7 @@ class _TaskScreenState extends State<TaskScreen> {
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
         child: ListView(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(15),
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -37,7 +37,7 @@ class FavouritesScreen extends StatelessWidget {
         barTitle: 'Favourites',
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(15.0),
         children: <Widget>[
           FutureBuilder(
             //This function returns a list of providerUsers

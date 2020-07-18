@@ -27,7 +27,7 @@ class MessageListItem extends StatelessWidget {
       this.time,
       this.hasUnreadMessage,
       @required this.onTap,
-        @required this.type,
+      @required this.type,
       this.service,
       this.deleteMessage = 'Archive'})
       : super(key: key);
@@ -44,6 +44,7 @@ class MessageListItem extends StatelessWidget {
               Expanded(
                 flex: 10,
                 child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 0),
                   title: Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
@@ -60,7 +61,7 @@ class MessageListItem extends StatelessWidget {
                               ? FontWeight.w500
                               : FontWeight.w400,
                         ),
-                      ) ,
+                      ),
 
 //
                     ),
@@ -93,11 +94,10 @@ class MessageListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                  RichText(
+                      RichText(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         text: TextSpan(children: [
-
                           TextSpan(
                             text: service,
                             style: TextStyle(
@@ -141,8 +141,6 @@ class MessageListItem extends StatelessWidget {
             ],
           ),
           Divider(
-            endIndent: 12.0,
-            indent: 12.0,
             height: 0,
             thickness: 1,
           ),

@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,6 +27,7 @@ class PostTaskScreen extends StatefulWidget {
 }
 
 class _PostTaskScreenState extends State<PostTaskScreen> {
+  bool changesMade = false;
   bool showSpinner = false;
   String title;
   String date;
@@ -59,130 +59,147 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
     priceController.dispose();
   }
 
+  Future<bool> _onWillPop() async {
+    if (changesMade) {
+      bool discard = await showYesNoAlert(
+          context: context, title: 'Are you sure you want to discard changes?');
+      if (!discard) return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-      },
-      child: Scaffold(
-        appBar: BasicAppNavigationBar(
-          barTitle: 'Post Task',
-        ),
-        body: Builder(
-          builder: (BuildContext context) {
-            return ModalProgressHUD(
-              inAsyncCall: showSpinner,
-              progressIndicator: CircularProgress(),
-              child: ListView(
-                padding: EdgeInsets.all(20.0),
-                children: <Widget>[
-                  EditAccountField(
-                    field: 'Title',
-                    onChanged: (value) {
-                      title = value;
-                    },
-                    textController: titleController,
-                    hintText: 'Summary of the task',
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        height: 30.0,
-                      ),
-                      Text(
-                        'Service',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w500,
-                          color: Color(kGenchiBlue),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Scaffold(
+          appBar: BasicAppNavigationBar(
+            barTitle: 'Post Task',
+          ),
+          body: Builder(
+            builder: (BuildContext context) {
+              return ModalProgressHUD(
+                inAsyncCall: showSpinner,
+                progressIndicator: CircularProgress(),
+                child: ListView(
+                  padding: EdgeInsets.all(15.0),
+                  children: <Widget>[
+                    EditAccountField(
+                      field: 'Title',
+                      onChanged: (value) {
+                        title = value;
+                        changesMade = true;
+                      },
+                      textController: titleController,
+                      hintText: 'Summary of the task',
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
                         ),
-                      ),
-                      SizedBox(height: 5.0),
-                      SizedBox(
-                        height: 50.0,
-                        child: Container(
-                          color: Color(kGenchiCream),
-                          child: DropdownButton<String>(
-                            value: serviceController.text != ''
-                                ? serviceController.text : 'Other',
-                            items: dropDownServiceItems(),
-                            onChanged: (value) {
-                              setState(() {
-                                serviceController.text = value;
-                              });
-                            },
+                        Text(
+                          'Service',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            color: Color(kGenchiBlue),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  EditAccountField(
-                    field: 'Date',
-                    onChanged: (value) {
-                      date = value;
-                    },
-                    textController: dateController,
-                    hintText: 'The timeframe of the task',
-                  ),
-                  EditAccountField(
-                    field: 'Details',
-                    onChanged: (value) {
-                      details = value;
-                    },
-                    textController: detailsController,
-                    hintText: 'Provide further details of the task',
+                        SizedBox(height: 5.0),
+                        SizedBox(
+                          height: 50.0,
+                          child: Container(
+                            color: Color(kGenchiCream),
+                            child: DropdownButton<String>(
+                              value: serviceController.text != ''
+                                  ? serviceController.text : 'Other',
+                              items: dropDownServiceItems(),
+                              onChanged: (value) {
+                                setState(() {
+                                  serviceController.text = value;
+                                  changesMade = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    EditAccountField(
+                      field: 'Date',
+                      onChanged: (value) {
+                        date = value;
+                        changesMade = true;
+                      },
+                      textController: dateController,
+                      hintText: 'The timeframe of the task',
+                    ),
+                    EditAccountField(
+                      field: 'Details',
+                      onChanged: (value) {
+                        details = value;
+                        changesMade = true;
+                      },
+                      textController: detailsController,
+                      hintText: 'Provide further details of the task',
 
-                  ),
-                  EditAccountField(
-                    field: 'Price',
-                    onChanged: (value) {
-                      price = value;
-                    },
-                    textController: priceController,
-                    hintText: 'Estimated pay for the task',
+                    ),
+                    EditAccountField(
+                      field: 'Price',
+                      onChanged: (value) {
+                        price = value;
+                        changesMade = true;
+                      },
+                      textController: priceController,
+                      hintText: 'Estimated pay for the task',
 
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  RoundedButton(
-                    buttonTitle: 'POST',
-                    buttonColor: Color(kGenchiBlue),
-                    fontColor: Color(kGenchiCream),
-                    onPressed: () async {
-                      bool post = await showYesNoAlert(
-                          context: context, title: 'Post task?');
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    RoundedButton(
+                      buttonTitle: 'POST',
+                      buttonColor: Color(kGenchiBlue),
+                      fontColor: Color(kGenchiCream),
+                      onPressed: () async {
+                        bool post = await showYesNoAlert(
+                            context: context, title: 'Post task?');
 
-                      if (post) {
-                        setState(() {
-                          showSpinner = true;
-                        });
-                        await firestoreAPI.addTask(
-                            task: Task(
-                                title: title,
-                                date: date,
-                                details: details,
-                                service: serviceController.text,
-                                time: Timestamp.now(),
-                                price: price,
-                                hirerId: authProvider.currentUser.id),
-                            uid: authProvider.currentUser.id);
+                        if (post) {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                          await firestoreAPI.addTask(
+                              task: Task(
+                                  title: title,
+                                  date: date,
+                                  details: details,
+                                  service: serviceController.text,
+                                  time: Timestamp.now(),
+                                  price: price,
+                                  hirerId: authProvider.currentUser.id),
+                              uid: authProvider.currentUser.id);
 
-                        await authProvider.updateCurrentUserData();
-                        setState(() {
-                          showSpinner = false;
-                        });
-                        Navigator.of(context).pop();
-                      }
-                    },
-                  )
-                ],
-              ),
-            );
-          },
+                          await authProvider.updateCurrentUserData();
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

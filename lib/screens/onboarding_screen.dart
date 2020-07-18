@@ -30,6 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color(kGenchiGreen),
       body: SafeArea(
@@ -59,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               _currentPage++;
                               _pageController.animateToPage(_currentPage, duration: Duration(milliseconds: 500), curve: Curves.easeInOutSine);
                             } else {
-                              Navigator.popAndPushNamed(context, RegistrationScreen.id);
+                              Navigator.pushNamed(context, RegistrationScreen.id);
                             }
 
                           });
@@ -158,25 +159,23 @@ class SlideItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         SizedBox(
-          height: MediaQuery.of(context).size.height*0.1,
+          height: MediaQuery.of(context).size.height*0.05,
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.width * 0.6,
-          width: MediaQuery.of(context).size.height * 0.4,
+
+          height: MediaQuery.of(context).size.height * 0.4,
           child: Image(
+            alignment: Alignment.center,
             image:  AssetImage(sliderArrayList[index].sliderImageUrl),
-            fit: BoxFit.cover,
+            fit: BoxFit.fitHeight,
           ),
-        ),
-        SizedBox(
-          height: 40.0,
         ),
         Text(
           sliderArrayList[index].sliderHeading,
           style: TextStyle(
             fontWeight: FontWeight.w500,
             color: Color(kGenchiCream),
-            fontSize: 40,
+            fontSize: 35,
           ),
         ),
         SizedBox(
@@ -184,14 +183,14 @@ class SlideItem extends StatelessWidget {
         ),
         Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
               sliderArrayList[index].sliderSubHeading,
               style: TextStyle(
                 color: Color(kGenchiCream),
                 fontWeight: FontWeight.w400,
                 letterSpacing: 1,
-                fontSize: 16,
+                fontSize: MediaQuery.of(context).size.height < 600 ? 11 : 16,
               ),
               textAlign: TextAlign.center,
             ),
@@ -222,9 +221,9 @@ final sliderArrayList = [
   Slider(
       sliderImageUrl: 'images/onboarding/hire.png',
       sliderHeading: 'HIRE',
-      sliderSubHeading: 'We give you the freedom to easily select between services providers you need or post a job and choose from those that apply. \n \n All users are created with a hiring profile where you can add basic details about yourself and start hiring.'),
+      sliderSubHeading: 'We give you the freedom to easily select between service providers you need or post a job and choose from those that apply. \n \n All users are created with a hiring profile where you can add basic details about yourself and start hiring.'),
   Slider(
       sliderImageUrl: 'images/onboarding/provide.png',
       sliderHeading: 'PROVIDE',
-      sliderSubHeading: 'We also allow you to effortlessly set up a provider profile alongside your hiring profile. You can create multiple provider profiles for each service you offer. \n\n This allows you to start applying to opportunities and begin gaining valuable experience.'),
+      sliderSubHeading: 'We also allow you to effortlessly set up a provider profile alongside your hiring profile. You can create multiple provider profiles for each service you offer. \n\n Start applying to opportunities and begin gaining valuable experience.'),
 ];

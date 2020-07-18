@@ -48,7 +48,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
           appBar: BasicAppNavigationBar(barTitle: service['plural']),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(15.0),
               child: FutureBuilder(
                 future: firestoreAPI.getProvidersByService(serviceType: service['name']),
                 builder: (context, snapshot) {

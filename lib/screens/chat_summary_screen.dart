@@ -74,7 +74,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
 
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             children: <Widget>[
               if(userIsProvider) Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

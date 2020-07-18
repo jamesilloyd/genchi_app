@@ -20,8 +20,8 @@ class MessageBubble extends StatelessWidget {
       children: <Widget>[
         Padding(
         padding: isMe
-            ? EdgeInsets.only(right: 8.0, top: 4.0, bottom: 4.0)
-            : EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
+            ? EdgeInsets.only(top: 4.0, bottom: 4.0)
+            : EdgeInsets.only(top: 4.0, bottom: 4.0),
             child: Column(
               crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: <Widget>[

@@ -73,64 +73,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     return true;
   }
 
-  servicePicker(
-      {String currentService, @required TextEditingController controller}) {
-    return Platform.isIOS
-        ? iOSPicker(currentService: currentService, controller: controller)
-        : androidDropdownButton(
-            currentService: currentService, controller: controller);
-  }
-
-  DropdownButton<String> androidDropdownButton(
-      {String currentService, @required TextEditingController controller}) {
-    List<DropdownMenuItem<String>> dropdownItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = DropdownMenuItem(
-        child: Text(
-          serviceType['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        value: serviceType['name'].toString(),
-      );
-      dropdownItems.add(newItem);
-    }
-    return DropdownButton<String>(
-      value: controller.text != ''
-          ? controller.text
-          : (currentService == '' ? 'Other' : currentService),
-      items: dropdownItems,
-      onChanged: (value) {
-        setState(() {
-          controller.text = value;
-        });
-      },
-    );
-  }
-
-  CupertinoPicker iOSPicker(
-      {String currentService, @required TextEditingController controller}) {
-    List<Text> pickerItems = [];
-    for (Map serviceType in servicesListMap) {
-      var newItem = Text(serviceType['name']);
-      pickerItems.add(newItem);
-    }
-
-    return CupertinoPicker(
-      scrollController: FixedExtentScrollController(
-        initialItem: servicesListMap
-            .indexWhere((service) => service['name'] == currentService),
-      ),
-      backgroundColor: Color(kGenchiCream),
-      itemExtent: 32.0,
-      onSelectedItemChanged: (selectedIndex) {
-        controller.text = pickerItems[selectedIndex].data;
-      },
-      children: pickerItems,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final taskService = Provider.of<TaskService>(context);
@@ -196,7 +138,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             inAsyncCall: showSpinner,
             progressIndicator: CircularProgress(),
             child: ListView(
-              padding: EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(15.0),
               children: <Widget>[
                 EditAccountField(
                   field: "Title",
@@ -233,6 +175,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                           onChanged: (value) {
                             setState(() {
                               serviceController.text = value;
+                              changesMade = true;
                             });
                           },
                         ),
@@ -291,7 +234,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                       Navigator.pushNamedAndRemoveUntil(context,
                           HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 1));
-
 
                     }
                   },

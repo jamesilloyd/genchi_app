@@ -91,7 +91,7 @@ class _SearchScreenState extends State<SearchScreen>
     for (Map service in servicesListMap) {
       List<Widget> widgets = [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
           child: Text(
             service['name'].toString().toUpperCase(),
             style: TextStyle(fontSize: 16),
@@ -163,7 +163,7 @@ class _SearchScreenState extends State<SearchScreen>
                 height: (MediaQuery.of(context).size.width - 50) * 1.3 / 3.25 + 20,
                 child: Center(
                   child: ListView(
-                    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                     scrollDirection: Axis.horizontal,
                     children: taskWidgets,
                   ),
@@ -217,7 +217,7 @@ class _SearchScreenState extends State<SearchScreen>
                   children: <Widget>[
                     SizedBox(height: 20),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -245,7 +245,7 @@ class _SearchScreenState extends State<SearchScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Divider(
                         height: 0,
                         thickness: 1,
@@ -259,7 +259,7 @@ class _SearchScreenState extends State<SearchScreen>
                           10,
                       child: Center(
                         child: ListView(
-                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                           scrollDirection: Axis.horizontal,
                           children: buildServiceTiles(),
                         ),
@@ -267,7 +267,7 @@ class _SearchScreenState extends State<SearchScreen>
                     ),
                     SizedBox(height: 20),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -298,7 +298,7 @@ class _SearchScreenState extends State<SearchScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Divider(
                         height: 0,
                         thickness: 1,

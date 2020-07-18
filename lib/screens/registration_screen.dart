@@ -18,8 +18,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
-  String password1;
-  String password2;
+  String password;
   String name;
   bool showSpinner = false;
   bool showErrorField = false;
@@ -100,20 +99,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           ),
                           SignInTextField(
                             onChanged: (value) {
-                              password1 = value;
+                              password = value;
                             },
                             hintText: "Enter password",
-                            isPasswordField: true,
-                          ),
-
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          SignInTextField(
-                            onChanged: (value) {
-                              password2 = value;
-                            },
-                            hintText: "Repeat password",
                             isPasswordField: true,
                           ),
                           showErrorField
@@ -131,11 +119,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 if (name == null || email == null)
                                   throw (Exception('Enter name and email'));
 
-                                if (password1 != password2)
-                                  throw (Exception("Passwords do not match"));
-
                                 await authProvider.registerWithEmail(
-                                    email: email, password: password1, name: name);
+                                    email: email, password: password, name: name);
 
                                 //This populates the current user simultaneously
                                 if (await authProvider.isUserLoggedIn() == true) {

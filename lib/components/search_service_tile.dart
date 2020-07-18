@@ -51,13 +51,14 @@ class SearchServiceTile extends StatelessWidget {
                     ),
                   ),
                   Align(
-                    alignment: Alignment(0, 4),
+                    alignment: Alignment(0, 5),
                     child: Container(
                       height: width / 1.6 * 0.85,
                       decoration: BoxDecoration(
                           image: DecorationImage(
                               image: AssetImage(imageAddress),
-                              alignment: Alignment.centerRight)),
+                              alignment: Alignment.centerRight),
+                    ),
                     ),
                   ),
                 ],

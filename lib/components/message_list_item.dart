@@ -48,34 +48,21 @@ class MessageListItem extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Container(
                       height: 30,
-                      child: RichText(
+                      child: Text(
+                        name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: '$name ',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              fontFamily: 'FuturaPT',
-                              fontWeight: hasUnreadMessage
-                                  ? FontWeight.w500
-                                  : FontWeight.w400,
-                            ),
-                          ),
-                          TextSpan(
-                            text: service,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'FuturaPT',
-                              color: Color(kGenchiOrange),
-                              fontWeight: hasUnreadMessage
-                                  ? FontWeight.w500
-                                  : FontWeight.w400,
-                            ),
-                          )
-                        ]),
-                      ),
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontFamily: 'FuturaPT',
+                          fontWeight: hasUnreadMessage
+                              ? FontWeight.w500
+                              : FontWeight.w400,
+                        ),
+                      ) ,
+
+//
                     ),
                   ),
                   subtitle: Text(
@@ -103,15 +90,31 @@ class MessageListItem extends StatelessWidget {
                           backgroundColor: Color(kGenchiCream),
                         ),
                   trailing: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        isHiring?'HIRING':'PROVIDING',
-                        style: TextStyle(fontSize: 14,
-                          fontWeight: hasUnreadMessage
-                              ? FontWeight.w500
-                              : FontWeight.w400,),
+                  RichText(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(children: [
+
+                          TextSpan(
+                            text: service,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'FuturaPT',
+                              color: Color(kGenchiOrange),
+                            ),
+                          ),
+                          TextSpan(
+                            text:isHiring ? ' - HIRING' : ' - PROVIDING',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontFamily: 'FuturaPT',
+                            ),
+                          ),
+                        ]),
                       ),
                       hasUnreadMessage
                           ? Container(

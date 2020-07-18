@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/home_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
-import 'reg_sequence_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
@@ -50,7 +50,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   Container(
                     height: MediaQuery.of(context).size.height * .1,
                     child: Align(
-                      alignment: Alignment.topLeft,
+                      alignment: Alignment.centerLeft,
                       child: IconButton(
                         icon: Icon(
                             Icons.arrow_back_ios
@@ -141,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 if (await authProvider.isUserLoggedIn() == true) {
                                   Navigator.pushNamedAndRemoveUntil(
                                       context,
-                                      RegSequenceScreen.id,
+                                      HomeScreen.id,
                                           (Route<dynamic> route) => false);
                                 }
                               } catch (e) {

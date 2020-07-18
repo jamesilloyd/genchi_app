@@ -207,6 +207,33 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: emailController,
                     ),
+                    EditAccountField(
+                      field: "College",
+                      onChanged: (value) {
+                        //Update name
+                        changesMade = true;
+                        name = value;
+                      },
+                      textController: nameController,
+                    ),
+                    EditAccountField(
+                      field: "Subject",
+                      onChanged: (value) {
+                        //Update name
+                        changesMade = true;
+                        name = value;
+                      },
+                      textController: nameController,
+                    ),
+                    EditAccountField(
+                      field: "About Me",
+                      onChanged: (value) {
+                        //Update name
+                        changesMade = true;
+                        name = value;
+                      },
+                      textController: nameController,
+                    ),
                     SizedBox(
                       height: 10.0,
                     ),

@@ -52,16 +52,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.arrow_back_ios
+                        Container(
+                          height: MediaQuery.of(context).size.height * .1,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.arrow_back_ios
+                              ),
+                              color: Color(kGenchiBlue),
+                              onPressed: (){
+                                Navigator.pop(context);
+                              },
                             ),
-                            color: Color(kGenchiBlue),
-                            onPressed: (){
-                              Navigator.pop(context);
-                            },
                           ),
                         ),
                         Hero(

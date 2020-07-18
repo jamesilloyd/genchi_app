@@ -99,8 +99,11 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
       title: GestureDetector(
         onTap: () async {
           //TODO show hirer view if they are a hirer else show provider view
-//          await providerService.updateCurrentProvider(provider.pid);
-//          Navigator.pushNamed(context, ProviderScreen.id);
+          if(!userIsProvider) {
+            ///User is Hiring
+            await providerService.updateCurrentProvider(provider.pid);
+            Navigator.pushNamed(context, ProviderScreen.id);
+          }
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

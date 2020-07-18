@@ -11,6 +11,7 @@ import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
@@ -21,7 +22,6 @@ import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
 import 'package:genchi_app/screens/search_provider_screen.dart';
-import 'package:genchi_app/screens/reg_sequence_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
@@ -95,7 +95,6 @@ class StartUp extends StatelessWidget {
               RegistrationScreen.id: (context) => RegistrationScreen(),
               ChatScreen.id: (context) => ChatScreen(),
               HomeScreen.id: (context) => HomeScreen(),
-              RegSequenceScreen.id: (context) => RegSequenceScreen(),
               EditAccountScreen.id: (context) => EditAccountScreen(),
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
               ProviderScreen.id: (context) => ProviderScreen(),
@@ -110,6 +109,7 @@ class StartUp extends StatelessWidget {
               TestScreen.id: (context) => TestScreen(),
               ApplicationChatScreen.id: (context) => ApplicationChatScreen(),
               SearchTasksScreen.id: (context) => SearchTasksScreen(),
+              OnboardingScreen.id: (context) => OnboardingScreen(),
             },
           );
         }

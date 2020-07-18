@@ -87,7 +87,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (!snapshot.hasData) {
                       return CircularProgress();
                     }
-                    if (kDebugMode) print('Chat Screen: Snapshot has data');
 
                     final messages = snapshot.data.documents;
                     List<MessageBubble> messageBubbles = [];

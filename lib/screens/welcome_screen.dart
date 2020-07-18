@@ -2,10 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/screens/login_screen.dart';
+import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'reg_sequence_screen.dart';
+
 
 class WelcomeScreen extends StatefulWidget {
   //Static makes the string associated with the class, so you don't need to make a new object when calling id
@@ -14,7 +15,6 @@ class WelcomeScreen extends StatefulWidget {
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
-//with single... allows the class to act as a ticker for a single animation
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
 
@@ -91,7 +91,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     buttonColor: Color(kGenchiBlue),
                     buttonTitle: "Register",
                     onPressed: () {
-                      Navigator.pushNamed(context, RegistrationScreen.id);
+                      Navigator.pushNamed(context, OnboardingScreen.id);
                     },
                   ),
                 ],

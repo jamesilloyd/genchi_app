@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
@@ -232,9 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await providerService
                               .updateCurrentProvider(result.documentID);
 
-                          Navigator.pushNamed(context, ProviderScreen.id,
-                              arguments: ProviderScreenArguments(
-                                  provider: providerService.currentProvider));
+                          Navigator.pushNamed(context, ProviderScreen.id);
+
                         }
                       },
                     ),

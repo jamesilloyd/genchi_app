@@ -249,27 +249,37 @@ class FirestoreAPIService {
       return await Future.wait(futures);
     });
 
-    ///Getting provider chats
-    Stream stream2 = _chatCollectionRef
-        .where('pid', whereIn: user.providerProfiles)
-        .orderBy('time', descending: true)
-        .snapshots()
-        .asyncMap((event) async {
-      //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
-      var futures = event.documents.map((doc) async {
-        Chat chat = Chat.fromMap(doc.data);
-        ProviderUser provider = await getProviderById(chat.pid);
-        User hirer = await getUserById(chat.uid);
+    if(user.providerProfiles.isNotEmpty) {
+      Stream stream2 = _chatCollectionRef
+          .where('pid', whereIn: user.providerProfiles)
+          .orderBy('time', descending: true)
+          .snapshots()
+          .asyncMap((event) async {
+        //TODO look to see if we can just call getproviderbyid on the docs that have changed (while still chaching old docs)
+        var futures = event.documents.map((doc) async {
+          Chat chat = Chat.fromMap(doc.data);
+          ProviderUser provider = await getProviderById(chat.pid);
+          User hirer = await getUserById(chat.uid);
 
-        if (provider != null && hirer != null) {
-          return {'chat': chat, 'provider': provider, 'hirer': hirer, 'userIsProvider':true};
-        } else return null;
+          if (provider != null && hirer != null) {
+            return {
+              'chat': chat,
+              'provider': provider,
+              'hirer': hirer,
+              'userIsProvider': true
+            };
+          } else
+            return null;
+        });
+
+        return await Future.wait(futures);
       });
 
-      return await Future.wait(futures);
-    });
+      return Rx.combineLatest([stream1, stream2], (values) => values);
+    } else {
 
-      return Rx.combineLatest([stream1,stream2], (values) => values);
+      return stream1;
+    }
   }
 
 

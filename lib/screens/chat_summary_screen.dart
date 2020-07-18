@@ -76,37 +76,44 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
           child: ListView(
             padding: const EdgeInsets.all(10.0),
             children: <Widget>[
-              if(userIsProvider) Container(
-                  height: 50,
-                  child: PopupMenuButton(
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(filter),
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.filter_list,
-                              color: Color(kGenchiBlue),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            )
-                          ]),
-                      itemBuilder: (_) => <PopupMenuItem<String>>[
-                            new PopupMenuItem<String>(
-                                child: const Text('All'), value: 'All'),
-                            new PopupMenuItem<String>(
-                                child: const Text('Hiring'),
-                                value: 'Hiring'),
-                            new PopupMenuItem<String>(
-                                child: const Text('Providing'),
-                                value: 'Providing'),
-                          ],
-                      onSelected: (value) {
-                        setState(() {
-                          filter = value;
-                        });
-                      })),
+              if(userIsProvider) Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  SizedBox(
+                      height: 50,
+                      width: 100,
+                      child: PopupMenuButton(
+                        elevation: 1,
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Text(filter),
+                                SizedBox(width: 5),
+                                Icon(
+                                  Icons.filter_list,
+                                  color: Color(kGenchiBlue),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                )
+                              ]),
+                          itemBuilder: (_) => <PopupMenuItem<String>>[
+                                const PopupMenuItem<String>(
+                                    child: const Text('All'), value: 'All'),
+                                const PopupMenuItem<String>(
+                                    child: const Text('Hiring'),
+                                    value: 'Hiring'),
+                                const PopupMenuItem<String>(
+                                    child: const Text('Providing'),
+                                    value: 'Providing'),
+                              ],
+                          onSelected: (value) {
+                            setState(() {
+                              filter = value;
+                            });
+                          })),
+                ],
+              ),
               Divider(
                 height: 0,
                 thickness: 1,
@@ -118,22 +125,28 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                     return CircularProgress();
                   } else {
                     List chatsHirersAndProviders = [];
-
-                    List list1 = snapshot.data[0];
-                    List list2 = snapshot.data[1];
-                    chatsHirersAndProviders.addAll(list1);
-                    chatsHirersAndProviders.addAll(list2);
-
-                    chatsHirersAndProviders.sort((a, b) {
-                      if (a != null && b != null) {
-                        Chat chatA = a['chat'];
-                        Chat chatB = b['chat'];
-                        return chatB.time.compareTo(chatA.time);
-                      } else
-                        return b.toString().compareTo(a.toString());
-                    });
-
                     List<Widget> chatWidgets = [];
+
+                    if(userIsProvider) {
+                      ///Receiving chats for hiring and providing
+                      List list1 = snapshot.data[0];
+                      List list2 = snapshot.data[1];
+                      chatsHirersAndProviders.addAll(list1);
+                      chatsHirersAndProviders.addAll(list2);
+
+                      chatsHirersAndProviders.sort((a, b) {
+                        if (a != null && b != null) {
+                          Chat chatA = a['chat'];
+                          Chat chatB = b['chat'];
+                          return chatB.time.compareTo(chatA.time);
+                        } else
+                          return b.toString().compareTo(a.toString());
+                      });
+                    } else {
+                      ///Only receiving chats for hiring
+                      chatsHirersAndProviders = snapshot.data;
+                    }
+
 
                     for (Map chatHirerAndProvider in chatsHirersAndProviders) {
                       if (chatHirerAndProvider != null) {
@@ -141,10 +154,10 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                         ProviderUser provider =
                             chatHirerAndProvider['provider'];
                         User hirer = chatHirerAndProvider['hirer'];
-                        bool userIsProvider =
+                        bool userChatIsProvider =
                             chatHirerAndProvider['userIsProvider'];
 
-                        if (userIsProvider &&
+                        if (userChatIsProvider &&
                             (filter == 'All' || filter == 'Providing')) {
                           ///Users providing messages
                           MessageListItem chatWidget = MessageListItem(
@@ -190,7 +203,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
 
                           if (!chat.isHiddenFromProvider)
                             chatWidgets.add(chatWidget);
-                        } else if (!userIsProvider &&
+                        } else if (!userChatIsProvider &&
                             (filter == 'All' || filter == 'Hiring')) {
                           ///Users hiring messages
                           MessageListItem chatWidget = MessageListItem(

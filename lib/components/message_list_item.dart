@@ -62,8 +62,6 @@ class MessageListItem extends StatelessWidget {
                               : FontWeight.w400,
                         ),
                       ),
-
-//
                     ),
                   ),
                   subtitle: Text(
@@ -99,19 +97,19 @@ class MessageListItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         text: TextSpan(children: [
                           TextSpan(
+                            text: '$type - ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontFamily: 'FuturaPT',
+                            ),
+                          ),
+                          TextSpan(
                             text: service,
                             style: TextStyle(
                               fontSize: 14,
                               fontFamily: 'FuturaPT',
                               color: Color(kGenchiOrange),
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' - $type',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontFamily: 'FuturaPT',
                             ),
                           ),
                         ]),

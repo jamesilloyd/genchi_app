@@ -12,6 +12,7 @@ import 'package:genchi_app/components/signin_textfield.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
+
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
@@ -27,10 +28,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     AuthenticationService authProvider =
-    Provider.of<AuthenticationService>(context);
+        Provider.of<AuthenticationService>(context);
 
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
@@ -42,39 +43,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Stack(
                 children: <Widget>[
                   Container(
                     height: MediaQuery.of(context).size.height * .1,
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
-                        icon: Icon(
-                            Icons.arrow_back_ios
-                        ),
+                        icon: Icon(Icons.arrow_back_ios),
                         color: Color(kGenchiBlue),
-                        onPressed: (){
+                        onPressed: () {
                           Navigator.pop(context);
                         },
                       ),
                     ),
                   ),
-                  Container(
-                    height: MediaQuery.of(context).size.height * .2,
-                    child: Center(
-                      child: Hero(
-                        tag: 'logo',
-                        child: Container(
-                          child: Image.asset('images/LogoAndName.png'),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * .1,
+                      ),
+                      Container(
+                        height: MediaQuery.of(context).size.height * .2,
+                        child: Center(
+                          child: Hero(
+                            tag: 'logo',
+                            child: Container(
+                              child: Image.asset('images/LogoAndName.png'),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Container(
-//                  height: MediaQuery.of(context).size.height * 0.5,
-                      child: Column(
+                      Container(
+                          child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
@@ -120,14 +123,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   throw (Exception('Enter name and email'));
 
                                 await authProvider.registerWithEmail(
-                                    email: email, password: password, name: name);
+                                    email: email,
+                                    password: password,
+                                    name: name);
 
                                 //This populates the current user simultaneously
-                                if (await authProvider.isUserLoggedIn() == true) {
+                                if (await authProvider.isUserLoggedIn() ==
+                                    true) {
                                   Navigator.pushNamedAndRemoveUntil(
                                       context,
                                       HomeScreen.id,
-                                          (Route<dynamic> route) => false);
+                                      (Route<dynamic> route) => false);
                                 }
                               } catch (e) {
                                 print(e);
@@ -142,8 +148,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           )
                         ],
                       )),
-                  Container(
-                    height: MediaQuery.of(context).size.height * .2,
+                    ],
                   ),
                 ],
               ),

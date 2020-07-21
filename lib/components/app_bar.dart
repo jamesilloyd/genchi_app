@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 
 import 'package:genchi_app/screens/provider_screen.dart';
 
 import 'package:genchi_app/models/provider.dart';
+import 'package:genchi_app/services/hirer_service.dart';
 
 import 'package:genchi_app/services/provider_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
@@ -44,9 +47,9 @@ class BasicAppNavigationBar extends StatelessWidget
 
 class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatNavigationBar(
-      {@required this.barTitle, this.imageURL, @required this.provider, this.userIsProvider = false});
+      {@required this.hirer, this.imageURL, @required this.provider, this.userIsProvider = false});
 
-  final String barTitle;
+  final User hirer;
   final String imageURL;
   final ProviderUser provider;
   final bool userIsProvider;
@@ -54,6 +57,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final providerService = Provider.of<ProviderService>(context);
+    final hirerService = Provider.of<HirerService>(context);
     return AppBar(
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -98,11 +102,14 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: GestureDetector(
         onTap: () async {
-          //TODO show hirer view if they are a hirer else show provider view
           if(!userIsProvider) {
             ///User is Hiring
             await providerService.updateCurrentProvider(provider.pid);
             Navigator.pushNamed(context, ProviderScreen.id);
+          } else {
+            ///User is providing
+            await hirerService.updateCurrentHirer(id: hirer.id);
+            Navigator.pushNamed(context, HirerScreen.id);
           }
         },
         child: Row(
@@ -128,7 +135,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                barTitle,
+                userIsProvider ? hirer.name : provider.name,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 30,

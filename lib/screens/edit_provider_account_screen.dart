@@ -151,9 +151,9 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       provider: ProviderUser(
                           name: name,
                           url1: {
-                            'link': url1TextController.text,
-                            'desc': urlDesc1TextController.text,
-                          },
+                        'link': url1TextController.text,
+                        'desc': urlDesc1TextController.text,
+                      },
                           url2: {
                             'link': url2TextController.text,
                             'desc': urlDesc2TextController.text,
@@ -457,6 +457,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 RoundedButton(
                   buttonTitle: "Delete provider account",
                   buttonColor: Color(kGenchiBlue),
+                  elevation: false,
                   onPressed: () async {
                     ///Update the provider before deleting
 

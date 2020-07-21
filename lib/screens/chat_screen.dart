@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Chat thisChat;
   bool userIsProvider;
   ProviderUser provider;
-  User user;
+  User hirer;
   bool isFirstInstance;
   bool showSpinner = false;
 
@@ -57,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
     userIsProvider = args.userIsProvider;
     if (thisChat == null) thisChat = args.chat;
     provider = args.provider;
-    user = args.user;
+    hirer = args.user;
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
     if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
 
@@ -67,10 +67,10 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       child: Scaffold(
         appBar: ChatNavigationBar(
-          barTitle: userIsProvider ? user.name : provider.name,
+          hirer: hirer,
           provider: provider,
           imageURL: userIsProvider
-              ? user.displayPictureURL
+              ? hirer.displayPictureURL
               : provider.displayPictureURL,
           userIsProvider: userIsProvider,
         ),
@@ -100,7 +100,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         sender: messageSender,
                         isMe: userIsProvider
                             ? messageSender == provider.pid
-                            : messageSender == user.id,
+                            : messageSender == hirer.id,
                         time: messageTime,
                       );
                       messageBubbles.add(messageWidget);
@@ -168,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     chatMessage: ChatMessage(
                                         sender: userIsProvider
                                             ? provider.pid
-                                            : user.id,
+                                            : hirer.id,
                                         text: messageText,
                                         time: Timestamp.now()),
                                     providerIsSender:
@@ -190,7 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   chatMessage: ChatMessage(
                                       sender: userIsProvider
                                           ? provider.pid
-                                          : user.id,
+                                          : hirer.id,
                                       text: messageText,
                                       time: Timestamp.now()),
                                   providerIsSender:

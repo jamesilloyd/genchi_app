@@ -18,19 +18,19 @@ import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EditAccountScreen extends StatefulWidget {
   static const id = "edit_account_screen";
+
   @override
   _EditAccountScreenState createState() => _EditAccountScreenState();
 }
 
 class _EditAccountScreenState extends State<EditAccountScreen> {
-
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
   bool showSpinner = false;
-
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -38,12 +38,17 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   TextEditingController subjectController = TextEditingController();
   TextEditingController bioController = TextEditingController();
 
+  TextEditingController urlDesc1TextController = TextEditingController();
+  TextEditingController urlDesc2TextController = TextEditingController();
+
+  TextEditingController url1TextController = TextEditingController();
+  TextEditingController url2TextController = TextEditingController();
 
   Future<bool> _onWillPop() async {
-
-    if(changesMade){
-      bool discard = await showYesNoAlert(context:context, title: 'Are you sure you want to discard changes?');
-      if(!discard) return false;
+    if (changesMade) {
+      bool discard = await showYesNoAlert(
+          context: context, title: 'Are you sure you want to discard changes?');
+      if (!discard) return false;
     }
     return true;
   }
@@ -51,22 +56,33 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   void initState() {
     super.initState();
-    User user = Provider.of<AuthenticationService>(context, listen: false).currentUser;
+    User user =
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     emailController.text = user.email;
     collegeController.text = user.college;
     subjectController.text = user.subject;
     bioController.text = user.bio;
+
+    url1TextController.text = user.url1['link'];
+    urlDesc1TextController.text = user.url1['desc'];
+
+    url2TextController.text = user.url2['link'];
+    urlDesc2TextController.text = user.url2['desc'];
   }
-  
+
   @override
   void dispose() {
     super.dispose();
     nameController.dispose();
     emailController.dispose();
-    collegeController .dispose();
+    collegeController.dispose();
     subjectController.dispose();
     bioController.dispose();
+    url1TextController.dispose();
+    urlDesc1TextController.dispose();
+    url2TextController.dispose();
+    urlDesc2TextController.dispose();
   }
 
   @override
@@ -76,7 +92,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
         child: Scaffold(
@@ -98,7 +114,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
             actions: <Widget>[
               IconButton(
                 icon: Icon(
-                  Platform.isIOS ? CupertinoIcons.check_mark_circled : Icons.check_circle_outline,
+                  Platform.isIOS
+                      ? CupertinoIcons.check_mark_circled
+                      : Icons.check_circle_outline,
                   size: 30,
                   color: Colors.black,
                 ),
@@ -107,8 +125,21 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     showSpinner = true;
                   });
 
-                  await fireStoreAPI.updateUser(user:
-                  User(name: nameController.text, email: emailController.text,college: collegeController.text,bio: bioController.text, subject: subjectController.text),
+                  await fireStoreAPI.updateUser(
+                      user: User(
+                          name: nameController.text,
+                          email: emailController.text,
+                          college: collegeController.text,
+                          bio: bioController.text,
+                          url1: {
+                            'link': url1TextController.text,
+                            'desc': urlDesc1TextController.text,
+                          },
+                          url2: {
+                            'link': url2TextController.text,
+                            'desc': urlDesc2TextController.text,
+                          },
+                          subject: subjectController.text),
                       uid: currentUser.id);
                   await authProvider.updateCurrentUserData();
 
@@ -135,43 +166,44 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w500,
-                          color: Color(kGenchiBlue),
                         ),
                       ),
                     ),
-                    SizedBox(
-                        height: 5.0
-                    ),
+                    SizedBox(height: 5.0),
                     GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20.0),
-                                    topRight: Radius.circular(20.0))),
-                            builder: (context) => SingleChildScrollView(
-                                child: Container(
-                                  padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(context)
-                                          .viewInsets
-                                          .bottom),
-                                  child: Container(
-                                      height: MediaQuery.of(context).size.height *
-                                          0.75,
-                                      child: AddImageScreen(isUser: true)),
-                                ),
+                          context: context,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20.0),
+                                  topRight: Radius.circular(20.0))),
+                          builder: (context) => SingleChildScrollView(
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom),
+                              child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.75,
+                                  child: AddImageScreen(isUser: true)),
                             ),
+                          ),
                         );
                       },
                       child: Stack(
                         alignment: Alignment.center,
                         children: <Widget>[
-                          DisplayPicture(imageUrl: currentUser.displayPictureURL, height: 0.25,border: true,isEdit: true,),
+                          DisplayPicture(
+                            imageUrl: currentUser.displayPictureURL,
+                            height: 0.25,
+                            border: true,
+                            isEdit: true,
+                          ),
                           Positioned(
                             right: (MediaQuery.of(context).size.width -
-                                MediaQuery.of(context).size.height * 0.25) /
+                                    MediaQuery.of(context).size.height * 0.25) /
                                 2,
                             top: MediaQuery.of(context).size.height * 0.2,
                             child: new Container(
@@ -187,10 +219,10 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 fit: BoxFit.scaleDown,
                                 child: Center(
                                     child: Icon(
-                                      Icons.edit,
-                                      size: 20,
-                                      color: Color(0xff585858),
-                                    )),
+                                  Icons.edit,
+                                  size: 20,
+                                  color: Color(0xff585858),
+                                )),
                               ),
                             ),
                           )
@@ -202,7 +234,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
-
                       },
                       textController: nameController,
                     ),
@@ -241,8 +272,119 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       textController: bioController,
                       hintText: 'Interests, Activities, Societies, etc.',
                     ),
+                    //TODO COME BACK TO THIS, ADDED TEMPORARY SOLUTION FOR DEMO
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
+                        ),
+                        Text(
+                          "Website Links",
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            color: Color(kGenchiBlue),
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: TextField(
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.left,
+                                onChanged: (value) {
+                                  changesMade = true;
+                                },
+                                controller: urlDesc1TextController,
+                                decoration: kTextFieldDecoration.copyWith(
+                                    hintText: "URL 1 Description "),
+                                cursorColor: Color(kGenchiOrange),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                textCapitalization: TextCapitalization.none,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.left,
+                                onChanged: (value) {
+                                  changesMade = true;
+                                },
+                                controller: url1TextController,
+                                decoration: kTextFieldDecoration.copyWith(
+                                    hintText: 'URL 1 "https://www..."'),
+                                cursorColor: Color(kGenchiOrange),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: TextField(
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.left,
+                                onChanged: (value) {
+                                  changesMade = true;
+                                },
+                                controller: urlDesc2TextController,
+                                decoration: kTextFieldDecoration.copyWith(
+                                    hintText: "URL 2 Description"),
+                                cursorColor: Color(kGenchiOrange),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                textCapitalization: TextCapitalization.none,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.left,
+                                onChanged: (value) {
+                                  changesMade = true;
+                                },
+                                controller: url2TextController,
+                                decoration: kTextFieldDecoration.copyWith(
+                                    hintText: 'URL 2 "https://www..."'),
+                                cursorColor: Color(kGenchiOrange),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     SizedBox(
-                      height: 10.0,
+                      height: 20.0,
                     ),
                     Divider(
                       height: 10,
@@ -250,14 +392,17 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     RoundedButton(
                       buttonColor: Color(kGenchiBlue),
                       buttonTitle: "Change Password",
+                      elevation: false,
                       onPressed: () async {
                         Platform.isIOS
                             ? showAlertIOS(
                                 context: context,
                                 actionFunction: () async {
                                   setState(() => showSpinner = true);
-                                  await authProvider.sendResetEmail(email: currentUser.email);
-                                  Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                  await authProvider.sendResetEmail(
+                                      email: currentUser.email);
+                                  Scaffold.of(context)
+                                      .showSnackBar(kForgotPasswordSnackbar);
                                   setState(() => showSpinner = false);
                                   Navigator.of(context).pop();
                                 },

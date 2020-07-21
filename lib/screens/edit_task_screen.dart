@@ -160,7 +160,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w500,
-                        color: Color(kGenchiBlue),
                       ),
                     ),
                     SizedBox(height: 5.0),
@@ -216,6 +215,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 RoundedButton(
                   buttonTitle: 'Delete job',
                   buttonColor: Color(kGenchiBlue),
+                  elevation: false,
                   onPressed: ()async{
 
                     ///Ask user if they want to delete task

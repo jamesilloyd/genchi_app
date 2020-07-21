@@ -450,7 +450,7 @@ class _TaskScreenState extends State<TaskScreen> {
                             topRight: Radius.circular(20.0))),
                     builder: (context) => Container(
                       height: MediaQuery.of(context).size.height * 0.75,
-                      padding: EdgeInsets.all(20.0),
+                      padding: EdgeInsets.all(15.0),
                       decoration: BoxDecoration(
                         color: Color(kGenchiCream),
                         borderRadius: BorderRadius.only(
@@ -470,6 +470,10 @@ class _TaskScreenState extends State<TaskScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           )),
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                          ),
                           FutureBuilder(
                             //This function returns a list of providerUsers
                             future: firestoreAPI.getProviders(

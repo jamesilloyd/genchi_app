@@ -70,11 +70,12 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
       },
       child: Scaffold(
         appBar: ChatNavigationBar(
-          barTitle: userIsProvider ? hirer.name : provider.name,
+          hirer: hirer,
           provider: provider,
           imageURL: userIsProvider
               ? hirer.displayPictureURL
               : provider.displayPictureURL,
+          userIsProvider: userIsProvider,
         ),
         body: SafeArea(
           child: ModalProgressHUD(

@@ -39,7 +39,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
   Widget buildFurtherLinkSection({ProviderUser currentProvider}) {
     List<Widget> widgets = [];
 
-    if (currentProvider.url1['link'] != '' && currentProvider.url2['link'] != '') {
+    if ((currentProvider.url1['link'] != '') || (currentProvider.url2['link'] != '')) {
       widgets.addAll([
         Container(
           child: Text(
@@ -60,7 +60,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
             text: TextSpan(children: [
               TextSpan(
                   text: currentProvider.url1['desc'],
-                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT'),
+                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT', fontSize: 16),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       launch(currentProvider.url1['link']);
@@ -78,7 +78,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
             text: TextSpan(children: [
               TextSpan(
                   text: currentProvider.url2['desc'],
-                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT'),
+                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT', fontSize: 16),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       launch(currentProvider.url2['link']);

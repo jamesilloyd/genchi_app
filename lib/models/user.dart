@@ -16,6 +16,10 @@ class User extends ChangeNotifier {
   List<dynamic> posts;
   List<dynamic> fcmTokens;
 
+  //TODO THIS IS TEMPORARY
+  Map<String, dynamic> url1;
+  Map<String, dynamic> url2;
+
   User(
       {this.id,
       this.email,
@@ -30,6 +34,8 @@ class User extends ChangeNotifier {
       this.college,
       this.subject,
       this.bio,
+        this.url1,
+        this.url2,
       this.chats});
 
   User.fromMap(Map snapshot)
@@ -45,6 +51,8 @@ class User extends ChangeNotifier {
         favourites = snapshot['favourites'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
         posts = snapshot['posts'] ?? [],
+        url1 = snapshot['url1'] ?? {'link':'','desc':'',},
+        url2 = snapshot['url2'] ?? {'link':'','desc':'',},
         chats = snapshot['chats'] ?? [];
 
   toJson() {
@@ -63,6 +71,8 @@ class User extends ChangeNotifier {
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
       if (posts != null) 'posts': posts,
+      if (url1 != null) 'url1': url1,
+      if (url2 != null) 'url2': url2,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
     };
   }

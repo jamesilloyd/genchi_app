@@ -183,7 +183,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   ],
                 ),
                 EditAccountField(
-                  field: "Date",
+                  field: "Job Timings",
                   textController: dateController,
                   hintText: 'The timeframe of the job',
                   onChanged: (value) {

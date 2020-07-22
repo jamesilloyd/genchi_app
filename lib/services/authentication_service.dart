@@ -8,10 +8,6 @@ import 'package:genchi_app/models/user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
-
-//ToDo: (1) Once everything is currently working, just leave as is, however once complete try and implement FilledStacks provider and firebase examples
-//https://github.com/FilledStacks/flutter-tutorials
-
 class AuthenticationService extends ChangeNotifier {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

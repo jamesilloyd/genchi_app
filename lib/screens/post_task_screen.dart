@@ -133,7 +133,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       ],
                     ),
                     EditAccountField(
-                      field: 'Date',
+                      field: 'Job Timings',
                       onChanged: (value) {
                         date = value;
                         changesMade = true;

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 
 
 //ToDo: probably need to make a class for service when it becomes more complex (YES)
-
-//TODO probably need this to be stored in firebase too so that you don't need to update the app to have new configurations
 const List<Map<String,String>> servicesListMap = [
 
   {

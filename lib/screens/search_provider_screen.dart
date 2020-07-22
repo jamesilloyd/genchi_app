@@ -23,6 +23,10 @@ class SearchProviderScreen extends StatefulWidget {
 
   static const String id = "search_provider_screen";
 
+  final Map service;
+
+  SearchProviderScreen({Key key, @required this.service}) : super(key: key);
+
   @override
   _SearchProviderScreenState createState() => _SearchProviderScreenState();
 }
@@ -33,24 +37,28 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
 
   bool showSpinner = false;
 
+  Future getProvidersByService;
+
+  @override
+  void initState() {
+    super.initState();
+    getProvidersByService = firestoreAPI.getProvidersByService(serviceType: widget.service['name']);
+  }
   @override
   Widget build(BuildContext context) {
 
-    final SearchProviderScreenArguments args = ModalRoute.of(context).settings.arguments;
     final providerService = Provider.of<ProviderService>(context);
-
-    Map service = args.service;
 
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: service['plural']),
+          appBar: BasicAppNavigationBar(barTitle: widget.service['plural']),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: FutureBuilder(
-                future: firestoreAPI.getProvidersByService(serviceType: service['name']),
+                future: getProvidersByService,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return CircularProgress();
@@ -77,9 +85,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                   for (ProviderUser provider in providers) {
 
                     ProviderCard pCard = ProviderCard(
-                      image: provider.displayPictureURL == null ? null : CachedNetworkImageProvider(provider.displayPictureURL),
-                      name: provider.name,
-                      description: provider.bio,
+                      provider: provider,
                       onTap: () async {
                         setState(() {
                           showSpinner = true;
@@ -90,9 +96,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                           showSpinner = false;
                         });
 
-                        Navigator.pushNamed(context, ProviderScreen.id,
-                            arguments:
-                            ProviderScreenArguments(provider: provider));
+                        Navigator.pushNamed(context, ProviderScreen.id);
                       },
                     );
 

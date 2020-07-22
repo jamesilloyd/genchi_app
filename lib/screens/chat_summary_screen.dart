@@ -189,7 +189,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                                       user: hirer));
                             },
                             hideChat: () async {
-                              //TODO: probably need to change this so that we selectively choose which chats "where hide = false"
                               bool deleteChat = await showYesNoAlert(
                                   context: context,
                                   title: "Are you sure you want delete chat?");

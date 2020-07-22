@@ -50,13 +50,14 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                   color: Colors.black,
                 ),
                 title: Text(
-                  'Jobs',
+                  'Jobs Manager',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 30,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                centerTitle: true,
                 backgroundColor: Color(kGenchiGreen),
                 elevation: 2.0,
                 brightness: Brightness.light,

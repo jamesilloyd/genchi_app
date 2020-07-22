@@ -23,6 +23,7 @@ import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
@@ -373,7 +374,7 @@ class _TaskScreenState extends State<TaskScreen> {
             SizedBox(height: 10),
             Container(
               child: Text(
-                "Timings",
+                "Job Timings",
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -398,6 +399,20 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
             Text(
               currentTask.price ?? "",
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+            ),
+            Container(
+              child: Text(
+                "Date Posted",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Text(
+              getTaskPostedTime(time: currentTask.time),
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
             SizedBox(height: 5),
@@ -489,13 +504,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
                               for (ProviderUser provider in providers) {
                                 ProviderCard pCard = ProviderCard(
-                                  image: provider.displayPictureURL == null
-                                      ? AssetImage("images/Logo_Clear.png")
-                                      : CachedNetworkImageProvider(
-                                          provider.displayPictureURL),
-                                  name: provider.name,
-                                  description: provider.bio,
-                                  service: provider.type,
+                                  provider: provider,
                                   onTap: () {
                                     Navigator.pop(context, provider.pid);
                                   },

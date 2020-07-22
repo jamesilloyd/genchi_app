@@ -218,9 +218,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
                           ? 'Added to Favourites'
                           : 'Add to Favourites',
                       onPressed: () async {
-//                    setState(() {
-//                      //TODO: may need to add in circular progress bar
-//                    });
                         isFavourite
                             ? firestoreAPI.removeUserFavourite(
                                 uid: authProvider.currentUser.id,

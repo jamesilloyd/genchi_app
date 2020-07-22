@@ -3,8 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 import 'package:genchi_app/constants.dart';
 
-//TODO move all alerts into this file
-
 Future<void> showAlertIOS(
     {BuildContext context, VoidCallback actionFunction, String alertMessage}) {
   return showCupertinoModalPopup(

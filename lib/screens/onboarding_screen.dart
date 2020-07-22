@@ -16,30 +16,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
 
-  Animatable<Color> background = TweenSequence<Color>([
-    TweenSequenceItem(
-      weight: 10.0,
-      tween: ColorTween(
-        begin: Color(kGenchiGreen),
-        end: Color(kGenchiOrange),
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 10.0,
-      tween: ColorTween(
-        begin: Color(kGenchiOrange),
-        end: Color(kGenchiGreen),
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 1.0,
-      tween: ColorTween(
-        begin: Color(kGenchiGreen),
-        end: Color(kGenchiGreen),
-      ),
-    ),
-  ]);
-
   @override
   void dispose() {
     super.dispose();
@@ -55,21 +31,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          _currentPage == 1 ? Color(kGenchiLightOrange) : Color(kGenchiGreen),
-
-      body: SafeArea(
-        child: Stack(
-          alignment: AlignmentDirectional.bottomCenter,
-          children: <Widget>[
-            PageView.builder(
-              scrollDirection: Axis.horizontal,
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              itemCount: sliderArrayList.length,
-              itemBuilder: (ctx, i) => SlideItems[i],
-            ),
-            Padding(
+      body: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        children: <Widget>[
+          PageView.builder(
+            scrollDirection: Axis.horizontal,
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            itemCount: sliderArrayList.length,
+            itemBuilder: (ctx, i) => SlideItems[i],
+          ),
+          SafeArea(
+            child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Stack(
                 alignment: AlignmentDirectional.topStart,
@@ -96,6 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Icon(
                             Icons.arrow_forward_ios,
                             color: Colors.black,
+                            size: 30,
                           ),
                         ),
                       ),
@@ -120,6 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Icon(
                           Icons.arrow_back_ios,
                           color: Colors.black,
+                          size: 30,
                         ),
                       ),
                     ),
@@ -140,9 +115,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ],
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -183,50 +158,55 @@ class SlideItem1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.1,
-        ),
-        Text(
-          sliderArrayList[0].sliderHeading,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-            fontSize: 35,
-          ),
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.4,
-          width: MediaQuery.of(context).size.width,
-          child: Image(
-            alignment: Alignment.center,
-            image: AssetImage(sliderArrayList[0].sliderImageUrl),
-            fit: BoxFit.fitWidth,
-          ),
-        ),
-
-        SizedBox(height: 20),
-        Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text(
-              sliderArrayList[0].sliderSubHeading,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
-                wordSpacing: 2,
-                height: 1.5,
-                fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
-              ),
-              textAlign: TextAlign.center,
+    return Container(
+      color: Color(kGenchiGreen),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
             ),
-          ),
-        )
-      ],
+            Text(
+              sliderArrayList[0].sliderHeading,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+                fontSize: 35,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: MediaQuery.of(context).size.width,
+              child: Image(
+                alignment: Alignment.center,
+                image: AssetImage(sliderArrayList[0].sliderImageUrl),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+
+            SizedBox(height: 20),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  sliderArrayList[0].sliderSubHeading,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w400,
+                    wordSpacing: 2,
+                    height: 1.5,
+                    fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -235,50 +215,55 @@ class SlideItem2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.05,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            child: Image(
-              alignment: Alignment.center,
-              image: AssetImage(sliderArrayList[1].sliderImageUrl),
-              fit: BoxFit.fitWidth,
+    return Container(
+      color: Color(kGenchiLightOrange),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
             ),
-          ),
-        ),
-        Text(
-          sliderArrayList[1].sliderHeading,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-            fontSize: 35,
-          ),
-        ),
-        SizedBox(height: 15),
-        Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text(
-              sliderArrayList[1].sliderSubHeading,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
-                wordSpacing: 2,
-                height: 1.5,
-                fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: Image(
+                  alignment: Alignment.center,
+                  image: AssetImage(sliderArrayList[1].sliderImageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
+            Text(
+              sliderArrayList[1].sliderHeading,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+                fontSize: 35,
+              ),
+            ),
+            SizedBox(height: 15),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  sliderArrayList[1].sliderSubHeading,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w400,
+                    wordSpacing: 2,
+                    height: 1.5,
+                    fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -287,66 +272,71 @@ class SlideItem3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.05,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            child: Image(
-              alignment: Alignment.center,
-              image: AssetImage(sliderArrayList[2].sliderImageUrl),
-              fit: BoxFit.fitWidth,
+    return Container(
+      color: Color(kGenchiGreen),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
             ),
-          ),
-        ),
-        Text(
-          sliderArrayList[2].sliderHeading,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-            fontSize: 35,
-          ),
-        ),
-        SizedBox(height: 15),
-        Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text(
-              sliderArrayList[2].sliderSubHeading,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
-                wordSpacing: 2,
-                height: 1.5,
-                fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: Image(
+                  alignment: Alignment.center,
+                  image: AssetImage(sliderArrayList[2].sliderImageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-        ),
-        SizedBox(height: 10),
-        SizedBox(
-          height: 70,
-          width: MediaQuery.of(context).size.width*0.8,
-          child: RoundedButton(
-            buttonTitle: 'Get Started',
-            onPressed: (){
+            Text(
+              sliderArrayList[2].sliderHeading,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+                fontSize: 35,
+              ),
+            ),
+            SizedBox(height: 15),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  sliderArrayList[2].sliderSubHeading,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w400,
+                    wordSpacing: 2,
+                    height: 1.5,
+                    fontSize: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            SizedBox(
+              height: 70,
+              width: MediaQuery.of(context).size.width*0.8,
+              child: RoundedButton(
+                buttonTitle: 'Get Started',
+                onPressed: (){
 
-              Navigator.pushNamed(
-                  context, RegistrationScreen.id);
-            },
-            buttonColor: Color(kGenchiLightOrange),
-            fontColor: Colors.black,
-            elevation: true,
-          ),
-        )
-      ],
+                  Navigator.pushNamed(
+                      context, RegistrationScreen.id);
+                },
+                buttonColor: Color(kGenchiLightOrange),
+                fontColor: Colors.black,
+                elevation: true,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -10,7 +10,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
-//TODO WE HAVE TO CHANGE SET DATA TO UPDATE DATA, AS OTHERWISE NEW DOCUMENTS ARE CREATED!!!!
 
 class FirestoreAPIService {
   CollectionReference _usersCollectionRef =

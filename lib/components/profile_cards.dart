@@ -5,19 +5,10 @@ import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
 
 class ProviderCard extends StatelessWidget {
-  final String name;
-  final ImageProvider image;
-  final String service;
   final Function onTap;
-  final String description;
+  final ProviderUser provider;
 
-  //ToDo: easier to pass provider class than initialise all the provider attributes
-  ProviderCard(
-      {this.image,
-      this.name,
-      this.service = '',
-      @required this.onTap,
-      this.description = ''});
+  ProviderCard({@required this.provider, @required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -31,37 +22,47 @@ class ProviderCard extends StatelessWidget {
               child: ListTile(
                 contentPadding: EdgeInsets.symmetric(horizontal: 0),
                 title: Text(
-                  (service != '') ? '$name - $service' : name,
+                  provider.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                leading: image == null ? CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Color(0xffC4C4C4),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Icon(
-                      Icons.person,
-                      color: Color(0xff585858),
-                      size: 35,
-                    ),
-                  ),
-                ) : CircleAvatar(
-                  backgroundImage: image,
-                  radius: 30,
-                  backgroundColor: Color(kGenchiCream),
-                ),
+                leading: provider.displayPictureURL == null
+                ///Show default image
+                    ? CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Color(0xffC4C4C4),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Icon(
+                            Icons.person,
+                            color: Color(0xff585858),
+                            size: 35,
+                          ),
+                        ),
+                      )
+                ///Show provider image
+                    : CircleAvatar(
+                        backgroundImage: CachedNetworkImageProvider(provider.displayPictureURL),
+                        radius: 30,
+                        backgroundColor: Color(kGenchiCream),
+                      ),
                 subtitle: Container(
                   child: Text(
-                    description,
+                    provider.bio,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                   ),
                 ),
                 onTap: onTap,
+                trailing: Text(
+                  provider.type,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
+                ),
               ),
             ),
           ],
@@ -85,15 +86,16 @@ Widget ProviderAccountCard(
     child: Center(
       child: Container(
         width: width,
-        height: width/1.77,
+        height: width / 1.77,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             color: Color(kGenchiLightOrange),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey,
-                offset: Offset(0.0, 1.0), //(x,y)
-                blurRadius: 1.0,
+                color: Colors.black12,
+                offset: Offset(0.0, 2.0), //(x,y)
+                blurRadius: 5.0,
+                spreadRadius: 1.0,
               ),
             ]),
         child: ClipRRect(
@@ -143,22 +145,22 @@ Widget ProviderAccountCard(
   );
 }
 
-Widget AddProviderCard(
-    {@required double width, @required Function onPressed}) {
+Widget AddProviderCard({@required double width, @required Function onPressed}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
       child: Container(
         width: width,
-        height: width/1.77,
+        height: width / 1.77,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             color: Color(kGenchiLightOrange),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey,
-                offset: Offset(0.0, 1.0), //(x,y)
-                blurRadius: 1.0,
+                color: Colors.black12,
+                offset: Offset(0.0, 2.0), //(x,y)
+                blurRadius: 5.0,
+                spreadRadius: 1.0,
               ),
             ]),
         child: ClipRRect(
@@ -190,34 +192,34 @@ Widget HirerCard({@required User hirer, @required Function onTap}) {
               fontWeight: FontWeight.w500,
             ),
           ),
-          leading: hirer.displayPictureURL == null ? CircleAvatar(
-            radius: 30,
-            backgroundColor: Color(0xffC4C4C4),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(
-                Icons.person,
-                color: Color(0xff585858),
-                size: 35,
-              ),
+          leading: hirer.displayPictureURL == null
+              ? CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Color(0xffC4C4C4),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.person,
+                      color: Color(0xff585858),
+                      size: 35,
+                    ),
+                  ),
+                )
+              : CircleAvatar(
+                  backgroundImage:
+                      CachedNetworkImageProvider(hirer.displayPictureURL),
+                  radius: 30,
+                  backgroundColor: Color(kGenchiCream),
+                ),
+          subtitle: Container(
+            child: Text(
+              "${hirer.college} - ${hirer.subject}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
             ),
-          ) : CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(hirer.displayPictureURL),
-            radius: 30,
-            backgroundColor: Color(kGenchiCream),
           ),
-//          subtitle: Container(
-//            //TODO add in additional hirer details
-//            child: Text(
-//              description.length > 30 ? '${description.substring(0,30)}...' : description,
-//              maxLines: 1,
-//              overflow: TextOverflow.ellipsis,
-//              style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
-//            ),
-//          ),
-          //TODO add in hirer view screen
-//          onTap: onTap,
-        ),
+          ),
       ),
     ],
   );

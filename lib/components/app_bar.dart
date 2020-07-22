@@ -147,7 +147,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       backgroundColor: Color(kGenchiGreen),
-      elevation: 5,
+      elevation: 3,
       brightness: Brightness.light,
     );
   }

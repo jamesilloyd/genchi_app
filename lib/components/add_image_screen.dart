@@ -49,7 +49,6 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
 
-    //TODO: You can pass in image selection properties here
     File selected = await ImagePicker.pickImage(source: source, imageQuality: 100);
 
     setState(() {
@@ -109,7 +108,6 @@ class _AddImageScreenState extends State<AddImageScreen> {
     final providerService = Provider.of<ProviderService>(context);
     ProviderUser currentProvider = providerService.currentProvider;
 
-    //TODO: clean up showModalBottomSheetWidgets
     return ModalProgressHUD(
           inAsyncCall: showSpinner,
           progressIndicator: CircularProgress(),
@@ -298,7 +296,6 @@ class _UploaderState extends State<Uploader> {
     final providerService = Provider.of<ProviderService>(context, listen: false);
 
     try {
-      //TODO: put this into cloud_storage_service
       filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
       StorageReference ref = _storage.ref().child(filePath);
       print('Uploading image');
@@ -377,6 +374,7 @@ class _UploaderState extends State<Uploader> {
               onPressed: () {},
             );
           } else {
+
             return IconButton(
               iconSize: 25,
               color: _iconColor,

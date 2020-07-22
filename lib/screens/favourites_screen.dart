@@ -68,16 +68,10 @@ class FavouritesScreen extends StatelessWidget {
 
               for (ProviderUser provider in providers) {
                 ProviderCard pCard = ProviderCard(
-                  image: provider.displayPictureURL == null
-                      ? AssetImage("images/Logo_Clear.png")
-                      : CachedNetworkImageProvider(provider.displayPictureURL),
-                  name: provider.name,
-                  description: provider.bio,
-                  service: provider.type,
+                  provider: provider,
                   onTap: () async {
                     await providerService.updateCurrentProvider(provider.pid);
-                    Navigator.pushNamed(context, ProviderScreen.id,
-                        arguments: ProviderScreenArguments(provider: provider));
+                    Navigator.pushNamed(context, ProviderScreen.id);
                   },
                 );
 

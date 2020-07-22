@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   ProfileOptionTile(
-                    text: 'Feedback',
+                    text: 'Give Feedback',
                     onPressed: () async {
                       if (await canLaunch(GenchiFeedbackURL)) {
                         await launch(GenchiFeedbackURL);

@@ -4,22 +4,6 @@ import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 
-class SearchProviderScreenArguments {
-  //ToDO: change this when using service as a class
-  final Map service;
-
-  SearchProviderScreenArguments({@required this.service});
-}
-
-class ProviderScreenArguments {
-
-  //ToDo: now using provider package so may not need this
-  final ProviderUser provider;
-
-  ProviderScreenArguments({@required this.provider});
-
-}
-
 class HomeScreenArguments {
 
   final int startingIndex;
@@ -38,8 +22,6 @@ class ChatScreenArguments {
   ChatScreenArguments({this.chat,this.userIsProvider = false, this.provider, this.user, this.isFirstInstance = false});
 
 }
-
-
 
 class ApplicationChatScreenArguments {
 

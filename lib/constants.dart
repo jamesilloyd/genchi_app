@@ -21,6 +21,19 @@ const kForgotPasswordSnackbar = SnackBar(
   ),
 );
 
+const kCantUploadImageSnackBar = SnackBar(
+  backgroundColor: Color(kGenchiOrange),
+  duration: Duration(seconds: 3),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'There was an error, please check your internet connection.',
+    style: TextStyle(
+        color: Color(kGenchiCream), fontSize: 15, fontWeight: FontWeight.w600),
+    textAlign: TextAlign.center,
+  ),
+);
 
 const kBadURLSnackbar = SnackBar(
   backgroundColor: Color(kGenchiOrange),
@@ -85,7 +98,6 @@ const kGenchiGreen = 0xff76b39d;
 const kGenchiLightOrange = 0xffF7BE66;
 const kGenchiBrown = 0xffD3CCAF;
 
-//ToDo: start implementing print statements depending on this value e.g. if(debugMode) print("Home screen - ${}");
 const debugMode = true;
 
 const GenchiURL = 'https://www.genchi.app';

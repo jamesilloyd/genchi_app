@@ -39,9 +39,6 @@ import 'package:provider/provider.dart';
 
 import 'dart:async';
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
-//TODO all my futures are wrong! PLEASE FIX THEM ASAP
-
-
 void main() {
   Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
@@ -101,7 +98,6 @@ class StartUp extends StatelessWidget {
               EditAccountScreen.id: (context) => EditAccountScreen(),
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
               ProviderScreen.id: (context) => ProviderScreen(),
-              SearchProviderScreen.id: (context) => SearchProviderScreen(),
               EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),

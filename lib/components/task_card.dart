@@ -35,9 +35,10 @@ Widget TaskCard(
               ),
         title: Text(
           task.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w500,
           ),
         ),
         subtitle: Text(
@@ -66,11 +67,14 @@ Widget TaskCard(
             Text(
               task.service,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
             ),
             Text(
+//              task.date,
               'Posted ${getSummaryTime(time: task.time)}',
               textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.fade,
               style: TextStyle(fontSize: 14),
             ),
           ],
@@ -89,7 +93,7 @@ Widget TaskTile(
     @required ImageProvider image,
     @required Function onTap,
     double width = 100,
-      @required String name,
+    @required String name,
     bool isDisplayTask = true,
     bool hasUnreadMessage = false}) {
   return Center(
@@ -120,7 +124,9 @@ Widget TaskTile(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  SizedBox(height: 2,),
+                  SizedBox(
+                    height: 2,
+                  ),
                   image == null
                       ? CircleAvatar(
                           radius: 25,
@@ -135,19 +141,20 @@ Widget TaskTile(
                           ),
                         )
                       : Center(
-                        child: CircleAvatar(
+                          child: CircleAvatar(
                             backgroundImage: image,
                             radius: 25,
                             backgroundColor: Color(kGenchiCream),
                           ),
-                      ),
+                        ),
                   Center(
                     child: Text(
                       task.title,
                       maxLines: 2,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
                     ),
                   ),
                   Text(
@@ -175,6 +182,7 @@ Widget TaskTile(
               //TODO: need to change this to "time to do task", rather than "time posted"
               child: Center(
                 child: Text(
+//                  task.date,
                   getSummaryTime(time: task.time),
                   style: TextStyle(
                     color: Color(kGenchiBlue),

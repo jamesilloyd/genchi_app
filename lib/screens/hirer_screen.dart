@@ -135,7 +135,7 @@ class _HirerScreenState extends State<HirerScreen> {
             ),
             Text(
               hirer.college,
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 16.0),
             ),
             SizedBox(
               height: 10,
@@ -154,7 +154,6 @@ class _HirerScreenState extends State<HirerScreen> {
               hirer.subject,
               style: TextStyle(
                 fontSize: 16.0,
-                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(
@@ -174,7 +173,6 @@ class _HirerScreenState extends State<HirerScreen> {
               hirer.bio,
               style: TextStyle(
                 fontSize: 16.0,
-                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(height: 10),

@@ -247,7 +247,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
             ),
             Text(
               providerUser.type ?? "",
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 20.0),
             ),
             SizedBox(
               height: 10,
@@ -266,7 +266,6 @@ class _ProviderScreenState extends State<ProviderScreen> {
               providerUser.bio ?? "",
               style: TextStyle(
                 fontSize: 16.0,
-                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(
@@ -286,32 +285,30 @@ class _ProviderScreenState extends State<ProviderScreen> {
               providerUser.experience ?? "",
               style: TextStyle(
                 fontSize: 16.0,
-                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(
               height: 10,
             ),
-            Container(
-              child: Text(
-                "Pricing",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Text(
-              providerUser.pricing,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
+//            Container(
+//              child: Text(
+//                "Pricing",
+//                textAlign: TextAlign.left,
+//                style: TextStyle(
+//                  fontSize: 25.0,
+//                  fontWeight: FontWeight.w500,
+//                ),
+//              ),
+//            ),
+//            Text(
+//              providerUser.pricing,
+//              style: TextStyle(
+//                fontSize: 16.0,
+//              ),
+//            ),
+//            SizedBox(
+//              height: 10,
+//            ),
             buildFurtherLinkSection(currentProvider: providerUser),
           ],
         ),

@@ -42,7 +42,7 @@ class _SearchScreenState extends State<SearchScreen>
   Future searchTasksFuture;
 
   bool showSpinner = false;
-  String filter = 'All';
+  String filter = 'ALL';
 
   Map<String, Future> serviceFutures = {};
 
@@ -58,17 +58,18 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
-    for (Map service in servicesListMap) {
-//      serviceFutures[service['name']] =
-//          firestoreAPI.fetchTasksAndHirersByService(service: service['name']);
-      searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-    }
+//    for (Job job in jobsList) {
+////      serviceFutures[service['name']] =
+////          firestoreAPI.fetchTasksAndHirersByService(service: service['name']);
+//    }
+    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+
   }
 
   List<Widget> buildServiceTiles() {
     List<Widget> searchServiceTiles = [];
 
-    for (Map service in servicesListMap) {
+    for (Service service in servicesList) {
       Widget tile = Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: SearchServiceTile(
@@ -77,8 +78,8 @@ class _SearchScreenState extends State<SearchScreen>
 //            Navigator.pushNamed(context, SearchProviderScreen.id,
 //                arguments: SearchProviderScreenArguments(service: service));
           },
-          buttonTitle: service['plural'],
-          imageAddress: service['imageAddress'],
+          buttonTitle: service.namePlural,
+          imageAddress: service.imageAddress,
           width: (MediaQuery.of(context).size.width - 40) / 2.5,
         ),
       );
@@ -87,101 +88,101 @@ class _SearchScreenState extends State<SearchScreen>
     return searchServiceTiles;
   }
 
-  Widget buildJobRows() {
-    List<Widget> columnChildren = [];
-
-    for (Map service in servicesListMap) {
-      List<Widget> widgets = [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
-          child: Text(
-            service['name'].toString().toUpperCase(),
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-        FutureBuilder(
-          future: serviceFutures[service['name']],
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Container(
-                height: 130,
-                child: Center(
-                  child: CircularProgress(),
-                ),
-              );
-            } else {
-              final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
-
-              if (tasksAndHirers.isEmpty) {
-                return Container(
-                  height: 40,
-                  child: Center(
-                    child: Text(
-                      'No Jobs Yet',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                );
-              }
-
-              final List<Widget> taskWidgets = [];
-
-              for (Map taskAndHirer in tasksAndHirers) {
-                Task task = taskAndHirer['task'];
-                User hirer = taskAndHirer['hirer'];
-
-                final widget = Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                  child: TaskTile(
-                    image: hirer.displayPictureURL == null
-                        ? null
-                        : CachedNetworkImageProvider(hirer.displayPictureURL),
-                    task: task,
-                    name: hirer.name,
-                    width: (MediaQuery.of(context).size.width - 50) / 3.25,
-                    onTap: () async {
-                      setState(() {
-                        showSpinner = true;
-                      });
-
-                      await Provider.of<TaskService>(context, listen: false)
-                          .updateCurrentTask(taskId: task.taskId);
-
-                      setState(() {
-                        showSpinner = false;
-                      });
-                      Navigator.pushNamed(context, TaskScreen.id);
-                    },
-                  ),
-                );
-
-                taskWidgets.add(widget);
-              }
-
-              return Container(
-                height:
-                    (MediaQuery.of(context).size.width - 50) * 1.3 / 3.25 + 20,
-                child: Center(
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                    scrollDirection: Axis.horizontal,
-                    children: taskWidgets,
-                  ),
-                ),
-              );
-            }
-          },
-        ),
-      ];
-
-      columnChildren.addAll(widgets);
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: columnChildren,
-    );
-  }
+//  Widget buildJobRows() {
+//    List<Widget> columnChildren = [];
+//
+//    for (Map service in servicesListMap) {
+//      List<Widget> widgets = [
+//        Padding(
+//          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+//          child: Text(
+//            service['name'].toString().toUpperCase(),
+//            style: TextStyle(fontSize: 16),
+//          ),
+//        ),
+//        FutureBuilder(
+//          future: serviceFutures[service['name']],
+//          builder: (context, snapshot) {
+//            if (!snapshot.hasData) {
+//              return Container(
+//                height: 130,
+//                child: Center(
+//                  child: CircularProgress(),
+//                ),
+//              );
+//            } else {
+//              final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
+//
+//              if (tasksAndHirers.isEmpty) {
+//                return Container(
+//                  height: 40,
+//                  child: Center(
+//                    child: Text(
+//                      'No Jobs Yet',
+//                      style: TextStyle(fontSize: 20),
+//                    ),
+//                  ),
+//                );
+//              }
+//
+//              final List<Widget> taskWidgets = [];
+//
+//              for (Map taskAndHirer in tasksAndHirers) {
+//                Task task = taskAndHirer['task'];
+//                User hirer = taskAndHirer['hirer'];
+//
+//                final widget = Padding(
+//                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+//                  child: TaskTile(
+//                    image: hirer.displayPictureURL == null
+//                        ? null
+//                        : CachedNetworkImageProvider(hirer.displayPictureURL),
+//                    task: task,
+//                    name: hirer.name,
+//                    width: (MediaQuery.of(context).size.width - 50) / 3.25,
+//                    onTap: () async {
+//                      setState(() {
+//                        showSpinner = true;
+//                      });
+//
+//                      await Provider.of<TaskService>(context, listen: false)
+//                          .updateCurrentTask(taskId: task.taskId);
+//
+//                      setState(() {
+//                        showSpinner = false;
+//                      });
+//                      Navigator.pushNamed(context, TaskScreen.id);
+//                    },
+//                  ),
+//                );
+//
+//                taskWidgets.add(widget);
+//              }
+//
+//              return Container(
+//                height:
+//                    (MediaQuery.of(context).size.width - 50) * 1.3 / 3.25 + 20,
+//                child: Center(
+//                  child: ListView(
+//                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+//                    scrollDirection: Axis.horizontal,
+//                    children: taskWidgets,
+//                  ),
+//                ),
+//              );
+//            }
+//          },
+//        ),
+//      ];
+//
+//      columnChildren.addAll(widgets);
+//    }
+//    return Column(
+//      mainAxisAlignment: MainAxisAlignment.start,
+//      crossAxisAlignment: CrossAxisAlignment.start,
+//      children: columnChildren,
+//    );
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,10 +207,11 @@ class _SearchScreenState extends State<SearchScreen>
                 color: Color(kGenchiOrange),
                 backgroundColor: Colors.white,
                 onRefresh: () async {
-                  for (Map service in servicesListMap) {
-                    serviceFutures[service['name']] = firestoreAPI
-                        .fetchTasksAndHirersByService(service: service['name']);
-                  }
+//                  for (Service service in servicesList) {
+//                    serviceFutures[service.databaseValue] = firestoreAPI
+//                        .fetchTasksAndHirersByService(service: service.databaseValue);
+//                  }
+                  firestoreAPI.fetchTasksAndHirers();
                   setState(() {});
                 },
                 child: ListView(
@@ -299,16 +301,15 @@ class _SearchScreenState extends State<SearchScreen>
                                   itemBuilder: (_) {
                                     List<PopupMenuItem<String>> items = [
                                       const PopupMenuItem<String>(
-                                          child: const Text('All'),
-                                          value: 'All'),
+                                          child: const Text('ALL'),
+                                          value: 'ALL'),
                                     ];
-                                    for (Map service in servicesListMap) {
+                                    for (Service service in servicesList) {
                                       items.add(
                                         new PopupMenuItem<String>(
-                                            child: Text(service['name']
-                                                .toString()
+                                            child: Text(service.databaseValue
                                                 .toUpperCase()),
-                                            value: service['name'].toString()),
+                                            value: service.databaseValue),
                                       );
                                     }
                                     return items;
@@ -353,8 +354,11 @@ class _SearchScreenState extends State<SearchScreen>
                         future: searchTasksFuture,
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return Center(
-                              child: CircularProgress(),
+                            return Container(
+                              height: 60,
+                              child: Center(
+                                child: CircularProgress(),
+                              ),
                             );
                           }
                           final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
@@ -366,7 +370,7 @@ class _SearchScreenState extends State<SearchScreen>
                             Task task = taskAndHirer['task'];
                             User hirer = taskAndHirer['hirer'];
 
-                            if ((task.service == filter) || (filter == 'All')) {
+                            if ((task.service == filter) || (filter == 'ALL')) {
                               final widget = TaskCard(
                                 image: hirer.displayPictureURL == null
                                     ? null

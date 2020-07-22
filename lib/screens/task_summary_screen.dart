@@ -118,7 +118,12 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                           postIds: currentUser.posts),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
-                          return CircularProgress();
+                          return Container(
+                            height: 60,
+                            child: Center(
+                              child: CircularProgress(),
+                            ),
+                          );
                         }
 
                         final List<Map<String, dynamic>>
@@ -210,7 +215,12 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                                   pids: currentUser.providerProfiles),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              return CircularProgress();
+                              return Container(
+                                height: 60,
+                                child: Center(
+                                  child: CircularProgress(),
+                                ),
+                              );
                             }
 
                             final List<Map<String, dynamic>>

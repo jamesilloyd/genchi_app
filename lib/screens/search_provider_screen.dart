@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/models/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'provider_screen.dart';
@@ -23,7 +24,7 @@ class SearchProviderScreen extends StatefulWidget {
 
   static const String id = "search_provider_screen";
 
-  final Map service;
+  final Service service;
 
   SearchProviderScreen({Key key, @required this.service}) : super(key: key);
 
@@ -42,7 +43,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
   @override
   void initState() {
     super.initState();
-    getProvidersByService = firestoreAPI.getProvidersByService(serviceType: widget.service['name']);
+    getProvidersByService = firestoreAPI.getProvidersByService(serviceType: widget.service.databaseValue);
   }
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: widget.service['plural']),
+          appBar: BasicAppNavigationBar(barTitle: widget.service.namePlural),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(15.0),

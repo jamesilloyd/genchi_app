@@ -122,7 +122,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                 stream: firestoreAPI.streamUserChats(user: currentUser),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return CircularProgress();
+                    return Container(
+                      height: 60,
+                      child: Center(
+                        child: CircularProgress(),
+                      ),
+                    );
                   } else {
                     List chatsHirersAndProviders = [];
                     List<Widget> chatWidgets = [];

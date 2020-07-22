@@ -52,6 +52,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     priceController.text = task.price;
   }
 
+
+
   @override
   void dispose() {
     super.dispose();
@@ -168,8 +170,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       child: Container(
                         color: Color(kGenchiCream),
                         child: DropdownButton<String>(
-                          value: serviceController.text != ''
-                              ? serviceController.text : 'Other',
+                          value: initialDropDownValue(currentType: serviceController.text),
                           items: dropDownServiceItems(),
                           onChanged: (value) {
                             setState(() {
@@ -201,9 +202,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   },
                 ),
                 EditAccountField(
-                  field: "Price",
+                  field: "Incentive",
                   textController: priceController,
-                  hintText: 'Estimated pay for the job',
+                  hintText: 'Payment, experience, volunteering etc.',
 
                   onChanged: (value) {
                     price = value;

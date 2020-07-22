@@ -352,6 +352,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
+                    color: Color(kGenchiOrange)
                   ),
                 ),
               ],
@@ -389,7 +390,7 @@ class _TaskScreenState extends State<TaskScreen> {
             SizedBox(height: 10),
             Container(
               child: Text(
-                "Price",
+                "Incentive",
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -401,6 +402,7 @@ class _TaskScreenState extends State<TaskScreen> {
               currentTask.price ?? "",
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
+            SizedBox(height: 10),
             Container(
               child: Text(
                 "Date Posted",

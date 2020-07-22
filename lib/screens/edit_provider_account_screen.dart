@@ -12,6 +12,7 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
+import 'package:genchi_app/models/services.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -279,9 +280,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       child: Container(
                         color: Color(kGenchiCream),
                         child: DropdownButton<String>(
-                            value: serviceTextController.text != ''
-                                ? serviceTextController.text
-                                : (providerUser.type == '' ? 'Other' : providerUser.type),
+                            value: initialDropDownValue(currentType: serviceTextController.text),
                             items: dropDownServiceItems(),
                             onChanged: (value) {
                               setState(() {
@@ -312,15 +311,15 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     changesMade = true;
                   },
                 ),
-                EditAccountField(
-                  field: "Price",
-                  onChanged: (value) {
-                    changesMade = true;
-                    pricing = value;
-                  },
-                  textController: priceTextController,
-                  hintText: "E.g. for experience, £10 per job etc.",
-                ),
+//                EditAccountField(
+//                  field: "Price",
+//                  onChanged: (value) {
+//                    changesMade = true;
+//                    pricing = value;
+//                  },
+//                  textController: priceTextController,
+//                  hintText: "E.g. for experience, £10 per job etc.",
+//                ),
 
                 //TODO COME BACK TO THIS, ADDED TEMPORARY SOLUTION FOR DEMO
                 Column(

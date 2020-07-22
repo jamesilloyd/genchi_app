@@ -105,7 +105,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           height: 30.0,
                         ),
                         Text(
-                          'Service',
+                          'Type',
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.w500,
@@ -118,8 +118,8 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           child: Container(
                             color: Color(kGenchiCream),
                             child: DropdownButton<String>(
-                              value: serviceController.text != ''
-                                  ? serviceController.text : 'Other',
+                              //TODO: need to check the value is in the array first
+                              value: initialDropDownValue(currentType: serviceController.text),
                               items: dropDownServiceItems(),
                               onChanged: (value) {
                                 setState(() {
@@ -152,13 +152,13 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
                     ),
                     EditAccountField(
-                      field: 'Price',
+                      field: 'Incentive',
                       onChanged: (value) {
                         price = value;
                         changesMade = true;
                       },
                       textController: priceController,
-                      hintText: 'Estimated pay for the task',
+                      hintText: 'Payment, experience, volunteering etc.',
 
                     ),
                     SizedBox(

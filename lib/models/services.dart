@@ -1,74 +1,55 @@
 import 'package:flutter/material.dart';
 
 
+class Service {
 
-//ToDo: probably need to make a class for service when it becomes more complex (YES)
-const List<Map<String,String>> servicesListMap = [
+  String nameSingular;
+  String namePlural;
+  String imageAddress;
+  ///Don't change this value
+  String databaseValue;
 
-  {
-    'name' : 'Hairdressing',
-    'plural' : 'Hairdressing',
-    'imageAddress': 'images/service_icons/hairdressing.png',
-  },
+  Service({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+}
 
-  {
-    'name' : 'Deliverer',
-    'plural' : 'Delivery Services',
-    'imageAddress': 'images/service_icons/deliveries.png',
-  },
 
-  {
-    'name' : 'Designer',
-    'plural' : 'Designers',
-    'imageAddress': 'images/service_icons/designers.png',
-  },
+List<Service> servicesList = [
 
-  {
-    'name' : 'Helping Hand',
-    'plural' : 'Helping Hand',
-    'imageAddress': 'images/service_icons/helping_hand.png',
-  },
-
-  {
-    'name' : 'Photographer',
-    'plural' : 'Photographers',
-    'imageAddress': 'images/service_icons/photographers.png',
-  },
-
-  {
-    'name' : 'Entertainment',
-    'plural' : 'Entertainment',
-    'imageAddress': 'images/service_icons/entertainment.png',
-  },
-
-  {
-    'name' : 'Repair',
-    'plural' : 'Repairs',
-    'imageAddress': 'images/service_icons/repairs.png',
-  },
-
-  {
-    'name' : 'Researcher',
-    'plural' : 'Researchers',
-    'imageAddress': 'images/service_icons/research.png',
-  },
-
-  {
-    'name' : 'Sport',
-    'plural' : 'Sports',
-    'imageAddress': 'images/service_icons/sports.png',
-  },
-
-  {
-    'name' : 'Tutor',
-    'plural' : 'Tutors',
-    'imageAddress': 'images/service_icons/tutors.png',
-  },
-
-  {
-    'name' : 'Other',
-    'plural' : 'Other',
-    'imageAddress': 'images/other.png',
-  },
+  Service(nameSingular: 'Designer',
+    namePlural: 'Designers',
+    imageAddress: 'images/service_icons/designers.png',
+    databaseValue: 'Design'
+  ),
+  Service(
+      nameSingular: 'Journalist',
+      namePlural: 'Journalists',
+      imageAddress: 'images/service_icons/tutors.png',
+      databaseValue: 'Journalism'
+  ),
+  Service(
+      nameSingular: 'Photographer',
+      namePlural: 'Photographers',
+      imageAddress: 'images/service_icons/photographers.png',
+      databaseValue: 'Photography'
+  ),
+  Service(
+      nameSingular: 'Researcher',
+      namePlural: 'Researchers',
+      imageAddress: 'images/service_icons/research.png',
+      databaseValue: 'Research'
+  ),
+  Service(
+      nameSingular: 'Software',
+      namePlural: 'Software',
+      //TODO add this
+      imageAddress: 'images/service_icons/software.png',
+      databaseValue: 'Software'
+  ),
+  Service(
+      nameSingular: 'Other',
+      namePlural: 'Other',
+      imageAddress: 'images/service_icons/other.png',
+      databaseValue: 'Other'
+  ),
 
 ];

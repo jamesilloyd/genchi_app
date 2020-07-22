@@ -228,7 +228,7 @@ class SlideItem2 extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.35,
                 child: Image(
                   alignment: Alignment.center,
                   image: AssetImage(sliderArrayList[1].sliderImageUrl),
@@ -285,7 +285,7 @@ class SlideItem3 extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.35,
                 child: Image(
                   alignment: Alignment.center,
                   image: AssetImage(sliderArrayList[2].sliderImageUrl),

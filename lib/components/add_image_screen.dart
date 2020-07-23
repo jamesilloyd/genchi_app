@@ -44,12 +44,14 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool uploadStarted = false;
-  File _imageFile;
+  PickedFile _imageFile;
   bool noChangesMade = true;
 
   Future<void> _pickImage(ImageSource source) async {
 
-    File selected = await ImagePicker.pickImage(source: source, imageQuality: 100);
+    final _picker = ImagePicker();
+
+    PickedFile selected = await _picker.getImage(source: source, imageQuality: 100);
 
     setState(() {
       if (selected != null) {
@@ -165,7 +167,8 @@ class _AddImageScreenState extends State<AddImageScreen> {
                           backgroundImage: currentUser.displayPictureURL != null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
                         )
                       : CircleAvatar(
-                          backgroundImage: FileImage(_imageFile),
+
+                          backgroundImage: FileImage(File(_imageFile.path)),
                           radius:
                               (MediaQuery.of(context).size.height * 0.75 - 130) *
                                   0.35,
@@ -247,7 +250,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                       : SizedBox(
                           width: (MediaQuery.of(context).size.width - 40) / 3,
                           child: uploadStarted
-                              ? Uploader(file: _imageFile, isUser: widget.isUser,)
+                              ? Uploader(file: File(_imageFile.path), isUser: widget.isUser,)
                               : IconButton(
                                   iconSize: 25,
                                   color: _iconColor,

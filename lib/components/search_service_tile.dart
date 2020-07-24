@@ -47,7 +47,7 @@ class SearchServiceTile extends StatelessWidget {
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 18.0,
+                        fontSize: MediaQuery.of(context).size.height < 600 ? 14:18.0,
                       ),
                     ),
                   ),

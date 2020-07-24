@@ -145,6 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         20 * 3) /
                                     2.2,
                                 provider: provider,
+                                isSmallScreen: MediaQuery.of(context).size.height < 600,
                                 onPressed: () async {
                                   await providerService
                                       .updateCurrentProvider(provider.pid);

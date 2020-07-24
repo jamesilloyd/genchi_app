@@ -80,7 +80,7 @@ class ProviderCard extends StatelessWidget {
 Widget ProviderAccountCard(
     {@required double width,
     @required Function onPressed,
-    @required ProviderUser provider}) {
+    @required ProviderUser provider,bool isSmallScreen = false}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
@@ -113,13 +113,13 @@ Widget ProviderAccountCard(
                     provider.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 20, color: Colors.black),
+                    style: TextStyle(fontSize: isSmallScreen ?  16:20 , color: Colors.black),
                   ),
                 ),
                 Expanded(
                   child: Text(
                     provider.type,
-                    style: TextStyle(fontSize: 18, color: Colors.black),
+                    style: TextStyle(fontSize: isSmallScreen?14:18, color: Colors.black),
                   ),
                 ),
 //                SizedBox(
@@ -130,7 +130,7 @@ Widget ProviderAccountCard(
                     provider.bio,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, color: Color(0xff7D7D7D)),
+                    style: TextStyle(fontSize: isSmallScreen?11:14, color: Color(0xff7D7D7D)),
                   ),
                 ),
                 Container(

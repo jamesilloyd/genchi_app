@@ -73,6 +73,7 @@ class _SearchScreenState extends State<SearchScreen>
       Widget tile = Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: SearchServiceTile(
+
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SearchProviderScreen(service: service)));
 //            Navigator.pushNamed(context, SearchProviderScreen.id,

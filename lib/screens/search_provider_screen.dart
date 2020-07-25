@@ -57,7 +57,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
           appBar: BasicAppNavigationBar(barTitle: widget.service.namePlural),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: FutureBuilder(
                 future: getProvidersByService,
                 builder: (context, snapshot) {

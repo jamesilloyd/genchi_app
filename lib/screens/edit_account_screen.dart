@@ -390,6 +390,39 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       height: 10,
                     ),
                     RoundedButton(
+                      buttonTitle: 'Save changes',
+                      buttonColor: Color(kGenchiGreen),
+                      onPressed: ()async {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        await fireStoreAPI.updateUser(
+                            user: User(
+                                name: nameController.text,
+                                email: emailController.text,
+                                college: collegeController.text,
+                                bio: bioController.text,
+                                url1: {
+                                  'link': url1TextController.text,
+                                  'desc': urlDesc1TextController.text,
+                                },
+                                url2: {
+                                  'link': url2TextController.text,
+                                  'desc': urlDesc2TextController.text,
+                                },
+                                subject: subjectController.text),
+                            uid: currentUser.id);
+                        await authProvider.updateCurrentUserData();
+
+                        setState(() {
+                          changesMade = false;
+                          showSpinner = false;
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                    RoundedButton(
                       buttonColor: Color(kGenchiBlue),
                       buttonTitle: "Change Password",
                       elevation: false,

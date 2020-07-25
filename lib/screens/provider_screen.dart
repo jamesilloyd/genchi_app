@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/screens/home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'edit_provider_account_screen.dart';
@@ -24,7 +26,6 @@ import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class ProviderScreen extends StatefulWidget {
   static const String id = "provider_screen";
 
@@ -39,7 +40,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
   Widget buildFurtherLinkSection({ProviderUser currentProvider}) {
     List<Widget> widgets = [];
 
-    if ((currentProvider.url1['link'] != '') || (currentProvider.url2['link'] != '')) {
+    if ((currentProvider.url1['link'] != '') ||
+        (currentProvider.url2['link'] != '')) {
       widgets.addAll([
         Container(
           child: Text(
@@ -60,7 +62,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
             text: TextSpan(children: [
               TextSpan(
                   text: currentProvider.url1['desc'],
-                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT', fontSize: 16),
+                  style: TextStyle(
+                      color: Colors.blue, fontFamily: 'FuturaPT', fontSize: 16),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       launch(currentProvider.url1['link']);
@@ -78,7 +81,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
             text: TextSpan(children: [
               TextSpan(
                   text: currentProvider.url2['desc'],
-                  style: TextStyle(color: Colors.blue,fontFamily: 'FuturaPT', fontSize: 16),
+                  style: TextStyle(
+                      color: Colors.blue, fontFamily: 'FuturaPT', fontSize: 16),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       launch(currentProvider.url2['link']);
@@ -93,6 +97,48 @@ class _ProviderScreenState extends State<ProviderScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: widgets,
+    );
+  }
+
+  Widget buildAdminSection({BuildContext context}) {
+    return Column(
+      children: <Widget>[
+        Divider(
+          thickness: 1,
+        ),
+        Center(
+          child: Text(
+            'Admin Controls',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+          ),
+        ),
+        RoundedButton(
+          buttonTitle: "Delete provider account",
+          buttonColor: Color(kGenchiBlue),
+          elevation: false,
+          onPressed: () async {
+            ProviderService providerService =
+                Provider.of<ProviderService>(context, listen: false);
+            AuthenticationService authService =
+                Provider.of<AuthenticationService>(context, listen: false);
+
+            ///Get most up to data provider
+            ProviderUser providerUser = providerService.currentProvider;
+
+            bool delete = await showYesNoAlert(
+                context: context, title: 'Delete this provider account?');
+
+            if (delete) {
+              await firestoreAPI.deleteProvider(provider: providerUser);
+              await authService.updateCurrentUserData();
+
+              Navigator.pushNamedAndRemoveUntil(
+                  context, HomeScreen.id, (Route<dynamic> route) => false,
+                  arguments: HomeScreenArguments(startingIndex: 0));
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -310,6 +356,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
 //              height: 10,
 //            ),
             buildFurtherLinkSection(currentProvider: providerUser),
+            if (authProvider.currentUser.admin)
+              buildAdminSection(context: context),
           ],
         ),
       ),

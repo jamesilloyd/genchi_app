@@ -732,7 +732,7 @@ class FirestoreAPIService {
       List<Task> providerTasks = [];
 
       ///Get tasks the provider has applied to
-      providerTasks.addAll(await getTasks(postIds: provider.tasksApplied));
+      if(provider.tasksApplied.isNotEmpty) providerTasks.addAll(await getTasks(postIds: provider.tasksApplied));
 
       ///get the hirer associated with each task
       for (Task task in providerTasks) {

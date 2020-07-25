@@ -64,6 +64,21 @@ class TestScreen extends StatelessWidget {
 //                }
 
               },
+            ),
+            RoundedButton(
+              buttonColor: Color(kGenchiOrange),
+              buttonTitle: 'Delete task',
+              onPressed: () async{
+
+//                firestoreApi.deleteTask(task: '');
+//                try {
+                await function();
+//                } catch (e){
+//                  print(e);
+//                  print('Update failed');
+//                }
+
+              },
             )
 
           ],

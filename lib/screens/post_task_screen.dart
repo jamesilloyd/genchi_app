@@ -79,7 +79,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
         },
         child: Scaffold(
           appBar: BasicAppNavigationBar(
-            barTitle: 'Post Task',
+            barTitle: 'Post Job',
           ),
           body: Builder(
             builder: (BuildContext context) {
@@ -96,7 +96,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         changesMade = true;
                       },
                       textController: titleController,
-                      hintText: 'Summary of the task',
+                      hintText: 'Summary of the job',
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +139,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         changesMade = true;
                       },
                       textController: dateController,
-                      hintText: 'The timeframe of the task',
+                      hintText: 'The timeframe of the job',
                     ),
                     EditAccountField(
                       field: 'Details',
@@ -148,7 +148,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         changesMade = true;
                       },
                       textController: detailsController,
-                      hintText: 'Provide further details of the task',
+                      hintText: 'Provide further details of the job',
 
                     ),
                     EditAccountField(
@@ -170,7 +170,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       fontColor: Color(kGenchiCream),
                       onPressed: () async {
                         bool post = await showYesNoAlert(
-                            context: context, title: 'Post task?');
+                            context: context, title: 'Post job?');
 
                         if (post) {
                           setState(() {

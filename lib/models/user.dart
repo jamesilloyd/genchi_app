@@ -15,6 +15,7 @@ class User extends ChangeNotifier {
   List<dynamic> favourites;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
+  bool admin;
 
   //TODO THIS IS TEMPORARY
   Map<String, dynamic> url1;
@@ -34,8 +35,9 @@ class User extends ChangeNotifier {
       this.college,
       this.subject,
       this.bio,
-        this.url1,
-        this.url2,
+      this.admin,
+      this.url1,
+      this.url2,
       this.chats});
 
   User.fromMap(Map snapshot)
@@ -51,17 +53,27 @@ class User extends ChangeNotifier {
         favourites = snapshot['favourites'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
         posts = snapshot['posts'] ?? [],
-        url1 = snapshot['url1'] ?? {'link':'','desc':'',},
-        url2 = snapshot['url2'] ?? {'link':'','desc':'',},
+        url1 = snapshot['url1'] ??
+            {
+              'link': '',
+              'desc': '',
+            },
+        url2 = snapshot['url2'] ??
+            {
+              'link': '',
+              'desc': '',
+            },
+        admin = snapshot['admin'] ?? false,
         chats = snapshot['chats'] ?? [];
 
   toJson() {
     return {
       if (email != null) "email": email,
-      if (name != null) "name" : name,
-      if (college != null) "college" : college,
-      if (subject != null) "subject" : subject,
-      if (bio != null) "bio" : bio,
+      if (name != null) "name": name,
+      if (admin != null) 'admin': admin,
+      if (college != null) "college": college,
+      if (subject != null) "subject": subject,
+      if (bio != null) "bio": bio,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,

@@ -62,8 +62,8 @@ class AuthenticationService extends ChangeNotifier {
         //create new user in firestore
         final DateTime timestamp = DateTime.now();
         await _firestoreCRUDModel.addUserByID(
-            User(id: user.uid, email: email, name: name, timeStamp: timestamp));
-        updateCurrentUserData();
+            User(id: user.uid, email: email, name: name, timeStamp: timestamp, admin: false));
+        await updateCurrentUserData();
       }
     } catch (e) {
       throw e;

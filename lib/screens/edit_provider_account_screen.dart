@@ -454,6 +454,42 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   height: 30,
                 ),
                 RoundedButton(
+                  buttonTitle: 'Save changes',
+                  buttonColor: Color(kGenchiGreen),
+                  onPressed: ()async{
+                    setState(() {
+                      showSpinner = true;
+                    });
+
+                    await firestoreAPI.updateProvider(
+                        provider: ProviderUser(
+                            name: name,
+                            url1: {
+                              'link': url1TextController.text,
+                              'desc': urlDesc1TextController.text,
+                            },
+                            url2: {
+                              'link': url2TextController.text,
+                              'desc': urlDesc2TextController.text,
+                            },
+                            type: serviceTextController.text,
+                            bio: bio,
+                            experience: experience,
+                            pricing: pricing),
+                        pid: providerUser.pid);
+
+                    await authProvider.updateCurrentUserData();
+                    await providerService.updateCurrentProvider(providerUser.pid);
+
+                    setState(() {
+                      changesMade = false;
+                      showSpinner = false;
+                    });
+
+                    Navigator.of(context).pop();
+                  },
+                ),
+                RoundedButton(
                   buttonTitle: "Delete provider account",
                   buttonColor: Color(kGenchiBlue),
                   elevation: false,

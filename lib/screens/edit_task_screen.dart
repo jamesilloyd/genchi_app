@@ -52,8 +52,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     priceController.text = task.price;
   }
 
-
-
   @override
   void dispose() {
     super.dispose();
@@ -125,7 +123,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                           date: date),
                       taskId: taskService.currentTask.taskId);
 
-                  await taskService.updateCurrentTask(taskId: taskService.currentTask.taskId);
+                  await taskService.updateCurrentTask(
+                      taskId: taskService.currentTask.taskId);
 
                   setState(() {
                     changesMade = false;
@@ -170,7 +169,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       child: Container(
                         color: Color(kGenchiCream),
                         child: DropdownButton<String>(
-                          value: initialDropDownValue(currentType: serviceController.text),
+                          value: initialDropDownValue(
+                              currentType: serviceController.text),
                           items: dropDownServiceItems(),
                           onChanged: (value) {
                             setState(() {
@@ -205,7 +205,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   field: "Incentive",
                   textController: priceController,
                   hintText: 'Payment, experience, volunteering etc.',
-
                   onChanged: (value) {
                     price = value;
                     changesMade = true;
@@ -214,28 +213,58 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 SizedBox(height: 10),
                 Divider(height: 10),
                 RoundedButton(
+                  buttonTitle: 'Save changes',
+                  buttonColor: Color(kGenchiGreen),
+                  onPressed: () async {
+                    setState(() {
+                      showSpinner = true;
+                    });
+
+                    await fireStoreAPI.updateTask(
+                        task: Task(
+                            title: title,
+                            service: serviceController.text,
+                            details: details,
+                            price: price,
+                            date: date),
+                        taskId: taskService.currentTask.taskId);
+
+                    await taskService.updateCurrentTask(
+                        taskId: taskService.currentTask.taskId);
+
+                    setState(() {
+                      changesMade = false;
+                      showSpinner = false;
+                    });
+                    Navigator.of(context).pop();
+
+                  },
+                ),
+                RoundedButton(
                   buttonTitle: 'Delete job',
                   buttonColor: Color(kGenchiBlue),
                   elevation: false,
-                  onPressed: ()async{
-
+                  onPressed: () async {
                     ///Ask user if they want to delete task
-                    bool deleteTask = await showYesNoAlert(context: context, title: 'Are you sure you want to delete this job?');
+                    bool deleteTask = await showYesNoAlert(
+                        context: context,
+                        title: 'Are you sure you want to delete this job?');
 
-                    if(deleteTask){
+                    if (deleteTask) {
                       setState(() {
                         showSpinner = true;
                       });
-                      await fireStoreAPI.deleteTask(task: taskService.currentTask);
+                      await fireStoreAPI.deleteTask(
+                          task: taskService.currentTask);
                       await authProvider.updateCurrentUserData();
 
                       setState(() {
                         showSpinner = false;
                       });
 
-                      Navigator.pushNamedAndRemoveUntil(context,
-                          HomeScreen.id, (Route<dynamic> route) => false, arguments: HomeScreenArguments(startingIndex: 1));
-
+                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
+                          (Route<dynamic> route) => false,
+                          arguments: HomeScreenArguments(startingIndex: 1));
                     }
                   },
                 )

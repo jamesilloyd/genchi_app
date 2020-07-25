@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
 import 'package:genchi_app/services/task_service.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'search_provider_screen.dart';
@@ -40,6 +43,10 @@ class _SearchScreenState extends State<SearchScreen>
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   Future searchTasksFuture;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
+  GlobalKey<LiquidPullToRefreshState>();
 
   bool showSpinner = false;
   String filter = 'ALL';
@@ -89,108 +96,12 @@ class _SearchScreenState extends State<SearchScreen>
     return searchServiceTiles;
   }
 
-//  Widget buildJobRows() {
-//    List<Widget> columnChildren = [];
-//
-//    for (Map service in servicesListMap) {
-//      List<Widget> widgets = [
-//        Padding(
-//          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
-//          child: Text(
-//            service['name'].toString().toUpperCase(),
-//            style: TextStyle(fontSize: 16),
-//          ),
-//        ),
-//        FutureBuilder(
-//          future: serviceFutures[service['name']],
-//          builder: (context, snapshot) {
-//            if (!snapshot.hasData) {
-//              return Container(
-//                height: 130,
-//                child: Center(
-//                  child: CircularProgress(),
-//                ),
-//              );
-//            } else {
-//              final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
-//
-//              if (tasksAndHirers.isEmpty) {
-//                return Container(
-//                  height: 40,
-//                  child: Center(
-//                    child: Text(
-//                      'No Jobs Yet',
-//                      style: TextStyle(fontSize: 20),
-//                    ),
-//                  ),
-//                );
-//              }
-//
-//              final List<Widget> taskWidgets = [];
-//
-//              for (Map taskAndHirer in tasksAndHirers) {
-//                Task task = taskAndHirer['task'];
-//                User hirer = taskAndHirer['hirer'];
-//
-//                final widget = Padding(
-//                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-//                  child: TaskTile(
-//                    image: hirer.displayPictureURL == null
-//                        ? null
-//                        : CachedNetworkImageProvider(hirer.displayPictureURL),
-//                    task: task,
-//                    name: hirer.name,
-//                    width: (MediaQuery.of(context).size.width - 50) / 3.25,
-//                    onTap: () async {
-//                      setState(() {
-//                        showSpinner = true;
-//                      });
-//
-//                      await Provider.of<TaskService>(context, listen: false)
-//                          .updateCurrentTask(taskId: task.taskId);
-//
-//                      setState(() {
-//                        showSpinner = false;
-//                      });
-//                      Navigator.pushNamed(context, TaskScreen.id);
-//                    },
-//                  ),
-//                );
-//
-//                taskWidgets.add(widget);
-//              }
-//
-//              return Container(
-//                height:
-//                    (MediaQuery.of(context).size.width - 50) * 1.3 / 3.25 + 20,
-//                child: Center(
-//                  child: ListView(
-//                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-//                    scrollDirection: Axis.horizontal,
-//                    children: taskWidgets,
-//                  ),
-//                ),
-//              );
-//            }
-//          },
-//        ),
-//      ];
-//
-//      columnChildren.addAll(widgets);
-//    }
-//    return Column(
-//      mainAxisAlignment: MainAxisAlignment.start,
-//      crossAxisAlignment: CrossAxisAlignment.start,
-//      children: columnChildren,
-//    );
-//  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
     final taskProvider = Provider.of<TaskService>(context);
+    if(debugMode) print('Search screen activated');
 
-    print('Search screen activated');
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
@@ -204,16 +115,27 @@ class _SearchScreenState extends State<SearchScreen>
               barTitle: 'Search',
             ),
             body: SafeArea(
+//              child: LiquidPullToRefresh(
+//                key: _refreshIndicatorKey,
+//                color: Color(kGenchiOrange),
+//                backgroundColor: Colors.white,
+//                showChildOpacityTransition: false,
+//                animSpeedFactor: 2,
+//                height: 50,
+//                onRefresh: () async{
+//                  searchTasksFuture =  firestoreAPI.fetchTasksAndHirers();
+//                  setState(() {});
+//
+//                },
+
               child: RefreshIndicator(
                 color: Color(kGenchiOrange),
                 backgroundColor: Colors.white,
                 onRefresh: () async {
-//                  for (Service service in servicesList) {
-//                    serviceFutures[service.databaseValue] = firestoreAPI
-//                        .fetchTasksAndHirersByService(service: service.databaseValue);
-//                  }
-                  firestoreAPI.fetchTasksAndHirers();
-                  setState(() {});
+                  searchTasksFuture =  firestoreAPI.fetchTasksAndHirers();
+                  setState(() {
+
+                  });
                 },
                 child: ListView(
                   children: <Widget>[

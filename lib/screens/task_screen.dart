@@ -15,6 +15,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/screens/hirer_screen.dart';
+import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
@@ -38,111 +39,113 @@ class _TaskScreenState extends State<TaskScreen> {
   bool showSpinner = false;
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
-  Widget buildVariableSection(
-      {@required bool isUsersTask,
-      @required bool userIsProvider,
-      @required String hirerid,
+  Widget buildHirersTask({
+    @required Task task, bool enableChatView = true}){
+    ///User is looking at their own task
+    return FutureBuilder(
+      future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return CircularProgress();
+        }
+
+        final List<Map<String, dynamic>> applicantsAndProviders =
+            snapshot.data;
+
+        if (applicantsAndProviders.isEmpty) {
+          return Center(
+            child: Text(
+              'No Applicants Yet',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }
+
+        List<Widget> widgets = [
+          Center(
+            child: Text(
+              'Applicants',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Divider(
+            height: 5,
+            thickness: 1,
+          ),
+        ];
+
+        for (Map applicantAndProvider in applicantsAndProviders) {
+          TaskApplicant taskApplicant = applicantAndProvider['applicant'];
+          ProviderUser provider = applicantAndProvider['provider'];
+
+          MessageListItem chatWidget = MessageListItem(
+              image: provider.displayPictureURL == null
+                  ? AssetImage("images/Logo_Clear.png")
+                  : CachedNetworkImageProvider(provider.displayPictureURL),
+              name: provider.name,
+              service: provider.type,
+              type: 'JOB',
+              lastMessage: taskApplicant.lastMessage,
+              time: taskApplicant.time,
+              hasUnreadMessage: taskApplicant.hirerHasUnreadMessage,
+              onTap: enableChatView ? () async {
+                setState(() {
+                  showSpinner = true;
+                });
+
+                User hirer = await firestoreAPI.getUserById(task.hirerId);
+
+                ///Checking that the hirer exists before segue
+                if (hirer != null) {
+                  taskApplicant.hirerHasUnreadMessage = false;
+
+                  ///Update the task application
+                  await firestoreAPI.updateTaskApplicant(
+                      taskApplicant: taskApplicant);
+
+                  setState(() {
+                    showSpinner = false;
+                  });
+
+                  ///Segue to application chat screen with user as hirer
+                  Navigator.pushNamed(context, ApplicationChatScreen.id,
+                      arguments: ApplicationChatScreenArguments(
+                          taskApplicant: taskApplicant,
+                          userIsProvider: false,
+                          provider: provider,
+                          hirer: hirer))
+                      .then((value) {
+                    setState(() {});
+                  });
+                }
+              } : (){},
+
+              //TODO add ability to delete applicant
+              hideChat: () {});
+
+          widgets.add(chatWidget);
+        }
+
+        return Column(
+          children: widgets,
+        );
+      },
+    );
+
+  }
+
+  Widget buildApplicantsTask(
+      {@required bool userIsProvider,
       @required Function applyFunction,
       @required List userpids,
       @required Task task}) {
-    if (isUsersTask) {
-      ///User is looking at their own task
-      return FutureBuilder(
-        future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgress();
-          }
-
-          final List<Map<String, dynamic>> applicantsAndProviders =
-              snapshot.data;
-
-          if (applicantsAndProviders.isEmpty) {
-            return Center(
-              child: Text(
-                'No Applicants Yet',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            );
-          }
-
-          List<Widget> widgets = [
-            Center(
-              child: Text(
-                'Applicants',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Divider(
-              height: 5,
-              thickness: 1,
-            ),
-          ];
-
-          for (Map applicantAndProvider in applicantsAndProviders) {
-            TaskApplicant taskApplicant = applicantAndProvider['applicant'];
-            ProviderUser provider = applicantAndProvider['provider'];
-
-            MessageListItem chatWidget = MessageListItem(
-                image: provider.displayPictureURL == null
-                    ? AssetImage("images/Logo_Clear.png")
-                    : CachedNetworkImageProvider(provider.displayPictureURL),
-                name: provider.name,
-                service: provider.type,
-                type: 'JOB',
-                lastMessage: taskApplicant.lastMessage,
-                time: taskApplicant.time,
-                hasUnreadMessage: taskApplicant.hirerHasUnreadMessage,
-                onTap: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
-
-                  User hirer = await firestoreAPI.getUserById(hirerid);
-
-                  ///Checking that the hirer exists before segue
-                  if (hirer != null) {
-                    taskApplicant.hirerHasUnreadMessage = false;
-
-                    ///Update the task application
-                    await firestoreAPI.updateTaskApplicant(
-                        taskApplicant: taskApplicant);
-
-                    setState(() {
-                      showSpinner = false;
-                    });
-
-                    ///Segue to application chat screen with user as hirer
-                    Navigator.pushNamed(context, ApplicationChatScreen.id,
-                            arguments: ApplicationChatScreenArguments(
-                              taskApplicant: taskApplicant,
-                                userIsProvider: false,
-                                provider: provider,
-                                hirer: hirer))
-                        .then((value) {
-                      setState(() {});
-                    });
-                  }
-                },
-
-                //TODO add ability to delete applicant
-                hideChat: () {});
-
-            widgets.add(chatWidget);
-          }
-
-          return Column(
-            children: widgets,
-          );
-        },
-      );
-    } else if (!userIsProvider) {
+    if (!userIsProvider) {
       ///User cannot apply as they do not have a provider account
       return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +221,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   setState(() {
                     showSpinner = true;
                   });
-                  User hirer = await firestoreAPI.getUserById(hirerid);
+                  User hirer = await firestoreAPI.getUserById(task.hirerId);
 
                   ///Check that the hirer exists before opening chat
                   if (hirer != null) {
@@ -286,6 +289,57 @@ class _TaskScreenState extends State<TaskScreen> {
       );
     }
   }
+
+
+  Widget buildAdminSection({@required BuildContext context, @required Task currentTask}) {
+
+    return Column(
+      children: <Widget>[
+        Divider(
+          thickness: 1,
+        ),
+        Center(
+            child: Text(
+              'Admin Controls',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+            )),
+        RoundedButton(
+          buttonTitle: 'Delete task',
+          buttonColor: Color(kGenchiBlue),
+          elevation: false,
+          onPressed: () async {
+            bool deleteTask = await showYesNoAlert(
+                context: context,
+                title: 'Are you sure you want to delete this job?');
+
+            if (deleteTask) {
+              setState(() {
+                showSpinner = true;
+              });
+
+              TaskService taskService = Provider.of<TaskService>(context,listen: false);
+              AuthenticationService authService =
+              Provider.of<AuthenticationService>(context, listen: false);
+              await firestoreAPI.deleteTask(
+                  task: taskService.currentTask);
+              await authService.updateCurrentUserData();
+              setState(() {
+                showSpinner = false;
+              });
+
+              Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
+                      (Route<dynamic> route) => false,
+                  arguments: HomeScreenArguments(startingIndex: 0));
+            }
+          },
+        ),
+        buildHirersTask(task: currentTask, enableChatView: false),
+      ],
+
+    );
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -450,12 +504,10 @@ class _TaskScreenState extends State<TaskScreen> {
             Divider(
               thickness: 1,
             ),
-            buildVariableSection(
+            isUsersTask ? buildHirersTask(task: currentTask) : buildApplicantsTask(
               task: currentTask,
-              isUsersTask: isUsersTask,
               userIsProvider: userIsProvider,
               userpids: currentUser.providerProfiles,
-              hirerid: currentTask.hirerId,
               applyFunction: () async {
                 if (userIsProvider) {
                   String selectedProviderId = await showModalBottomSheet(
@@ -568,6 +620,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 }
               },
             ),
+            if(currentUser.admin) buildAdminSection(context: context, currentTask: currentTask),
           ],
         ),
       ),

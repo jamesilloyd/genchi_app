@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'dart:io' show Platform;
 
 import 'package:genchi_app/components/app_bar.dart';
@@ -19,6 +20,7 @@ import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
+import 'package:genchi_app/services/linkify_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
@@ -27,6 +29,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TaskScreen extends StatefulWidget {
   static const id = 'task_screen';
@@ -392,7 +395,7 @@ class _TaskScreenState extends State<TaskScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Expanded(
-                  child: Text(
+                  child: SelectableText(
                     currentTask.title,
                     style: TextStyle(
                         fontSize: 26,
@@ -422,8 +425,10 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
               ),
             ),
-            Text(
-              currentTask.details ?? "",
+            Linkify(
+              text: currentTask.details ?? "",
+              onOpen: _onOpenLink,
+              options: LinkifyOptions(humanize: false),
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
             SizedBox(height: 10),
@@ -437,8 +442,10 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
               ),
             ),
-            Text(
-              currentTask.date ?? "",
+            Linkify(
+              text: currentTask.date ?? "",
+              onOpen: _onOpenLink,
+              options: LinkifyOptions(humanize: false),
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
             SizedBox(height: 10),
@@ -452,7 +459,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
               ),
             ),
-            Text(
+            SelectableText(
               currentTask.price ?? "",
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
@@ -467,7 +474,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
               ),
             ),
-            Text(
+            SelectableText(
               getTaskPostedTime(time: currentTask.time),
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
             ),
@@ -626,4 +633,18 @@ class _TaskScreenState extends State<TaskScreen> {
       ),
     );
   }
+
+  Future<void> _onOpenLink(LinkableElement link) async {
+    if (link.runtimeType == EmailElement) {
+      //TODO handle email elements
+    } else {
+      String url = link.url.toLowerCase();
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $link';
+      }
+    }
+  }
+
 }

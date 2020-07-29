@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'provider_screen.dart';
 
@@ -62,7 +64,26 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                 future: getProvidersByService,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return CircularProgress();
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: CircularProgress(),
+                    );
+
+//                    return Column(
+//                      mainAxisAlignment: MainAxisAlignment.start,
+//                      crossAxisAlignment: CrossAxisAlignment.stretch,
+//                      children: <Widget>[
+//                        Shimmer.fromColors(
+//                            period: Duration(seconds: 2),
+//                            baseColor: Color(kGenchiBlue),
+//                            highlightColor: Color(kGenchiOrange),
+//                            child: ProviderCard(
+//                              onTap: (){},
+//                              provider: ProviderUser(name: "Name", displayPictureURL: null, bio: 'Bio', type: 'Type'),
+//                            )
+//                        ),
+//                      ],
+//                    );
                   }
 
                   final List<ProviderUser> providers = snapshot.data;

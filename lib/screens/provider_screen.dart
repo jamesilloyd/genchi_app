@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 
 import 'package:genchi_app/constants.dart';
@@ -9,6 +10,7 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/services/linkify_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'edit_provider_account_screen.dart';
@@ -36,69 +38,6 @@ class ProviderScreen extends StatefulWidget {
 class _ProviderScreenState extends State<ProviderScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool isFavourite = false;
-
-  Widget buildFurtherLinkSection({ProviderUser currentProvider}) {
-    List<Widget> widgets = [];
-
-    if ((currentProvider.url1['link'] != '') ||
-        (currentProvider.url2['link'] != '')) {
-      widgets.addAll([
-        Container(
-          child: Text(
-            "Website Links",
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 25.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        SizedBox(height: 5)
-      ]);
-
-      if (currentProvider.url1['link'] != '') {
-        widgets.addAll([
-          RichText(
-            text: TextSpan(children: [
-              TextSpan(
-                  text: currentProvider.url1['desc'],
-                  style: TextStyle(
-                      color: Colors.blue, fontFamily: 'FuturaPT', fontSize: 16),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launch(currentProvider.url1['link']);
-                    })
-            ]),
-          ),
-          SizedBox(
-            height: 10,
-          )
-        ]);
-      }
-      if (currentProvider.url1['link'] != '') {
-        widgets.addAll([
-          RichText(
-            text: TextSpan(children: [
-              TextSpan(
-                  text: currentProvider.url2['desc'],
-                  style: TextStyle(
-                      color: Colors.blue, fontFamily: 'FuturaPT', fontSize: 16),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launch(currentProvider.url2['link']);
-                    })
-            ]),
-          )
-        ]);
-      }
-    }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets,
-    );
-  }
 
   Widget buildAdminSection({BuildContext context}) {
     return Column(
@@ -291,7 +230,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
-            Text(
+            SelectableText(
               providerUser.type ?? "",
               style: TextStyle(fontSize: 20.0),
             ),
@@ -308,8 +247,10 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
-            Text(
-              providerUser.bio ?? "",
+            Linkify(
+              text: providerUser.bio ?? "",
+              onOpen: _onOpenLink,
+              options: LinkifyOptions(humanize: false, defaultToHttps: true),
               style: TextStyle(
                 fontSize: 16.0,
               ),
@@ -327,40 +268,35 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
-            Text(
-              providerUser.experience ?? "",
+            Linkify(
+              text: providerUser.experience ?? "",
+              onOpen: _onOpenLink,
               style: TextStyle(
                 fontSize: 16.0,
               ),
+              options: LinkifyOptions(humanize: false),
             ),
             SizedBox(
               height: 10,
             ),
-//            Container(
-//              child: Text(
-//                "Pricing",
-//                textAlign: TextAlign.left,
-//                style: TextStyle(
-//                  fontSize: 25.0,
-//                  fontWeight: FontWeight.w500,
-//                ),
-//              ),
-//            ),
-//            Text(
-//              providerUser.pricing,
-//              style: TextStyle(
-//                fontSize: 16.0,
-//              ),
-//            ),
-//            SizedBox(
-//              height: 10,
-//            ),
-            buildFurtherLinkSection(currentProvider: providerUser),
-            if (authProvider.currentUser.admin)
-              buildAdminSection(context: context),
+//            if (authProvider.currentUser.admin)
+//              buildAdminSection(context: context),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _onOpenLink(LinkableElement link) async {
+    if (link.runtimeType == EmailElement) {
+      //TODO handle email elements
+    } else {
+      String url = link.url.toLowerCase();
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $link';
+      }
+    }
   }
 }

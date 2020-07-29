@@ -29,6 +29,7 @@ class BasicAppNavigationBar extends StatelessWidget
       centerTitle: true,
       title: Text(
         barTitle,
+        maxLines: 1,
         style: TextStyle(
           color: Colors.black,
           fontSize: 30,
@@ -136,6 +137,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
             Expanded(
               child: Text(
                 userIsProvider ? hirer.name : provider.name,
+                maxLines: 1,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 30,

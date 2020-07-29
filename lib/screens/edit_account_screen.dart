@@ -38,11 +38,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   TextEditingController subjectController = TextEditingController();
   TextEditingController bioController = TextEditingController();
 
-  TextEditingController urlDesc1TextController = TextEditingController();
-  TextEditingController urlDesc2TextController = TextEditingController();
-
-  TextEditingController url1TextController = TextEditingController();
-  TextEditingController url2TextController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -63,12 +58,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     collegeController.text = user.college;
     subjectController.text = user.subject;
     bioController.text = user.bio;
-
-    url1TextController.text = user.url1['link'];
-    urlDesc1TextController.text = user.url1['desc'];
-
-    url2TextController.text = user.url2['link'];
-    urlDesc2TextController.text = user.url2['desc'];
   }
 
   @override
@@ -79,10 +68,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     collegeController.dispose();
     subjectController.dispose();
     bioController.dispose();
-    url1TextController.dispose();
-    urlDesc1TextController.dispose();
-    url2TextController.dispose();
-    urlDesc2TextController.dispose();
   }
 
   @override
@@ -131,14 +116,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           email: emailController.text,
                           college: collegeController.text,
                           bio: bioController.text,
-                          url1: {
-                            'link': url1TextController.text,
-                            'desc': urlDesc1TextController.text,
-                          },
-                          url2: {
-                            'link': url2TextController.text,
-                            'desc': urlDesc2TextController.text,
-                          },
                           subject: subjectController.text),
                       uid: currentUser.id);
                   await authProvider.updateCurrentUserData();
@@ -304,7 +281,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 onChanged: (value) {
                                   changesMade = true;
                                 },
-                                controller: urlDesc1TextController,
                                 decoration: kTextFieldDecoration.copyWith(
                                     hintText: "URL 1 Description "),
                                 cursorColor: Color(kGenchiOrange),
@@ -325,7 +301,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 onChanged: (value) {
                                   changesMade = true;
                                 },
-                                controller: url1TextController,
                                 decoration: kTextFieldDecoration.copyWith(
                                     hintText: 'URL 1 "https://www..."'),
                                 cursorColor: Color(kGenchiOrange),
@@ -352,7 +327,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 onChanged: (value) {
                                   changesMade = true;
                                 },
-                                controller: urlDesc2TextController,
                                 decoration: kTextFieldDecoration.copyWith(
                                     hintText: "URL 2 Description"),
                                 cursorColor: Color(kGenchiOrange),
@@ -373,7 +347,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 onChanged: (value) {
                                   changesMade = true;
                                 },
-                                controller: url2TextController,
                                 decoration: kTextFieldDecoration.copyWith(
                                     hintText: 'URL 2 "https://www..."'),
                                 cursorColor: Color(kGenchiOrange),
@@ -403,14 +376,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 email: emailController.text,
                                 college: collegeController.text,
                                 bio: bioController.text,
-                                url1: {
-                                  'link': url1TextController.text,
-                                  'desc': urlDesc1TextController.text,
-                                },
-                                url2: {
-                                  'link': url2TextController.text,
-                                  'desc': urlDesc2TextController.text,
-                                },
                                 subject: subjectController.text),
                             uid: currentUser.id);
                         await authProvider.updateCurrentUserData();

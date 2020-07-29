@@ -52,7 +52,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
     return chatsAndProviders;
   }
 
-  String filter = 'All';
+  String filter = 'ALL';
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +76,11 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
           child: ListView(
             padding: const EdgeInsets.all(15.0),
             children: <Widget>[
-              if(userIsProvider) Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              if(userIsProvider) Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   SizedBox(
                       height: 50,
-                      width: 100,
                       child: PopupMenuButton(
                         elevation: 1,
                           child: Row(
@@ -99,13 +98,13 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                               ]),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
                                 const PopupMenuItem<String>(
-                                    child: const Text('All'), value: 'All'),
+                                    child: const Text('ALL'), value: 'ALL'),
                                 const PopupMenuItem<String>(
-                                    child: const Text('Hiring'),
-                                    value: 'Hiring'),
+                                    child: const Text('HIRING'),
+                                    value: 'HIRING'),
                                 const PopupMenuItem<String>(
-                                    child: const Text('Providing'),
-                                    value: 'Providing'),
+                                    child: const Text('PROVIDING'),
+                                    value: 'PROVIDING'),
                               ],
                           onSelected: (value) {
                             setState(() {
@@ -163,7 +162,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                             chatHirerAndProvider['userIsProvider'];
 
                         if (userChatIsProvider &&
-                            (filter == 'All' || filter == 'Providing')) {
+                            (filter == 'ALL' || filter == 'PROVIDING')) {
                           ///Users providing messages
                           MessageListItem chatWidget = MessageListItem(
                             image: hirer.displayPictureURL == null
@@ -208,7 +207,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                           if (!chat.isHiddenFromProvider)
                             chatWidgets.add(chatWidget);
                         } else if (!userChatIsProvider &&
-                            (filter == 'All' || filter == 'Hiring')) {
+                            (filter == 'ALL' || filter == 'HIRING')) {
                           ///Users hiring messages
                           MessageListItem chatWidget = MessageListItem(
                             image: provider.displayPictureURL == null

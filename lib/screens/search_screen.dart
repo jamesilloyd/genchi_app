@@ -115,6 +115,8 @@ class _SearchScreenState extends State<SearchScreen>
               barTitle: 'Search',
             ),
             body: SafeArea(
+
+              //TODO: this would be far cooler but it glitches a lot
 //              child: LiquidPullToRefresh(
 //                key: _refreshIndicatorKey,
 //                color: Color(kGenchiOrange),

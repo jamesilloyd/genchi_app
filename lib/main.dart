@@ -85,8 +85,11 @@ class StartUp extends StatelessWidget {
             theme: ThemeData(
               fontFamily: 'FuturaPT',
               canvasColor: Colors.white,
+              cursorColor: Color(kGenchiOrange),
               scaffoldBackgroundColor: Colors.white,
+              primaryColor: Color(kGenchiOrange),
               indicatorColor: Color(kGenchiOrange),
+              textSelectionHandleColor: Color(kGenchiOrange)
             ),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {

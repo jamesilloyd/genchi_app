@@ -45,12 +45,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   TextEditingController priceTextController = TextEditingController();
   TextEditingController serviceTextController = TextEditingController();
 
-  TextEditingController urlDesc1TextController = TextEditingController();
-  TextEditingController urlDesc2TextController = TextEditingController();
-
-  TextEditingController url1TextController = TextEditingController();
-  TextEditingController url2TextController = TextEditingController();
-
   //TODO is the following necessary? or can textControllers handle this?
   String name;
   String bio;
@@ -83,12 +77,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     experienceTextController.text = provider.experience;
     priceTextController.text = provider.pricing;
     serviceTextController.text = provider.type;
-
-    url1TextController.text = provider.url1['link'];
-    urlDesc1TextController.text = provider.url1['desc'];
-
-    url2TextController.text = provider.url2['link'];
-    urlDesc2TextController.text = provider.url2['desc'];
   }
 
   @override
@@ -99,10 +87,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     experienceTextController.dispose();
     priceTextController.dispose();
     serviceTextController.dispose();
-    url1TextController.dispose();
-    urlDesc1TextController.dispose();
-    url2TextController.dispose();
-    urlDesc2TextController.dispose();
   }
 
   @override
@@ -151,14 +135,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   await firestoreAPI.updateProvider(
                       provider: ProviderUser(
                           name: name,
-                          url1: {
-                        'link': url1TextController.text,
-                        'desc': urlDesc1TextController.text,
-                      },
-                          url2: {
-                            'link': url2TextController.text,
-                            'desc': urlDesc2TextController.text,
-                          },
                           type: serviceTextController.text,
                           bio: bio,
                           experience: experience,
@@ -311,126 +287,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     changesMade = true;
                   },
                 ),
-//                EditAccountField(
-//                  field: "Price",
-//                  onChanged: (value) {
-//                    changesMade = true;
-//                    pricing = value;
-//                  },
-//                  textController: priceTextController,
-//                  hintText: "E.g. for experience, £10 per job etc.",
-//                ),
-
-                //TODO COME BACK TO THIS, ADDED TEMPORARY SOLUTION FOR DEMO
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      height: 30.0,
-                    ),
-                    Text(
-                      "Website Links",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(kGenchiBlue),
-                      ),
-                    ),
-                    SizedBox(height: 5.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextField(
-                            textCapitalization: TextCapitalization.sentences,
-                            maxLines: null,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.left,
-                            onChanged: (value) {
-                              changesMade = true;
-                            },
-                            controller: urlDesc1TextController,
-                            decoration: kTextFieldDecoration.copyWith(
-                                hintText: "URL 1 Description "),
-                            cursorColor: Color(kGenchiOrange),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            textCapitalization: TextCapitalization.none,
-                            maxLines: null,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.left,
-                            onChanged: (value) {
-                              changesMade = true;
-                            },
-                            controller: url1TextController,
-                            decoration: kTextFieldDecoration.copyWith(
-                                hintText: 'URL 1 "https://www..."'),
-                            cursorColor: Color(kGenchiOrange),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextField(
-                            textCapitalization: TextCapitalization.sentences,
-                            maxLines: null,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.left,
-                            onChanged: (value) {
-                              changesMade = true;
-                            },
-                            controller: urlDesc2TextController,
-                            decoration: kTextFieldDecoration.copyWith(
-                                hintText: "URL 2 Description"),
-                            cursorColor: Color(kGenchiOrange),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            textCapitalization: TextCapitalization.none,
-                            maxLines: null,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.left,
-                            onChanged: (value) {
-                              changesMade = true;
-                            },
-                            controller: url2TextController,
-                            decoration: kTextFieldDecoration.copyWith(
-                                hintText: 'URL 2 "https://www..."'),
-                            cursorColor: Color(kGenchiOrange),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
                 //TODO Implement the following fields
                 EditAccountField(
                   hintText: 'Coming soon',
@@ -464,14 +320,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     await firestoreAPI.updateProvider(
                         provider: ProviderUser(
                             name: name,
-                            url1: {
-                              'link': url1TextController.text,
-                              'desc': urlDesc1TextController.text,
-                            },
-                            url2: {
-                              'link': url2TextController.text,
-                              'desc': urlDesc2TextController.text,
-                            },
                             type: serviceTextController.text,
                             bio: bio,
                             experience: experience,

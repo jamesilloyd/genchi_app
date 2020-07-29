@@ -42,7 +42,7 @@ class MessageBubble extends StatelessWidget {
                     color: isMe ? Color(kGenchiGreen) : Colors.grey,
                     child: Stack(
                       children: <Widget>[
-                        Text(
+                        SelectableText(
                           text,
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -50,6 +50,7 @@ class MessageBubble extends StatelessWidget {
                             color: Color(kGenchiCream),
                           ),
                         ),
+
                       ],
                     ),
                   ),

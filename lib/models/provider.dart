@@ -43,7 +43,7 @@ class ProviderUser extends ChangeNotifier {
         experience = snapshot['experience'] ?? '',
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         tasksApplied = snapshot['tasksApplied'] ?? [],
-        type = snapshot['type'] ?? '';
+        type = snapshot['type'] ?? 'Other';
 
   toJson() {
     return {

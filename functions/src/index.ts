@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+// import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 // import { user } from 'firebase-functions/lib/providers/auth';
 
@@ -11,6 +12,68 @@ const fcm = admin.messaging();
 
  // Start writing Firebase Functions
  // https://firebase.google.com/docs/functions/typescript
+
+
+export const sendNewJobNotification = functions.firestore.document('tasks/{taskId}')
+.onCreate(async (snapshot, context) => {
+
+    const taskData = snapshot.data();
+
+    const users = await db.collection('users').get();
+    const usersData = users.docs;
+
+    let allTokens: Array<string> = [];
+    let taskTitle;
+    let taskDesc;
+
+    ///We need to grab all the tokens from the 'users' database 
+
+    if(taskData && usersData) {
+        for(const item of usersData){
+            const deviceTokens: Array<string> = item.data()['fcmTokens'];
+            
+            if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
+                for(const token of deviceTokens) {
+                    if(token !== "") {
+                        allTokens.push(token);
+                    }
+                }
+                
+            }
+        }
+
+        //Now need to find taskTitle and taskDesc
+        taskTitle = taskData['title'];
+        taskDesc = taskData['details'];
+
+        console.log(taskTitle);
+        console.log(taskDesc);
+        console.log('DEVICE TOKENS',allTokens);
+
+        const payload : admin.messaging.MessagingPayload = {
+
+            notification : {
+                title : 'New Job: ' + taskTitle,
+                body : taskDesc,
+                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                badge : '1'
+            },
+        };
+    
+        if(allTokens !== null) {
+            return fcm.sendToDevice(allTokens,payload).then((response) => {
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+            console.log('Error sending message:', error);
+            });
+        } else {
+            return 0;
+        }
+
+    }
+
+})
 
 export const sendToDevice = functions.firestore.document('test/{testId}').onCreate(async snapshot => {
 
@@ -39,7 +102,7 @@ export const sendToDevice = functions.firestore.document('test/{testId}').onCrea
       console.log('Error sending message:', error);
     });
     
-});
+})
 
 
 export const sendPrivateMessageNotification = functions.firestore.document('chats/{chatId}/messages/{messageId}')
@@ -50,8 +113,8 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
         const chat = await db.collection('chats').doc(context.params.chatId).get();
         const chatData = chat.data();
 
-        var tokens;
-        var senderName;
+        let tokens;
+        let senderName;
 
         if (chatData) {
 
@@ -120,9 +183,9 @@ export const sendApplicationMessageNotification = functions.firestore.document('
     const task = await db.collection('tasks').doc(context.params.taskId).get();
     const taskData = task.data();
 
-    var tokens;
-    var senderName;
-    var taskTitle;
+    let tokens;
+    let senderName;
+    let taskTitle;
 
     ///How are we going to get tokens, senderName and taskTitle?
 

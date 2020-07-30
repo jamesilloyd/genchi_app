@@ -281,7 +281,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 EditAccountField(
                   field: 'Experience',
                   textController: experienceTextController,
-                  hintText: 'E.g. how you developed your skills',
+                  hintText: 'How you developed your skills, any urls etc.',
                   onChanged: (value) {
                     experience = value;
                     changesMade = true;

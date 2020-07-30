@@ -195,7 +195,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Details",
                   textController: detailsController,
-                  hintText: 'Provide further details of the job',
+                  hintText: 'Provide further details of the job, urls etc.',
                   onChanged: (value) {
                     details = value;
                     changesMade = true;

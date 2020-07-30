@@ -213,11 +213,14 @@ class _SearchScreenState extends State<SearchScreen>
                                   child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: <Widget>[
-                                        Text(filter.toUpperCase()),
+                                        Text(filter.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 18
+                                        ),),
                                         SizedBox(width: 5),
                                         Icon(
                                           Icons.filter_list,
-                                          color: Color(kGenchiBlue),
+                                          color: Colors.black,
                                         ),
                                         SizedBox(
                                           width: 5,

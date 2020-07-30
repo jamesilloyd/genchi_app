@@ -148,7 +148,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         changesMade = true;
                       },
                       textController: detailsController,
-                      hintText: 'Provide further details of the job',
+                      hintText: 'Provide further details of the job, urls etc.',
 
                     ),
                     EditAccountField(

@@ -279,8 +279,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
             SizedBox(
               height: 10,
             ),
-//            if (authProvider.currentUser.admin)
-//              buildAdminSection(context: context),
+            if (authProvider.currentUser.admin)
+              buildAdminSection(context: context),
           ],
         ),
       ),

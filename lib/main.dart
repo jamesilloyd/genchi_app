@@ -37,7 +37,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:provider/provider.dart';
 
-import 'dart:async';
 //TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 void main() {
   Crashlytics.instance.enableInDevMode = true;
@@ -70,6 +69,7 @@ class Genchi extends StatelessWidget {
 
 class StartUp extends StatelessWidget {
   FirebaseAnalytics analytics = FirebaseAnalytics();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

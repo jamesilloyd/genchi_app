@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
-
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   final TextEditingController messageTextController = TextEditingController();
 
   String messageText;
@@ -144,6 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (debugMode)
                                 print(
                                     'Chat screen: message text is not null and this is the first instance so creating new chat ');
+                              analytics.logEvent(name: 'new_private_chat_created');
                               setState(() {
                                 messageTextController.clear();
                                 showSpinner = true;
@@ -184,6 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 print(
                                     'Chat screen: Message text is not null and this is NOT the first instance');
 //                                      messageText = messageTextController.text;
+                              analytics.logEvent(name: 'private_chat_message_sent');
                               setState(() => messageTextController.clear());
                               await firestoreAPI.addMessageToChat(
                                   chatId: thisChat.chatid,

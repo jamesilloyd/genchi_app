@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +28,8 @@ class PostTaskScreen extends StatefulWidget {
 }
 
 class _PostTaskScreenState extends State<PostTaskScreen> {
+  
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   bool changesMade = false;
   bool showSpinner = false;
   String title;
@@ -118,7 +121,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           child: Container(
                             color: Color(kGenchiCream),
                             child: DropdownButton<String>(
-                              //TODO: need to check the value is in the array first
                               value: initialDropDownValue(currentType: serviceController.text),
                               items: dropDownServiceItems(),
                               onChanged: (value) {
@@ -176,6 +178,9 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           setState(() {
                             showSpinner = true;
                           });
+
+                          await analytics.logEvent(name: 'job_created');
+                          
                           await firestoreAPI.addTask(
                               task: Task(
                                   title: title,

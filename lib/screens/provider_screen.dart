@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,16 @@ class ProviderScreen extends StatefulWidget {
 
 class _ProviderScreenState extends State<ProviderScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   bool isFavourite = false;
 
-  Widget buildAdminSection({BuildContext context}) {
+
+  Widget buildAdminSection({@required BuildContext context}) {
+    ProviderService providerService =
+    Provider.of<ProviderService>(context, listen: false);
+    AuthenticationService authService =
+    Provider.of<AuthenticationService>(context, listen: false);
+
     return Column(
       children: <Widget>[
         Divider(
@@ -51,23 +59,23 @@ class _ProviderScreenState extends State<ProviderScreen> {
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
           ),
         ),
+        Center(
+          child: Text(
+            'pid: ${providerService.currentProvider.pid}'
+          ),
+        ),
         RoundedButton(
           buttonTitle: "Delete provider account",
           buttonColor: Color(kGenchiBlue),
           elevation: false,
           onPressed: () async {
-            ProviderService providerService =
-                Provider.of<ProviderService>(context, listen: false);
-            AuthenticationService authService =
-                Provider.of<AuthenticationService>(context, listen: false);
-
             ///Get most up to data provider
             ProviderUser providerUser = providerService.currentProvider;
-
             bool delete = await showYesNoAlert(
                 context: context, title: 'Delete this provider account?');
 
             if (delete) {
+              await FirebaseAnalytics().logEvent(name: 'provider_account_deleted');
               await firestoreAPI.deleteProvider(provider: providerUser);
               await authService.updateCurrentUserData();
 
@@ -124,6 +132,8 @@ class _ProviderScreenState extends State<ProviderScreen> {
             SizedBox(
               height: 10,
             ),
+
+            //TODO: change this, its very messy
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -136,9 +146,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                     buttonTitle: isUsersProviderProfile
                         ? 'Edit Provider Profile'
                         : 'Message',
-                    fontColor: isUsersProviderProfile
-                        ? Colors.white
-                        : Color(kGenchiBlue),
+                    fontColor: Colors.white,
                     onPressed: isUsersProviderProfile
                         ? () {
                             Navigator.pushNamed(
@@ -146,12 +154,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                           }
                         : () async {
                             List userChats = authProvider.currentUser.chats;
-                            if (kDebugMode)
-                              print('Provider Screen: User Chats = $userChats');
                             List providerChats = providerUser.chats;
-                            if (kDebugMode)
-                              print(
-                                  'Provider Screen: Provider Chats = $providerChats');
                             List allChats = [userChats, providerChats];
 
                             final commonChatIds = allChats.fold<Set>(
@@ -198,18 +201,23 @@ class _ProviderScreenState extends State<ProviderScreen> {
                       buttonColor: isFavourite
                           ? Color(kGenchiGreen)
                           : Color(kGenchiBlue),
-                      fontColor: Color(kGenchiCream),
+                      fontColor: Colors.white,
                       buttonTitle: isFavourite
                           ? 'Added to Favourites'
                           : 'Add to Favourites',
                       onPressed: () async {
-                        isFavourite
-                            ? firestoreAPI.removeUserFavourite(
-                                uid: authProvider.currentUser.id,
-                                favouritePid: providerUser.pid)
-                            : firestoreAPI.addUserFavourite(
-                                uid: authProvider.currentUser.id,
-                                favouritePid: providerUser.pid);
+                        if(isFavourite) {
+                          await analytics.logEvent(name: 'unfavourited_provider',parameters: {'provider': providerUser.pid, 'hirer':authProvider.currentUser.id});
+                          await firestoreAPI.removeUserFavourite(
+                              uid: authProvider.currentUser.id,
+                              favouritePid: providerUser.pid);
+                        } else {
+                          await analytics.logEvent(name: 'favourited_provider',parameters: {'provider': providerUser.pid, 'hirer':authProvider.currentUser.id});
+                          await firestoreAPI.addUserFavourite(
+                              uid: authProvider.currentUser.id,
+                              favouritePid: providerUser.pid);
+                        }
+
                         await authProvider.updateCurrentUserData();
                         setState(() {});
                       },
@@ -247,7 +255,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
-            Linkify(
+            SelectableLinkify(
               text: providerUser.bio ?? "",
               onOpen: _onOpenLink,
               options: LinkifyOptions(humanize: false, defaultToHttps: true),
@@ -268,7 +276,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
                 ),
               ),
             ),
-            Linkify(
+            SelectableLinkify(
               text: providerUser.experience ?? "",
               onOpen: _onOpenLink,
               style: TextStyle(

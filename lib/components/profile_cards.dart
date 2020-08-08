@@ -44,11 +44,21 @@ class ProviderCard extends StatelessWidget {
                         ),
                       )
                 ///Show provider image
-                    : CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(provider.displayPictureURL),
-                        radius: 30,
-                        backgroundColor: Color(kGenchiCream),
-                      ),
+                    : Container(
+                  height: 60,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(kGenchiCream),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: Image(
+                    image: CachedNetworkImageProvider(provider.displayPictureURL),
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                  ),
+                ),
+
                 subtitle: Container(
                   child: Text(
                     provider.bio,
@@ -205,12 +215,20 @@ Widget HirerCard({@required User hirer, @required Function onTap}) {
                     ),
                   ),
                 )
-              : CircleAvatar(
-                  backgroundImage:
-                      CachedNetworkImageProvider(hirer.displayPictureURL),
-                  radius: 30,
-                  backgroundColor: Color(kGenchiCream),
-                ),
+              : Container(
+            height: 60,
+            width: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(kGenchiCream),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Image(
+              image: CachedNetworkImageProvider(hirer.displayPictureURL),
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            ),
+          ),
           subtitle: Container(
             child: Text(
               "${hirer.college} - ${hirer.subject}",

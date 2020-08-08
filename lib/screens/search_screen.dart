@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
@@ -40,13 +41,14 @@ class _SearchScreenState extends State<SearchScreen>
   List<ProviderUser> providers;
 
   TextEditingController searchTextController = TextEditingController();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   Future searchTasksFuture;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
-  GlobalKey<LiquidPullToRefreshState>();
+      GlobalKey<LiquidPullToRefreshState>();
 
   bool showSpinner = false;
   String filter = 'ALL';
@@ -65,12 +67,8 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
-//    for (Job job in jobsList) {
-////      serviceFutures[service['name']] =
-////          firestoreAPI.fetchTasksAndHirersByService(service: service['name']);
-//    }
+    analytics.setCurrentScreen(screenName: 'home/search_screen');
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-
   }
 
   List<Widget> buildServiceTiles() {
@@ -80,9 +78,12 @@ class _SearchScreenState extends State<SearchScreen>
       Widget tile = Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: SearchServiceTile(
-
           onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SearchProviderScreen(service: service)));
+            //TODO need to take spaces out of value
+            analytics.logEvent(
+                name: 'search_button_clicked_for_${service.databaseValue}');
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => SearchProviderScreen(service: service)));
 //            Navigator.pushNamed(context, SearchProviderScreen.id,
 //                arguments: SearchProviderScreenArguments(service: service));
           },
@@ -100,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final taskProvider = Provider.of<TaskService>(context);
-    if(debugMode) print('Search screen activated');
+    if (debugMode) print('Search screen activated');
 
     return GestureDetector(
       onTap: () {
@@ -115,30 +116,26 @@ class _SearchScreenState extends State<SearchScreen>
               barTitle: 'Search',
             ),
             body: SafeArea(
-
               //TODO: this would be far cooler but it glitches a lot
-//              child: LiquidPullToRefresh(
-//                key: _refreshIndicatorKey,
-//                color: Color(kGenchiOrange),
-//                backgroundColor: Colors.white,
-//                showChildOpacityTransition: false,
-//                animSpeedFactor: 2,
-//                height: 50,
-//                onRefresh: () async{
-//                  searchTasksFuture =  firestoreAPI.fetchTasksAndHirers();
-//                  setState(() {});
-//
-//                },
-
-              child: RefreshIndicator(
+              child: LiquidPullToRefresh(
+                key: _refreshIndicatorKey,
                 color: Color(kGenchiOrange),
                 backgroundColor: Colors.white,
+                showChildOpacityTransition: false,
+                borderWidth: 0.75,
+                animSpeedFactor: 2,
+                height: 40,
                 onRefresh: () async {
-                  searchTasksFuture =  firestoreAPI.fetchTasksAndHirers();
-                  setState(() {
-
-                  });
+                  searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+                  setState(() {});
                 },
+//              child: RefreshIndicator(
+//                color: Color(kGenchiOrange),
+//                backgroundColor: Colors.white,
+//                onRefresh: () async {
+//                  searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+//                  setState(() {});
+//                },
                 child: ListView(
                   children: <Widget>[
                     SizedBox(height: 20),
@@ -213,15 +210,17 @@ class _SearchScreenState extends State<SearchScreen>
                                   child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: <Widget>[
-                                        Text(filter.toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 18
-                                        ),),
-                                        SizedBox(width: 5),
-                                        Icon(
-                                          Icons.filter_list,
-                                          color: Colors.black,
+                                        Text(
+                                          filter.toUpperCase(),
+                                          style: TextStyle(fontSize: 20),
                                         ),
+                                        SizedBox(width: 5),
+                                        ImageIcon(
+                                          AssetImage('images/filter.png'),
+                                          color: Colors.black,
+                                          size: 30,
+                                        ),
+
                                         SizedBox(
                                           width: 5,
                                         )
@@ -289,10 +288,10 @@ class _SearchScreenState extends State<SearchScreen>
                               ),
                             );
                           }
-                          final List<Map<String, dynamic>> tasksAndHirers = snapshot.data;
+                          final List<Map<String, dynamic>> tasksAndHirers =
+                              snapshot.data;
 
-                          final List<Widget> widgets = [
-                          ];
+                          final List<Widget> widgets = [];
 
                           for (Map taskAndHirer in tasksAndHirers) {
                             Task task = taskAndHirer['task'];
@@ -324,7 +323,7 @@ class _SearchScreenState extends State<SearchScreen>
                             }
                           }
 
-                          if(widgets.isEmpty) {
+                          if (widgets.isEmpty) {
                             return Container(
                               height: 40,
                               child: Center(

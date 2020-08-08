@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -18,7 +19,6 @@ import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class EditAccountScreen extends StatefulWidget {
   static const id = "edit_account_screen";
@@ -30,6 +30,7 @@ class EditAccountScreen extends StatefulWidget {
 class _EditAccountScreenState extends State<EditAccountScreen> {
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   bool showSpinner = false;
 
   TextEditingController nameController = TextEditingController();
@@ -106,9 +107,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () async {
+
+
                   setState(() {
                     showSpinner = true;
                   });
+
+                  await analytics.logEvent(name: 'hirer_top_save_changes_button_pressed');
 
                   await fireStoreAPI.updateUser(
                       user: User(
@@ -118,6 +123,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           bio: bioController.text,
                           subject: subjectController.text),
                       uid: currentUser.id);
+                  await authProvider.updateCurrentUserName(name: nameController.text);
                   await authProvider.updateCurrentUserData();
 
                   setState(() {
@@ -249,113 +255,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       textController: bioController,
                       hintText: 'Interests, Activities, Societies, etc.',
                     ),
-                    //TODO COME BACK TO THIS, ADDED TEMPORARY SOLUTION FOR DEMO
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          height: 30.0,
-                        ),
-                        Text(
-                          "Website Links",
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                            color: Color(kGenchiBlue),
-                          ),
-                        ),
-                        SizedBox(height: 5.0),
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: TextField(
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                maxLines: null,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.left,
-                                onChanged: (value) {
-                                  changesMade = true;
-                                },
-                                decoration: kTextFieldDecoration.copyWith(
-                                    hintText: "URL 1 Description "),
-                                cursorColor: Color(kGenchiOrange),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: TextField(
-                                textCapitalization: TextCapitalization.none,
-                                maxLines: null,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.left,
-                                onChanged: (value) {
-                                  changesMade = true;
-                                },
-                                decoration: kTextFieldDecoration.copyWith(
-                                    hintText: 'URL 1 "https://www..."'),
-                                cursorColor: Color(kGenchiOrange),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: TextField(
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                maxLines: null,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.left,
-                                onChanged: (value) {
-                                  changesMade = true;
-                                },
-                                decoration: kTextFieldDecoration.copyWith(
-                                    hintText: "URL 2 Description"),
-                                cursorColor: Color(kGenchiOrange),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: TextField(
-                                textCapitalization: TextCapitalization.none,
-                                maxLines: null,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.left,
-                                onChanged: (value) {
-                                  changesMade = true;
-                                },
-                                decoration: kTextFieldDecoration.copyWith(
-                                    hintText: 'URL 2 "https://www..."'),
-                                cursorColor: Color(kGenchiOrange),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
                     SizedBox(
                       height: 20.0,
                     ),
@@ -365,10 +264,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     RoundedButton(
                       buttonTitle: 'Save changes',
                       buttonColor: Color(kGenchiGreen),
-                      onPressed: ()async {
+                      onPressed: () async {
+
                         setState(() {
                           showSpinner = true;
                         });
+
+                        await analytics.logEvent(name: 'hirer_bottom_save_changes_button_pressed');
 
                         await fireStoreAPI.updateUser(
                             user: User(
@@ -378,6 +280,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 bio: bioController.text,
                                 subject: subjectController.text),
                             uid: currentUser.id);
+
+                        await authProvider.updateCurrentUserName(name: nameController.text);
                         await authProvider.updateCurrentUserData();
 
                         setState(() {

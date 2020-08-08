@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -27,8 +28,8 @@ class HomeScreen extends StatefulWidget {
 PageController pageController;
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _page;
 
+  int _page;
   //TODO: MUST DO THIS look into why the screens are being called (leading to extra firestore reads)
 
   void onPageChanged(int page) {
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
 
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {

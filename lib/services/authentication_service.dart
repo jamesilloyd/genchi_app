@@ -47,19 +47,31 @@ class AuthenticationService extends ChangeNotifier {
     await _populateCurrentUser(user);
   }
 
+  Future updateCurrentUserName({@required String name}) async {
+    var user = await _firebaseAuth.currentUser();
+
+    UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+    userUpdateInfo.displayName = name;
+    await user.updateProfile(userUpdateInfo);
+  }
+
   Future registerWithEmail(
       {@required String email,
       @required String password,
       @required String name}) async {
     try {
-      final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
+      AuthResult authResult = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+
 
       if (authResult != null) {
         print("register successful");
+        UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+        userUpdateInfo.displayName = name;
         FirebaseUser user = await _firebaseAuth.currentUser();
-
-        //create new user in firestore
+        ///add the users name in firebase auth
+        await user.updateProfile(userUpdateInfo);
+        ///create new user in firestore database
         final DateTime timestamp = DateTime.now();
         await _firestoreCRUDModel.addUserByID(
             User(id: user.uid, email: email, name: name, timeStamp: timestamp, admin: false));

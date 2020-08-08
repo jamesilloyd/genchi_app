@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,8 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   final TextEditingController messageTextController = TextEditingController();
+
+  FirebaseAnalytics analytics = FirebaseAnalytics();
 
   String messageText;
 
@@ -148,6 +151,8 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                               print(
                                   'Chat screen: Message text is not null and this is NOT the first instance');
                             setState(() => messageTextController.clear());
+
+                            analytics.logEvent(name: 'application_message_sent');
 
                             await firestoreAPI.addMessageToTaskApplicant(
                                 applicantId: thisTaskApplicant.applicationId,

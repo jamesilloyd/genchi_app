@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
@@ -44,7 +45,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool uploadStarted = false;
-  PickedFile _imageFile;
+  File _imageFile;
   bool noChangesMade = true;
 
   Future<void> _pickImage(ImageSource source) async {
@@ -58,11 +59,11 @@ class _AddImageScreenState extends State<AddImageScreen> {
         noChangesMade = false;
         uploadStarted = false;
       }
-      _imageFile = selected;
+      _imageFile = File(selected.path);
     });
   }
 
-  //Remove image
+  ///Remove image
   void _clear() {
     setState(() {
       noChangesMade = true;
@@ -70,7 +71,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
     });
   }
 
-  //Croper plugin
+  ///Croper plugin
   Future<void> _cropImage() async {
 
     setState(() {
@@ -127,7 +128,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: Row(
@@ -156,7 +157,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height * 0.75 - 130,
+              height: MediaQuery.of(context).size.height * 0.75 - 160,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
@@ -168,14 +169,14 @@ class _AddImageScreenState extends State<AddImageScreen> {
                         )
                       : CircleAvatar(
 
-                          backgroundImage: FileImage(File(_imageFile.path)),
+                          backgroundImage: FileImage(_imageFile),
                           radius:
                               (MediaQuery.of(context).size.height * 0.75 - 130) *
                                   0.35,
                           backgroundColor: Color(kGenchiCream),
                         ),
                   _imageFile == null ? SizedBox(height: 30): SizedBox(
-                    height: 30,
+                    height: 25,
                     child:  Center(
                       child: IconButton(
                         color: _iconColor,
@@ -189,10 +190,10 @@ class _AddImageScreenState extends State<AddImageScreen> {
               ),
             ),
             SizedBox(
-              height: 40,
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
                     width: (MediaQuery.of(context).size.width - 40) / 3,
@@ -250,7 +251,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                       : SizedBox(
                           width: (MediaQuery.of(context).size.width - 40) / 3,
                           child: uploadStarted
-                              ? Uploader(file: File(_imageFile.path), isUser: widget.isUser,)
+                              ? Uploader(file: _imageFile, isUser: widget.isUser,)
                               : IconButton(
                                   iconSize: 25,
                                   color: _iconColor,
@@ -329,6 +330,9 @@ class _UploaderState extends State<Uploader> {
       }
       print('Deleting old file');
       if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();
+
+      await FirebaseAnalytics().logEvent(name: 'added_photo');
+
       return true;
     } catch (e) {
       print(e);

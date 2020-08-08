@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
@@ -27,8 +28,15 @@ class TaskSummaryScreen extends StatefulWidget {
 
 class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    analytics.setCurrentScreen(screenName: 'home/task_summary_screen');
+  }
 
   @override
   Widget build(BuildContext context) {

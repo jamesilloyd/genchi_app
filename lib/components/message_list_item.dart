@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:intl/intl.dart';
 
+
 class MessageListItem extends StatelessWidget {
   final ImageProvider image;
   final String name;
@@ -20,15 +21,15 @@ class MessageListItem extends StatelessWidget {
 
   const MessageListItem(
       {Key key,
-      this.image,
+      @required this.image,
       @required this.hideChat,
-      this.name,
-      this.lastMessage,
-      this.time,
-      this.hasUnreadMessage,
+      @required this.name,
+      @required this.lastMessage,
+      @required this.time,
+      @required this.hasUnreadMessage,
       @required this.onTap,
       @required this.type,
-      this.service,
+      @required this.service,
       this.deleteMessage = 'Archive'})
       : super(key: key);
 
@@ -42,9 +43,8 @@ class MessageListItem extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                flex: 10,
                 child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 15),
                   title: Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
@@ -83,11 +83,22 @@ class MessageListItem extends StatelessWidget {
                             ),
                           ),
                         )
-                      : CircleAvatar(
-                          backgroundImage: image,
-                          radius: 30,
-                          backgroundColor: Color(kGenchiCream),
-                        ),
+                      :
+                  Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(kGenchiCream),
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: Image(
+                      image: image,
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    ),
+                  ),
+
                   trailing: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -138,9 +149,12 @@ class MessageListItem extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-            height: 0,
-            thickness: 1,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Divider(
+              height: 0,
+              thickness: 1,
+            ),
           ),
         ],
       ),

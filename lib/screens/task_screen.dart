@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -14,13 +15,16 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/screens/hirer_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
 import 'package:genchi_app/services/linkify_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
@@ -41,9 +45,9 @@ class TaskScreen extends StatefulWidget {
 class _TaskScreenState extends State<TaskScreen> {
   bool showSpinner = false;
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  Widget buildHirersTask({
-    @required Task task, bool enableChatView = true}){
+  Widget buildHirersTask({@required Task task, bool enableChatView = true}) {
     ///User is looking at their own task
     return FutureBuilder(
       future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
@@ -52,8 +56,7 @@ class _TaskScreenState extends State<TaskScreen> {
           return CircularProgress();
         }
 
-        final List<Map<String, dynamic>> applicantsAndProviders =
-            snapshot.data;
+        final List<Map<String, dynamic>> applicantsAndProviders = snapshot.data;
 
         if (applicantsAndProviders.isEmpty) {
           return Center(
@@ -77,9 +80,12 @@ class _TaskScreenState extends State<TaskScreen> {
               ),
             ),
           ),
+          SizedBox(height: 5,),
           Divider(
-            height: 5,
+            height: 0,
             thickness: 1,
+            indent: 15,
+            endIndent: 15,
           ),
         ];
 
@@ -89,7 +95,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
           MessageListItem chatWidget = MessageListItem(
               image: provider.displayPictureURL == null
-                  ? AssetImage("images/Logo_Clear.png")
+                  ? null
                   : CachedNetworkImageProvider(provider.displayPictureURL),
               name: provider.name,
               service: provider.type,
@@ -97,7 +103,8 @@ class _TaskScreenState extends State<TaskScreen> {
               lastMessage: taskApplicant.lastMessage,
               time: taskApplicant.time,
               hasUnreadMessage: taskApplicant.hirerHasUnreadMessage,
-              onTap: enableChatView ? () async {
+              onTap: enableChatView
+                  ? () async {
                 setState(() {
                   showSpinner = true;
                 });
@@ -127,7 +134,8 @@ class _TaskScreenState extends State<TaskScreen> {
                     setState(() {});
                   });
                 }
-              } : (){},
+              }
+                  : () {},
 
               //TODO add ability to delete applicant
               hideChat: () {});
@@ -140,28 +148,58 @@ class _TaskScreenState extends State<TaskScreen> {
         );
       },
     );
-
   }
 
-  Widget buildApplicantsTask(
-      {@required bool userIsProvider,
-      @required Function applyFunction,
-      @required List userpids,
-      @required Task task}) {
+  Widget buildApplicantsTask({@required bool userIsProvider,
+    @required Function applyFunction,
+    @required List userpids,
+    @required Task task}) {
     if (!userIsProvider) {
       ///User cannot apply as they do not have a provider account
       return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                  child: Text(
-                'Create a provider account to apply',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500),
-              ),),
-            ],
-          );
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: RoundedButton(
+              buttonTitle: 'Create a provider account to apply',
+              fontColor: Colors.white,
+              buttonColor: Color(kGenchiBlue),
+              onPressed: () async {
+                bool createAccount = await showYesNoAlert(context: context,
+                    title: 'Create a provider account to apply to this job?');
+                if (createAccount) {
+                  ///Log event in firebase
+                  await analytics.logEvent(name: 'provider_account_created');
+
+                  AuthenticationService authService = Provider.of<AuthenticationService>(context,listen: false);
+                  ProviderService providerService = Provider.of<ProviderService>(context,listen: false);
+
+                  DocumentReference result =
+                  await firestoreAPI.addProvider(
+                      ProviderUser(
+                          uid: authService.currentUser.id,
+                          displayPictureURL:
+                          authService.currentUser.displayPictureURL,
+                          displayPictureFileName:
+                          authService.currentUser
+                              .displayPictureFileName),
+                      authService.currentUser.id);
+
+
+                  await authService.updateCurrentUserData();
+
+                  await providerService
+                      .updateCurrentProvider(result.documentID);
+
+                  Navigator.pushNamed(context, ProviderScreen.id);
+                  Navigator.pushNamed(context, EditProviderAccountScreen.id);
+              }
+              },
+            ),
+          ),
+        ],
+      );
     } else {
       ///User is a provider so it's now a case of seeing if they have applied already
       return FutureBuilder(
@@ -207,12 +245,13 @@ class _TaskScreenState extends State<TaskScreen> {
                 height: 5,
               )
             ];
+
             ///Show user's application
             MessageListItem chatWidget = MessageListItem(
                 image: appliedProvider.displayPictureURL == null
-                    ? AssetImage("images/Logo_Clear.png")
+                    ? null
                     : CachedNetworkImageProvider(
-                        appliedProvider.displayPictureURL),
+                    appliedProvider.displayPictureURL),
                 name: appliedProvider.name,
                 service: appliedProvider.type,
                 lastMessage: providersApplication.lastMessage,
@@ -236,18 +275,16 @@ class _TaskScreenState extends State<TaskScreen> {
                       showSpinner = false;
                     });
 
-
                     ///Segue to application chat screen with user as the provider (applicant)
-                    Navigator.pushNamed(context, ApplicationChatScreen.id, arguments:
-                    ApplicationChatScreenArguments(
-                      hirer: hirer,
-                      userIsProvider: true,
-                      taskApplicant: providersApplication,
-                      provider: appliedProvider,
-                    )).then((value) {
-                        setState(() {});
-                      });
-
+                    Navigator.pushNamed(context, ApplicationChatScreen.id,
+                        arguments: ApplicationChatScreenArguments(
+                          hirer: hirer,
+                          userIsProvider: true,
+                          taskApplicant: providersApplication,
+                          provider: appliedProvider,
+                        )).then((value) {
+                      setState(() {});
+                    });
                   }
                 },
                 hideChat: () async {
@@ -258,6 +295,9 @@ class _TaskScreenState extends State<TaskScreen> {
                     setState(() {
                       showSpinner = true;
                     });
+
+                    await analytics.logEvent(
+                        name: 'applicant_removed_application');
 
                     await firestoreAPI.removeTaskApplicant(
                         providerId: appliedProvider.pid,
@@ -293,9 +333,8 @@ class _TaskScreenState extends State<TaskScreen> {
     }
   }
 
-
-  Widget buildAdminSection({@required BuildContext context, @required Task currentTask}) {
-
+  Widget buildAdminSection(
+      {@required BuildContext context, @required Task currentTask}) {
     return Column(
       children: <Widget>[
         Divider(
@@ -320,29 +359,26 @@ class _TaskScreenState extends State<TaskScreen> {
                 showSpinner = true;
               });
 
-              TaskService taskService = Provider.of<TaskService>(context,listen: false);
+              TaskService taskService =
+              Provider.of<TaskService>(context, listen: false);
               AuthenticationService authService =
               Provider.of<AuthenticationService>(context, listen: false);
-              await firestoreAPI.deleteTask(
-                  task: taskService.currentTask);
+              await firestoreAPI.deleteTask(task: taskService.currentTask);
               await authService.updateCurrentUserData();
               setState(() {
                 showSpinner = false;
               });
 
-              Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
-                      (Route<dynamic> route) => false,
+              Navigator.pushNamedAndRemoveUntil(
+                  context, HomeScreen.id, (Route<dynamic> route) => false,
                   arguments: HomeScreenArguments(startingIndex: 0));
             }
           },
         ),
         buildHirersTask(task: currentTask, enableChatView: false),
       ],
-
     );
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -389,129 +425,143 @@ class _TaskScreenState extends State<TaskScreen> {
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
         child: ListView(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.fromLTRB(0,15,0,0),
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Expanded(
-                  child: SelectableText(
-                    currentTask.title,
-                    style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: SelectableText(
+                          currentTask.title,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        currentTask.service,
+//                textAlign: TextAlign.end,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Color(kGenchiOrange)),
+                      ),
+                    ],
+                  ),
+                  Divider(thickness: 1),
+                  Container(
+                    child: Text(
+                      "Details",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-                Text(
-                  currentTask.service,
-//                textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Color(kGenchiOrange)
+                  SelectableLinkify(
+                    text: currentTask.details ?? "",
+                    onOpen: _onOpenLink,
+                    options: LinkifyOptions(humanize: false),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
-                ),
-              ],
-            ),
-            Divider(thickness: 1),
-            Container(
-              child: Text(
-                "Details",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
+                  SizedBox(height: 10),
+                  Container(
+                    child: Text(
+                      "Job Timings",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SelectableLinkify(
+                    text: currentTask.date ?? "",
+                    onOpen: _onOpenLink,
+                    options: LinkifyOptions(humanize: false),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    child: Text(
+                      "Incentive",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SelectableText(
+                    currentTask.price ?? "",
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    child: Text(
+                      "Date Posted",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SelectableText(
+                    getTaskPostedTime(time: currentTask.time),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    thickness: 1,
+                  ),
+                  Text(
+                    'Hirer',
+                    style: TextStyle(
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  FutureBuilder(
+
+                    ///We probably don't need to check that the user exists here as the
+                    ///task would have been deleted if the hirer doesn't exist.
+                    ///Worst case scenario the infite scoller appears
+                    future: firestoreAPI.getUserById(currentTask.hirerId),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text('');
+                      }
+                      User hirer = snapshot.data;
+                      return HirerCard(
+                          hirer: hirer,
+                          onTap: () async {
+                            await hirerProvider.updateCurrentHirer(
+                                id: currentTask.hirerId);
+                            Navigator.pushNamed(context, HirerScreen.id);
+                          });
+                    },
+                  ),
+                  Divider(
+                    thickness: 1,
+                  ),
+                ],
               ),
             ),
-            Linkify(
-              text: currentTask.details ?? "",
-              onOpen: _onOpenLink,
-              options: LinkifyOptions(humanize: false),
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-            ),
-            SizedBox(height: 10),
-            Container(
-              child: Text(
-                "Job Timings",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Linkify(
-              text: currentTask.date ?? "",
-              onOpen: _onOpenLink,
-              options: LinkifyOptions(humanize: false),
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-            ),
-            SizedBox(height: 10),
-            Container(
-              child: Text(
-                "Incentive",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            SelectableText(
-              currentTask.price ?? "",
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-            ),
-            SizedBox(height: 10),
-            Container(
-              child: Text(
-                "Date Posted",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            SelectableText(
-              getTaskPostedTime(time: currentTask.time),
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-            ),
-            SizedBox(height: 5),
-            Divider(
-              thickness: 1,
-            ),
-            Text(
-              'Hirer',
-              style: TextStyle(
-                fontSize: 25.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            FutureBuilder(
-              ///We probably don't need to check that the user exists here as the
-              ///task would have been deleted if the hirer doesn't exist.
-              ///Worst case scenario the infite scoller appears
-              future: firestoreAPI.getUserById(currentTask.hirerId),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Text('');
-                }
-                User hirer = snapshot.data;
-                return HirerCard(hirer: hirer, onTap: () async {
-                  await hirerProvider.updateCurrentHirer(id:currentTask.hirerId );
-                  Navigator.pushNamed(context, HirerScreen.id);
-                });
-              },
-            ),
-            Divider(
-              thickness: 1,
-            ),
-            isUsersTask ? buildHirersTask(task: currentTask) : buildApplicantsTask(
+            isUsersTask
+                ? buildHirersTask(task: currentTask)
+                : buildApplicantsTask(
               task: currentTask,
               userIsProvider: userIsProvider,
               userpids: currentUser.providerProfiles,
@@ -524,86 +574,101 @@ class _TaskScreenState extends State<TaskScreen> {
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20.0),
                             topRight: Radius.circular(20.0))),
-                    builder: (context) => Container(
-                      height: MediaQuery.of(context).size.height * 0.75,
-                      padding: EdgeInsets.all(15.0),
-                      decoration: BoxDecoration(
-                        color: Color(kGenchiCream),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20.0),
-                          topRight: Radius.circular(20.0),
-                        ),
-                      ),
-                      child: ListView(
-                        children: <Widget>[
-                          Center(
-                              child: Text(
-                            'Apply with which provider account?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25,
-                              fontWeight: FontWeight.w600,
+                    builder: (context) =>
+                        Container(
+                          height: MediaQuery
+                              .of(context)
+                              .size
+                              .height * 0.75,
+                          padding: EdgeInsets.all(15.0),
+                          decoration: BoxDecoration(
+                            color: Color(kGenchiCream),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(20.0),
                             ),
-                          )),
-                          Divider(
-                            height: 1,
-                            thickness: 1,
                           ),
-                          FutureBuilder(
-                            //This function returns a list of providerUsers
-                            future: firestoreAPI.getProviders(
-                                pids: currentUser.providerProfiles),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return CircularProgress();
-                              }
-                              final List<ProviderUser> providers =
-                                  snapshot.data;
+                          child: ListView(
+                            children: <Widget>[
+                              Center(
+                                  child: Text(
+                                    'Apply with which provider account?',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )),
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                              ),
+                              FutureBuilder(
+                                //This function returns a list of providerUsers
+                                future: firestoreAPI.getProviders(
+                                    pids: currentUser.providerProfiles),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return CircularProgress();
+                                  }
+                                  final List<ProviderUser> providers =
+                                      snapshot.data;
 
-                              List<ProviderCard> providerCards = [];
+                                  List<ProviderCard> providerCards = [];
 
-                              for (ProviderUser provider in providers) {
-                                ProviderCard pCard = ProviderCard(
-                                  provider: provider,
-                                  onTap: () {
-                                    Navigator.pop(context, provider.pid);
-                                  },
-                                );
+                                  for (ProviderUser provider in providers) {
+                                    ProviderCard pCard = ProviderCard(
+                                      provider: provider,
+                                      onTap: () {
+                                        Navigator.pop(context, provider.pid);
+                                      },
+                                    );
 
-                                providerCards.add(pCard);
-                              }
+                                    providerCards.add(pCard);
+                                  }
 
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: providerCards,
-                              );
-                            },
+                                  return Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.stretch,
+                                    children: providerCards,
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
                   );
                   if (debugMode)
-                    print('Task Screen: applied with pid $selectedProviderId');
+                    print(
+                        'Task Screen: applied with pid $selectedProviderId');
 
                   if (selectedProviderId != null) {
                     setState(() {
                       showSpinner = true;
                     });
 
+                    await analytics.logEvent(
+                        name: 'task_application_sent');
 
-                    DocumentReference chatRef = await firestoreAPI.applyToTask(
+                    DocumentReference chatRef =
+                    await firestoreAPI.applyToTask(
                         taskId: currentTask.taskId,
                         providerId: selectedProviderId,
                         userId: currentTask.hirerId);
 
-                    TaskApplicant taskApplicant = await firestoreAPI.getTaskApplicantById(taskId: currentTask.taskId,applicantId:chatRef.documentID,);
+                    TaskApplicant taskApplicant =
+                    await firestoreAPI.getTaskApplicantById(
+                      taskId: currentTask.taskId,
+                      applicantId: chatRef.documentID,
+                    );
 
-
-                    ProviderUser providerProfile = await firestoreAPI.getProviderById(selectedProviderId);
-                    User hirer = await firestoreAPI.getUserById(currentTask.hirerId);
+                    ProviderUser providerProfile = await firestoreAPI
+                        .getProviderById(selectedProviderId);
+                    User hirer = await firestoreAPI
+                        .getUserById(currentTask.hirerId);
 
                     setState(() {
                       showSpinner = false;
@@ -611,14 +676,16 @@ class _TaskScreenState extends State<TaskScreen> {
 
                     ///Check all necessary documents exist before entering chat
                     if (hirer != null &&
-                        providerProfile != null && taskApplicant != null) {
-
-                      Navigator.pushNamed(context, ApplicationChatScreen.id,arguments: ApplicationChatScreenArguments(
-                        taskApplicant: taskApplicant,
-                        hirer: hirer,
-                        provider: providerProfile,
-                        userIsProvider: true,
-                      )).then((value) {
+                        providerProfile != null &&
+                        taskApplicant != null) {
+                      Navigator.pushNamed(
+                          context, ApplicationChatScreen.id,
+                          arguments: ApplicationChatScreenArguments(
+                            taskApplicant: taskApplicant,
+                            hirer: hirer,
+                            provider: providerProfile,
+                            userIsProvider: true,
+                          )).then((value) {
                         ///Refresh screen
                         setState(() {});
                       });
@@ -627,7 +694,8 @@ class _TaskScreenState extends State<TaskScreen> {
                 }
               },
             ),
-            if(currentUser.admin) buildAdminSection(context: context, currentTask: currentTask),
+            if (currentUser.admin)
+              buildAdminSection(context: context, currentTask: currentTask),
           ],
         ),
       ),
@@ -646,5 +714,4 @@ class _TaskScreenState extends State<TaskScreen> {
       }
     }
   }
-
 }

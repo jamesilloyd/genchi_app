@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -33,6 +35,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
   bool get wantKeepAlive => true;
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
 
@@ -55,6 +58,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
   String filter = 'ALL';
 
   @override
+  void initState() {
+    super.initState();
+    analytics.setCurrentScreen(screenName: "/home/chat_summary_screen");
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     print('Chat summary screen activated');
@@ -71,51 +80,59 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
         appBar: BasicAppNavigationBar(
           barTitle: 'Private Messages',
         ),
-
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(15.0),
             children: <Widget>[
-              if(userIsProvider) Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  SizedBox(
-                      height: 50,
-                      child: PopupMenuButton(
-                        elevation: 1,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Text(filter),
-                                SizedBox(width: 5),
-                                Icon(
-                                  Icons.filter_list,
-                                  color: Color(kGenchiBlue),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                )
-                              ]),
-                          itemBuilder: (_) => <PopupMenuItem<String>>[
-                                const PopupMenuItem<String>(
-                                    child: const Text('ALL'), value: 'ALL'),
-                                const PopupMenuItem<String>(
-                                    child: const Text('HIRING'),
-                                    value: 'HIRING'),
-                                const PopupMenuItem<String>(
-                                    child: const Text('PROVIDING'),
-                                    value: 'PROVIDING'),
-                              ],
-                          onSelected: (value) {
-                            setState(() {
-                              filter = value;
-                            });
-                          })),
-                ],
-              ),
+              if (userIsProvider)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      SizedBox(
+                          height: 50,
+                          child: PopupMenuButton(
+                              elevation: 1,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    Text(
+                                      filter,
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    SizedBox(width: 5),
+                                    ImageIcon(
+                                      AssetImage('images/filter.png'),
+                                      color: Colors.black,
+                                      size: 30,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    )
+                                  ]),
+                              itemBuilder: (_) => <PopupMenuItem<String>>[
+                                    const PopupMenuItem<String>(
+                                        child: const Text('ALL'), value: 'ALL'),
+                                    const PopupMenuItem<String>(
+                                        child: const Text('HIRING'),
+                                        value: 'HIRING'),
+                                    const PopupMenuItem<String>(
+                                        child: const Text('PROVIDING'),
+                                        value: 'PROVIDING'),
+                                  ],
+                              onSelected: (value) {
+                                setState(() {
+                                  filter = value;
+                                });
+                              })),
+                    ],
+                  ),
+                ),
               Divider(
                 height: 0,
                 thickness: 1,
+                indent: 15,
+                endIndent: 15,
               ),
               StreamBuilder(
                 stream: firestoreAPI.streamUserChats(user: currentUser),
@@ -131,7 +148,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                     List chatsHirersAndProviders = [];
                     List<Widget> chatWidgets = [];
 
-                    if(userIsProvider) {
+                    if (userIsProvider) {
                       ///Receiving chats for hiring and providing
                       List list1 = snapshot.data[0];
                       List list2 = snapshot.data[1];
@@ -151,7 +168,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                       chatsHirersAndProviders = snapshot.data;
                     }
 
-
                     for (Map chatHirerAndProvider in chatsHirersAndProviders) {
                       if (chatHirerAndProvider != null) {
                         Chat chat = chatHirerAndProvider['chat'];
@@ -164,7 +180,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                         if (userChatIsProvider &&
                             (filter == 'ALL' || filter == 'PROVIDING')) {
                           ///Users providing messages
-                          MessageListItem chatWidget = MessageListItem(
+                          Widget chatWidget = MessageListItem(
                             image: hirer.displayPictureURL == null
                                 ? null
                                 : CachedNetworkImageProvider(
@@ -175,6 +191,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                             time: chat.time,
                             hasUnreadMessage: chat.providerHasUnreadMessage,
                             type: 'PROVIDING',
+                            deleteMessage: 'Archive',
                             onTap: () async {
                               setState(() {
                                 showSpinner = true;
@@ -198,8 +215,17 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                                   title: "Are you sure you want delete chat?");
 
                               if (deleteChat) {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                await analytics.logEvent(
+                                    name: 'provider_hidden_chat');
                                 await firestoreAPI.hideChat(
                                     chat: chat, forProvider: true);
+
+                                setState(() {
+                                  showSpinner = false;
+                                });
                               }
                             },
                           );
@@ -209,7 +235,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                         } else if (!userChatIsProvider &&
                             (filter == 'ALL' || filter == 'HIRING')) {
                           ///Users hiring messages
-                          MessageListItem chatWidget = MessageListItem(
+                          Widget chatWidget = MessageListItem(
                             image: provider.displayPictureURL == null
                                 ? null
                                 : CachedNetworkImageProvider(
@@ -243,8 +269,16 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                                   context: context,
                                   title: "Are you sure you want delete chat?");
                               if (deleteChat) {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                await analytics.logEvent(
+                                    name: 'hirer_hidden_chat');
                                 await firestoreAPI.hideChat(
                                     chat: chat, forProvider: false);
+                                setState(() {
+                                  showSpinner = false;
+                                });
                               }
                             },
                           );
@@ -269,6 +303,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                       );
                     }
 
+                    print('REBUILDING');
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,7 +315,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
             ],
           ),
         ),
-
       ),
     );
   }

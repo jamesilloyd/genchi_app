@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
@@ -77,6 +78,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   Widget build(BuildContext context) {
     final taskService = Provider.of<TaskService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
+    FirebaseAnalytics analytics = FirebaseAnalytics();
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -110,6 +112,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () async {
+                  analytics.logEvent(name: 'task_top_save_changes_button_pressed');
                   setState(() {
                     showSpinner = true;
                   });
@@ -216,6 +219,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   buttonTitle: 'Save changes',
                   buttonColor: Color(kGenchiGreen),
                   onPressed: () async {
+                    analytics.logEvent(name: 'task_bottom_save_changes_button_pressed');
                     setState(() {
                       showSpinner = true;
                     });
@@ -254,6 +258,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       setState(() {
                         showSpinner = true;
                       });
+
+                      ///Log in firebase analytics
+                      await analytics.logEvent(name: 'job_deleted');
+
                       await fireStoreAPI.deleteTask(
                           task: taskService.currentTask);
                       await authProvider.updateCurrentUserData();

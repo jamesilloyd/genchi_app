@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +9,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/hirer_screen.dart';
 
-import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/screens/provider_screen.dart';
@@ -22,9 +22,7 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 
-import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -47,6 +45,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<ProviderUser> providers;
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  @override
+  void initState() {
+    super.initState();
+    analytics.setCurrentScreen(screenName: "/home/profile");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +82,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+          appBar:
+              BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
           backgroundColor: Colors.transparent,
           body: Container(
             child: Center(
@@ -85,17 +91,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 children: <Widget>[
                   GestureDetector(
-                    child: DisplayPicture(
-                      imageUrl: currentUser.displayPictureURL,
-                      height: 0.25,
-                      border: true,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          DisplayPicture(
+                            imageUrl: currentUser.displayPictureURL,
+                            height: 0.25,
+                            border: true,
+                          ),
+                          Positioned(
+                            right: MediaQuery.of(context).size.width/2 -
+                                MediaQuery.of(context).size.height * 0.11,
+                            top: MediaQuery.of(context).size.height * 0.22,
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              padding: EdgeInsets.all(2),
+                              decoration: new BoxDecoration(
+                                  color: Color(kGenchiCream),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                      color: Color(0xff585858), width: 2),),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Center(
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 20,
+                                      color: Color(0xff585858),
+                                    )),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                    onTap: ()async{
+                    onTap: () async {
                       await hirerService.updateCurrentHirer(id: currentUser.id);
                       Navigator.pushNamed(context, HirerScreen.id);
                     },
                   ),
-                  SizedBox(height: 5),
 //                  ProfileOptionTile(
 //                    text: 'Crash',
 //                    onPressed: () {
@@ -109,15 +146,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                     Navigator.pushNamed(context, TestScreen.id);
 //                    },
 //                  ),
-//              ProfileOptionTile(
-//                text: 'Post Task',
-//                onPressed: () async {
-//                  bool createAccount = await showYesNoAlert(
-//                      context: context, title: 'Post task?');
-//                  if (createAccount)
-//                    Navigator.pushNamed(context, PostTaskScreen.id);
-//                },
-//              ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Provider Accounts',
@@ -145,7 +173,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         20 * 3) /
                                     2.2,
                                 provider: provider,
-                                isSmallScreen: MediaQuery.of(context).size.height < 600,
+                                isSmallScreen:
+                                    MediaQuery.of(context).size.height < 600,
                                 onPressed: () async {
                                   await providerService
                                       .updateCurrentProvider(provider.pid);
@@ -168,6 +197,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     body:
                                         "Are you ready to provide your skills to the Cambridge community?");
                                 if (createAccount) {
+                                  ///Log event in firebase
+                                  await analytics.logEvent(
+                                      name: 'provider_account_created');
+
                                   DocumentReference result =
                                       await firestoreAPI.addProvider(
                                           ProviderUser(
@@ -183,8 +216,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await providerService
                                       .updateCurrentProvider(result.documentID);
 
-                                  Navigator.pushNamed(context, ProviderScreen.id);
-                                  Navigator.pushNamed(context, EditProviderAccountScreen.id);
+                                  Navigator.pushNamed(
+                                      context, ProviderScreen.id);
+                                  Navigator.pushNamed(
+                                      context, EditProviderAccountScreen.id);
                                 }
                               },
                             ),
@@ -223,6 +258,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             body:
                                 "Are you ready to provide your skills to the Cambridge community?");
                         if (createAccount) {
+                          ///log event in firebase
+                          await analytics.logEvent(
+                              name: 'provider_account_created');
                           DocumentReference result =
                               await firestoreAPI.addProvider(
                                   ProviderUser(
@@ -238,8 +276,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               .updateCurrentProvider(result.documentID);
 
                           Navigator.pushNamed(context, ProviderScreen.id);
-                          Navigator.pushNamed(context, EditProviderAccountScreen.id);
-
+                          Navigator.pushNamed(
+                              context, EditProviderAccountScreen.id);
                         }
                       },
                     ),
@@ -251,7 +289,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   ProfileOptionTile(
                     text: 'Hiring Account Settings',
-                    onPressed: () {
+                    onPressed: () async {
+                      await analytics.logEvent(name: 'hirer_edit_profile_screen');
                       Navigator.pushNamed(context, EditAccountScreen.id);
                     },
                   ),

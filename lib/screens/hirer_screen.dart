@@ -1,10 +1,13 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
 import 'package:genchi_app/services/linkify_service.dart';
@@ -18,16 +21,22 @@ class HirerScreen extends StatefulWidget {
   _HirerScreenState createState() => _HirerScreenState();
 }
 
-//TODO selectable linkify is not working
 class _HirerScreenState extends State<HirerScreen> {
 
+  User hirer;
 
   @override
   Widget build(BuildContext context) {
     if (debugMode) print('Hirer screen activated');
     final hirerProvider = Provider.of<HirerService>(context);
+    final AuthenticationService authService = Provider.of<
+        AuthenticationService>(context);
 
-    User hirer = hirerProvider.currentHirer;
+    if(authService.currentUser.id == hirerProvider.currentHirer.id) {
+      hirer = authService.currentUser;
+    } else {
+      hirer = hirerProvider.currentHirer;
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -57,7 +66,21 @@ class _HirerScreenState extends State<HirerScreen> {
             SizedBox(
               height: 10,
             ),
-            Divider(
+
+            ///If looking at own profile, give option to edit
+            if(authService.currentUser.id == hirer.id) RoundedButton(
+              buttonColor: Color(kGenchiOrange),
+              buttonTitle: 'Edit Hirer Profile',
+              fontColor: Colors.white,
+              onPressed: ()async{
+                await FirebaseAnalytics().logEvent(name: 'hirer_edit_hirer_screen');
+                Navigator.pushNamed(context, EditAccountScreen.id);
+              },
+            ),
+            if(authService.currentUser.id == hirer.id) SizedBox(
+              height: 10,
+            ),
+              Divider(
               thickness: 1,
             ),
             Container(
@@ -87,7 +110,7 @@ class _HirerScreenState extends State<HirerScreen> {
                 ),
               ),
             ),
-            Linkify(
+            SelectableLinkify(
               text: hirer.subject,
               onOpen: _onOpenLink,
               options: LinkifyOptions(humanize: false, defaultToHttps: true),
@@ -108,7 +131,7 @@ class _HirerScreenState extends State<HirerScreen> {
                 ),
               ),
             ),
-            Linkify(
+            SelectableLinkify(
               text: hirer.bio,
               onOpen: _onOpenLink,
               options: LinkifyOptions(humanize: false, defaultToHttps: true),

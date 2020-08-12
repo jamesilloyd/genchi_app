@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
@@ -122,10 +123,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 if (name == null || email == null)
                                   throw (Exception('Enter name and email'));
 
+
                                 await authProvider.registerWithEmail(
                                     email: email,
                                     password: password,
                                     name: name);
+
+                                await FirebaseAnalytics().logSignUp(signUpMethod: 'email');
 
                                 //This populates the current user simultaneously
                                 if (await authProvider.isUserLoggedIn() ==

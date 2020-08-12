@@ -57,80 +57,62 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
       progressIndicator: CircularProgress(),
       child: Scaffold(
           appBar: BasicAppNavigationBar(barTitle: widget.service.namePlural),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: FutureBuilder(
-                future: getProvidersByService,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      child: CircularProgress(),
-                    );
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: FutureBuilder(
+              future: getProvidersByService,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    child: CircularProgress(),
+                  );
+                }
 
-//                    return Column(
-//                      mainAxisAlignment: MainAxisAlignment.start,
-//                      crossAxisAlignment: CrossAxisAlignment.stretch,
-//                      children: <Widget>[
-//                        Shimmer.fromColors(
-//                            period: Duration(seconds: 2),
-//                            baseColor: Color(kGenchiBlue),
-//                            highlightColor: Color(kGenchiOrange),
-//                            child: ProviderCard(
-//                              onTap: (){},
-//                              provider: ProviderUser(name: "Name", displayPictureURL: null, bio: 'Bio', type: 'Type'),
-//                            )
-//                        ),
-//                      ],
-//                    );
-                  }
+                final List<ProviderUser> providers = snapshot.data;
 
-                  final List<ProviderUser> providers = snapshot.data;
-
-                  if (providers.isEmpty) {
-                    return Container(
-                      height: 30,
-                      child: Center(
-                        child: Text(
-                          'No Providers Yet',
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
+                if (providers.isEmpty) {
+                  return Container(
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        'No Providers Yet',
+                        style: TextStyle(
+                          fontSize: 20,
                         ),
                       ),
-                    );
-                  }
-
-                  List<ProviderCard> providerCards = [];
-
-                  for (ProviderUser provider in providers) {
-
-                    ProviderCard pCard = ProviderCard(
-                      provider: provider,
-                      onTap: () async {
-                        setState(() {
-                          showSpinner = true;
-                        });
-                        await providerService.updateCurrentProvider(provider.pid);
-
-                        setState(() {
-                          showSpinner = false;
-                        });
-
-                        Navigator.pushNamed(context, ProviderScreen.id);
-                      },
-                    );
-
-                    providerCards.add(pCard);
-                  }
-
-                  return ListView(
-                    children: providerCards,
+                    ),
                   );
-                },
-              )
-            ),
+                }
+
+                List<ProviderCard> providerCards = [];
+
+                for (ProviderUser provider in providers) {
+
+                  ProviderCard pCard = ProviderCard(
+                    provider: provider,
+                    onTap: () async {
+                      setState(() {
+                        showSpinner = true;
+                      });
+                      await providerService.updateCurrentProvider(provider.pid);
+
+                      setState(() {
+                        showSpinner = false;
+                      });
+
+                      Navigator.pushNamed(context, ProviderScreen.id);
+                    },
+                  );
+
+                  providerCards.add(pCard);
+                }
+
+                return ListView(
+                  children: providerCards,
+                );
+              },
+            )
           )),
     );
   }

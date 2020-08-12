@@ -11,7 +11,6 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/screens/home_screen.dart';
-import 'package:genchi_app/services/linkify_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'edit_provider_account_screen.dart';
@@ -299,7 +298,7 @@ class _ProviderScreenState extends State<ProviderScreen> {
     if (link.runtimeType == EmailElement) {
       //TODO handle email elements
     } else {
-      String url = link.url.toLowerCase();
+      String url = link.url;
       if (await canLaunch(url)) {
         await launch(url);
       } else {

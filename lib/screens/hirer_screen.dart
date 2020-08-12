@@ -10,7 +10,6 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
-import 'package:genchi_app/services/linkify_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -150,7 +149,7 @@ class _HirerScreenState extends State<HirerScreen> {
     if (link.runtimeType == EmailElement) {
       //TODO handle email elements
     } else {
-      String url = link.url.toLowerCase();
+      String url = link.url;
       if (await canLaunch(url)) {
         await launch(url);
       } else {

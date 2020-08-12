@@ -114,6 +114,11 @@ class _HomeScreenState extends State<HomeScreen> {
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
+    if(devMode) {
+      print('IN DEVELOP MODE');
+    } else {
+      print('IN PRODUCTION MODE');
+    }
 
     return Scaffold(
       body: screens.elementAt(_page ?? startingIndex),

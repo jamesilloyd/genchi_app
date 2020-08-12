@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 class ProviderUser extends ChangeNotifier {
+
   String uid;
   String pid;
   String name;
@@ -64,3 +65,5 @@ class ProviderUser extends ChangeNotifier {
     };
   }
 }
+
+

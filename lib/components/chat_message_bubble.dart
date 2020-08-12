@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/services/time_formatting.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MessageBubble extends StatelessWidget {
   MessageBubble({this.sender, this.text, this.isMe, this.time});
@@ -42,8 +44,10 @@ class MessageBubble extends StatelessWidget {
                     color: isMe ? Color(kGenchiGreen) : Colors.grey,
                     child: Stack(
                       children: <Widget>[
-                        SelectableText(
-                          text,
+                        SelectableLinkify(
+                          text: text,
+                          onOpen: _onOpenLink,
+                          options: LinkifyOptions(humanize: false),
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16,
@@ -69,4 +73,18 @@ class MessageBubble extends StatelessWidget {
       ],
     );
   }
+
+  Future<void> _onOpenLink(LinkableElement link) async {
+    if (link.runtimeType == EmailElement) {
+      //TODO handle email elements
+    } else {
+      String url = link.url;
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $link';
+      }
+    }
+  }
+
 }

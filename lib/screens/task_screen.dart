@@ -23,7 +23,6 @@ import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/hirer_service.dart';
-import 'package:genchi_app/services/linkify_service.dart';
 import 'package:genchi_app/services/provider_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
@@ -706,7 +705,7 @@ class _TaskScreenState extends State<TaskScreen> {
     if (link.runtimeType == EmailElement) {
       //TODO handle email elements
     } else {
-      String url = link.url.toLowerCase();
+      String url = link.url;
       if (await canLaunch(url)) {
         await launch(url);
       } else {

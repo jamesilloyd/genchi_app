@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/hirer_screen.dart';
+import 'package:genchi_app/screens/test_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
@@ -118,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fit: BoxFit.scaleDown,
                                 child: Center(
                                     child: Icon(
-                                      Icons.edit,
+                                      Icons.remove_red_eye,
                                       size: 20,
                                       color: Color(0xff585858),
                                     )),
@@ -136,16 +137,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                  ProfileOptionTile(
 //                    text: 'Crash',
 //                    onPressed: () {
-//                      Crashlytics.instance.crash();
+////                      Crashlytics.instance.crash();
 ////                      throw Exception('ERORRRORR');
 //                    },
 //                  ),
-//                  ProfileOptionTile(
-//                    text: 'Test Screen',
-//                    onPressed: ()  {
-//                     Navigator.pushNamed(context, TestScreen.id);
-//                    },
-//                  ),
+                  ProfileOptionTile(
+                    text: 'Test Screen',
+                    onPressed: ()  {
+                     Navigator.pushNamed(context, TestScreen.id);
+                    },
+                  ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Provider Accounts',

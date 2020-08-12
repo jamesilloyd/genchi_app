@@ -1,87 +1,67 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class TestScreen extends StatelessWidget {
-
-  CollectionReference _testCollectionReference = Firestore.instance.collection('test');
-
-  function() async {
-    try {
-      await _testCollectionReference.document('123asdf45').updateData({'a': 6});
-    } catch (e) {
-      print(e);
-      throw e;
-    }
-  }
-
-  FirestoreAPIService firestoreApi = FirestoreAPIService();
+class TestScreen extends StatefulWidget {
   static const id = 'test_screen';
+
+  @override
+  _TestScreenState createState() => _TestScreenState();
+}
+
+class _TestScreenState extends State<TestScreen> {
+  FirestoreAPIService firestoreApi = FirestoreAPIService();
+  bool spinner = false;
+
+  static CollectionReference dev1 = Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/providers/');
+
+
+  static CollectionReference dev2 = Firestore.instance.collection('development').document('sSqkhUUghSa8kFVLE05Z').collection('providers');
+//  static CollectionReference dev3 = devRef.document('sSqkhUUghSa8kFVLE05Z').collection('providers');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
+      body: ModalProgressHUD(
+        inAsyncCall: spinner,
+        progressIndicator: CircularProgress(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
 
-            RoundedButton(
-              buttonColor: Color(kGenchiBlue),
-              buttonTitle: 'WHere query',
-              onPressed: ()async{
+              RoundedButton(
+                onPressed: () async {
 
-                Firestore.instance.collection('chats')
-                    .where('pid', whereIn: ['gFBcrf33a91kUzmj7OmY','tyRhBIVCwZaFt3MQQcQg'])
-                    .snapshots().forEach((element) {for(var doc in element.documents){
-                      print(doc.data['pid'] + ' ' + doc.data['chatid']);}} );
+                  setState((){
+                    spinner = true;
+                  });
+
+//                  CollectionReference ref = Firestore.instance.collection('providers');
+
+                  DocumentSnapshot doc = await dev1.document('gFBcrf33a91kUzmj7OmY').get();
+//                  DocumentSnapshot doc = await Firestore.instance.collection('providers').document('gFBcrf33a91kUzmj7OmY').get();
+                  print(doc.data);
+
+                  print('done');
+//                  await firestoreApi.createDevEnvironment();
+
+                  setState(() {
+                    spinner = false;
+                  });
+                },
+                buttonTitle: 'Create development environment',
+                buttonColor: Color(kGenchiOrange),
+              )
 
 
-              },
-            ),
-
-            RoundedButton(
-              buttonColor: Color(kGenchiBlue),
-              buttonTitle: 'Set Data',
-              onPressed: ()async{
-                _testCollectionReference.document('1234').setData({'a':6},merge: true);
-
-
-              },
-            ),
-            RoundedButton(
-              buttonColor: Color(kGenchiOrange),
-              buttonTitle: 'Update Data',
-              onPressed: () async{
-
-//                try {
-                  await function();
-//                } catch (e){
-//                  print(e);
-//                  print('Update failed');
-//                }
-
-              },
-            ),
-            RoundedButton(
-              buttonColor: Color(kGenchiOrange),
-              buttonTitle: 'Delete task',
-              onPressed: () async{
-
-//                firestoreApi.deleteTask(task: '');
-//                try {
-                await function();
-//                } catch (e){
-//                  print(e);
-//                  print('Update failed');
-//                }
-
-              },
-            )
-
-          ],
+            ],
+          ),
         ),
       ),
     );

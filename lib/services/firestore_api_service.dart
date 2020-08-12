@@ -11,6 +11,20 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
 
+  ///PRODUCTION MODE
+//  CollectionReference _usersCollectionRef =
+//  Firestore.instance.collection('users');
+
+//  CollectionReference _providersCollectionRef =
+//  Firestore.instance.collection('providers');
+
+//  CollectionReference _chatCollectionRef =
+//  Firestore.instance.collection('chats');
+
+//  CollectionReference _taskCollectionRef =
+//  Firestore.instance.collection('tasks');
+
+
   ///DEVELOP MODE
   static CollectionReference _usersCollectionRef = Firestore.instance
       .collection('development/sSqkhUUghSa8kFVLE05Z/users');

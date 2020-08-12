@@ -141,12 +141,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ////                      throw Exception('ERORRRORR');
 //                    },
 //                  ),
-                  ProfileOptionTile(
-                    text: 'Test Screen',
-                    onPressed: ()  {
-                     Navigator.pushNamed(context, TestScreen.id);
-                    },
-                  ),
+//                  ProfileOptionTile(
+//                    text: 'Test Screen',
+//                    onPressed: ()  {
+//                     Navigator.pushNamed(context, TestScreen.id);
+//                    },
+//                  ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Provider Accounts',

@@ -82,6 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: <Widget>[
                               SignInTextField(
+                                field: 'Email',
                                 onChanged: (value) {
                                   email = value;
                                 },
@@ -92,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 10.0,
                               ),
                               SignInTextField(
+                                field: 'Password',
                                 onChanged: (value) {
                                   password = value;
                                 },

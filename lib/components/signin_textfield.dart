@@ -14,16 +14,18 @@ class SignInTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(field,
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Color(kGenchiCream)
+              color: Colors.white,
           ),
         ),
+        SizedBox(height: 5,),
         SizedBox(
           width: 250,
           child: TextField(

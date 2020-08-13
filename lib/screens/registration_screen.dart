@@ -102,16 +102,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           SizedBox(
                             height: 10.0,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text('Type',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(kGenchiCream)
+                                  color: Colors.white,
                                 ),
                               ),
+                              SizedBox(height: 5,),
                               SizedBox(
                                 width: 250,
                                 child: PopupMenuButton(

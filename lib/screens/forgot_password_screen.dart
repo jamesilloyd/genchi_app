@@ -53,6 +53,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     height: 50,
                   ),
                   SignInTextField(
+                    field: 'Email',
                     onChanged: (value) {
                       email = value;
                       //Do something with the user input.

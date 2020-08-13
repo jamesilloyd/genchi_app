@@ -84,44 +84,6 @@ class _HirerScreenState extends State<HirerScreen> {
             ),
             Container(
               child: Text(
-                "College",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            SelectableText(
-              hirer.college,
-              style: TextStyle(fontSize: 16.0),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              child: Text(
-                "Subject",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            SelectableLinkify(
-              text: hirer.subject,
-              onOpen: _onOpenLink,
-              options: LinkifyOptions(humanize: false, defaultToHttps: true),
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              child: Text(
                 "About Me",
                 textAlign: TextAlign.left,
                 style: TextStyle(

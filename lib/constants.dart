@@ -9,7 +9,7 @@ Divider kGenchiBoldDivider() {
 
 const kForgotPasswordSnackbar = SnackBar(
   backgroundColor: Color(kGenchiOrange),
-  duration: Duration(seconds: 3),
+  duration: Duration(seconds: 5),
   shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
           topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
@@ -79,14 +79,14 @@ const kMessageContainerDecoration = BoxDecoration(
 const kTextFieldDecoration = InputDecoration(
   hintText: "",
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-  fillColor: Color(kGenchiCream),
+  fillColor: Colors.white,
   filled: true,
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Color(kGenchiCream), width: 1.0),
+    borderSide: BorderSide(color: Colors.white, width: 1.0),
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
   focusedBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Color(kGenchiCream), width: 2.0),
+    borderSide: BorderSide(color: Colors.white, width: 2.0),
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );

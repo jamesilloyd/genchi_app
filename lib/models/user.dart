@@ -4,8 +4,8 @@ class User extends ChangeNotifier {
   String id;
   String email;
   String name;
-  String college;
-  String subject;
+  String accountType;
+  String category;
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
@@ -28,8 +28,8 @@ class User extends ChangeNotifier {
       this.favourites,
       this.posts,
       this.fcmTokens,
-      this.college,
-      this.subject,
+      this.accountType,
+      this.category,
       this.bio,
       this.admin,
       this.chats});
@@ -37,8 +37,8 @@ class User extends ChangeNotifier {
   User.fromMap(Map snapshot)
       : email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
-        college = snapshot['college'] ?? '',
-        subject = snapshot['subject'] ?? '',
+        accountType = snapshot['accountType'] ?? 'Individual',
+        category = snapshot['category'] ?? '',
         bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
         displayPictureURL = snapshot['displayPictureURL'],
@@ -55,8 +55,8 @@ class User extends ChangeNotifier {
       if (email != null) "email": email,
       if (name != null) "name": name,
       if (admin != null) 'admin': admin,
-      if (college != null) "college": college,
-      if (subject != null) "subject": subject,
+      if (accountType != null) "accountType": accountType,
+      if (category != null) "category": category,
       if (bio != null) "bio": bio,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
@@ -71,3 +71,17 @@ class User extends ChangeNotifier {
     };
   }
 }
+
+List<String> AccountTypeList = [
+  'Individual',
+  'Society',
+  'Charity'
+];
+
+List<String> SocietyCategoryList = [
+  'Sports'
+];
+
+List<String> CharityCategoryList = [
+  '???'
+];

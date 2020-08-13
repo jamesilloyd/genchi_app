@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 
 import 'package:genchi_app/screens/favourites_screen.dart';
@@ -89,7 +90,8 @@ class StartUp extends StatelessWidget {
               scaffoldBackgroundColor: Colors.white,
               primaryColor: Color(kGenchiOrange),
               indicatorColor: Color(kGenchiOrange),
-              textSelectionHandleColor: Color(kGenchiOrange)
+              textSelectionHandleColor: Color(kGenchiOrange),
+              hintColor: Colors.black45
             ),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {
@@ -113,6 +115,7 @@ class StartUp extends StatelessWidget {
               SearchTasksScreen.id: (context) => SearchTasksScreen(),
               OnboardingScreen.id: (context) => OnboardingScreen(),
               HirerScreen.id: (context) => HirerScreen(),
+              EditAccountSettingsScreen.id: (context) => EditAccountSettingsScreen(),
             },
           );
         }

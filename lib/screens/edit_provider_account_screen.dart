@@ -168,7 +168,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w500,
-                      color: Color(kGenchiBlue),
                     ),
                   ),
                 ),
@@ -249,7 +248,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w500,
-                        color: Color(kGenchiBlue),
                       ),
                     ),
                     SizedBox(height: 5.0),

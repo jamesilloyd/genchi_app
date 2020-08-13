@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/models/user.dart';
 
 List<DropdownMenuItem> dropDownServiceItems() {
   List<DropdownMenuItem<String>> dropdownItems = [];
@@ -8,10 +9,7 @@ List<DropdownMenuItem> dropDownServiceItems() {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10,0,0,0),
         child: Text(
-          serviceType.databaseValue,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
+          serviceType.databaseValue.toUpperCase(),
         ),
       ),
       value: serviceType.databaseValue,
@@ -21,6 +19,23 @@ List<DropdownMenuItem> dropDownServiceItems() {
   return dropdownItems;
 }
 
+
+List<DropdownMenuItem> dropDownAccountTypeItems() {
+  List<DropdownMenuItem<String>> dropdownItems = [];
+  for (String accountType in AccountTypeList) {
+    var newItem = DropdownMenuItem(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10,0,0,0),
+        child: Text(
+          accountType.toUpperCase(),
+        ),
+      ),
+      value: accountType,
+    );
+    dropdownItems.add(newItem);
+  }
+  return dropdownItems;
+}
 
 initialDropDownValue({String currentType}) {
   if (currentType != '') {

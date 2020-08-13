@@ -75,10 +75,10 @@ class _ChatScreenState extends State<ChatScreen> {
               : provider.displayPictureURL,
           userIsProvider: userIsProvider,
         ),
-        body: SafeArea(
-          child: ModalProgressHUD(
-            inAsyncCall: showSpinner,
-            progressIndicator: CircularProgress(),
+        body: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          progressIndicator: CircularProgress(),
+          child: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

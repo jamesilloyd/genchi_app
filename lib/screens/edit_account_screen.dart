@@ -27,6 +27,7 @@ class EditAccountScreen extends StatefulWidget {
   _EditAccountScreenState createState() => _EditAccountScreenState();
 }
 
+//TODO: need to add how category if account is society / charity
 class _EditAccountScreenState extends State<EditAccountScreen> {
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
@@ -34,11 +35,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   bool showSpinner = false;
 
   TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController collegeController = TextEditingController();
-  TextEditingController subjectController = TextEditingController();
   TextEditingController bioController = TextEditingController();
-
+  TextEditingController categoryController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -55,20 +53,16 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     User user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
-    emailController.text = user.email;
-    collegeController.text = user.college;
-    subjectController.text = user.subject;
     bioController.text = user.bio;
+    categoryController.text = user.category;
   }
 
   @override
   void dispose() {
     super.dispose();
     nameController.dispose();
-    emailController.dispose();
-    collegeController.dispose();
-    subjectController.dispose();
     bioController.dispose();
+    categoryController.dispose();
   }
 
   @override
@@ -83,6 +77,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         },
         child: Scaffold(
           appBar: AppBar(
+            centerTitle: true,
             iconTheme: IconThemeData(
               color: Colors.black,
             ),
@@ -107,23 +102,25 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () async {
-
-
                   setState(() {
                     showSpinner = true;
                   });
 
-                  await analytics.logEvent(name: 'hirer_top_save_changes_button_pressed');
+                  await analytics.logEvent(
+                      name: 'hirer_top_save_changes_button_pressed');
 
                   await fireStoreAPI.updateUser(
                       user: User(
-                          name: nameController.text,
-                          email: emailController.text,
-                          college: collegeController.text,
-                          bio: bioController.text,
-                          subject: subjectController.text),
+                        name: nameController.text,
+                        bio: bioController.text,
+                      ),
                       uid: currentUser.id);
-                  await authProvider.updateCurrentUserName(name: nameController.text);
+
+                  ///If name has changed update in the auth section
+                  if(nameController.text != currentUser.name) {
+                    await authProvider.updateCurrentUserName(
+                        name: nameController.text);
+                  }
                   await authProvider.updateCurrentUserData();
 
                   setState(() {
@@ -220,40 +217,55 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
-                    EditAccountField(
-                      field: "Email",
-                      isEditable: false,
-                      onChanged: (value) {
-                        changesMade = true;
-                      },
-                      textController: emailController,
+                    if(currentUser.accountType != 'Individual') Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
+                        ),
+                        Text(
+                          'Category',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        Container(
+                          height: 50.0,
+                          color: Color(kGenchiCream),
+                          //TODO: need to add some lists here for users to choose between
+//                          child: DropdownButton<String>(
+//                            value: categoryController.text,
+//                            items: dropDownAccountTypeItems(),
+//                            onChanged: (value) async {
+//                              if (value != accountTypeTextController.text) {
+//                                bool change = await showYesNoAlert(
+//                                    context: context,
+//                                    title:
+//                                    'Are you sure you want to change account type?',
+//                                    body:
+//                                    'Doing this will remove any other service accounts associated with this account.');
+//
+//                                if (change) {
+//                                  changesMade = true;
+//                                  accountTypeTextController.text = value;
+//                                  setState(() {});
+//                                }
+//                              }
+//                            },
+//                          ),
+                        ),
+                      ],
                     ),
                     EditAccountField(
-                      field: "College",
-                      onChanged: (value) {
-                        //Update name
-                        changesMade = true;
-                      },
-                      textController: collegeController,
-                      hintText: 'Which college are you in?',
-                    ),
-                    EditAccountField(
-                      field: "Subject",
-                      onChanged: (value) {
-                        //Update name
-                        changesMade = true;
-                      },
-                      textController: subjectController,
-                      hintText: 'What do you study?',
-                    ),
-                    EditAccountField(
-                      field: "About Me",
+                      field: "About",
                       onChanged: (value) {
                         //Update name
                         changesMade = true;
                       },
                       textController: bioController,
-                      hintText: 'Interests, Activities, Societies, etc.',
+                      hintText: 'College, Interests, Societies, etc.',
                     ),
                     SizedBox(
                       height: 20.0,
@@ -265,23 +277,26 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       buttonTitle: 'Save changes',
                       buttonColor: Color(kGenchiGreen),
                       onPressed: () async {
-
                         setState(() {
                           showSpinner = true;
                         });
 
-                        await analytics.logEvent(name: 'hirer_bottom_save_changes_button_pressed');
+                        await analytics.logEvent(
+                            name: 'hirer_bottom_save_changes_button_pressed');
 
                         await fireStoreAPI.updateUser(
                             user: User(
-                                name: nameController.text,
-                                email: emailController.text,
-                                college: collegeController.text,
-                                bio: bioController.text,
-                                subject: subjectController.text),
+                              name: nameController.text,
+                              bio: bioController.text,
+                            ),
                             uid: currentUser.id);
 
-                        await authProvider.updateCurrentUserName(name: nameController.text);
+                        ///If name has changed update in the auth section
+                        if(nameController.text != currentUser.name) {
+                          await authProvider.updateCurrentUserName(
+                              name: nameController.text);
+                        }
+
                         await authProvider.updateCurrentUserData();
 
                         setState(() {
@@ -289,36 +304,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           showSpinner = false;
                         });
                         Navigator.pop(context);
-                      },
-                    ),
-                    RoundedButton(
-                      buttonColor: Color(kGenchiBlue),
-                      buttonTitle: "Change Password",
-                      elevation: false,
-                      onPressed: () async {
-                        Platform.isIOS
-                            ? showAlertIOS(
-                                context: context,
-                                actionFunction: () async {
-                                  setState(() => showSpinner = true);
-                                  await authProvider.sendResetEmail(
-                                      email: currentUser.email);
-                                  Scaffold.of(context)
-                                      .showSnackBar(kForgotPasswordSnackbar);
-                                  setState(() => showSpinner = false);
-                                  Navigator.of(context).pop();
-                                },
-                                alertMessage: "Reset password")
-                            : showAlertAndroid(
-                                context: context,
-                                actionFunction: () async {
-                                  await authProvider.sendResetEmail(
-                                      email: currentUser.email);
-                                  Scaffold.of(context)
-                                      .showSnackBar(kForgotPasswordSnackbar);
-                                  Navigator.of(context).pop();
-                                },
-                                alertMessage: "Reset password");
                       },
                     ),
                   ],

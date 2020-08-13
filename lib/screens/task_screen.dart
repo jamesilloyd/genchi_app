@@ -410,7 +410,7 @@ class _TaskScreenState extends State<TaskScreen> {
           if (isUsersTask)
             IconButton(
               icon: Icon(
-                Platform.isIOS ? CupertinoIcons.settings : Icons.settings,
+                Icons.settings,
                 size: 30,
                 color: Colors.black,
               ),

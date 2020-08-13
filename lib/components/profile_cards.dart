@@ -231,7 +231,7 @@ Widget HirerCard({@required User hirer, @required Function onTap}) {
           ),
           subtitle: Container(
             child: Text(
-              "${hirer.college} - ${hirer.subject}",
+              hirer.bio,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),

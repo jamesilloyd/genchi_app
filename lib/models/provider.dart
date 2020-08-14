@@ -11,7 +11,7 @@ class ProviderUser extends ChangeNotifier {
   String bio;
   String experience;
   String type;
-  String pricing;
+
   List<dynamic> chats;
   List<dynamic> isFavouritedBy;
   List<dynamic> tasksApplied;
@@ -27,7 +27,6 @@ class ProviderUser extends ChangeNotifier {
       this.bio,
       this.type,
       this.chats,
-      this.pricing,
       this.isFavouritedBy,
       this.tasksApplied,
       this.experience});
@@ -36,7 +35,6 @@ class ProviderUser extends ChangeNotifier {
       : uid = snapshot['uid'] ?? '',
         pid = snapshot['pid'] ?? '',
         name = snapshot['name'] ?? '',
-        pricing = snapshot['pricing'] ?? '',
         displayPictureURL = snapshot['displayPictureURL'],
         displayPictureFileName = snapshot['displayPictureFileName'],
         bio = snapshot['bio'] ?? '',
@@ -51,7 +49,6 @@ class ProviderUser extends ChangeNotifier {
       if (uid != null) 'uid': uid,
       if (pid != null) 'pid': pid,
       if (name != null) "name": name ?? '',
-      if (pricing != null) "pricing": pricing ?? '',
       if (displayPictureURL != null) "displayPictureURL": displayPictureURL,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,

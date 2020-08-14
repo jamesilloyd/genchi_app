@@ -146,7 +146,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         value: 'Select type')
                                   ];
                                   for (String accountType
-                                      in AccountTypeList) {
+                                      in accountTypeList) {
                                     items.add(
                                       new PopupMenuItem<String>(
                                           child: Text(accountType),

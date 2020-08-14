@@ -213,7 +213,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                               List<PopupMenuItem<String>> items = [
                               ];
                               for (String accountType
-                              in AccountTypeList) {
+                              in accountTypeList) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),

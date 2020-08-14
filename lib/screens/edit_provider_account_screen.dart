@@ -44,7 +44,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
   TextEditingController experienceTextController = TextEditingController();
-  TextEditingController priceTextController = TextEditingController();
   TextEditingController serviceTextController = TextEditingController();
 
   //TODO is the following necessary? or can textControllers handle this?
@@ -75,7 +74,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     nameTextController.text = provider.name;
     bioTextController.text = provider.bio;
     experienceTextController.text = provider.experience;
-    priceTextController.text = provider.pricing;
     serviceTextController.text = provider.type;
   }
 
@@ -85,7 +83,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     nameTextController.dispose();
     bioTextController.dispose();
     experienceTextController.dispose();
-    priceTextController.dispose();
     serviceTextController.dispose();
   }
 
@@ -138,8 +135,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                           name: name,
                           type: serviceTextController.text,
                           bio: bio,
-                          experience: experience,
-                          pricing: pricing),
+                          experience: experience,),
                       pid: providerUser.pid);
 
                   await authProvider.updateCurrentUserData();
@@ -347,8 +343,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                             name: name,
                             type: serviceTextController.text,
                             bio: bio,
-                            experience: experience,
-                            pricing: pricing),
+                            experience: experience,),
                         pid: providerUser.pid);
 
                     await authProvider.updateCurrentUserData();

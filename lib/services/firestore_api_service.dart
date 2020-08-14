@@ -10,7 +10,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
-
   ///PRODUCTION MODE
 //  CollectionReference _usersCollectionRef =
 //  Firestore.instance.collection('users');
@@ -24,54 +23,40 @@ class FirestoreAPIService {
 //  CollectionReference _taskCollectionRef =
 //  Firestore.instance.collection('tasks');
 
-
   ///DEVELOP MODE
-  static CollectionReference _usersCollectionRef = Firestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/users');
+  static CollectionReference _usersCollectionRef =
+      Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/users');
 
-  static CollectionReference _providersCollectionRef = Firestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/providers');
+  static CollectionReference _chatCollectionRef =
+      Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/chats');
 
-  static CollectionReference _chatCollectionRef = Firestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
-
-  static CollectionReference _taskCollectionRef = Firestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+  static CollectionReference _taskCollectionRef =
+      Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
 
   static CollectionReference _developmentCollectionRef =
-  Firestore.instance.collection('development');
-
+      Firestore.instance.collection('development');
 
   ///***------------------ PROVIDER FUNCTIONS ------------------***
 
-
-  Future getProviderById(String pid) async {
-    DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
-    return doc.exists ? ProviderUser.fromMap(doc.data) : null;
-  }
-
-  Future updateProvider({ProviderUser provider, String pid}) async {
-    await _providersCollectionRef.document(pid).updateData(provider.toJson());
-    return;
-  }
-
-  Future<List<ProviderUser>> fetchProviders() async {
-    List<ProviderUser> providers;
-    var result = await _providersCollectionRef.getDocuments();
-    providers =
-        result.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
-    return providers;
+  Future<List<User>> fetchServiceProviders() async {
+    List<User> serviceProviders;
+    var result = await _usersCollectionRef
+        .where('accountType', isEqualTo: 'Provider')
+        .getDocuments();
+    serviceProviders =
+        result.documents.map((doc) => User.fromMap(doc.data)).toList();
+    return serviceProviders;
   }
 
   Future<List<ProviderUser>> getProvidersByService({String serviceType}) async {
-    QuerySnapshot result = await _providersCollectionRef
-        .where('type', isEqualTo: serviceType)
+    QuerySnapshot result = await _usersCollectionRef
+        .where('accountType', isEqualTo: 'Provider')
+        .where('category', isEqualTo: serviceType)
         .getDocuments();
     List<ProviderUser> allProviders =
-    result.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
+        result.documents.map((doc) => ProviderUser.fromMap(doc.data)).toList();
     return allProviders;
   }
-
 
   Future<DocumentReference> addProvider(
       ProviderUser provider, String uid) async {
@@ -103,7 +88,6 @@ class FirestoreAPIService {
     }
     return providers;
   }
-
 
   Future<void> deleteProvider({ProviderUser provider}) async {
     if (debugMode)
@@ -167,21 +151,18 @@ class FirestoreAPIService {
 
   ///***------------------ USER FUNCTIONS ------------------***
 
-
   Future getUserById(String uid) async {
     var doc = await _usersCollectionRef.document(uid).get();
     return doc.exists ? User.fromMap(doc.data) : null;
   }
 
-
   Future updateUser({User user, String uid}) async {
     await _usersCollectionRef.document(uid).updateData(user.toJson());
   }
 
-
   Future addUserByID(User user) async {
     var result =
-    await _usersCollectionRef.document(user.id).setData(user.toJson());
+        await _usersCollectionRef.document(user.id).setData(user.toJson());
     return result;
   }
 
@@ -189,7 +170,6 @@ class FirestoreAPIService {
     var result = await _usersCollectionRef.add(user.toJson());
     return result;
   }
-
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
@@ -208,8 +188,7 @@ class FirestoreAPIService {
     return providers;
   }
 
-  Future removeUserFavourite(
-      {String uid, String favouritePid}) async {
+  Future removeUserFavourite({String uid, String favouritePid}) async {
     if (debugMode)
       print(
           'FirestoreAPI: removeUserFavourite called for hirer $uid on provider $favouritePid');
@@ -221,8 +200,7 @@ class FirestoreAPIService {
     });
   }
 
-  Future addUserFavourite(
-      {String uid, String favouritePid}) async {
+  Future addUserFavourite({String uid, String favouritePid}) async {
     if (debugMode)
       print(
           'FirestoreAPI: addUserFavourite called for hirer $uid on provider $favouritePid');
@@ -233,7 +211,6 @@ class FirestoreAPIService {
       'isFavouritedBy': FieldValue.arrayUnion([uid])
     });
   }
-
 
   Future<void> deleteDisplayPicture({User user}) async {
     await FirebaseStorage.instance
@@ -254,10 +231,7 @@ class FirestoreAPIService {
       }
   }
 
-
   ///***------------------ CHAT FUNCTIONS ------------------***
-
-
 
   Stream<QuerySnapshot> fetchChatStream(String chatId) {
     return _chatCollectionRef
@@ -267,7 +241,6 @@ class FirestoreAPIService {
         .snapshots();
   }
 
-
   Future getChatById(String chatId) async {
     var doc = await _chatCollectionRef.document(chatId).get();
     return doc.exists ? Chat.fromMap(doc.data) : null;
@@ -276,8 +249,6 @@ class FirestoreAPIService {
   Future updateChat({Chat chat}) async {
     await _chatCollectionRef.document(chat.chatid).updateData(chat.toJson());
   }
-
-
 
   Stream streamUserChats({User user}) {
     ///This function is used to stream all the private chats a user has (and their provider chats)
@@ -346,8 +317,6 @@ class FirestoreAPIService {
       return stream1;
     }
   }
-
-
 
   Future<List<Map<String, dynamic>>> getUserProviderChatsAndHirers(
       {List<dynamic> usersPids}) async {
@@ -430,7 +399,7 @@ class FirestoreAPIService {
         isHiddenFromProvider: false);
 
     DocumentReference result =
-    await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
+        await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
       await updateChat(chat: Chat(chatid: docRef.documentID));
       await _usersCollectionRef.document(uid).updateData({
         'chats': FieldValue.arrayUnion([docRef.documentID])
@@ -472,7 +441,6 @@ class FirestoreAPIService {
     await _chatCollectionRef.document(chat.chatid).delete();
   }
 
-
   Future<void> hideChat({Chat chat, bool forProvider}) async {
     if (debugMode) print('FirestoreAPI: hideChat called');
     forProvider
@@ -482,7 +450,6 @@ class FirestoreAPIService {
     print(chat.isHiddenFromProvider);
     await updateChat(chat: chat);
   }
-
 
   ///***------------------ TASK FUNCTIONS ------------------***
 
@@ -498,12 +465,11 @@ class FirestoreAPIService {
     return;
   }
 
-
   //TODO how to fail safe this ???
   Future<DocumentReference> addTask(
       {@required Task task, @required String uid}) async {
     DocumentReference result =
-    await _taskCollectionRef.add(task.toJson()).then((docRef) async {
+        await _taskCollectionRef.add(task.toJson()).then((docRef) async {
       await updateTask(
         task: Task(taskId: docRef.documentID),
         taskId: docRef.documentID,
@@ -553,8 +519,6 @@ class FirestoreAPIService {
     return tasksAndHirers;
   }
 
-
-
   Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService(
       {String service}) async {
     if (debugMode)
@@ -588,7 +552,6 @@ class FirestoreAPIService {
     return tasksAndHirers;
   }
 
-
   Stream<QuerySnapshot> fetchTaskApplicantChatStream(
       {@required String taskid, @required String applicantId}) {
     return _taskCollectionRef
@@ -600,7 +563,6 @@ class FirestoreAPIService {
         .snapshots();
   }
 
-
   Future getTaskApplicantById({String taskId, String applicantId}) async {
     DocumentSnapshot doc = await _taskCollectionRef
         .document(taskId)
@@ -610,7 +572,6 @@ class FirestoreAPIService {
 
     return doc.exists ? TaskApplicant.fromMap(doc.data) : null;
   }
-
 
   Future<bool> providerApplicationHasNotification(
       {@required String taskId, @required String pid}) async {
@@ -655,8 +616,6 @@ class FirestoreAPIService {
 
     return hasNotification;
   }
-
-
 
   Future<List<Map<String, dynamic>>> getTaskApplicants(
       {@required String taskId}) async {
@@ -704,13 +663,11 @@ class FirestoreAPIService {
     return applicationAndProviders;
   }
 
-
-
   Future addMessageToTaskApplicant(
       {@required String applicantId,
-        @required ChatMessage chatMessage,
-        @required bool applicantIsSender,
-        @required String taskId}) async {
+      @required ChatMessage chatMessage,
+      @required bool applicantIsSender,
+      @required String taskId}) async {
     TaskApplicant taskApplicant = TaskApplicant(
         lastMessage: chatMessage.text,
         time: chatMessage.time,
@@ -739,12 +696,11 @@ class FirestoreAPIService {
     return result;
   }
 
-
   Future<DocumentReference> applyToTask(
       {@required String taskId,
-        @required String applicantId,
-        @required bool applicantIsUser,
-        @required String userId}) async {
+      @required String applicantId,
+      @required bool applicantIsUser,
+      @required String userId}) async {
     if (debugMode)
       print(
           'FirestoreAPI: applyToTask called for task $taskId by applicant $applicantId');
@@ -765,16 +721,15 @@ class FirestoreAPIService {
         .then((docRef) async {
       await updateTaskApplicant(
           taskApplicant:
-          TaskApplicant(applicationId: docRef.documentID, taskid: taskId));
+              TaskApplicant(applicationId: docRef.documentID, taskid: taskId));
       return docRef;
     });
 
     ///Add applicant to provider / users tasksApplied
-    if(applicantIsUser) {
+    if (applicantIsUser) {
       await _usersCollectionRef.document(applicantId).updateData({
         'tasksApplied': FieldValue.arrayUnion([taskId])
       });
-
     } else {
       await _providersCollectionRef.document(applicantId).updateData({
         'tasksApplied': FieldValue.arrayUnion([taskId])
@@ -880,7 +835,7 @@ class FirestoreAPIService {
       taskAndNotification['task'] = task;
 
       bool hasNotification =
-      await hirerTaskHasNotification(taskId: task.taskId);
+          await hirerTaskHasNotification(taskId: task.taskId);
 
       taskAndNotification['hasNotification'] = hasNotification;
 
@@ -938,8 +893,6 @@ class FirestoreAPIService {
     return tasksAndHirersAndNotifications;
   }
 
-
-
   ///***------------------ OTHER FUNCTIONS ------------------***
 
   Future createDevEnvironment() async {
@@ -947,7 +900,7 @@ class FirestoreAPIService {
     ///send under the development collection
 
     DocumentReference devDoc =
-    await _developmentCollectionRef.add({'timeStamp': Timestamp.now()});
+        await _developmentCollectionRef.add({'timeStamp': Timestamp.now()});
 
     ///chats
     await Firestore.instance

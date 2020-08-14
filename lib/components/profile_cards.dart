@@ -132,9 +132,6 @@ Widget ProviderAccountCard(
                     style: TextStyle(fontSize: isSmallScreen?14:18, color: Colors.black),
                   ),
                 ),
-//                SizedBox(
-//                  height: 5,
-//                ),
                 Expanded(
                   child: Text(
                     provider.bio,
@@ -189,55 +186,69 @@ Widget AddProviderCard({@required double width, @required Function onPressed}) {
 }
 
 Widget HirerCard({@required User hirer, @required Function onTap}) {
-  return Row(
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-      Expanded(
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 0),
-          onTap: onTap,
-          title: Text(
-            hirer.name,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          leading: hirer.displayPictureURL == null
-              ? CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Color(0xffC4C4C4),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Icon(
-                      Icons.person,
-                      color: Color(0xff585858),
-                      size: 35,
-                    ),
+      Row(
+        children: <Widget>[
+          Expanded(
+            flex: 10,
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 0),
+              title: Text(
+                hirer.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              leading: hirer.displayPictureURL == null
+              ///Show default image
+                  ? CircleAvatar(
+                radius: 30,
+                backgroundColor: Color(0xffC4C4C4),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(
+                    Icons.person,
+                    color: Color(0xff585858),
+                    size: 35,
                   ),
-                )
-              : Container(
-            height: 60,
-            width: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(kGenchiCream),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Image(
-              image: CachedNetworkImageProvider(hirer.displayPictureURL),
-              fit: BoxFit.cover,
-              gaplessPlayback: true,
+                ),
+              )
+              ///Show provider image
+                  : Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(kGenchiCream),
+                ),
+                clipBehavior: Clip.hardEdge,
+                child: Image(
+                  image: CachedNetworkImageProvider(hirer.displayPictureURL),
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
+                ),
+              ),
+
+              subtitle: Container(
+                child: Text(
+                  hirer.bio,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                ),
+              ),
+              onTap: onTap,
             ),
           ),
-          subtitle: Container(
-            child: Text(
-              hirer.bio,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
-            ),
-          ),
-          ),
+        ],
+      ),
+      Divider(
+        height: 0,
+        thickness: 1,
       ),
     ],
   );

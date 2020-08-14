@@ -258,7 +258,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                               ];
                               //TODO add in categories for societies and charities
                               for (String accountType
-                              in AccountTypeList) {
+                              in accountTypeList) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),

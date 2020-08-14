@@ -1,21 +1,33 @@
 import 'package:flutter/widgets.dart';
 
 class User extends ChangeNotifier {
+
+  String accountType;
+
+  ///For all account types
   String id;
   String email;
   String name;
-  String accountType;
-  String category;
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
   DateTime timeStamp;
-  List<dynamic> providerProfiles;
   List<dynamic> tasksApplied;
   List<dynamic> chats;
   List<dynamic> favourites;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
+
+  ///For societies, charities and services
+  String category;
+
+  ///For providers
+  String mainAccountId;
+
+  ///For individuals
+  List<dynamic> providerProfiles;
+
+
   bool admin;
 
   User(
@@ -32,6 +44,7 @@ class User extends ChangeNotifier {
       this.accountType,
       this.category,
       this.bio,
+      this.tasksApplied,
       this.admin,
       this.chats});
 
@@ -47,6 +60,7 @@ class User extends ChangeNotifier {
         providerProfiles = snapshot['providerProfiles'] ?? [],
         favourites = snapshot['favourites'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
+        tasksApplied = snapshot['tasksApplied'] ?? [],
         posts = snapshot['posts'] ?? [],
         admin = snapshot['admin'] ?? false,
         chats = snapshot['chats'] ?? [];
@@ -62,6 +76,7 @@ class User extends ChangeNotifier {
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
+      if( tasksApplied != null) 'tasksApplied' : tasksApplied,
       if (id != null) 'id': id,
       if (timeStamp != null) 'timeStamp': timeStamp,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
@@ -73,16 +88,8 @@ class User extends ChangeNotifier {
   }
 }
 
-List<String> AccountTypeList = [
-  'Individual',
-  'Society',
-  'Charity'
-];
+List<String> accountTypeList = ['Individual', 'Society', 'Charity'];
 
-List<String> SocietyCategoryList = [
-  'Sports'
-];
+List<String> societyCategoryList = ['Sports'];
 
-List<String> CharityCategoryList = [
-  '???'
-];
+List<String> charityCategoryList = ['???'];

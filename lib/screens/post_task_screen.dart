@@ -102,7 +102,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       hintText: 'Summary of the job',
                     ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -116,22 +116,47 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        SizedBox(
-                          height: 50.0,
-                          child: Container(
-                            color: Color(kGenchiCream),
-                            child: DropdownButton<String>(
-                              value: initialDropDownValue(currentType: serviceController.text),
-                              items: dropDownServiceItems(),
-                              onChanged: (value) {
-                                setState(() {
-                                  serviceController.text = value;
-                                  changesMade = true;
-                                });
-                              },
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  serviceController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (Service serviceType in servicesList) {
+                                var newItem = new PopupMenuItem(
+                                  child: Text(
+                                    serviceType.databaseValue,
+                                  ),
+                                  value: serviceType.databaseValue,
+                                );
+                                items.add(newItem);
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
+                              setState(() {
+                                changesMade = true;
+                                serviceController.text = value;
+                              });
+                            }),
                       ],
                     ),
                     EditAccountField(

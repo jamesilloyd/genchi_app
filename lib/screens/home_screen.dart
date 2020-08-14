@@ -52,8 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _saveDeviceToken() async {
     /// Get the current user id
-    String uid =
-        await Provider.of<AuthenticationService>(context, listen: false)
+    String uid = Provider.of<AuthenticationService>(context, listen: false)
             .currentUser
             .id;
 

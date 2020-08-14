@@ -19,7 +19,6 @@ List<DropdownMenuItem> dropDownServiceItems() {
   return dropdownItems;
 }
 
-
 List<DropdownMenuItem> dropDownAccountTypeItems() {
   List<DropdownMenuItem<String>> dropdownItems = [];
   for (String accountType in AccountTypeList) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/search_manual_screen.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SearchBar extends StatelessWidget {
   const SearchBar({

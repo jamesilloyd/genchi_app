@@ -11,6 +11,7 @@ class User extends ChangeNotifier {
   String displayPictureURL;
   DateTime timeStamp;
   List<dynamic> providerProfiles;
+  List<dynamic> tasksApplied;
   List<dynamic> chats;
   List<dynamic> favourites;
   List<dynamic> posts;

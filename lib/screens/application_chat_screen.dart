@@ -15,13 +15,9 @@ import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/chat.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
-import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:provider/provider.dart';
 
 class ApplicationChatScreen extends StatefulWidget {
   static const String id = "application_chat_screen";
@@ -163,7 +159,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                                         : hirer.id,
                                     text: messageText,
                                     time: Timestamp.now()),
-                                providerIsSender: userIsProvider);
+                                applicantIsSender: userIsProvider);
                           } else {
                             if (debugMode)
                               print('Chat screen: Message text is null');

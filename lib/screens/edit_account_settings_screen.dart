@@ -175,7 +175,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   padding: EdgeInsets.all(15.0),
                   children: <Widget>[
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -188,20 +188,48 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        Container(
-                          height: 50.0,
-                          color: Color(kGenchiCream),
-                          child: DropdownButton<String>(
-                            value: accountTypeTextController.text,
-                            items: dropDownAccountTypeItems(),
-                            onChanged: (value) async {
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  accountTypeTextController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (String accountType
+                              in AccountTypeList) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
                               if (value != accountTypeTextController.text && hasServiceProfiles) {
                                 bool change = await showYesNoAlert(
                                     context: context,
                                     title:
-                                        'Are you sure you want to change account type?',
+                                    'Are you sure you want to change account type?',
                                     body:
-                                        'Doing this will remove any other service accounts associated with this account.');
+                                    'Doing this will remove any other service accounts associated with this account.');
 
                                 if (change) {
                                   changesMade = true;
@@ -213,9 +241,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 accountTypeTextController.text = value;
                                 setState(() {});
                               }
-                            },
-                          ),
-                        ),
+                            }),
                       ],
                     ),
                     EditAccountField(

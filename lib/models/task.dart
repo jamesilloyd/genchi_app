@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/material.dart';
 
 class Task {
   String taskId;
@@ -55,10 +55,11 @@ class Task {
 
 
 class TaskApplicant {
-  String pid;
+  String applicantid;
   String hirerid;
   String applicationId;
   String taskid;
+  bool applicantIsUser;
   bool hirerHasUnreadMessage;
   bool providerHasUnreadMessage;
   bool isHiddenFromHirer;
@@ -67,10 +68,11 @@ class TaskApplicant {
   Timestamp time;
 
   TaskApplicant(
-      {this.pid,
+      { this.applicantid,
         this.hirerid,
         this.applicationId,
         this.taskid,
+        @required this.applicantIsUser,
         this.hirerHasUnreadMessage,
         this.providerHasUnreadMessage,
         this.lastMessage,
@@ -79,8 +81,9 @@ class TaskApplicant {
         this.time});
 
   TaskApplicant.fromMap(Map snapshot)
-      : pid = snapshot['pid'] ?? '',
+      : applicantid = snapshot['applicantid'] ?? snapshot['pid'] ?? '',
         hirerid = snapshot['hirerid'] ?? '',
+        applicantIsUser = snapshot['applicantIsUser'] ?? false,
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
         providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
@@ -92,9 +95,10 @@ class TaskApplicant {
 
   toJson() {
     return {
-      if (pid != null) "pid": pid,
+      if (applicantid != null) "applicantid": applicantid,
       if (hirerid != null) "hirerid": hirerid,
       if (applicationId != null) 'applicationId': applicationId,
+      if (applicantIsUser != null) 'applicantIsUser' : applicantIsUser,
       if (providerHasUnreadMessage != null)'providerHasUnreadMessage': providerHasUnreadMessage,
       if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,

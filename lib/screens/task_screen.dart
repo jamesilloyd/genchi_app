@@ -151,8 +151,13 @@ class _TaskScreenState extends State<TaskScreen> {
 
   Widget buildApplicantsTask({@required bool userIsProvider,
     @required Function applyFunction,
-    @required List userpids,
+    @required List userpidsAndId,
     @required Task task}) {
+
+    //TODO NEED TO CHANGE SO THAT THEY CAN ALWAYS APPLY WITH THEIR GENERIC ACCOUNT
+
+
+
     if (!userIsProvider) {
       ///User cannot apply as they do not have a provider account
       return Column(
@@ -219,7 +224,7 @@ class _TaskScreenState extends State<TaskScreen> {
             ProviderUser provider = applicantAndProvider['provider'];
             TaskApplicant applicant = applicantAndProvider['applicant'];
 
-            if (userpids.contains(provider.pid)) {
+            if (userpidsAndId.contains(provider.pid)) {
               ///currentuser has applied
               applied = true;
               appliedProvider = provider;
@@ -389,6 +394,9 @@ class _TaskScreenState extends State<TaskScreen> {
     Task currentTask = taskProvider.currentTask;
     bool isUsersTask = currentTask.hirerId == currentUser.id;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
+
+    List<String> userPidsAndId = currentUser.providerProfiles;
+    userPidsAndId.add(currentUser.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -563,7 +571,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 : buildApplicantsTask(
               task: currentTask,
               userIsProvider: userIsProvider,
-              userpids: currentUser.providerProfiles,
+              userpidsAndId:  userPidsAndId,
               applyFunction: () async {
                 if (userIsProvider) {
                   String selectedProviderId = await showModalBottomSheet(
@@ -655,7 +663,8 @@ class _TaskScreenState extends State<TaskScreen> {
                     DocumentReference chatRef =
                     await firestoreAPI.applyToTask(
                         taskId: currentTask.taskId,
-                        providerId: selectedProviderId,
+                        applicantId: selectedProviderId,
+                        applicantIsUser: false,
                         userId: currentTask.hirerId);
 
                     TaskApplicant taskApplicant =

@@ -41,7 +41,19 @@ class FirestoreAPIService {
   static CollectionReference _developmentCollectionRef =
   Firestore.instance.collection('development');
 
-  final String applicantCollectionName = 'applicants';
+
+  ///***------------------ PROVIDER FUNCTIONS ------------------***
+
+
+  Future getProviderById(String pid) async {
+    DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
+    return doc.exists ? ProviderUser.fromMap(doc.data) : null;
+  }
+
+  Future updateProvider({ProviderUser provider, String pid}) async {
+    await _providersCollectionRef.document(pid).updateData(provider.toJson());
+    return;
+  }
 
   Future<List<ProviderUser>> fetchProviders() async {
     List<ProviderUser> providers;
@@ -60,159 +72,124 @@ class FirestoreAPIService {
     return allProviders;
   }
 
-  Future<List<Map<String, dynamic>>> fetchTasksAndHirers() async {
-    if (debugMode) print('FirestoreAPI: fetchTasksAndHirers called');
 
-    ///This function is for fetching all the tasks for the tasks feed
+  Future<DocumentReference> addProvider(
+      ProviderUser provider, String uid) async {
+    DocumentReference result = await _providersCollectionRef
+        .add(provider.toJson())
+        .then((docRef) async {
+      await updateProvider(
+        provider: ProviderUser(pid: docRef.documentID),
+        pid: docRef.documentID,
+      );
+      await _usersCollectionRef.document(uid).updateData({
+        'providerProfiles': FieldValue.arrayUnion([docRef.documentID])
+      });
+      return docRef;
+    });
 
-    List<Map<String, dynamic>> tasksAndHirers = [];
-    List<Task> tasks;
-    var result = await _taskCollectionRef.getDocuments();
-
-    ///Map all the documents into Task objects
-    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
-
-    ///Sort by time posted
-    tasks.sort((a, b) => b.time.compareTo(a.time));
-    for (Task task in tasks) {
-      Map<String, dynamic> taskAndHirer = {};
-      taskAndHirer['task'] = task;
-      var hirer = await getUserById(task.hirerId);
-
-      ///If hirer exists add them to the task list
-      if (hirer != null) {
-        taskAndHirer['hirer'] = hirer;
-        tasksAndHirers.add(taskAndHirer);
-      }
-    }
-    return tasksAndHirers;
+    return result;
   }
 
-  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService(
-      {String service}) async {
+  Future<List<ProviderUser>> getProviders({List pids}) async {
+    List<ProviderUser> providers = [];
+    for (var pid in pids) {
+      ProviderUser provider = await getProviderById(pid);
+
+      ///Check that the provider exists
+      if (provider != null) {
+        providers.add(provider);
+      }
+    }
+    return providers;
+  }
+
+
+  Future<void> deleteProvider({ProviderUser provider}) async {
     if (debugMode)
-      print(
-          'FirestoreAPI: fetchTasksAndHirersByService called on service $service');
+      print('FirestoreAPI: deleteProvider called on ${provider.pid}');
 
-    ///This function is for fetching all the tasks for the tasks feed
+    if (provider.chats.isNotEmpty)
+      for (String chatID in provider.chats) {
+        if (debugMode)
+          print('FirestoreAPI: deleteProvider Deleting chat $chatID}');
+        Chat chat = await getChatById(chatID);
 
-    List<Map<String, dynamic>> tasksAndHirers = [];
-    List<Task> tasks;
-    var result = await _taskCollectionRef
-        .where('service', isEqualTo: service)
-        .getDocuments();
-
-    ///Map all the documents into Task objects
-    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
-
-    ///Sort by time posted
-    tasks.sort((a, b) => b.time.compareTo(a.time));
-    for (Task task in tasks) {
-      Map<String, dynamic> taskAndHirer = {};
-      taskAndHirer['task'] = task;
-      var hirer = await getUserById(task.hirerId);
-
-      ///If hirer exists add them to the task list
-      if (hirer != null) {
-        taskAndHirer['hirer'] = hirer;
-        tasksAndHirers.add(taskAndHirer);
+        ///Check that the chat exists before deleting
+        if (chat != null) await deleteChat(chat: chat);
       }
-    }
-    return tasksAndHirers;
+
+    ///Remove provider from any hirer favourites
+    if (provider.isFavouritedBy.isNotEmpty)
+      for (String uid in provider.isFavouritedBy) {
+        if (debugMode)
+          print(
+              'FirestoreAPI: deleteProvider Removing provider from hirer: $uid favourites');
+        await removeUserFavourite(uid: uid, favouritePid: provider.pid);
+      }
+
+    ///Remove provider from tasks they have applied to
+    if (provider.tasksApplied.isNotEmpty)
+      for (String taskId in provider.tasksApplied) {
+        if (debugMode)
+          print(
+              'FirestoreAPI: deleteProvider Removing provider application from task $taskId');
+
+        Task appliedTask = await getTaskById(taskId: taskId);
+
+        ///Check that the applied task exists
+        if (appliedTask != null) {
+          ///Find the application corresponding to this provider.pid
+          QuerySnapshot applications = await _taskCollectionRef
+              .document(taskId)
+              .collection(applicantCollectionName)
+              .where('pid', isEqualTo: provider.pid)
+              .getDocuments();
+          if (applications.documents.isNotEmpty)
+            for (DocumentSnapshot doc in applications.documents) {
+              await removeTaskApplicant(
+                  providerId: provider.pid,
+                  taskId: taskId,
+                  applicationId: doc.documentID);
+            }
+        }
+      }
+
+    ///Delete the provider
+    await _providersCollectionRef.document(provider.pid).delete();
+
+    ///Remove provider from user's array
+    await _usersCollectionRef.document(provider.uid).updateData({
+      'providerProfiles': FieldValue.arrayRemove([provider.pid])
+    });
+    if (debugMode) print('FirestoreAPI: deleteProvider complete');
   }
 
-  Stream<QuerySnapshot> fetchChatStream(String chatId) {
-    return _chatCollectionRef
-        .document(chatId)
-        .collection('messages')
-        .orderBy('time', descending: true)
-        .snapshots();
-  }
+  ///***------------------ USER FUNCTIONS ------------------***
 
-  Stream<QuerySnapshot> fetchTaskApplicantChatStream(
-      {@required String taskid, @required String applicantId}) {
-    return _taskCollectionRef
-        .document(taskid)
-        .collection(applicantCollectionName)
-        .document(applicantId)
-        .collection('messages')
-        .orderBy('time', descending: true)
-        .snapshots();
-  }
-
-  Future getChatById(String chatId) async {
-    var doc = await _chatCollectionRef.document(chatId).get();
-    return doc.exists ? Chat.fromMap(doc.data) : null;
-  }
 
   Future getUserById(String uid) async {
     var doc = await _usersCollectionRef.document(uid).get();
     return doc.exists ? User.fromMap(doc.data) : null;
   }
 
-  Future getProviderById(String pid) async {
-    DocumentSnapshot doc = await _providersCollectionRef.document(pid).get();
-    return doc.exists ? ProviderUser.fromMap(doc.data) : null;
+
+  Future updateUser({User user, String uid}) async {
+    await _usersCollectionRef.document(uid).updateData(user.toJson());
   }
 
-  Future getTaskById({String taskId}) async {
-    DocumentSnapshot doc = await _taskCollectionRef.document(taskId).get();
-    return doc.exists ? Task.fromMap(doc.data) : null;
+
+  Future addUserByID(User user) async {
+    var result =
+    await _usersCollectionRef.document(user.id).setData(user.toJson());
+    return result;
   }
 
-  Future getTaskApplicantById({String taskId, String applicantId}) async {
-    DocumentSnapshot doc = await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .document(applicantId)
-        .get();
-
-    return doc.exists ? TaskApplicant.fromMap(doc.data) : null;
+  Future addUser(User user) async {
+    var result = await _usersCollectionRef.add(user.toJson());
+    return result;
   }
 
-  Future<bool> providerApplicationHasNotification(
-      {@required String taskId, @required String pid}) async {
-    bool hasNotification = false;
-
-    ///Don't need to worry too much about this document not existing as
-    ///it is only called for the tasks that the provider has applied to
-    QuerySnapshot docs = await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .where('pid', isEqualTo: pid)
-        .getDocuments();
-
-    if (docs.documents.isNotEmpty)
-      for (DocumentSnapshot doc in docs.documents) {
-        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
-
-        ///If the taskapplicant has an unread messages then mark has notification as true
-        if (taskApplicant.providerHasUnreadMessage) hasNotification = true;
-      }
-
-    return hasNotification;
-  }
-
-  Future<bool> hirerTaskHasNotification({@required String taskId}) async {
-    bool hasNotification = false;
-
-    ///Don't need to worry too much about this document not existing as
-    ///it is only called for the tasks that the provider has applied to
-    QuerySnapshot docs = await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .getDocuments();
-
-    if (docs.documents.isNotEmpty)
-      for (DocumentSnapshot doc in docs.documents) {
-        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
-
-        ///If the hirer has an unread messages then mark has notification as true
-        if (taskApplicant.hirerHasUnreadMessage) hasNotification = true;
-      }
-
-    return hasNotification;
-  }
 
   Future<List<ProviderUser>> getUsersFavourites(userFavourites) async {
     List<ProviderUser> providers = [];
@@ -230,6 +207,77 @@ class FirestoreAPIService {
     providers.sort((a, b) => a.type.compareTo(b.type));
     return providers;
   }
+
+  Future removeUserFavourite(
+      {String uid, String favouritePid}) async {
+    if (debugMode)
+      print(
+          'FirestoreAPI: removeUserFavourite called for hirer $uid on provider $favouritePid');
+    await _usersCollectionRef.document(uid).updateData({
+      'favourites': FieldValue.arrayRemove([favouritePid])
+    });
+    await _providersCollectionRef.document(favouritePid).updateData({
+      'isFavouritedBy': FieldValue.arrayRemove([uid])
+    });
+  }
+
+  Future addUserFavourite(
+      {String uid, String favouritePid}) async {
+    if (debugMode)
+      print(
+          'FirestoreAPI: addUserFavourite called for hirer $uid on provider $favouritePid');
+    await _usersCollectionRef.document(uid).updateData({
+      'favourites': FieldValue.arrayUnion([favouritePid])
+    });
+    await _providersCollectionRef.document(favouritePid).updateData({
+      'isFavouritedBy': FieldValue.arrayUnion([uid])
+    });
+  }
+
+
+  Future<void> deleteDisplayPicture({User user}) async {
+    await FirebaseStorage.instance
+        .ref()
+        .child(user.displayPictureFileName)
+        .delete();
+    await _usersCollectionRef.document(user.id).updateData({
+      'displayPictureFileName': FieldValue.delete(),
+      'displayPictureURL': FieldValue.delete()
+    });
+
+    if (user.providerProfiles.isNotEmpty)
+      for (String pid in user.providerProfiles) {
+        await _providersCollectionRef.document(pid).updateData({
+          'displayPictureFileName': FieldValue.delete(),
+          'displayPictureURL': FieldValue.delete()
+        });
+      }
+  }
+
+
+  ///***------------------ CHAT FUNCTIONS ------------------***
+
+
+
+  Stream<QuerySnapshot> fetchChatStream(String chatId) {
+    return _chatCollectionRef
+        .document(chatId)
+        .collection('messages')
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+
+  Future getChatById(String chatId) async {
+    var doc = await _chatCollectionRef.document(chatId).get();
+    return doc.exists ? Chat.fromMap(doc.data) : null;
+  }
+
+  Future updateChat({Chat chat}) async {
+    await _chatCollectionRef.document(chat.chatid).updateData(chat.toJson());
+  }
+
+
 
   Stream streamUserChats({User user}) {
     ///This function is used to stream all the private chats a user has (and their provider chats)
@@ -299,51 +347,7 @@ class FirestoreAPIService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getTaskApplicants(
-      {@required String taskId}) async {
-    ///This is called to get the applicants attached to a task
-    if (debugMode) print('FirestoreAPI: getTaskApplicants called on $taskId');
 
-    List<Map<String, dynamic>> applicationAndProviders = [];
-
-    QuerySnapshot applicants = await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .getDocuments();
-
-    if (applicants.documents.isNotEmpty) {
-      ///Map all the documents into Task objects
-      List<TaskApplicant> tasksApplicants = applicants.documents
-          .map((doc) => TaskApplicant.fromMap(doc.data))
-          .toList();
-
-      for (TaskApplicant applicant in tasksApplicants) {
-        Map<String, dynamic> applicationAndProvider = {};
-
-        if (debugMode)
-          print(
-              'FirestoreAPI: getTaskChatsAndProviders found application ${applicant.applicationId} and provider ${applicant.pid}');
-
-        ///Grab the provider associated with the application
-        ProviderUser provider = await getProviderById(applicant.pid);
-
-        ///Check that the provider exists
-        if (provider != null) {
-          applicationAndProvider['applicant'] = applicant;
-          applicationAndProvider['provider'] = provider;
-          applicationAndProviders.add(applicationAndProvider);
-        }
-      }
-
-      applicationAndProviders.sort((a, b) {
-        TaskApplicant taskA = a['applicant'];
-        TaskApplicant taskB = b['applicant'];
-        return taskB.time.compareTo(taskA.time);
-      });
-    }
-
-    return applicationAndProviders;
-  }
 
   Future<List<Map<String, dynamic>>> getUserProviderChatsAndHirers(
       {List<dynamic> usersPids}) async {
@@ -396,61 +400,6 @@ class FirestoreAPIService {
     return userProviderChatsAndUsers;
   }
 
-  Future updateUser({User user, String uid}) async {
-    await _usersCollectionRef.document(uid).updateData(user.toJson());
-  }
-
-  Future updateProvider({ProviderUser provider, String pid}) async {
-    await _providersCollectionRef.document(pid).updateData(provider.toJson());
-    return;
-  }
-
-  Future updateTask({Task task, String taskId}) async {
-    await _taskCollectionRef.document(taskId).updateData(task.toJson());
-    return;
-  }
-
-  Future updateChat({Chat chat}) async {
-    await _chatCollectionRef.document(chat.chatid).updateData(chat.toJson());
-  }
-
-  Future updateTaskApplicant({TaskApplicant taskApplicant}) async {
-    await _taskCollectionRef
-        .document(taskApplicant.taskid)
-        .collection(applicantCollectionName)
-        .document(taskApplicant.applicationId)
-        .updateData(taskApplicant.toJson());
-  }
-
-  Future addUserByID(User user) async {
-    var result =
-    await _usersCollectionRef.document(user.id).setData(user.toJson());
-    return result;
-  }
-
-  Future addUser(User user) async {
-    var result = await _usersCollectionRef.add(user.toJson());
-    return result;
-  }
-
-  //TODO how to fail safe this ???
-  Future<DocumentReference> addTask(
-      {@required Task task, @required String uid}) async {
-    DocumentReference result =
-    await _taskCollectionRef.add(task.toJson()).then((docRef) async {
-      await updateTask(
-        task: Task(taskId: docRef.documentID),
-        taskId: docRef.documentID,
-      );
-      await _usersCollectionRef.document(uid).updateData({
-        'posts': FieldValue.arrayUnion([docRef.documentID])
-      });
-      return docRef;
-    });
-
-    return result;
-  }
-
   Future addMessageToChat(
       {String chatId, ChatMessage chatMessage, bool providerIsSender}) async {
     Chat chat = Chat(
@@ -469,57 +418,6 @@ class FirestoreAPIService {
         .document(chatId)
         .collection('messages')
         .add(chatMessage.toJson());
-
-    return result;
-  }
-
-  Future addMessageToTaskApplicant(
-      {@required String applicantId,
-        @required ChatMessage chatMessage,
-        @required bool providerIsSender,
-        @required String taskId}) async {
-    TaskApplicant taskApplicant = TaskApplicant(
-        lastMessage: chatMessage.text,
-        time: chatMessage.time,
-        isHiddenFromProvider: false,
-        isHiddenFromHirer: false);
-
-    providerIsSender
-        ? taskApplicant.hirerHasUnreadMessage = true
-        : taskApplicant.providerHasUnreadMessage = true;
-
-    ///Update the taskApplicant data
-    await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .document(applicantId)
-        .updateData(taskApplicant.toJson());
-
-    ///Add the message to the task applicant collection
-    var result = await _taskCollectionRef
-        .document(taskId)
-        .collection(applicantCollectionName)
-        .document(applicantId)
-        .collection('messages')
-        .add(chatMessage.toJson());
-
-    return result;
-  }
-
-  Future<DocumentReference> addProvider(
-      ProviderUser provider, String uid) async {
-    DocumentReference result = await _providersCollectionRef
-        .add(provider.toJson())
-        .then((docRef) async {
-      await updateProvider(
-        provider: ProviderUser(pid: docRef.documentID),
-        pid: docRef.documentID,
-      );
-      await _usersCollectionRef.document(uid).updateData({
-        'providerProfiles': FieldValue.arrayUnion([docRef.documentID])
-      });
-      return docRef;
-    });
 
     return result;
   }
@@ -547,18 +445,315 @@ class FirestoreAPIService {
     return result;
   }
 
+  Future<void> deleteChat({Chat chat}) async {
+    ///Deleting chat from provider's array
+    await _providersCollectionRef.document(chat.pid).updateData({
+      'chats': FieldValue.arrayRemove([chat.chatid])
+    });
+
+    ///Deleting chat from hirer's array
+    await _usersCollectionRef.document(chat.uid).updateData({
+      'chats': FieldValue.arrayRemove([chat.chatid])
+    });
+
+    ///Deleting messages attached to the chat
+    await _chatCollectionRef
+        .document(chat.chatid)
+        .collection('messages')
+        .getDocuments()
+        .then((snapshot) {
+      if (snapshot.documents.isNotEmpty)
+        for (DocumentSnapshot doc in snapshot.documents) {
+          doc.reference.delete();
+        }
+    });
+
+    ///Deleting the chat
+    await _chatCollectionRef.document(chat.chatid).delete();
+  }
+
+
+  Future<void> hideChat({Chat chat, bool forProvider}) async {
+    if (debugMode) print('FirestoreAPI: hideChat called');
+    forProvider
+        ? chat.isHiddenFromProvider = true
+        : chat.isHiddenFromUser = true;
+    print(chat.isHiddenFromUser);
+    print(chat.isHiddenFromProvider);
+    await updateChat(chat: chat);
+  }
+
+
+  ///***------------------ TASK FUNCTIONS ------------------***
+
+  final String applicantCollectionName = 'applicants';
+
+  Future getTaskById({String taskId}) async {
+    DocumentSnapshot doc = await _taskCollectionRef.document(taskId).get();
+    return doc.exists ? Task.fromMap(doc.data) : null;
+  }
+
+  Future updateTask({Task task, String taskId}) async {
+    await _taskCollectionRef.document(taskId).updateData(task.toJson());
+    return;
+  }
+
+
+  //TODO how to fail safe this ???
+  Future<DocumentReference> addTask(
+      {@required Task task, @required String uid}) async {
+    DocumentReference result =
+    await _taskCollectionRef.add(task.toJson()).then((docRef) async {
+      await updateTask(
+        task: Task(taskId: docRef.documentID),
+        taskId: docRef.documentID,
+      );
+      await _usersCollectionRef.document(uid).updateData({
+        'posts': FieldValue.arrayUnion([docRef.documentID])
+      });
+      return docRef;
+    });
+
+    return result;
+  }
+
+  Future updateTaskApplicant({TaskApplicant taskApplicant}) async {
+    await _taskCollectionRef
+        .document(taskApplicant.taskid)
+        .collection(applicantCollectionName)
+        .document(taskApplicant.applicationId)
+        .updateData(taskApplicant.toJson());
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTasksAndHirers() async {
+    if (debugMode) print('FirestoreAPI: fetchTasksAndHirers called');
+
+    ///This function is for fetching all the tasks for the tasks feed
+
+    List<Map<String, dynamic>> tasksAndHirers = [];
+    List<Task> tasks;
+    var result = await _taskCollectionRef.getDocuments();
+
+    ///Map all the documents into Task objects
+    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
+
+    ///Sort by time posted
+    tasks.sort((a, b) => b.time.compareTo(a.time));
+    for (Task task in tasks) {
+      Map<String, dynamic> taskAndHirer = {};
+      taskAndHirer['task'] = task;
+      var hirer = await getUserById(task.hirerId);
+
+      ///If hirer exists add them to the task list
+      if (hirer != null) {
+        taskAndHirer['hirer'] = hirer;
+        tasksAndHirers.add(taskAndHirer);
+      }
+    }
+    return tasksAndHirers;
+  }
+
+
+
+  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService(
+      {String service}) async {
+    if (debugMode)
+      print(
+          'FirestoreAPI: fetchTasksAndHirersByService called on service $service');
+
+    ///This function is for fetching all the tasks for the tasks feed
+
+    List<Map<String, dynamic>> tasksAndHirers = [];
+    List<Task> tasks;
+    var result = await _taskCollectionRef
+        .where('service', isEqualTo: service)
+        .getDocuments();
+
+    ///Map all the documents into Task objects
+    tasks = result.documents.map((doc) => Task.fromMap(doc.data)).toList();
+
+    ///Sort by time posted
+    tasks.sort((a, b) => b.time.compareTo(a.time));
+    for (Task task in tasks) {
+      Map<String, dynamic> taskAndHirer = {};
+      taskAndHirer['task'] = task;
+      var hirer = await getUserById(task.hirerId);
+
+      ///If hirer exists add them to the task list
+      if (hirer != null) {
+        taskAndHirer['hirer'] = hirer;
+        tasksAndHirers.add(taskAndHirer);
+      }
+    }
+    return tasksAndHirers;
+  }
+
+
+  Stream<QuerySnapshot> fetchTaskApplicantChatStream(
+      {@required String taskid, @required String applicantId}) {
+    return _taskCollectionRef
+        .document(taskid)
+        .collection(applicantCollectionName)
+        .document(applicantId)
+        .collection('messages')
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+
+  Future getTaskApplicantById({String taskId, String applicantId}) async {
+    DocumentSnapshot doc = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .document(applicantId)
+        .get();
+
+    return doc.exists ? TaskApplicant.fromMap(doc.data) : null;
+  }
+
+
+  Future<bool> providerApplicationHasNotification(
+      {@required String taskId, @required String pid}) async {
+    bool hasNotification = false;
+
+    ///Don't need to worry too much about this document not existing as
+    ///it is only called for the tasks that the provider has applied to
+    QuerySnapshot docs = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .where('pid', isEqualTo: pid)
+        .getDocuments();
+
+    if (docs.documents.isNotEmpty)
+      for (DocumentSnapshot doc in docs.documents) {
+        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
+
+        ///If the taskapplicant has an unread messages then mark has notification as true
+        if (taskApplicant.providerHasUnreadMessage) hasNotification = true;
+      }
+
+    return hasNotification;
+  }
+
+  Future<bool> hirerTaskHasNotification({@required String taskId}) async {
+    bool hasNotification = false;
+
+    ///Don't need to worry too much about this document not existing as
+    ///it is only called for the tasks that the provider has applied to
+    QuerySnapshot docs = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .getDocuments();
+
+    if (docs.documents.isNotEmpty)
+      for (DocumentSnapshot doc in docs.documents) {
+        TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
+
+        ///If the hirer has an unread messages then mark has notification as true
+        if (taskApplicant.hirerHasUnreadMessage) hasNotification = true;
+      }
+
+    return hasNotification;
+  }
+
+
+
+  Future<List<Map<String, dynamic>>> getTaskApplicants(
+      {@required String taskId}) async {
+    ///This is called to get the applicants attached to a task
+    if (debugMode) print('FirestoreAPI: getTaskApplicants called on $taskId');
+
+    List<Map<String, dynamic>> applicationAndProviders = [];
+
+    QuerySnapshot applicants = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .getDocuments();
+
+    if (applicants.documents.isNotEmpty) {
+      ///Map all the documents into Task objects
+      List<TaskApplicant> tasksApplicants = applicants.documents
+          .map((doc) => TaskApplicant.fromMap(doc.data))
+          .toList();
+
+      for (TaskApplicant applicant in tasksApplicants) {
+        Map<String, dynamic> applicationAndProvider = {};
+
+        if (debugMode)
+          print(
+              'FirestoreAPI: getTaskChatsAndProviders found application ${applicant.applicationId} and applicant ${applicant.applicantid}');
+
+        ///Grab the provider associated with the application
+        ProviderUser provider = await getProviderById(applicant.applicantid);
+
+        ///Check that the provider exists
+        if (provider != null) {
+          applicationAndProvider['applicant'] = applicant;
+          applicationAndProvider['provider'] = provider;
+          applicationAndProviders.add(applicationAndProvider);
+        }
+      }
+
+      applicationAndProviders.sort((a, b) {
+        TaskApplicant taskA = a['applicant'];
+        TaskApplicant taskB = b['applicant'];
+        return taskB.time.compareTo(taskA.time);
+      });
+    }
+
+    return applicationAndProviders;
+  }
+
+
+
+  Future addMessageToTaskApplicant(
+      {@required String applicantId,
+        @required ChatMessage chatMessage,
+        @required bool applicantIsSender,
+        @required String taskId}) async {
+    TaskApplicant taskApplicant = TaskApplicant(
+        lastMessage: chatMessage.text,
+        time: chatMessage.time,
+        isHiddenFromProvider: false,
+        isHiddenFromHirer: false);
+
+    applicantIsSender
+        ? taskApplicant.hirerHasUnreadMessage = true
+        : taskApplicant.providerHasUnreadMessage = true;
+
+    ///Update the taskApplicant data
+    await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .document(applicantId)
+        .updateData(taskApplicant.toJson());
+
+    ///Add the message to the task applicant collection
+    var result = await _taskCollectionRef
+        .document(taskId)
+        .collection(applicantCollectionName)
+        .document(applicantId)
+        .collection('messages')
+        .add(chatMessage.toJson());
+
+    return result;
+  }
+
+
   Future<DocumentReference> applyToTask(
       {@required String taskId,
-        @required String providerId,
+        @required String applicantId,
+        @required bool applicantIsUser,
         @required String userId}) async {
     if (debugMode)
       print(
-          'FirestoreAPI: applyToTask called for task $taskId by applicant $providerId');
+          'FirestoreAPI: applyToTask called for task $taskId by applicant $applicantId');
 
     TaskApplicant taskApplicant = TaskApplicant(
         taskid: taskId,
         hirerid: userId,
-        pid: providerId,
+        applicantid: applicantId,
+        applicantIsUser: applicantIsUser,
         isHiddenFromHirer: false,
         isHiddenFromProvider: false);
 
@@ -574,10 +769,17 @@ class FirestoreAPIService {
       return docRef;
     });
 
-    ///Add applicant to provider's tasksApplied
-    await _providersCollectionRef.document(providerId).updateData({
-      'tasksApplied': FieldValue.arrayUnion([taskId])
-    });
+    ///Add applicant to provider / users tasksApplied
+    if(applicantIsUser) {
+      await _usersCollectionRef.document(applicantId).updateData({
+        'tasksApplied': FieldValue.arrayUnion([taskId])
+      });
+
+    } else {
+      await _providersCollectionRef.document(applicantId).updateData({
+        'tasksApplied': FieldValue.arrayUnion([taskId])
+      });
+    }
     return taskApplicantResult;
   }
 
@@ -630,7 +832,7 @@ class FirestoreAPIService {
         for (DocumentSnapshot doc in snapshot.documents) {
           TaskApplicant taskApplicant = TaskApplicant.fromMap(doc.data);
           await removeTaskApplicant(
-              providerId: taskApplicant.pid,
+              providerId: taskApplicant.applicantid,
               taskId: taskApplicant.taskid,
               applicationId: taskApplicant.applicationId);
         }
@@ -644,45 +846,6 @@ class FirestoreAPIService {
     });
 
     await _taskCollectionRef.document(task.taskId).delete();
-  }
-
-  Future removeUserFavourite(
-      {String uid, String favouritePid}) async {
-    if (debugMode)
-      print(
-          'FirestoreAPI: removeUserFavourite called for hirer $uid on provider $favouritePid');
-    await _usersCollectionRef.document(uid).updateData({
-      'favourites': FieldValue.arrayRemove([favouritePid])
-    });
-    await _providersCollectionRef.document(favouritePid).updateData({
-      'isFavouritedBy': FieldValue.arrayRemove([uid])
-    });
-  }
-
-  Future addUserFavourite(
-      {String uid, String favouritePid}) async {
-    if (debugMode)
-      print(
-          'FirestoreAPI: addUserFavourite called for hirer $uid on provider $favouritePid');
-    await _usersCollectionRef.document(uid).updateData({
-      'favourites': FieldValue.arrayUnion([favouritePid])
-    });
-    await _providersCollectionRef.document(favouritePid).updateData({
-      'isFavouritedBy': FieldValue.arrayUnion([uid])
-    });
-  }
-
-  Future<List<ProviderUser>> getProviders({List pids}) async {
-    List<ProviderUser> providers = [];
-    for (var pid in pids) {
-      ProviderUser provider = await getProviderById(pid);
-
-      ///Check that the provider exists
-      if (provider != null) {
-        providers.add(provider);
-      }
-    }
-    return providers;
   }
 
   Future<List<Task>> getTasks({List postIds}) async {
@@ -775,121 +938,9 @@ class FirestoreAPIService {
     return tasksAndHirersAndNotifications;
   }
 
-  Future<void> deleteProvider({ProviderUser provider}) async {
-    if (debugMode)
-      print('FirestoreAPI: deleteProvider called on ${provider.pid}');
 
-    if (provider.chats.isNotEmpty)
-      for (String chatID in provider.chats) {
-        if (debugMode)
-          print('FirestoreAPI: deleteProvider Deleting chat $chatID}');
-        Chat chat = await getChatById(chatID);
 
-        ///Check that the chat exists before deleting
-        if (chat != null) await deleteChat(chat: chat);
-      }
-
-    ///Remove provider from any hirer favourites
-    if (provider.isFavouritedBy.isNotEmpty)
-      for (String uid in provider.isFavouritedBy) {
-        if (debugMode)
-          print(
-              'FirestoreAPI: deleteProvider Removing provider from hirer: $uid favourites');
-        await removeUserFavourite(uid: uid, favouritePid: provider.pid);
-      }
-
-    ///Remove provider from tasks they have applied to
-    if (provider.tasksApplied.isNotEmpty)
-      for (String taskId in provider.tasksApplied) {
-        if (debugMode)
-          print(
-              'FirestoreAPI: deleteProvider Removing provider application from task $taskId');
-
-        Task appliedTask = await getTaskById(taskId: taskId);
-
-        ///Check that the applied task exists
-        if (appliedTask != null) {
-          ///Find the application corresponding to this provider.pid
-          QuerySnapshot applications = await _taskCollectionRef
-              .document(taskId)
-              .collection(applicantCollectionName)
-              .where('pid', isEqualTo: provider.pid)
-              .getDocuments();
-          if (applications.documents.isNotEmpty)
-            for (DocumentSnapshot doc in applications.documents) {
-              await removeTaskApplicant(
-                  providerId: provider.pid,
-                  taskId: taskId,
-                  applicationId: doc.documentID);
-            }
-        }
-      }
-
-    ///Delete the provider
-    await _providersCollectionRef.document(provider.pid).delete();
-
-    ///Remove provider from user's array
-    await _usersCollectionRef.document(provider.uid).updateData({
-      'providerProfiles': FieldValue.arrayRemove([provider.pid])
-    });
-    if (debugMode) print('FirestoreAPI: deleteProvider complete');
-  }
-
-  Future<void> deleteChat({Chat chat}) async {
-    ///Deleting chat from provider's array
-    await _providersCollectionRef.document(chat.pid).updateData({
-      'chats': FieldValue.arrayRemove([chat.chatid])
-    });
-
-    ///Deleting chat from hirer's array
-    await _usersCollectionRef.document(chat.uid).updateData({
-      'chats': FieldValue.arrayRemove([chat.chatid])
-    });
-
-    ///Deleting messages attached to the chat
-    await _chatCollectionRef
-        .document(chat.chatid)
-        .collection('messages')
-        .getDocuments()
-        .then((snapshot) {
-      if (snapshot.documents.isNotEmpty)
-        for (DocumentSnapshot doc in snapshot.documents) {
-          doc.reference.delete();
-        }
-    });
-
-    ///Deleting the chat
-    await _chatCollectionRef.document(chat.chatid).delete();
-  }
-
-  Future<void> deleteDisplayPicture({User user}) async {
-    await FirebaseStorage.instance
-        .ref()
-        .child(user.displayPictureFileName)
-        .delete();
-    await _usersCollectionRef.document(user.id).updateData({
-      'displayPictureFileName': FieldValue.delete(),
-      'displayPictureURL': FieldValue.delete()
-    });
-
-    if (user.providerProfiles.isNotEmpty)
-      for (String pid in user.providerProfiles) {
-        await _providersCollectionRef.document(pid).updateData({
-          'displayPictureFileName': FieldValue.delete(),
-          'displayPictureURL': FieldValue.delete()
-        });
-      }
-  }
-
-  Future<void> hideChat({Chat chat, bool forProvider}) async {
-    if (debugMode) print('FirestoreAPI: hideChat called');
-    forProvider
-        ? chat.isHiddenFromProvider = true
-        : chat.isHiddenFromUser = true;
-    print(chat.isHiddenFromUser);
-    print(chat.isHiddenFromProvider);
-    await updateChat(chat: chat);
-  }
+  ///***------------------ OTHER FUNCTIONS ------------------***
 
   Future createDevEnvironment() async {
     ///grab all data form firestore
@@ -1018,7 +1069,6 @@ class FirestoreAPIService {
         });
       }
     });
-
     print('Done');
   }
 }

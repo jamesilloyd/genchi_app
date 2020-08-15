@@ -80,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               email = value;
                             },
                             hintText: "Enter email",
+                            isNameField: false,
                           ),
 
                           SizedBox(

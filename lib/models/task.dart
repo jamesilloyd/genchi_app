@@ -82,7 +82,7 @@ class TaskApplication {
       : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? '',
         hirerid = snapshot['hirerid'] ?? '',
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
-        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? false,
+        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         applicationId = snapshot['applicationId'] ?? '',
         isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,

@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
 class User extends ChangeNotifier {
-  String accountType;
 
   ///For all account types
+  String accountType;
   String id;
   String email;
   String name;
@@ -50,7 +50,7 @@ class User extends ChangeNotifier {
     this.providerProfiles,
     this.admin,
   });
-
+  //TODO delete the type redundancy after successfull migration
   User.fromMap(Map snapshot)
       : accountType = snapshot['accountType'] ?? 'Individual',
         id = snapshot['id'] ?? snapshot['pid'],
@@ -66,7 +66,6 @@ class User extends ChangeNotifier {
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         posts = snapshot['posts'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
-        //TODO delete the type redundancy after successfull migration
         category = snapshot['category'] ?? snapshot['type'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],

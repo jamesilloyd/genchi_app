@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Chat {
+
   String id1;
   String id2;
   String chatid;
@@ -10,7 +11,6 @@ class Chat {
   bool isHiddenFromUser2;
   String lastMessage;
   Timestamp time;
-
   ///This is needed for querying
   List<dynamic> ids;
 
@@ -27,15 +27,15 @@ class Chat {
       this.time});
 
   Chat.fromMap(Map snapshot)
-      : id1 = snapshot['id1'] ?? '',
-        id2 = snapshot['id2'] ?? '',
+      : id1 = snapshot['id1'] ?? snapshot['uid'] ?? '',
+        id2 = snapshot['id2'] ?? snapshot['pid'] ?? '',
         ids = snapshot['ids'] ?? [],
-        user1HasUnreadMessage = snapshot['user1HasUnreadMessage'] ?? false,
-        user2HasUnreadMessage = snapshot['user2HasUnreadMessage'] ?? false,
+        user1HasUnreadMessage = snapshot['user1HasUnreadMessage'] ?? snapshot['userHasUnreadMessage'] ?? false,
+        user2HasUnreadMessage = snapshot['user2HasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         chatid = snapshot['chatid'] ?? '',
-        isHiddenFromUser1 = snapshot['isHiddenFromUser1'] ?? false,
-        isHiddenFromUser2 = snapshot['isHiddenFromUser2'] ?? false,
+        isHiddenFromUser1 = snapshot['isHiddenFromUser1'] ?? snapshot['isHiddenFromUser'] ?? false,
+        isHiddenFromUser2 = snapshot['isHiddenFromUser2'] ?? snapshot['isHiddenFromProvider'] ?? false,
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {

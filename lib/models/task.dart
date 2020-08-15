@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class Task {
   String taskId;
@@ -54,55 +53,52 @@ class Task {
 
 
 
-class TaskApplicant {
-  String applicantid;
-  String hirerid;
-  String applicationId;
+class TaskApplication {
+
   String taskid;
-  bool applicantIsUser;
+  String applicationId;
+  String applicantId;
+  String hirerid;
   bool hirerHasUnreadMessage;
-  bool providerHasUnreadMessage;
+  bool applicantHasUnreadMessage;
   bool isHiddenFromHirer;
-  bool isHiddenFromProvider;
+  bool isHiddenFromApplicant;
   String lastMessage;
   Timestamp time;
 
-  TaskApplicant(
-      { this.applicantid,
+  TaskApplication(
+      { this.applicantId,
         this.hirerid,
         this.applicationId,
         this.taskid,
-        @required this.applicantIsUser,
         this.hirerHasUnreadMessage,
-        this.providerHasUnreadMessage,
+        this.applicantHasUnreadMessage,
         this.lastMessage,
-        this.isHiddenFromProvider,
+        this.isHiddenFromApplicant,
         this.isHiddenFromHirer,
         this.time});
 
-  TaskApplicant.fromMap(Map snapshot)
-      : applicantid = snapshot['applicantid'] ?? snapshot['pid'] ?? '',
+  TaskApplication.fromMap(Map snapshot)
+      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? '',
         hirerid = snapshot['hirerid'] ?? '',
-        applicantIsUser = snapshot['applicantIsUser'] ?? false,
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
-        providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
+        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         applicationId = snapshot['applicationId'] ?? '',
-        isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
+        isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
         taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {
     return {
-      if (applicantid != null) "applicantid": applicantid,
+      if (applicantId != null) "applicantId": applicantId,
       if (hirerid != null) "hirerid": hirerid,
       if (applicationId != null) 'applicationId': applicationId,
-      if (applicantIsUser != null) 'applicantIsUser' : applicantIsUser,
-      if (providerHasUnreadMessage != null)'providerHasUnreadMessage': providerHasUnreadMessage,
+      if (applicantHasUnreadMessage != null)'applicantHasUnreadMessage': applicantHasUnreadMessage,
       if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,
-      if (isHiddenFromProvider != null)"isHiddenFromProvider": isHiddenFromProvider,
+      if (isHiddenFromApplicant != null)"isHiddenFromApplicant": isHiddenFromApplicant,
       if (isHiddenFromHirer != null) "isHiddenFromHirer": isHiddenFromHirer,
       if (time != null) "time" : time,
       if (taskid != null) 'taskid': taskid

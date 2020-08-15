@@ -10,14 +10,11 @@ import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/chat.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +34,9 @@ class _ChatScreenState extends State<ChatScreen> {
   String messageText;
 
   Chat thisChat;
-  bool userIsProvider;
-  ProviderUser provider;
-  User hirer;
+  bool userIsUser1;
+  User otherUser;
+  User userAccount;
   bool isFirstInstance;
   bool showSpinner = false;
 
@@ -51,16 +48,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
     final authProvider = Provider.of<AuthenticationService>(context);
-    final providerService = Provider.of<ProviderService>(context);
 
     final ChatScreenArguments args = ModalRoute.of(context).settings.arguments;
-    userIsProvider = args.userIsProvider;
+    userIsUser1 = args.userIsUser1;
+    ///We do this because user may be using their provider chat
+    userAccount = userIsUser1 ? args.user1 : args.user2;
+    otherUser = userIsUser1 ? args.user2 : args.user1;
+
     if (thisChat == null) thisChat = args.chat;
-    provider = args.provider;
-    hirer = args.user;
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
-    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
+
 
     return GestureDetector(
       onTap: () {
@@ -68,12 +67,8 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       child: Scaffold(
         appBar: ChatNavigationBar(
-          hirer: hirer,
-          provider: provider,
-          imageURL: userIsProvider
-              ? hirer.displayPictureURL
-              : provider.displayPictureURL,
-          userIsProvider: userIsProvider,
+          user: userAccount,
+          otherUser: otherUser,
         ),
         body: ModalProgressHUD(
           inAsyncCall: showSpinner,
@@ -99,9 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final messageWidget = MessageBubble(
                         text: messageText,
                         sender: messageSender,
-                        isMe: userIsProvider
-                            ? messageSender == provider.pid
-                            : messageSender == hirer.id,
+                        isMe: messageSender == userAccount.id,
                         time: messageTime,
                       );
                       messageBubbles.add(messageWidget);
@@ -153,12 +146,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
                               DocumentReference result =
                                   await firestoreAPI.addNewChat(
-                                uid: authProvider.currentUser.id,
-                                pid: provider.pid,
+                                    ///Make user initiator from their main account
+                                initiatorId: userAccount.id,
+                                recipientId: otherUser.id,
                               );
                               await authProvider.updateCurrentUserData();
-                              await providerService
-                                  .updateCurrentProvider(provider.pid);
 
                               thisChat = await firestoreAPI
                                   .getChatById(result.documentID);
@@ -168,13 +160,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 await firestoreAPI.addMessageToChat(
                                     chatId: thisChat.chatid,
                                     chatMessage: ChatMessage(
-                                        sender: userIsProvider
-                                            ? provider.pid
-                                            : hirer.id,
+                                        sender: userAccount.id,
                                         text: messageText,
                                         time: Timestamp.now()),
-                                    providerIsSender:
-                                        userIsProvider ? true : false);
+                                    senderIsUser1: userIsUser1);
 
                                 setState(() {
                                   isFirstInstance = false;
@@ -185,19 +174,16 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (debugMode)
                                 print(
                                     'Chat screen: Message text is not null and this is NOT the first instance');
-//                                      messageText = messageTextController.text;
+
                               analytics.logEvent(name: 'private_chat_message_sent');
                               setState(() => messageTextController.clear());
                               await firestoreAPI.addMessageToChat(
                                   chatId: thisChat.chatid,
                                   chatMessage: ChatMessage(
-                                      sender: userIsProvider
-                                          ? provider.pid
-                                          : hirer.id,
+                                      sender: userAccount.id,
                                       text: messageText,
                                       time: Timestamp.now()),
-                                  providerIsSender:
-                                      userIsProvider ? true : false);
+                                  senderIsUser1: userIsUser1);
                             }
                           } else {
                             if (debugMode)

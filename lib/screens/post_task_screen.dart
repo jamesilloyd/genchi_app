@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -215,7 +213,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                   time: Timestamp.now(),
                                   price: price,
                                   hirerId: authProvider.currentUser.id),
-                              uid: authProvider.currentUser.id);
+                              hirerId: authProvider.currentUser.id);
 
                           await authProvider.updateCurrentUserData();
                           setState(() {

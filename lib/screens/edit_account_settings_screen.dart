@@ -3,10 +3,8 @@ import 'dart:io' show Platform;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
 
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -15,9 +13,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
-import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -126,13 +122,13 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           name:
                           'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
-                      for (String pid in currentUser.providerProfiles) {
-                        ProviderUser provider =
-                            await fireStoreAPI.getProviderById(pid);
+                      for (String id in currentUser.providerProfiles) {
+                        User serviceProfile =
+                            await fireStoreAPI.getUserById(id);
 
-                        ///Check provider exists before deleting it
-                        if (provider != null) {
-                          await fireStoreAPI.deleteProvider(provider: provider);
+                        ///Check service profile exists before deleting it
+                        if (serviceProfile != null) {
+                          await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
                         }
                       }
                     }
@@ -292,13 +288,13 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 name:
                                 'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
-                            for (String pid in currentUser.providerProfiles) {
-                              ProviderUser provider =
-                              await fireStoreAPI.getProviderById(pid);
+                            for (String id in currentUser.providerProfiles) {
+                              User serviceProfile =
+                              await fireStoreAPI.getUserById(id);
 
                               ///Check provider exists before deleting it
-                              if (provider != null) {
-                                await fireStoreAPI.deleteProvider(provider: provider);
+                              if (serviceProfile != null) {
+                                await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
                               }
                             }
                           }

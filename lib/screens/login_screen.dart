@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
@@ -11,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'forgot_password_screen.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/models/screen_arguments.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";

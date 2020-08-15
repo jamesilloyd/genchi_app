@@ -65,6 +65,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     categoryController.dispose();
   }
 
+  //TODO: show the category section here as it's quite important
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);

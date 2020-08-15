@@ -7,9 +7,6 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 
-import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
@@ -31,6 +28,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
+  List userAccountIds;
 
   @override
   void initState() {
@@ -45,6 +43,9 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
     final taskProvider = Provider.of<TaskService>(context);
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
+
+    userAccountIds = currentUser.providerProfiles;
+    userAccountIds.add(currentUser.id);
 
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
@@ -122,7 +123,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                       thickness: 1,
                     ),
                     FutureBuilder(
-                      future: firestoreAPI.getUserTasksAndNotifications(
+                      future: firestoreAPI.getUserTasksPostedAndNotifications(
                           postIds: currentUser.posts),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -219,8 +220,8 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                         ),
                         FutureBuilder(
                           future: firestoreAPI
-                              .getProviderTasksAndHirersAndNotifications(
-                                  pids: currentUser.providerProfiles),
+                              .getUserTasksAppliedAndNotifications(
+                                  accountIds: userAccountIds),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return Container(

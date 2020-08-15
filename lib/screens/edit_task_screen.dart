@@ -30,11 +30,7 @@ class EditTaskScreen extends StatefulWidget {
 class _EditTaskScreenState extends State<EditTaskScreen> {
   bool changesMade = false;
   bool showSpinner = false;
-  String title;
-  String details;
-  String date;
-  String price;
-  String service;
+
 
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -119,11 +115,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   await fireStoreAPI.updateTask(
                       task: Task(
-                          title: title,
+                          title: titleController.text,
                           service: serviceController.text,
-                          details: details,
-                          price: price,
-                          date: date),
+                          details: detailsController.text,
+                          price: priceController.text,
+                          date: dateController.text),
                       taskId: taskService.currentTask.taskId);
 
                   await taskService.updateCurrentTask(
@@ -149,7 +145,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: titleController,
                   hintText: 'Summary of the job',
                   onChanged: (value) {
-                    title = value;
                     changesMade = true;
                   },
                 ),
@@ -215,7 +210,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: dateController,
                   hintText: 'The timeframe of the job',
                   onChanged: (value) {
-                    date = value;
                     changesMade = true;
                   },
                 ),
@@ -224,7 +218,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: detailsController,
                   hintText: 'Provide further details of the job, urls etc.',
                   onChanged: (value) {
-                    details = value;
                     changesMade = true;
                   },
                 ),
@@ -233,7 +226,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: priceController,
                   hintText: 'Payment, experience, volunteering etc.',
                   onChanged: (value) {
-                    price = value;
                     changesMade = true;
                   },
                 ),
@@ -250,11 +242,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                     await fireStoreAPI.updateTask(
                         task: Task(
-                            title: title,
+                            title: titleController.text,
                             service: serviceController.text,
-                            details: details,
-                            price: price,
-                            date: date),
+                            details: detailsController.text,
+                            price: priceController.text,
+                            date: dateController.text),
                         taskId: taskService.currentTask.taskId);
 
                     await taskService.updateCurrentTask(

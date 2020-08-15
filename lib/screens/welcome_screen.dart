@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
-import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 

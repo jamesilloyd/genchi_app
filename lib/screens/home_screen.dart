@@ -1,16 +1,18 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/task_summary_screen.dart';
-import 'package:genchi_app/services/firestore_api_service.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
 import 'dart:io' show Platform;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:flutter/material.dart';
@@ -43,23 +45,26 @@ class _HomeScreenState extends State<HomeScreen> {
     ProfileScreen(),
   ];
 
+  final Firestore _db = Firestore.instance;
   final FirebaseMessaging _fcm = FirebaseMessaging();
-  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   StreamSubscription iosSubscription;
 
   _saveDeviceToken() async {
-    /// Get the current user
-    User currentUser = Provider.of<AuthenticationService>(context, listen: false)
-            .currentUser;
+    /// Get the current user id
+    String uid =
+        await Provider.of<AuthenticationService>(context, listen: false)
+            .currentUser
+            .id;
 
     /// Get the token for this device
     String fcmToken = await _fcm.getToken();
 
     /// Save it to Firestore
-    if (fcmToken != null) {
-      firestoreAPI.addFCMToken(token: fcmToken, user: currentUser);
-
+    if (fcmToken != null && uid != null) {
+      var tokens = _db.collection('users').document(uid).setData({
+        'fcmTokens': FieldValue.arrayUnion([fcmToken])
+      }, merge: true);
     }
   }
 
@@ -73,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print(data);
         _saveDeviceToken();
       });
+
       _fcm.requestNotificationPermissions(IosNotificationSettings());
     } else {
       _saveDeviceToken();

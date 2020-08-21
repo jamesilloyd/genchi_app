@@ -1,15 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
 
-
-//TODO: make function that will handle the different account types
-class UserCard extends StatelessWidget {
+class ProviderCard extends StatelessWidget {
   final Function onTap;
-  final User user;
+  final ProviderUser provider;
 
-  UserCard({@required this.user, @required this.onTap});
+  ProviderCard({@required this.provider, @required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +22,14 @@ class UserCard extends StatelessWidget {
               child: ListTile(
                 contentPadding: EdgeInsets.symmetric(horizontal: 0),
                 title: Text(
-                  user.name,
+                  provider.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 20,
                   ),
                 ),
-                leading: user.displayPictureURL == null
+                leading: provider.displayPictureURL == null
                 ///Show default image
                     ? CircleAvatar(
                         radius: 30,
@@ -54,7 +53,7 @@ class UserCard extends StatelessWidget {
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: Image(
-                    image: CachedNetworkImageProvider(user.displayPictureURL),
+                    image: CachedNetworkImageProvider(provider.displayPictureURL),
                     fit: BoxFit.cover,
                     gaplessPlayback: true,
                   ),
@@ -62,18 +61,18 @@ class UserCard extends StatelessWidget {
 
                 subtitle: Container(
                   child: Text(
-                    user.bio,
+                    provider.bio,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                   ),
                 ),
                 onTap: onTap,
-                trailing: user.accountType == 'Service Provider' ? Text(
-                  user.category,
+                trailing: Text(
+                  provider.type,
                   textAlign: TextAlign.end,
                   style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
-                ) : Text(''),
+                ),
               ),
             ),
           ],
@@ -91,7 +90,7 @@ class UserCard extends StatelessWidget {
 Widget ProviderAccountCard(
     {@required double width,
     @required Function onPressed,
-    @required User serviceProvider,bool isSmallScreen = false}) {
+    @required ProviderUser provider,bool isSmallScreen = false}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
@@ -121,7 +120,7 @@ Widget ProviderAccountCard(
                 Expanded(
 //                  fit: BoxFit.fitWidth,
                   child: Text(
-                    serviceProvider.name,
+                    provider.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: isSmallScreen ?  16:20 , color: Colors.black),
@@ -129,13 +128,16 @@ Widget ProviderAccountCard(
                 ),
                 Expanded(
                   child: Text(
-                    serviceProvider.category,
+                    provider.type,
                     style: TextStyle(fontSize: isSmallScreen?14:18, color: Colors.black),
                   ),
                 ),
+//                SizedBox(
+//                  height: 5,
+//                ),
                 Expanded(
                   child: Text(
-                    serviceProvider.bio,
+                    provider.bio,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: isSmallScreen?11:14, color: Color(0xff7D7D7D)),
@@ -183,5 +185,60 @@ Widget AddProviderCard({@required double width, @required Function onPressed}) {
         ),
       ),
     ),
+  );
+}
+
+Widget HirerCard({@required User hirer, @required Function onTap}) {
+  return Row(
+    children: <Widget>[
+      Expanded(
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+          onTap: onTap,
+          title: Text(
+            hirer.name,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          leading: hirer.displayPictureURL == null
+              ? CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Color(0xffC4C4C4),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.person,
+                      color: Color(0xff585858),
+                      size: 35,
+                    ),
+                  ),
+                )
+              : Container(
+            height: 60,
+            width: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(kGenchiCream),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Image(
+              image: CachedNetworkImageProvider(hirer.displayPictureURL),
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            ),
+          ),
+          subtitle: Container(
+            child: Text(
+              hirer.bio,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),
+            ),
+          ),
+          ),
+      ),
+    ],
   );
 }

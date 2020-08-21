@@ -11,16 +11,17 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/chat.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-
-/* TODO check again that you are not just passing current user as
-    sender and actually sending the account that sent the message
-    this is only a problem for tasks */
+import 'package:provider/provider.dart';
 
 class ApplicationChatScreen extends StatefulWidget {
   static const String id = "application_chat_screen";
@@ -38,9 +39,9 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
   String messageText;
 
-  TaskApplication thisTaskApplication;
-  bool userIsApplicant;
-  User applicant;
+  TaskApplicant thisTaskApplicant;
+  bool userIsProvider;
+  ProviderUser provider;
   User hirer;
 
   bool showSpinner = false;
@@ -56,15 +57,15 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
     final ApplicationChatScreenArguments args =
         ModalRoute.of(context).settings.arguments;
-    thisTaskApplication = args.taskApplication;
-    userIsApplicant = args.userIsApplicant;
+    thisTaskApplicant = args.taskApplicant;
+    userIsProvider = args.userIsProvider;
 
-    applicant = args.applicant;
+    provider = args.provider;
     hirer = args.hirer;
 
     if (kDebugMode)
       print(
-          'Application Chat Screen: this applicationid is ${thisTaskApplication.applicationId}');
+          'Application Chat Screen: this applicationid is ${thisTaskApplicant.applicationId}');
 
     return GestureDetector(
       onTap: () {
@@ -72,8 +73,12 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
       },
       child: Scaffold(
         appBar: ChatNavigationBar(
-          user: userIsApplicant ? applicant : hirer,
-          otherUser: userIsApplicant ? hirer : applicant,
+          hirer: hirer,
+          provider: provider,
+          imageURL: userIsProvider
+              ? hirer.displayPictureURL
+              : provider.displayPictureURL,
+          userIsProvider: userIsProvider,
         ),
         body: ModalProgressHUD(
           inAsyncCall: showSpinner,
@@ -84,8 +89,8 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
               children: <Widget>[
                 StreamBuilder(
                   stream: firestoreAPI.fetchTaskApplicantChatStream(
-                      taskid: thisTaskApplication.taskid,
-                      applicationId: thisTaskApplication.applicationId),
+                      taskid: thisTaskApplicant.taskid,
+                      applicantId: thisTaskApplicant.applicationId),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return CircularProgress();
@@ -101,8 +106,8 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                       final messageWidget = MessageBubble(
                         text: messageText,
                         sender: messageSender,
-                        isMe: userIsApplicant
-                            ? messageSender == applicant.id
+                        isMe: userIsProvider
+                            ? messageSender == provider.pid
                             : messageSender == hirer.id,
                         time: messageTime,
                       );
@@ -143,21 +148,22 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                         onPressed: () async {
                           if (messageText != null) {
                             if (debugMode)
-
+                              print(
+                                  'Chat screen: Message text is not null and this is NOT the first instance');
                             setState(() => messageTextController.clear());
 
                             analytics.logEvent(name: 'application_message_sent');
 
                             await firestoreAPI.addMessageToTaskApplicant(
-                                applicationId: thisTaskApplication.applicationId,
-                                taskId: thisTaskApplication.taskid,
+                                applicantId: thisTaskApplicant.applicationId,
+                                taskId: thisTaskApplicant.taskid,
                                 chatMessage: ChatMessage(
-                                    sender: userIsApplicant
-                                        ? applicant.id
+                                    sender: userIsProvider
+                                        ? provider.pid
                                         : hirer.id,
                                     text: messageText,
                                     time: Timestamp.now()),
-                                applicantIsSender: userIsApplicant);
+                                providerIsSender: userIsProvider);
                           } else {
                             if (debugMode)
                               print('Chat screen: Message text is null');

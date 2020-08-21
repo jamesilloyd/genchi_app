@@ -1,104 +1,87 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
 class User extends ChangeNotifier {
-
-  ///For all account types
-  String accountType;
   String id;
   String email;
   String name;
+  String accountType;
+  String category;
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
-  Timestamp timeStamp;
-  List<dynamic> tasksApplied;
+  DateTime timeStamp;
+  List<dynamic> providerProfiles;
   List<dynamic> chats;
   List<dynamic> favourites;
-  List<dynamic> isFavouritedBy;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
-
-  ///For societies, charities and service Provider
-  String category;
-
-  ///For service Providers
-  String mainAccountId;
-
-  ///For individuals
-  List<dynamic> providerProfiles;
-
   bool admin;
 
-  User({
-    this.accountType,
-    this.id,
-    this.email,
-    this.name,
-    this.bio,
-    this.displayPictureFileName,
-    this.displayPictureURL,
-    this.timeStamp,
-    this.tasksApplied,
-    this.chats,
-    this.favourites,
-    this.isFavouritedBy,
-    this.posts,
-    this.fcmTokens,
-    this.category,
-    this.mainAccountId,
-    this.providerProfiles,
-    this.admin,
-  });
-  //TODO delete the type redundancy after successfull migration
+  User(
+      {this.id,
+      this.email,
+      this.name,
+      this.displayPictureFileName,
+      this.displayPictureURL,
+      this.timeStamp,
+      this.providerProfiles,
+      this.favourites,
+      this.posts,
+      this.fcmTokens,
+      this.accountType,
+      this.category,
+      this.bio,
+      this.admin,
+      this.chats});
+
   User.fromMap(Map snapshot)
-      : accountType = snapshot['accountType'] ?? 'Individual',
-        id = snapshot['id'] ?? snapshot['pid'],
-        email = snapshot['email'] ?? '',
+      : email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
-        bio = '${snapshot['bio']??''} ${snapshot['experience'] ?? ''}',
+        accountType = snapshot['accountType'] ?? 'Individual',
+        category = snapshot['category'] ?? '',
+        bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
         displayPictureURL = snapshot['displayPictureURL'],
-        timeStamp = snapshot['timeStamp'],
-        tasksApplied = snapshot['tasksApplied'] ?? [],
-        chats = snapshot['chats'] ?? [],
-        favourites = snapshot['favourites'] ?? [],
-        isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
-        posts = snapshot['posts'] ?? [],
-        fcmTokens = snapshot['fcmTokens'] ?? [],
-        category = snapshot['category'] ?? snapshot['type'] ?? '',
-        mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
+        id = snapshot['id'] ?? '',
         providerProfiles = snapshot['providerProfiles'] ?? [],
-        admin = snapshot['admin'] ?? false;
+        favourites = snapshot['favourites'] ?? [],
+        fcmTokens = snapshot['fcmTokens'] ?? [],
+        posts = snapshot['posts'] ?? [],
+        admin = snapshot['admin'] ?? false,
+        chats = snapshot['chats'] ?? [];
 
   toJson() {
     return {
-      if (accountType != null) "accountType": accountType,
-      if (id != null) 'id': id,
       if (email != null) "email": email,
       if (name != null) "name": name,
+      if (admin != null) 'admin': admin,
+      if (accountType != null) "accountType": accountType,
+      if (category != null) "category": category,
       if (bio != null) "bio": bio,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
-      if (timeStamp != null) 'timeStamp' : timeStamp,
-      if (tasksApplied != null) 'tasksApplied': tasksApplied,
+      if (id != null) 'id': id,
+      if (timeStamp != null) 'timeStamp': timeStamp,
+      if (providerProfiles != null) 'providerProfiles': providerProfiles,
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
-      if (isFavouritedBy != null) 'isFavouritedBy' : isFavouritedBy,
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
-      if (category != null) "category": category,
-      if (mainAccountId != null) 'mainAccountId' : mainAccountId,
-      if (providerProfiles != null) 'providerProfiles': providerProfiles,
-      if (admin != null) 'admin': admin,
     };
   }
 }
 
-List<String> accountTypeList = ['Individual', 'Society', 'Charity'];
-///and 'Service Provider'
+List<String> AccountTypeList = [
+  'Individual',
+  'Society',
+  'Charity'
+];
 
-List<String> societyCategoryList = ['Sports'];
+List<String> SocietyCategoryList = [
+  'Sports'
+];
 
-List<String> charityCategoryList = ['???'];
+List<String> CharityCategoryList = [
+  '???'
+];

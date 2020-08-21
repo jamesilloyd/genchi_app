@@ -1,8 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:genchi_app/services/firestore_api_service.dart';
+
 import 'package:genchi_app/constants.dart';
+
 import 'package:genchi_app/models/user.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthenticationService extends ChangeNotifier {
@@ -76,7 +79,7 @@ class AuthenticationService extends ChangeNotifier {
             id: user.uid,
             email: email,
             name: name,
-            timeStamp: Timestamp.now(),
+            timeStamp: timestamp,
             admin: false,
             accountType: type));
         await updateCurrentUserData();

@@ -65,7 +65,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     categoryController.dispose();
   }
 
-  //TODO: show the category section here as it's quite important
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
@@ -218,9 +217,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
-
                     if(currentUser.accountType != 'Individual') Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -233,42 +231,31 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                  border: Border.all(color: Colors.black)
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  'TODO',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              //TODO add in categories for societies and charities
-                              for (String accountType
-                              in accountTypeList) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {}),
+                        Container(
+                          height: 50.0,
+                          color: Color(kGenchiCream),
+                          //TODO: need to add some lists here for users to choose between
+//                          child: DropdownButton<String>(
+//                            value: categoryController.text,
+//                            items: dropDownAccountTypeItems(),
+//                            onChanged: (value) async {
+//                              if (value != accountTypeTextController.text) {
+//                                bool change = await showYesNoAlert(
+//                                    context: context,
+//                                    title:
+//                                    'Are you sure you want to change account type?',
+//                                    body:
+//                                    'Doing this will remove any other service accounts associated with this account.');
+//
+//                                if (change) {
+//                                  changesMade = true;
+//                                  accountTypeTextController.text = value;
+//                                  setState(() {});
+//                                }
+//                              }
+//                            },
+//                          ),
+                        ),
                       ],
                     ),
                     EditAccountField(

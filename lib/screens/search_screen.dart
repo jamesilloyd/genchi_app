@@ -1,26 +1,24 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/search_service_tile.dart';
-import 'package:genchi_app/components/search_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/task_card.dart';
 
-import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
-import 'package:genchi_app/screens/search_manual_screen.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -38,14 +36,13 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen>
     with AutomaticKeepAliveClientMixin {
   List<User> users;
-  List<ProviderUser> providers;
+  List<User> serviceProviders;
 
   TextEditingController searchTextController = TextEditingController();
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   Future searchTasksFuture;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
@@ -67,6 +64,7 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
+
     analytics.setCurrentScreen(screenName: 'home/search_screen');
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
   }
@@ -84,8 +82,6 @@ class _SearchScreenState extends State<SearchScreen>
                 name: 'search_button_clicked_for_${service.databaseValue}');
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => SearchProviderScreen(service: service)));
-//            Navigator.pushNamed(context, SearchProviderScreen.id,
-//                arguments: SearchProviderScreenArguments(service: service));
           },
           buttonTitle: service.namePlural,
           imageAddress: service.imageAddress,
@@ -116,7 +112,6 @@ class _SearchScreenState extends State<SearchScreen>
               barTitle: 'Search',
             ),
             body: SafeArea(
-              //TODO: this would be far cooler but it glitches a lot
               child: LiquidPullToRefresh(
                 key: _refreshIndicatorKey,
                 color: Color(kGenchiOrange),
@@ -129,16 +124,49 @@ class _SearchScreenState extends State<SearchScreen>
                   searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
                   setState(() {});
                 },
-//              child: RefreshIndicator(
-//                color: Color(kGenchiOrange),
-//                backgroundColor: Colors.white,
-//                onRefresh: () async {
-//                  searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-//                  setState(() {});
-//                },
                 child: ListView(
                   children: <Widget>[
                     SizedBox(height: 20),
+                    FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RoundedButton(
+                              buttonTitle: 'Charities',
+                              buttonColor: Color(kGenchiGreen),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchGroupScreen(
+                                      accountType: 'Charity',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            RoundedButton(
+                              buttonTitle: 'Societies',
+                              buttonColor: Color(kGenchiGreen),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchGroupScreen(
+                                      accountType: 'Society',
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
@@ -151,18 +179,6 @@ class _SearchScreenState extends State<SearchScreen>
                                 fontSize: 20,
                               ),
                             ),
-                            //TODO add this in when we have more services on the app
-//                            GestureDetector(
-//                              onTap: () {},
-//                              child: Text(
-//                                'See all',
-//                                textAlign: TextAlign.end,
-//                                style: TextStyle(
-//                                    fontWeight: FontWeight.w500,
-//                                    fontSize: 16,
-//                                    color: Color(kGenchiGreen)),
-//                              ),
-//                            )
                           ],
                         ),
                       ),
@@ -220,7 +236,6 @@ class _SearchScreenState extends State<SearchScreen>
                                           color: Colors.black,
                                           size: 30,
                                         ),
-
                                         SizedBox(
                                           width: 5,
                                         )
@@ -247,20 +262,6 @@ class _SearchScreenState extends State<SearchScreen>
                                     });
                                   }),
                             )),
-                            //TODO: add this when we have more search options
-//                            GestureDetector(
-//                              onTap: () {
-//                                Navigator.pushNamed(context, SearchTasksScreen.id);
-//                              },
-//                              child: Text(
-//                                'See all',
-//                                textAlign: TextAlign.end,
-//                                style: TextStyle(
-//                                    fontWeight: FontWeight.w500,
-//                                    fontSize: 16,
-//                                    color: Color(kGenchiGreen)),
-//                              ),
-//                            )
                           ],
                         ),
                       ),
@@ -273,8 +274,6 @@ class _SearchScreenState extends State<SearchScreen>
                         color: Colors.grey,
                       ),
                     ),
-                    //TODO: add this in when we want the second page options
-//                    buildJobRows(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: FutureBuilder(
@@ -299,6 +298,7 @@ class _SearchScreenState extends State<SearchScreen>
 
                             if ((task.service == filter) || (filter == 'ALL')) {
                               final widget = TaskCard(
+                                hirerType: hirer.accountType,
                                 image: hirer.displayPictureURL == null
                                     ? null
                                     : CachedNetworkImageProvider(

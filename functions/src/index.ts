@@ -250,3 +250,75 @@ export const sendApplicationMessageNotification = functions.firestore.document('
     }
 
 })
+
+// export const sendApplicationMessageNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicantId}/messages/{messageId}')
+// .onCreate(async (snapshot, context) => {
+
+//     const message = snapshot.data();
+
+//     const application = await db.collection('tasks').doc(context.params.taskId).collection('applicants').doc(context.params.applicationId).get();
+//     const applicationData = application.data();
+
+//     const task = await db.collection('tasks').doc(context.params.taskId).get();
+//     const taskData = task.data();
+
+//     let tokens;
+//     let senderName;
+//     let taskTitle;
+
+//     ///taskTitle -> application -> task -> task.title
+
+//     if(applicationData && taskData) {
+
+//         //The hirer in the application
+//         const hirer = await db.collection('users').doc(applicationData['hirerid']).get();
+//         const hirerData = hirer.data();
+
+//         // Ther applicant in the application
+//         const applicantId = applicationData['applicantId'];
+//         const applicant = await db.collection('users').doc(applicantId).get();
+//         const applicantData = applicant.data();
+
+//         if(hirerData && applicantData) {
+
+//             if(applicantId == message.sender) {
+//                 // If sender is the applicant retrieve the applicant's name and the hirer's token
+//                     senderName = applicantData['name'];
+//                     tokens = hirerData['fcmTokens'];
+
+//                 } else {
+//                 //Otherwise the hirer sent the message so we need to find the tokens of the applicant and the hirer's name
+//                     senderName = hirerData['name'];
+//                     tokens = applicantData['fcmTokens'];
+//                 }
+//         }
+
+//         //Now need to find taskTitle
+
+//         taskTitle = taskData['title'];
+
+
+//         const payload : admin.messaging.MessagingPayload = {
+
+//             notification : {
+//                 title : senderName + ' - ' + taskTitle,
+//                 body : message.text,
+//                 clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+//                 badge : '1'
+//             },
+//         };
+    
+//         if(tokens != null) {
+//             return fcm.sendToDevice(tokens,payload).then((response) => {
+//                 console.log('Successfully sent message:', response);
+//             })
+//             .catch((error) => {
+//             console.log('Error sending message:', error);
+//             });
+//         } else {
+//             return 0;
+//         }
+
+//     }
+
+// })

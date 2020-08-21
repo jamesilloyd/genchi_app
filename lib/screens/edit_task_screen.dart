@@ -30,11 +30,7 @@ class EditTaskScreen extends StatefulWidget {
 class _EditTaskScreenState extends State<EditTaskScreen> {
   bool changesMade = false;
   bool showSpinner = false;
-  String title;
-  String details;
-  String date;
-  String price;
-  String service;
+
 
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -119,11 +115,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   await fireStoreAPI.updateTask(
                       task: Task(
-                          title: title,
+                          title: titleController.text,
                           service: serviceController.text,
-                          details: details,
-                          price: price,
-                          date: date),
+                          details: detailsController.text,
+                          price: priceController.text,
+                          date: dateController.text),
                       taskId: taskService.currentTask.taskId);
 
                   await taskService.updateCurrentTask(
@@ -149,7 +145,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: titleController,
                   hintText: 'Summary of the job',
                   onChanged: (value) {
-                    title = value;
                     changesMade = true;
                   },
                 ),
@@ -167,23 +162,47 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       ),
                     ),
                     SizedBox(height: 5.0),
-                    SizedBox(
-                      height: 50.0,
-                      child: Container(
-                        color: Color(kGenchiCream),
-                        child: DropdownButton<String>(
-                          value: initialDropDownValue(
-                              currentType: serviceController.text),
-                          items: dropDownServiceItems(),
-                          onChanged: (value) {
-                            setState(() {
-                              serviceController.text = value;
-                              changesMade = true;
-                            });
-                          },
+                    PopupMenuButton(
+                        elevation: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(32.0)),
+                              border: Border.all(color: Colors.black)
+
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 20.0),
+                            child: Text(
+                              serviceController.text,
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                        itemBuilder: (_) {
+                          List<PopupMenuItem<String>> items = [
+                          ];
+                          for (Service serviceType in servicesList) {
+                            var newItem = new PopupMenuItem(
+                              child: Text(
+                                serviceType.databaseValue,
+                              ),
+                              value: serviceType.databaseValue,
+                            );
+                            items.add(newItem);
+                          }
+                          return items;
+                        },
+                        onSelected: (value) async {
+                          setState(() {
+                            changesMade = true;
+                            serviceController.text = value;
+                          });
+                        }),
                   ],
                 ),
                 EditAccountField(
@@ -191,7 +210,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: dateController,
                   hintText: 'The timeframe of the job',
                   onChanged: (value) {
-                    date = value;
                     changesMade = true;
                   },
                 ),
@@ -200,7 +218,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: detailsController,
                   hintText: 'Provide further details of the job, urls etc.',
                   onChanged: (value) {
-                    details = value;
                     changesMade = true;
                   },
                 ),
@@ -209,7 +226,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: priceController,
                   hintText: 'Payment, experience, volunteering etc.',
                   onChanged: (value) {
-                    price = value;
                     changesMade = true;
                   },
                 ),
@@ -226,11 +242,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                     await fireStoreAPI.updateTask(
                         task: Task(
-                            title: title,
+                            title: titleController.text,
                             service: serviceController.text,
-                            details: details,
-                            price: price,
-                            date: date),
+                            details: detailsController.text,
+                            price: priceController.text,
+                            date: dateController.text),
                         taskId: taskService.currentTask.taskId);
 
                     await taskService.updateCurrentTask(

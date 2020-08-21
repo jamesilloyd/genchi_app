@@ -7,9 +7,6 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 
-import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
@@ -44,13 +41,12 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     final taskProvider = Provider.of<TaskService>(context);
     User currentUser = authProvider.currentUser;
-    bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: DefaultTabController(
-          length: userIsProvider ? 2 : 1,
+          length: 2,
           child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
@@ -79,7 +75,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                     ),
                     tabs: [
                       Tab(text: 'Posted'),
-                      if (userIsProvider) Tab(text: 'Applied For'),
+                      Tab(text: 'Applied For'),
                     ])),
             body: TabBarView(
               children: <Widget>[
@@ -122,7 +118,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                       thickness: 1,
                     ),
                     FutureBuilder(
-                      future: firestoreAPI.getUserTasksAndNotifications(
+                      future: firestoreAPI.getUserTasksPostedAndNotifications(
                           postIds: currentUser.posts),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -160,6 +156,7 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                               taskAndNotification['hasNotification'];
 
                           Widget tCard = TaskCard(
+                              hirerType: currentUser.accountType,
                               image: currentUser.displayPictureURL == null
                                   ? null
                                   : CachedNetworkImageProvider(
@@ -195,106 +192,103 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
                     ),
                   ],
                 ),
-                if (userIsProvider)
-                  SafeArea(
-                    child: ListView(
-                      padding: const EdgeInsets.all(15),
-                      children: <Widget>[
-                        Container(
-                          height: 50,
-                          child: Center(
-                            child: Text(
-                              'Your Applied Jobs',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 25.0,
-                              ),
-                            ),
+                ListView(
+                  padding: const EdgeInsets.all(15),
+                  children: <Widget>[
+                    Container(
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          'Your Applied Jobs',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 25.0,
                           ),
                         ),
-                        Divider(
-                          height: 0,
-                          thickness: 1,
-                        ),
-                        FutureBuilder(
-                          future: firestoreAPI
-                              .getProviderTasksAndHirersAndNotifications(
-                                  pids: currentUser.providerProfiles),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return Container(
-                                height: 60,
-                                child: Center(
-                                  child: CircularProgress(),
-                                ),
-                              );
-                            }
-
-                            final List<Map<String, dynamic>>
-                                tasksAndHirersAndNotification = snapshot.data;
-
-                            if (tasksAndHirersAndNotification.isEmpty) {
-                              return Container(
-                                height: 30,
-                                child: Center(
-                                  child: Text(
-                                    'You have not applied to any jobs',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                            List<Widget> taskWidgets = [];
-
-                            for (Map taskAndHirerAndNotification
-                                in tasksAndHirersAndNotification) {
-                              Task task = taskAndHirerAndNotification['task'];
-                              User hirer = taskAndHirerAndNotification['hirer'];
-                              bool providerHasNotification =
-                                  taskAndHirerAndNotification[
-                                      'hasNotification'];
-
-                              Widget tCard = TaskCard(
-                                  image: hirer.displayPictureURL == null
-                                      ? null
-                                      : CachedNetworkImageProvider(
-                                          hirer.displayPictureURL),
-                                  task: task,
-                                  hasUnreadMessage: providerHasNotification,
-                                  isDisplayTask: false,
-                                  onTap: () async {
-                                    setState(() {
-                                      showSpinner = true;
-                                    });
-
-                                    await taskProvider.updateCurrentTask(
-                                        taskId: task.taskId);
-
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
-
-                                    Navigator.pushNamed(context, TaskScreen.id)
-                                        .then((value) {
-                                      setState(() {});
-                                    });
-                                  });
-                              taskWidgets.add(tCard);
-                            }
-
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: taskWidgets,
-                            );
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    Divider(
+                      height: 0,
+                      thickness: 1,
+                    ),
+                    FutureBuilder(
+                      future: firestoreAPI.getUserTasksAppliedAndNotifications(
+                          providerIds: currentUser.providerProfiles,
+                          mainId: currentUser.id),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Container(
+                            height: 60,
+                            child: Center(
+                              child: CircularProgress(),
+                            ),
+                          );
+                        }
+
+                        final List<Map<String, dynamic>>
+                            tasksAndHirersAndNotification = snapshot.data;
+
+                        if (tasksAndHirersAndNotification.isEmpty) {
+                          return Container(
+                            height: 30,
+                            child: Center(
+                              child: Text(
+                                'You have not applied to any jobs',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        List<Widget> taskWidgets = [];
+
+                        for (Map taskAndHirerAndNotification
+                            in tasksAndHirersAndNotification) {
+                          Task task = taskAndHirerAndNotification['task'];
+                          User hirer = taskAndHirerAndNotification['hirer'];
+                          bool providerHasNotification =
+                              taskAndHirerAndNotification['hasNotification'];
+
+                          Widget tCard = TaskCard(
+                              hirerType: hirer.accountType,
+                              image: hirer.displayPictureURL == null
+                                  ? null
+                                  : CachedNetworkImageProvider(
+                                      hirer.displayPictureURL),
+                              task: task,
+                              hasUnreadMessage: providerHasNotification,
+                              isDisplayTask: false,
+                              onTap: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+
+                                await taskProvider.updateCurrentTask(
+                                    taskId: task.taskId);
+
+                                setState(() {
+                                  showSpinner = false;
+                                });
+
+                                Navigator.pushNamed(context, TaskScreen.id)
+                                    .then((value) {
+                                  setState(() {});
+                                });
+                              });
+                          taskWidgets.add(tCard);
+                        }
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: taskWidgets,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           )),

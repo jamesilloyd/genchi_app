@@ -39,7 +39,7 @@ class SignInTextField extends StatelessWidget {
               textAlign: TextAlign.left,
               cursorColor: Color(kGenchiOrange),
               onChanged: onChanged,
-              decoration: kTextFieldDecoration.copyWith(hintText: hintText)),
+              decoration: kSignInTextFieldDecoration.copyWith(hintText: hintText)),
         ),
       ],
     );

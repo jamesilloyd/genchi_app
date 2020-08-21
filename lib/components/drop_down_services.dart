@@ -19,10 +19,9 @@ List<DropdownMenuItem> dropDownServiceItems() {
   return dropdownItems;
 }
 
-
 List<DropdownMenuItem> dropDownAccountTypeItems() {
   List<DropdownMenuItem<String>> dropdownItems = [];
-  for (String accountType in AccountTypeList) {
+  for (String accountType in accountTypeList) {
     var newItem = DropdownMenuItem(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10,0,0,0),

@@ -5,7 +5,6 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_option_tile.dart';
-import 'package:genchi_app/main.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 

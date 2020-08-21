@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -65,10 +66,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     categoryController.dispose();
   }
 
+  //TODO: show the category section here as it's quite important
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
+    final accountService = Provider.of<AccountService>(context);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -121,6 +125,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     await authProvider.updateCurrentUserName(
                         name: nameController.text);
                   }
+
+                  await accountService.updateCurrentAccount(id: currentUser.id);
                   await authProvider.updateCurrentUserData();
 
                   setState(() {
@@ -217,8 +223,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
+
                     if(currentUser.accountType != 'Individual') Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -231,31 +238,42 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        Container(
-                          height: 50.0,
-                          color: Color(kGenchiCream),
-                          //TODO: need to add some lists here for users to choose between
-//                          child: DropdownButton<String>(
-//                            value: categoryController.text,
-//                            items: dropDownAccountTypeItems(),
-//                            onChanged: (value) async {
-//                              if (value != accountTypeTextController.text) {
-//                                bool change = await showYesNoAlert(
-//                                    context: context,
-//                                    title:
-//                                    'Are you sure you want to change account type?',
-//                                    body:
-//                                    'Doing this will remove any other service accounts associated with this account.');
-//
-//                                if (change) {
-//                                  changesMade = true;
-//                                  accountTypeTextController.text = value;
-//                                  setState(() {});
-//                                }
-//                              }
-//                            },
-//                          ),
-                        ),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  'TODO',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              //TODO add in categories for societies and charities
+                              for (String accountType
+                              in accountTypeList) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) {}),
                       ],
                     ),
                     EditAccountField(
@@ -297,6 +315,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                               name: nameController.text);
                         }
 
+                        await accountService.updateCurrentAccount(id: currentUser.id);
                         await authProvider.updateCurrentUserData();
 
                         setState(() {

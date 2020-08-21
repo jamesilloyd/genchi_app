@@ -45,195 +45,185 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
         backgroundColor: Color(kGenchiGreen),
         body: ModalProgressHUD(
           progressIndicator: CircularProgress(),
           inAsyncCall: showSpinner,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: SafeArea(
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    height: MediaQuery.of(context).size.height * .1,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back_ios),
-                        color: Color(kGenchiBlue),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+          child: SafeArea(
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              children: <Widget>[
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * .1,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Color(kGenchiBlue),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height * .2,
+                  child: Center(
+                    child: Hero(
+                      tag: 'logo',
+                      child: Container(
+                        child: Image.asset('images/LogoAndName.png'),
                       ),
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * .1,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * .2,
-                        child: Center(
-                          child: Hero(
-                            tag: 'logo',
-                            child: Container(
-                              child: Image.asset('images/LogoAndName.png'),
-                            ),
+                ),
+                Container(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    SignInTextField(
+                      onChanged: (value) {
+                        name = value;
+                      },
+                      field: 'Name',
+                      hintText: "Enter name",
+                      isNameField: true,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Type',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                      Container(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          SignInTextField(
-                            onChanged: (value) {
-                              name = value;
-                            },
-                            field: 'Name',
-                            hintText: "Enter name",
-                            isNameField: true,
-                          ),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text('Type',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
+                        SizedBox(
+                          height: 5,
+                        ),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
                                   color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0))),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  accountTypeController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: accountTypeController.text ==
+                                            'Select type'
+                                        ? Colors.black45
+                                        : Colors.black,
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 5,),
-                              SizedBox(
-                                width: 250,
-                                child: PopupMenuButton(
-                                    elevation: 1,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(Radius.circular(32.0))
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 20.0),
-                                        child: Text(
-                                          accountTypeController.text,
-                                          style: TextStyle(fontSize: 18,
-                                          color: accountTypeController.text == 'Select type' ? Colors.black45 : Colors.black,
-                                          ),
-                                        ),
-                                      ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                                new PopupMenuItem<String>(
+                                    child: Text(
+                                      'Select type',
+                                      style:
+                                          TextStyle(color: Colors.black45),
                                     ),
-                                    itemBuilder: (_) {
-                                      List<PopupMenuItem<String>> items = [
-                                        new PopupMenuItem<String>(
-                                            child: Text('Select type', style: TextStyle(
-                                              color: Colors.black45
-                                            ),),
-                                            value: 'Select type')
-                                      ];
-                                      for (String accountType in AccountTypeList) {
-                                        items.add(
-                                          new PopupMenuItem<String>(
-                                              child: Text(accountType
-                                                  ),
-                                              value: accountType),
-                                        );
-                                      }
-                                      return items;
-                                    },
-                                    onSelected: (value) {
-                                      accountTypeController.text = value;
-                                        setState(() {
-                                        });
-                                    }),
-                              ),
-                            ],
-                          ),
-
-
-
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          SignInTextField(
-                            field: 'Email',
-                            onChanged: (value) {
-                              email = value;
-                            },
-                            hintText: "Enter email",
-                          ),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          SignInTextField(
-                            field: 'Password',
-                            onChanged: (value) {
-                              password = value;
-                            },
-                            hintText: "Enter password",
-                            isPasswordField: true,
-                          ),
-                          showErrorField
-                              ? PasswordErrorText(errorMessage: errorMessage)
-                              : SizedBox(height: 30.0),
-                          RoundedButton(
-                            buttonColor: Color(kGenchiBlue),
-                            buttonTitle: "Register",
-                            onPressed: () async {
-
-                              setState(() {
-                                showErrorField = false;
-                                showSpinner = true;
-                              });
-                              try {
-                                if (name == null || email == null ||accountTypeController.text == 'Select type' )
-                                  throw (Exception('Enter name, email and account type'));
-
-
-
-                                await authProvider.registerWithEmail(
-                                    email: email,
-                                    password: password,
-                                    type: accountTypeController.text,
-                                    name: name);
-
-                                await FirebaseAnalytics().logSignUp(signUpMethod: 'email');
-
-                                //This populates the current user simultaneously
-                                if (await authProvider.isUserLoggedIn() ==
-                                    true) {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context,
-                                      HomeScreen.id,
-                                      (Route<dynamic> route) => false);
-                                }
-                              } catch (e) {
-                                print(e);
-                                showErrorField = true;
-                                errorMessage = e.message;
+                                    value: 'Select type')
+                              ];
+                              for (String accountType in accountTypeList) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
                               }
-
-                              setState(() {
-                                showSpinner = false;
-                              });
+                              return items;
                             },
-                          )
-                        ],
-                      )),
-                    ],
-                  ),
-                ],
-              ),
+                            onSelected: (value) {
+                              accountTypeController.text = value;
+                              setState(() {});
+                            }),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    SignInTextField(
+                      field: 'Email',
+                      onChanged: (value) {
+                        email = value;
+                      },
+                      hintText: "Enter email",
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    SignInTextField(
+                      field: 'Password',
+                      onChanged: (value) {
+                        password = value;
+                      },
+                      hintText: "Enter password",
+                      isPasswordField: true,
+                    ),
+                    showErrorField
+                        ? PasswordErrorText(errorMessage: errorMessage)
+                        : SizedBox(height: 30.0),
+                    RoundedButton(
+                      buttonColor: Color(kGenchiBlue),
+                      buttonTitle: "Register",
+                      onPressed: () async {
+                        setState(() {
+                          showErrorField = false;
+                          showSpinner = true;
+                        });
+                        try {
+                          if (name == null ||
+                              email == null ||
+                              accountTypeController.text == 'Select type')
+                            throw (Exception(
+                                'Enter name, email and account type'));
+
+                          await authProvider.registerWithEmail(
+                              email: email,
+                              password: password,
+                              type: accountTypeController.text,
+                              name: name);
+
+                          await FirebaseAnalytics()
+                              .logSignUp(signUpMethod: 'email');
+
+                          //This populates the current user simultaneously
+                          if (await authProvider.isUserLoggedIn() == true) {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                HomeScreen.id,
+                                (Route<dynamic> route) => false);
+                          }
+                        } catch (e) {
+                          print(e);
+                          showErrorField = true;
+                          errorMessage = e.message;
+                        }
+
+                        setState(() {
+                          showSpinner = false;
+                        });
+                      },
+                    )
+                  ],
+                )),
+              ],
             ),
           ),
         ),

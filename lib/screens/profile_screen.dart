@@ -1,16 +1,19 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
-import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
+import 'package:genchi_app/screens/edit_account_screen.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 
@@ -22,14 +25,17 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/hirer_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -39,7 +45,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName;
-  List<User> serviceProviders;
+  List<ProviderUser> providers;
   bool showSpinner = false;
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
@@ -56,7 +62,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print('Profile screen: activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
-    final accountService = Provider.of<AccountService>(context);
+    final providerService = Provider.of<ProviderService>(context);
+    final hirerService = Provider.of<HirerService>(context);
 
     User currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
@@ -102,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               border: true,
                             ),
                             Positioned(
-                              right: MediaQuery.of(context).size.width / 2 -
+                              right: MediaQuery.of(context).size.width/2 -
                                   MediaQuery.of(context).size.height * 0.11,
                               top: MediaQuery.of(context).size.height * 0.22,
                               child: Container(
@@ -110,19 +117,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 30,
                                 padding: EdgeInsets.all(2),
                                 decoration: new BoxDecoration(
-                                  color: Color(kGenchiCream),
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                      color: Color(0xff585858), width: 2),
-                                ),
+                                    color: Color(kGenchiCream),
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
+                                        color: Color(0xff585858), width: 2),),
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Center(
                                       child: Icon(
-                                    Icons.remove_red_eye,
-                                    size: 20,
-                                    color: Color(0xff585858),
-                                  )),
+                                        Icons.remove_red_eye,
+                                        size: 20,
+                                        color: Color(0xff585858),
+                                      )),
                                 ),
                               ),
                             )
@@ -130,9 +136,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       onTap: () async {
-                        await accountService.updateCurrentAccount(
-                            id: currentUser.id);
-                        Navigator.pushNamed(context, UserScreen.id);
+                        await hirerService.updateCurrentHirer(id: currentUser.id);
+                        Navigator.pushNamed(context, HirerScreen.id);
                       },
                     ),
 //                  ProfileOptionTile(
@@ -142,12 +147,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ////                      throw Exception('ERORRRORR');
 //                    },
 //                  ),
-                  ProfileOptionTile(
-                    text: 'Test Screen',
-                    onPressed: ()  {
-                     Navigator.pushNamed(context, TestScreen.id);
-                    },
-                  ),
+//                  ProfileOptionTile(
+//                    text: 'Test Screen',
+//                    onPressed: ()  {
+//                     Navigator.pushNamed(context, TestScreen.id);
+//                    },
+//                  ),
                     if (userIsProvider)
                       ProfileOptionTile(
                         text: 'Service Profiles',
@@ -158,29 +163,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: FutureBuilder(
-                          ///This function returns a list of providerUsers
-                          future: firestoreAPI.getServiceProviders(
-                              ids: currentUser.providerProfiles),
+                          //This function returns a list of providerUsers
+                          future: firestoreAPI.getProviders(
+                              pids: currentUser.providerProfiles),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return CircularProgress();
                             }
-                            final List<User> serviceProviders = snapshot.data;
+                            final List<ProviderUser> providers = snapshot.data;
 
                             List<Widget> providerCards = [];
 
-                            for (User serviceProvider in serviceProviders) {
+                            for (ProviderUser provider in providers) {
                               Widget pCard = ProviderAccountCard(
                                   width: (MediaQuery.of(context).size.width -
                                           20 * 3) /
                                       2.2,
-                                  serviceProvider: serviceProvider,
+                                  provider: provider,
                                   isSmallScreen:
                                       MediaQuery.of(context).size.height < 600,
                                   onPressed: () async {
-                                    await accountService.updateCurrentAccount(
-                                        id: serviceProvider.id);
-                                    Navigator.pushNamed(context, UserScreen.id);
+                                    await providerService
+                                        .updateCurrentProvider(provider.pid);
+                                    Navigator.pushNamed(
+                                        context, ProviderScreen.id);
                                   });
                               providerCards.add(pCard);
                             }
@@ -188,10 +194,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ///add the "add provider" card
                             providerCards.add(
                               AddProviderCard(
-                                width: (MediaQuery.of(context).size.width -
-                                        20 * 3) /
-                                    2.2,
+                                width:
+                                    (MediaQuery.of(context).size.width - 20 * 3) /
+                                        2.2,
                                 onPressed: () async {
+
                                   bool createAccount = await showYesNoAlert(
                                       context: context,
                                       title: 'Create Service Account?',
@@ -201,32 +208,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     setState(() {
                                       showSpinner = true;
                                     });
-
                                     ///Log event in firebase
                                     await analytics.logEvent(
                                         name: 'provider_account_created');
 
                                     DocumentReference result =
-                                        await firestoreAPI.addServiceProvider(
-                                            serviceUser: User(
-                                                name: currentUser.name,
-                                                mainAccountId: currentUser.id,
-                                                timeStamp: Timestamp.now(),
-                                                displayPictureURL: currentUser
-                                                    .displayPictureURL,
+                                        await firestoreAPI.addProvider(
+                                            ProviderUser(
+                                                uid: authProvider.currentUser.id,
+                                                displayPictureURL:
+                                                    currentUser.displayPictureURL,
                                                 displayPictureFileName:
                                                     currentUser
                                                         .displayPictureFileName),
-                                            uid: authProvider.currentUser.id);
+                                            authProvider.currentUser.id);
                                     await authProvider.updateCurrentUserData();
 
-                                    await accountService.updateCurrentAccount(
-                                        id: result.documentID);
+                                    await providerService
+                                        .updateCurrentProvider(result.documentID);
                                     setState(() {
                                       showSpinner = false;
                                     });
 
-                                    Navigator.pushNamed(context, UserScreen.id);
+                                    Navigator.pushNamed(
+                                        context, ProviderScreen.id);
                                     Navigator.pushNamed(
                                         context, EditProviderAccountScreen.id);
                                   }
@@ -257,9 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.black,
                         ),
                       ),
-                    //TODO there must be a better way of doing this than using a string
-                    if (!userIsProvider &&
-                        currentUser.accountType == 'Individual')
+                    if (!userIsProvider && currentUser.accountType == 'Individual')
                       ProfileOptionTile(
                         text: 'Create Service Profile',
                         onPressed: () async {
@@ -272,33 +275,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             setState(() {
                               showSpinner = true;
                             });
-
-                            ///Log event in firebase
+                            ///log event in firebase
                             await analytics.logEvent(
                                 name: 'provider_account_created');
-
                             DocumentReference result =
-                                await firestoreAPI.addServiceProvider(
-                                    serviceUser: User(
-                                        name: currentUser.name,
-                                        mainAccountId: currentUser.id,
+                                await firestoreAPI.addProvider(
+                                    ProviderUser(
+                                        uid: authProvider.currentUser.id,
                                         displayPictureURL:
                                             currentUser.displayPictureURL,
                                         displayPictureFileName:
-                                            currentUser.displayPictureFileName,
-                                        timeStamp: Timestamp.now(),
-                                    ),
-                                    uid: authProvider.currentUser.id);
-
+                                            currentUser.displayPictureFileName),
+                                    authProvider.currentUser.id);
                             await authProvider.updateCurrentUserData();
 
-                            await accountService.updateCurrentAccount(
-                                id: result.documentID);
+                            await providerService
+                                .updateCurrentProvider(result.documentID);
+
                             setState(() {
                               showSpinner = false;
                             });
 
-                            Navigator.pushNamed(context, UserScreen.id);
+                            Navigator.pushNamed(context, ProviderScreen.id);
                             Navigator.pushNamed(
                                 context, EditProviderAccountScreen.id);
                           }
@@ -313,8 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ProfileOptionTile(
                       text: 'Account Settings',
                       onPressed: () {
-                        Navigator.pushNamed(
-                            context, EditAccountSettingsScreen.id);
+                        Navigator.pushNamed(context, EditAccountSettingsScreen.id);
                       },
                     ),
                     ProfileOptionTile(

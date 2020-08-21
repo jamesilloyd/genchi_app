@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 class Task {
   String taskId;
   String hirerId;
@@ -53,52 +54,51 @@ class Task {
 
 
 
-class TaskApplication {
-
-  String taskid;
-  String applicationId;
-  String applicantId;
+class TaskApplicant {
+  String pid;
   String hirerid;
+  String applicationId;
+  String taskid;
   bool hirerHasUnreadMessage;
-  bool applicantHasUnreadMessage;
+  bool providerHasUnreadMessage;
   bool isHiddenFromHirer;
-  bool isHiddenFromApplicant;
+  bool isHiddenFromProvider;
   String lastMessage;
   Timestamp time;
 
-  TaskApplication(
-      { this.applicantId,
+  TaskApplicant(
+      {this.pid,
         this.hirerid,
         this.applicationId,
         this.taskid,
         this.hirerHasUnreadMessage,
-        this.applicantHasUnreadMessage,
+        this.providerHasUnreadMessage,
         this.lastMessage,
-        this.isHiddenFromApplicant,
+        this.isHiddenFromProvider,
         this.isHiddenFromHirer,
         this.time});
 
-  TaskApplication.fromMap(Map snapshot)
-      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? '',
+  TaskApplicant.fromMap(Map snapshot)
+      : pid = snapshot['pid'] ?? '',
         hirerid = snapshot['hirerid'] ?? '',
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
-        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
+        providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
         applicationId = snapshot['applicationId'] ?? '',
-        isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,
+        isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
         taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {
     return {
-      if (applicantId != null) "applicantId": applicantId,
+      if (pid != null) "pid": pid,
       if (hirerid != null) "hirerid": hirerid,
       if (applicationId != null) 'applicationId': applicationId,
-      if (applicantHasUnreadMessage != null)'applicantHasUnreadMessage': applicantHasUnreadMessage,
+      if (providerHasUnreadMessage != null)'providerHasUnreadMessage': providerHasUnreadMessage,
       if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,
-      if (isHiddenFromApplicant != null)"isHiddenFromApplicant": isHiddenFromApplicant,
+      if (isHiddenFromProvider != null)"isHiddenFromProvider": isHiddenFromProvider,
       if (isHiddenFromHirer != null) "isHiddenFromHirer": isHiddenFromHirer,
       if (time != null) "time" : time,
       if (taskid != null) 'taskid': taskid

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/components/profile_cards.dart';
 
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/screens/user_screen.dart';
-import 'package:genchi_app/services/account_service.dart';
+
+import 'provider_screen.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 
+import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class FavouritesScreen extends StatelessWidget {
   static const id = 'favourites_screen';
@@ -22,7 +26,7 @@ class FavouritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accountService = Provider.of<AccountService>(context);
+    final providerService = Provider.of<ProviderService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
     User currentUser = authProvider.currentUser;
@@ -36,15 +40,15 @@ class FavouritesScreen extends StatelessWidget {
         padding: const EdgeInsets.all(15.0),
         children: <Widget>[
           FutureBuilder(
-            ///This function returns a list of providerUsers
+            //This function returns a list of providerUsers
             future: firestoreAPI.getUsersFavourites(currentUser.favourites),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return CircularProgress();
               }
-              final List<User> favouriteUsers = snapshot.data;
+              final List<ProviderUser> providers = snapshot.data;
 
-              if (favouriteUsers.isEmpty) {
+              if (providers.isEmpty) {
                 return Container(
                   height: 30,
                   child: Center(
@@ -58,26 +62,26 @@ class FavouritesScreen extends StatelessWidget {
                 );
               }
 
-              if(debugMode) print('Favourite Screen: Providers from firebase: $favouriteUsers');
+              if(debugMode) print('Favourite Screen: Providers from firebase: $providers');
 
-              List<UserCard> userCards = [];
+              List<ProviderCard> providerCards = [];
 
-              for (User favouriteUser in favouriteUsers) {
-                UserCard userCard = UserCard(
-                  user: favouriteUser,
+              for (ProviderUser provider in providers) {
+                ProviderCard pCard = ProviderCard(
+                  provider: provider,
                   onTap: () async {
-                    await accountService.updateCurrentAccount(id: favouriteUser.id);
-                    Navigator.pushNamed(context, UserScreen.id);
+                    await providerService.updateCurrentProvider(provider.pid);
+                    Navigator.pushNamed(context, ProviderScreen.id);
                   },
                 );
 
-                userCards.add(userCard);
+                providerCards.add(pCard);
               }
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: userCards,
+                children: providerCards,
               );
             },
           ),

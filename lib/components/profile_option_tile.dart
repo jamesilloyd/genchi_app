@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/constants.dart';
 
 class ProfileOptionTile extends StatelessWidget {
   final String text;

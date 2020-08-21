@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/components/drop_down_services.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -13,13 +14,13 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/models/services.dart';
-import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/provider.dart';
 
 import 'home_screen.dart';
 
@@ -42,13 +43,22 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
+  TextEditingController experienceTextController = TextEditingController();
+  TextEditingController priceTextController = TextEditingController();
   TextEditingController serviceTextController = TextEditingController();
 
+  //TODO is the following necessary? or can textControllers handle this?
+  String name;
+  String bio;
+  String experience;
   bool showSpinner = false;
+  String service;
+  String pricing;
   bool changesMade = false;
 
 
   Future<bool> _onWillPop() async {
+    print('in here');
 
     if (changesMade) {
       bool discard = await showYesNoAlert(
@@ -61,11 +71,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   @override
   void initState() {
     super.initState();
-    User currentAccount =
-        Provider.of<AccountService>(context, listen: false).currentAccount;
-    nameTextController.text = currentAccount.name;
-    bioTextController.text = currentAccount.bio;
-    serviceTextController.text = currentAccount.category;
+    ProviderUser provider =
+        Provider.of<ProviderService>(context, listen: false).currentProvider;
+    nameTextController.text = provider.name;
+    bioTextController.text = provider.bio;
+    experienceTextController.text = provider.experience;
+    priceTextController.text = provider.pricing;
+    serviceTextController.text = provider.type;
   }
 
   @override
@@ -73,6 +85,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     super.dispose();
     nameTextController.dispose();
     bioTextController.dispose();
+    experienceTextController.dispose();
+    priceTextController.dispose();
     serviceTextController.dispose();
   }
 
@@ -80,8 +94,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final accountService = Provider.of<AccountService>(context);
-    User serviceProvider = accountService.currentAccount;
+    final providerService = Provider.of<ProviderService>(context);
+    ProviderUser providerUser = providerService.currentProvider;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -120,16 +134,17 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     showSpinner = true;
                   });
 
-                  await firestoreAPI.updateUser(
-                      user: User(
-                          name: nameTextController.text,
-                          category: serviceTextController.text,
-                          bio: bioTextController.text,
-                      ),
-                      uid: serviceProvider.id);
+                  await firestoreAPI.updateProvider(
+                      provider: ProviderUser(
+                          name: name,
+                          type: serviceTextController.text,
+                          bio: bio,
+                          experience: experience,
+                          pricing: pricing),
+                      pid: providerUser.pid);
 
                   await authProvider.updateCurrentUserData();
-                  await accountService.updateCurrentAccount(id: serviceProvider.id);
+                  await providerService.updateCurrentProvider(providerUser.pid);
 
                   setState(() {
                     changesMade = false;
@@ -181,7 +196,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     alignment: Alignment.center,
                     children: <Widget>[
                       DisplayPicture(
-                        imageUrl: serviceProvider.displayPictureURL,
+                        imageUrl: providerUser.displayPictureURL,
                         height: 0.25,
                         border: true,
                       ),
@@ -218,11 +233,12 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: nameTextController,
                   hintText: "Either your name or your brand's name",
                   onChanged: (value) {
+                    name = value;
                     changesMade = true;
                   },
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
                       height: 30.0,
@@ -235,47 +251,22 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       ),
                     ),
                     SizedBox(height: 5.0),
-                    PopupMenuButton(
-                        elevation: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(32.0)),
-                              border: Border.all(color: Colors.black)
-
+                    SizedBox(
+                      height: 50.0,
+                      child: Container(
+                        color: Color(kGenchiCream),
+                        child: DropdownButton<String>(
+                            value: initialDropDownValue(currentType: serviceTextController.text),
+                            items: dropDownServiceItems(),
+                            onChanged: (value) {
+                              setState(() {
+                                changesMade = true;
+                                serviceTextController.text = value;
+                              });
+                            },
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12.0, horizontal: 20.0),
-                            child: Text(
-                              serviceTextController.text,
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ),
-                        itemBuilder: (_) {
-                          List<PopupMenuItem<String>> items = [
-                          ];
-                          for (Service serviceType in servicesList) {
-                            var newItem = new PopupMenuItem(
-                              child: Text(
-                                serviceType.databaseValue,
-                              ),
-                              value: serviceType.databaseValue,
-                            );
-                            items.add(newItem);
-                          }
-                          return items;
-                        },
-                        onSelected: (value) async {
-                          setState(() {
-                            changesMade = true;
-                            serviceTextController.text = value;
-                          });
-                        }),
+                      ),
+                    ),
                   ],
                 ),
                 EditAccountField(
@@ -283,6 +274,16 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: bioTextController,
                   hintText: 'What your service/offering is',
                   onChanged: (value) {
+                    bio = value;
+                    changesMade = true;
+                  },
+                ),
+                EditAccountField(
+                  field: 'Experience',
+                  textController: experienceTextController,
+                  hintText: 'How you developed your skills, any urls etc.',
+                  onChanged: (value) {
+                    experience = value;
                     changesMade = true;
                   },
                 ),
@@ -311,22 +312,23 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 RoundedButton(
                   buttonTitle: 'Save changes',
                   buttonColor: Color(kGenchiGreen),
-                  onPressed: () async {
-                    analytics.logEvent(name: 'provider_top_save_changes_button_pressed');
+                  onPressed: ()async{
+                    analytics.logEvent(name: 'provider_bottom_save_changes_button_pressed');
                     setState(() {
                       showSpinner = true;
                     });
 
-                    await firestoreAPI.updateUser(
-                        user: User(
-                          name: nameTextController.text,
-                          category: serviceTextController.text,
-                          bio: bioTextController.text,
-                        ),
-                        uid: serviceProvider.id);
+                    await firestoreAPI.updateProvider(
+                        provider: ProviderUser(
+                            name: name,
+                            type: serviceTextController.text,
+                            bio: bio,
+                            experience: experience,
+                            pricing: pricing),
+                        pid: providerUser.pid);
 
                     await authProvider.updateCurrentUserData();
-                    await accountService.updateCurrentAccount(id: serviceProvider.id);
+                    await providerService.updateCurrentProvider(providerUser.pid);
 
                     setState(() {
                       changesMade = false;
@@ -344,15 +346,15 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
                     ///Update the provider before deleting
 
-                    await accountService
-                        .updateCurrentAccount(id: serviceProvider.id);
+                    await providerService
+                        .updateCurrentProvider(providerUser.pid);
 
                     ///Get most up to data provider
-                    serviceProvider =
-                        Provider.of<AccountService>(context, listen: false)
-                            .currentAccount;
+                    providerUser =
+                        Provider.of<ProviderService>(context, listen: false)
+                            .currentProvider;
 
-                    bool delete = await showYesNoAlert(context: context, title: "Delete Service Account?");
+                    bool delete = await showYesNoAlert(context: context, title: "Delete Provider Account?");
 
                     if(delete) {
                       setState(() {
@@ -362,8 +364,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       ///Log event in firebase
                       await analytics.logEvent(name: 'provider_account_deleted');
 
-                      await firestoreAPI.deleteServiceProvider(
-                          serviceProvider: serviceProvider);
+                      await firestoreAPI.deleteProvider(
+                          provider: providerUser);
                       await authProvider.updateCurrentUserData();
                       changesMade = false;
                       setState(() => showSpinner = false);

@@ -3,7 +3,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'dart:io' show Platform;
 
+import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
@@ -15,13 +17,16 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
+import 'package:genchi_app/screens/hirer_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
-import 'package:genchi_app/screens/user_screen.dart';
-import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/screens/provider_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/hirer_service.dart';
+import 'package:genchi_app/services/provider_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/models/provider.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:genchi_app/services/time_formatting.dart';
@@ -50,9 +55,9 @@ class _TaskScreenState extends State<TaskScreen> {
           return CircularProgress();
         }
 
-        final List<Map<String, dynamic>> applicationAndProviders = snapshot.data;
+        final List<Map<String, dynamic>> applicantsAndProviders = snapshot.data;
 
-        if (applicationAndProviders.isEmpty) {
+        if (applicantsAndProviders.isEmpty) {
           return Center(
             child: Text(
               'No Applicants Yet',
@@ -74,9 +79,7 @@ class _TaskScreenState extends State<TaskScreen> {
               ),
             ),
           ),
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5,),
           Divider(
             height: 0,
             thickness: 1,
@@ -85,52 +88,52 @@ class _TaskScreenState extends State<TaskScreen> {
           ),
         ];
 
-        for (Map applicationAndProvider in applicationAndProviders) {
-          TaskApplication taskApplication = applicationAndProvider['application'];
-          User applicant = applicationAndProvider['applicant'];
+        for (Map applicantAndProvider in applicantsAndProviders) {
+          TaskApplicant taskApplicant = applicantAndProvider['applicant'];
+          ProviderUser provider = applicantAndProvider['provider'];
 
           MessageListItem chatWidget = MessageListItem(
-              image: applicant.displayPictureURL == null
+              image: provider.displayPictureURL == null
                   ? null
-                  : CachedNetworkImageProvider(applicant.displayPictureURL),
-              name: applicant.name,
-              service: applicant.category,
+                  : CachedNetworkImageProvider(provider.displayPictureURL),
+              name: provider.name,
+              service: provider.type,
               type: 'JOB',
-              lastMessage: taskApplication.lastMessage,
-              time: taskApplication.time,
-              hasUnreadMessage: taskApplication.hirerHasUnreadMessage,
+              lastMessage: taskApplicant.lastMessage,
+              time: taskApplicant.time,
+              hasUnreadMessage: taskApplicant.hirerHasUnreadMessage,
               onTap: enableChatView
                   ? () async {
-                      setState(() {
-                        showSpinner = true;
-                      });
+                setState(() {
+                  showSpinner = true;
+                });
 
-                      User hirer = await firestoreAPI.getUserById(task.hirerId);
+                User hirer = await firestoreAPI.getUserById(task.hirerId);
 
-                      ///Checking that the hirer exists before segue
-                      if (hirer != null) {
-                        taskApplication.hirerHasUnreadMessage = false;
+                ///Checking that the hirer exists before segue
+                if (hirer != null) {
+                  taskApplicant.hirerHasUnreadMessage = false;
 
-                        ///Update the task application
-                        await firestoreAPI.updateTaskApplication(
-                            taskApplication: taskApplication);
+                  ///Update the task application
+                  await firestoreAPI.updateTaskApplicant(
+                      taskApplicant: taskApplicant);
 
-                        setState(() {
-                          showSpinner = false;
-                        });
+                  setState(() {
+                    showSpinner = false;
+                  });
 
-                        ///Segue to application chat screen with user as hirer
-                        Navigator.pushNamed(context, ApplicationChatScreen.id,
-                                arguments: ApplicationChatScreenArguments(
-                                    taskApplication: taskApplication,
-                                    userIsApplicant: false,
-                                    applicant: applicant,
-                                    hirer: hirer))
-                            .then((value) {
-                          setState(() {});
-                        });
-                      }
-                    }
+                  ///Segue to application chat screen with user as hirer
+                  Navigator.pushNamed(context, ApplicationChatScreen.id,
+                      arguments: ApplicationChatScreenArguments(
+                          taskApplicant: taskApplicant,
+                          userIsProvider: false,
+                          provider: provider,
+                          hirer: hirer))
+                      .then((value) {
+                    setState(() {});
+                  });
+                }
+              }
                   : () {},
 
               //TODO add ability to delete applicant
@@ -146,139 +149,187 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
-  Widget buildApplicantsTask(
-      {@required Function applyFunction,
-      @required List userpidsAndId,
-      @required Task task}) {
+  Widget buildApplicantsTask({@required bool userIsProvider,
+    @required Function applyFunction,
+    @required List userpids,
+    @required Task task}) {
+    if (!userIsProvider) {
+      ///User cannot apply as they do not have a provider account
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: RoundedButton(
+              buttonTitle: 'Create a provider account to apply',
+              fontColor: Colors.white,
+              buttonColor: Color(kGenchiBlue),
+              onPressed: () async {
+                bool createAccount = await showYesNoAlert(context: context,
+                    title: 'Create a provider account to apply to this job?');
+                if (createAccount) {
+                  ///Log event in firebase
+                  await analytics.logEvent(name: 'provider_account_created');
 
-    ///User is looking at someone else's task, provide them with the option to apply
-    return FutureBuilder(
-      future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return CircularProgress();
-        }
+                  AuthenticationService authService = Provider.of<AuthenticationService>(context,listen: false);
+                  ProviderService providerService = Provider.of<ProviderService>(context,listen: false);
 
-        //TODO this is not the most steamline way to do this
-        bool applied = false;
-        User appliedAccount;
-        TaskApplication usersApplication;
-        final List<Map<String, dynamic>> applicantsAndProviders = snapshot.data;
+                  DocumentReference result =
+                  await firestoreAPI.addProvider(
+                      ProviderUser(
+                          uid: authService.currentUser.id,
+                          displayPictureURL:
+                          authService.currentUser.displayPictureURL,
+                          displayPictureFileName:
+                          authService.currentUser
+                              .displayPictureFileName),
+                      authService.currentUser.id);
 
-        for (var applicantAndProvider in applicantsAndProviders) {
-          User applicant = applicantAndProvider['applicant'];
-          TaskApplication application = applicantAndProvider['application'];
 
-          if (userpidsAndId.contains(applicant.id)) {
-            ///currentUser has applied
-            applied = true;
-            appliedAccount = applicant;
-            usersApplication = application;
+                  await authService.updateCurrentUserData();
+
+                  await providerService
+                      .updateCurrentProvider(result.documentID);
+
+                  Navigator.pushNamed(context, ProviderScreen.id);
+                  Navigator.pushNamed(context, EditProviderAccountScreen.id);
+              }
+              },
+            ),
+          ),
+        ],
+      );
+    } else {
+      ///User is a provider so it's now a case of seeing if they have applied already
+      return FutureBuilder(
+        future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgress();
           }
-        }
 
-        if (applied) {
-          ///user has already applied
+          //TODO this is not the most steamline way to do this
+          bool applied = false;
+          ProviderUser appliedProvider;
+          TaskApplicant providersApplication;
+          final List<Map<String, dynamic>> applicantsAndProviders =
+              snapshot.data;
 
-          List<Widget> widgets = [
-            Center(
-              child: Text(
-                'Your Application',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
+          for (var applicantAndProvider in applicantsAndProviders) {
+            ProviderUser provider = applicantAndProvider['provider'];
+            TaskApplicant applicant = applicantAndProvider['applicant'];
+
+            if (userpids.contains(provider.pid)) {
+              ///currentuser has applied
+              applied = true;
+              appliedProvider = provider;
+              providersApplication = applicant;
+            }
+          }
+
+          if (applied) {
+            ///user has already applied
+
+            List<Widget> widgets = [
+              Center(
+                child: Text(
+                  'Your Application',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 5,
-            )
-          ];
+              SizedBox(
+                height: 5,
+              )
+            ];
 
-          ///Show user's application
-          MessageListItem chatWidget = MessageListItem(
-              image: appliedAccount.displayPictureURL == null
-                  ? null
-                  : CachedNetworkImageProvider(
-                      appliedAccount.displayPictureURL),
-              name: appliedAccount.name,
-              service: appliedAccount.category,
-              lastMessage: usersApplication.lastMessage,
-              time: usersApplication.time,
-              type: 'JOB',
-              hasUnreadMessage: usersApplication.applicantHasUnreadMessage,
-              onTap: () async {
-                setState(() {
-                  showSpinner = true;
-                });
-                User hirer = await firestoreAPI.getUserById(task.hirerId);
-
-                ///Check that the hirer exists before opening chat
-                if (hirer != null) {
-                  usersApplication.applicantHasUnreadMessage = false;
-                  await firestoreAPI.updateTaskApplication(
-                      taskApplication: usersApplication);
-
-                  setState(() {
-                    showSpinner = false;
-                  });
-
-                  ///Segue to application chat screen with user as the applicant
-                  Navigator.pushNamed(context, ApplicationChatScreen.id,
-                      arguments: ApplicationChatScreenArguments(
-                        hirer: hirer,
-                        userIsApplicant: true,
-                        taskApplication: usersApplication,
-                        applicant: appliedAccount,
-                      )).then((value) {
-                    setState(() {});
-                  });
-                }
-              },
-              deleteMessage: 'Withdraw',
-              hideChat: () async {
-                bool withdraw = await showYesNoAlert(
-                    context: context, title: 'Withdraw your application?');
-
-                if (withdraw) {
+            ///Show user's application
+            MessageListItem chatWidget = MessageListItem(
+                image: appliedProvider.displayPictureURL == null
+                    ? null
+                    : CachedNetworkImageProvider(
+                    appliedProvider.displayPictureURL),
+                name: appliedProvider.name,
+                service: appliedProvider.type,
+                lastMessage: providersApplication.lastMessage,
+                time: providersApplication.time,
+                type: 'JOB',
+                deleteMessage: 'Withdraw',
+                hasUnreadMessage: providersApplication.providerHasUnreadMessage,
+                onTap: () async {
                   setState(() {
                     showSpinner = true;
                   });
+                  User hirer = await firestoreAPI.getUserById(task.hirerId);
 
-                  await analytics.logEvent(
-                      name: 'applicant_removed_application');
+                  ///Check that the hirer exists before opening chat
+                  if (hirer != null) {
+                    providersApplication.providerHasUnreadMessage = false;
+                    await firestoreAPI.updateTaskApplicant(
+                        taskApplicant: providersApplication);
 
-                  await firestoreAPI.removeTaskApplicant(
-                      applicantId: appliedAccount.id,
-                      applicationId: usersApplication.applicationId,
-                      taskId: usersApplication.taskid);
+                    setState(() {
+                      showSpinner = false;
+                    });
 
-                  setState(() {
-                    showSpinner = false;
-                  });
-                }
-              });
+                    ///Segue to application chat screen with user as the provider (applicant)
+                    Navigator.pushNamed(context, ApplicationChatScreen.id,
+                        arguments: ApplicationChatScreenArguments(
+                          hirer: hirer,
+                          userIsProvider: true,
+                          taskApplicant: providersApplication,
+                          provider: appliedProvider,
+                        )).then((value) {
+                      setState(() {});
+                    });
+                  }
+                },
+                hideChat: () async {
+                  bool withdraw = await showYesNoAlert(
+                      context: context, title: 'Withdraw your application?');
 
-          widgets.add(chatWidget);
+                  if (withdraw) {
+                    setState(() {
+                      showSpinner = true;
+                    });
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
-          );
-        } else {
-          ///user has not applied
-          return Center(
-            child: RoundedButton(
-              fontColor: Color(kGenchiCream),
-              buttonColor: Color(kGenchiGreen),
-              buttonTitle: 'Apply',
-              onPressed: applyFunction,
-              elevation: true,
-            ),
-          );
-        }
-      },
-    );
+                    await analytics.logEvent(
+                        name: 'applicant_removed_application');
+
+                    await firestoreAPI.removeTaskApplicant(
+                        providerId: appliedProvider.pid,
+                        applicationId: providersApplication.applicationId,
+                        taskId: providersApplication.taskid);
+
+                    setState(() {
+                      showSpinner = false;
+                    });
+                  }
+                });
+
+            widgets.add(chatWidget);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            );
+          } else {
+            ///user has not applied
+            return Center(
+              child: RoundedButton(
+                fontColor: Color(kGenchiCream),
+                buttonColor: Color(kGenchiGreen),
+                buttonTitle: 'Apply',
+                onPressed: applyFunction,
+                elevation: true,
+              ),
+            );
+          }
+        },
+      );
+    }
   }
 
   Widget buildAdminSection(
@@ -290,14 +341,9 @@ class _TaskScreenState extends State<TaskScreen> {
         ),
         Center(
             child: Text(
-          'Admin Controls',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
-        )),
-        Center(
-          child: Text(
-            'id: ${currentTask.taskId}'
-          ),
-        ),
+              'Admin Controls',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+            )),
         RoundedButton(
           buttonTitle: 'Delete task',
           buttonColor: Color(kGenchiBlue),
@@ -305,7 +351,7 @@ class _TaskScreenState extends State<TaskScreen> {
           onPressed: () async {
             bool deleteTask = await showYesNoAlert(
                 context: context,
-            title: 'Are you sure you want to delete this job?');
+                title: 'Are you sure you want to delete this job?');
 
             if (deleteTask) {
               setState(() {
@@ -313,11 +359,9 @@ class _TaskScreenState extends State<TaskScreen> {
               });
 
               TaskService taskService =
-                  Provider.of<TaskService>(context, listen: false);
-
+              Provider.of<TaskService>(context, listen: false);
               AuthenticationService authService =
-                  Provider.of<AuthenticationService>(context, listen: false);
-
+              Provider.of<AuthenticationService>(context, listen: false);
               await firestoreAPI.deleteTask(task: taskService.currentTask);
               await authService.updateCurrentUserData();
               setState(() {
@@ -340,20 +384,17 @@ class _TaskScreenState extends State<TaskScreen> {
     if (debugMode) print('Task Screen: activated');
     final authProvider = Provider.of<AuthenticationService>(context);
     final taskProvider = Provider.of<TaskService>(context);
-    final accountService = Provider.of<AccountService>(context);
+    final hirerProvider = Provider.of<HirerService>(context);
     User currentUser = authProvider.currentUser;
     Task currentTask = taskProvider.currentTask;
     bool isUsersTask = currentTask.hirerId == currentUser.id;
-
-    List userPidsAndId = currentUser.providerProfiles;
-    userPidsAndId.add(currentUser.id);
+    bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: Colors.black,
         ),
-        centerTitle: true,
         title: Text(
           'Job',
           style: TextStyle(
@@ -383,7 +424,7 @@ class _TaskScreenState extends State<TaskScreen> {
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
         child: ListView(
-          padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+          padding: EdgeInsets.fromLTRB(0,15,0,0),
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -428,8 +469,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     text: currentTask.details ?? "",
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
@@ -446,8 +486,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     text: currentTask.date ?? "",
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
@@ -462,8 +501,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   ),
                   SelectableText(
                     currentTask.price ?? "",
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
@@ -478,8 +516,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   ),
                   SelectableText(
                     getTaskPostedTime(time: currentTask.time),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 5),
                   Divider(
@@ -496,6 +533,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     height: 10,
                   ),
                   FutureBuilder(
+
                     ///We probably don't need to check that the user exists here as the
                     ///task would have been deleted if the hirer doesn't exist.
                     ///Worst case scenario the infite scoller appears
@@ -505,14 +543,17 @@ class _TaskScreenState extends State<TaskScreen> {
                         return Text('');
                       }
                       User hirer = snapshot.data;
-                      return UserCard(
-                          user: hirer,
+                      return HirerCard(
+                          hirer: hirer,
                           onTap: () async {
-                            await accountService.updateCurrentAccount(
+                            await hirerProvider.updateCurrentHirer(
                                 id: currentTask.hirerId);
-                            Navigator.pushNamed(context, UserScreen.id);
+                            Navigator.pushNamed(context, HirerScreen.id);
                           });
                     },
+                  ),
+                  Divider(
+                    thickness: 1,
                   ),
                 ],
               ),
@@ -520,18 +561,24 @@ class _TaskScreenState extends State<TaskScreen> {
             isUsersTask
                 ? buildHirersTask(task: currentTask)
                 : buildApplicantsTask(
-                    task: currentTask,
-                    userpidsAndId: userPidsAndId,
-                    applyFunction: () async {
-                      String selectedId = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20.0),
-                                topRight: Radius.circular(20.0))),
-                        builder: (context) => Container(
-                          height: MediaQuery.of(context).size.height * 0.75,
+              task: currentTask,
+              userIsProvider: userIsProvider,
+              userpids: currentUser.providerProfiles,
+              applyFunction: () async {
+                if (userIsProvider) {
+                  String selectedProviderId = await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0))),
+                    builder: (context) =>
+                        Container(
+                          height: MediaQuery
+                              .of(context)
+                              .size
+                              .height * 0.75,
                           padding: EdgeInsets.all(15.0),
                           decoration: BoxDecoration(
                             color: Color(kGenchiCream),
@@ -544,223 +591,108 @@ class _TaskScreenState extends State<TaskScreen> {
                             children: <Widget>[
                               Center(
                                   child: Text(
-                                'Apply with which account?',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )),
-                              SizedBox(
-                                height: 40,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'General Account',
+                                    'Apply with which provider account?',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                              Divider(
-                                height: 1,
-                                thickness: 1,
-                              ),
-
-                              //TODO going to try and use current user here (may not work)
-                              UserCard(
-                                user: currentUser,
-                                onTap:  () async {
-                                  bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-                                  if(apply) {
-                                    Navigator.pop(
-                                        context, currentUser.id);
-                                  }
-                                },
-                              ),
-//                              FutureBuilder(
-//                                future:
-//                                    firestoreAPI.getUserById(currentUser.id),
-//                                builder: (context, snapshot) {
-//                                  if (!snapshot.hasData) {
-//                                    return SizedBox();
-//                                  } else {
-//                                    return UserCard(
-//                                      user: snapshot.data,
-//                                      onTap: () async {
-//
-//                                        bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-//                                        if(apply) {
-//                                          Navigator.pop(
-//                                              context, serviceProvider.id);
-//                                        }
-//
-//                                      },
-//                                    );
-//                                  }
-//                                },
-//                              ),
-                              SizedBox(
-                                height: 40,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Service Account(s)',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
+                                      color: Colors.black,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )),
                               Divider(
                                 height: 1,
                                 thickness: 1,
                               ),
                               FutureBuilder(
-                                ///This function returns a list of providerUsers
-                                future: firestoreAPI.getServiceProviders(
-                                    ids: currentUser.providerProfiles),
+                                //This function returns a list of providerUsers
+                                future: firestoreAPI.getProviders(
+                                    pids: currentUser.providerProfiles),
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
                                     return CircularProgress();
                                   }
-                                  final List<User> serviceProviders =
+                                  final List<ProviderUser> providers =
                                       snapshot.data;
 
-                                  List<UserCard> userCards = [];
+                                  List<ProviderCard> providerCards = [];
 
-                                  for (User serviceProvider in serviceProviders) {
-                                    UserCard userCard = UserCard(
-                                      user: serviceProvider,
-                                      onTap: () async {
-
-                                        bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-                                        if(apply) {
-                                          Navigator.pop(
-                                              context, serviceProvider.id);
-                                        }
+                                  for (ProviderUser provider in providers) {
+                                    ProviderCard pCard = ProviderCard(
+                                      provider: provider,
+                                      onTap: () {
+                                        Navigator.pop(context, provider.pid);
                                       },
                                     );
 
-                                    userCards.add(userCard);
+                                    providerCards.add(pCard);
                                   }
 
                                   return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: userCards,
+                                    CrossAxisAlignment.stretch,
+                                    children: providerCards,
                                   );
                                 },
                               ),
-                              RoundedButton(
-                                buttonColor: Color(kGenchiGreen),
-                                buttonTitle:
-                                    'Create a service account first?',
-                                onPressed: () async {
-                                  bool createAccount = await showYesNoAlert(
-                                      context: context,
-                                      title:
-                                          'Create a service account before applying to this job?');
-                                  if (createAccount) {
-                                    ///Log event in firebase
-                                    await analytics.logEvent(
-                                        name: 'provider_account_created');
-
-                                    AuthenticationService authService =
-                                        Provider.of<AuthenticationService>(
-                                            context,
-                                            listen: false);
-                                    AccountService accountService =
-                                        Provider.of<AccountService>(context,
-                                            listen: false);
-
-                                    DocumentReference result =
-                                        await firestoreAPI.addServiceProvider(
-                                            serviceUser: User(
-                                                mainAccountId: authService.currentUser.id,
-                                                displayPictureURL: authService
-                                                    .currentUser
-                                                    .displayPictureURL,
-                                                displayPictureFileName:
-                                                    authService.currentUser
-                                                        .displayPictureFileName),
-                                            uid: authService.currentUser.id);
-
-                                    await authService.updateCurrentUserData();
-
-                                    await accountService.updateCurrentAccount(id:
-                                        result.documentID);
-
-                                    //TODO is there a way to reload? rather then closing the modal and having to reopen?
-
-                                    Navigator.pushNamed(
-                                        context, UserScreen.id).then((value) {
-                                          Navigator.pop(context);
-                                    }
-                                    );
-                                    Navigator.pushNamed(
-                                        context, EditProviderAccountScreen.id);
-                                  }
-                                },
-                              )
                             ],
                           ),
                         ),
-                      );
+                  );
+                  if (debugMode)
+                    print(
+                        'Task Screen: applied with pid $selectedProviderId');
 
-                      if (debugMode)
-                        print(
-                            'Task Screen: applied with id $selectedId');
+                  if (selectedProviderId != null) {
+                    setState(() {
+                      showSpinner = true;
+                    });
 
-                      if (selectedId != null) {
-                        setState(() {
-                          showSpinner = true;
-                        });
+                    await analytics.logEvent(
+                        name: 'task_application_sent');
 
-                        await analytics.logEvent(name: 'task_application_sent');
+                    DocumentReference chatRef =
+                    await firestoreAPI.applyToTask(
+                        taskId: currentTask.taskId,
+                        providerId: selectedProviderId,
+                        userId: currentTask.hirerId);
 
-                        DocumentReference chatRef =
-                            await firestoreAPI.applyToTask(
-                                taskId: currentTask.taskId,
-                                applicantId: selectedId,
-                                hirerId: currentTask.hirerId);
+                    TaskApplicant taskApplicant =
+                    await firestoreAPI.getTaskApplicantById(
+                      taskId: currentTask.taskId,
+                      applicantId: chatRef.documentID,
+                    );
 
-                        TaskApplication taskApplication =
-                            await firestoreAPI.getTaskApplicationById(
-                          taskId: currentTask.taskId,
-                          applicationId: chatRef.documentID,
-                        );
+                    ProviderUser providerProfile = await firestoreAPI
+                        .getProviderById(selectedProviderId);
+                    User hirer = await firestoreAPI
+                        .getUserById(currentTask.hirerId);
 
-                        User applicantProfile = await firestoreAPI
-                            .getUserById(selectedId);
+                    setState(() {
+                      showSpinner = false;
+                    });
 
-                        User hirer = await firestoreAPI.getUserById(currentTask.hirerId);
-
-                        setState(() {
-                          showSpinner = false;
-                        });
-
-                        ///Check all necessary documents exist before entering chat
-                        if (hirer != null &&
-                            applicantProfile != null &&
-                            taskApplication != null) {
-                          Navigator.pushNamed(context, ApplicationChatScreen.id,
-                              arguments: ApplicationChatScreenArguments(
-                                taskApplication: taskApplication,
-                                hirer: hirer,
-                                applicant: applicantProfile,
-                                userIsApplicant: true,
-                              )).then((value) {
-                            ///Refresh screen
-                            setState(() {});
-                          });
-                        }
-                      }
-                    },
-                  ),
+                    ///Check all necessary documents exist before entering chat
+                    if (hirer != null &&
+                        providerProfile != null &&
+                        taskApplicant != null) {
+                      Navigator.pushNamed(
+                          context, ApplicationChatScreen.id,
+                          arguments: ApplicationChatScreenArguments(
+                            taskApplicant: taskApplicant,
+                            hirer: hirer,
+                            provider: providerProfile,
+                            userIsProvider: true,
+                          )).then((value) {
+                        ///Refresh screen
+                        setState(() {});
+                      });
+                    }
+                  }
+                }
+              },
+            ),
             if (currentUser.admin)
               buildAdminSection(context: context, currentTask: currentTask),
           ],

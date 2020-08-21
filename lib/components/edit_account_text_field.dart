@@ -44,7 +44,7 @@ class EditAccountField extends StatelessWidget {
           onChanged: onChanged,
           readOnly: isEditable ? false : true,
           controller: textController,
-          decoration: kEditAccountTextFieldDecoration.copyWith(hintText: hintText),
+          decoration: kTextFieldDecoration.copyWith(hintText: hintText),
           cursorColor: Color(kGenchiOrange),
         ),
       ],

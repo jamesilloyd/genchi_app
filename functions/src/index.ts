@@ -30,15 +30,17 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
 
     if(taskData && usersData) {
         for(const item of usersData){
-            const deviceTokens: Array<string> = item.data()['fcmTokens'];
+            ///Filter out service providers
+            if(item.data()['accountType'] != 'Service Provider'){
+                const deviceTokens: Array<string> = item.data()['fcmTokens'];
             
-            if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
-                for(const token of deviceTokens) {
-                    if(token !== "") {
+                if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
+                    for(const token of deviceTokens) {
+                        if(token !== "") {
                         allTokens.push(token);
+                        }
                     }
                 }
-                
             }
         }
 
@@ -75,35 +77,6 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
 
 })
 
-export const sendToDevice = functions.firestore.document('test/{testId}').onCreate(async snapshot => {
-
-    // const test = snapshot.data();
-    // const querySnapshot = await db.collection('users').doc(test.id).get();
-    // const tokens = querySnapshot.data['fcmTokens'];
-
-    const fcmToken = 'fR7jC-UMKk6kpaxXEgDGp8:APA91bGnOih8eHcnYciNIsFJYYmlJUM3Pk6i7ymvOsx6VHa_0tGyMKuOlIHCgEP75ONKCYza_-KHBMzHiHE9j3VR7P93CGeMiagERI4pWpUDzVC4arsgwlQWlP-hVCwdDllN-9o071zj';
-
-    const payload : admin.messaging.MessagingPayload = {
-
-        notification : {
-            title : 'Test1',
-            body : 'Test body is here',
-            clickAction: 'FLUTTER_NOTIFICATION_CLICK'
-        },
-    };
-
-    
-
-
-    return fcm.sendToDevice(fcmToken,payload).then((response) => {
-        console.log('Successfully sent message:', response);
-    })
-    .catch((error) => {
-      console.log('Error sending message:', error);
-    });
-    
-})
-
 
 export const sendPrivateMessageNotification = functions.firestore.document('chats/{chatId}/messages/{messageId}')
     .onCreate( async (snapshot, context) => {
@@ -118,31 +91,23 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
 
         if (chatData) {
 
-            //The user in the chat
-            const user = await db.collection('users').doc(chatData['uid']).get();
-            const userData = user.data();
+            ///Get both users in the chat
+            const user1 = await db.collection('users').doc(chatData['id1']).get();
+            const user1Data = user1.data();
+            const user2 = await db.collection('users').doc(chatData['id2']).get();
+            const user2Data = user2.data();
 
-            // Ther provider in the chat
-            const pid = chatData['pid'];
-            const provider = await db.collection('providers').doc(pid).get();
-            const providerData = provider.data();
+            if(user1Data && user2Data) {
 
-            if(userData && providerData) {
-
-                if(pid == message.sender) {
-                // If sender is the provider retrieve the providers name and the user token
-                    senderName = providerData['name'];
-                    tokens = userData['fcmTokens'];
+                if(user1Data['id'] == message.sender) {
+                // If sender is user1 retrieve the user1's name and user2's tokens
+                    senderName = user1Data['name'];
+                    tokens = user2Data['fcmTokens'];
 
                 } else {
-                //Otherwise the user sent the message so we need to find the tokens of the providers uid and the sender name
-                    const providersUser = await db.collection('users').doc(providerData['uid']).get();
-                    const providersUserData = providersUser.data();
-
-                    if(providersUserData){
-                        senderName = userData['name'];
-                        tokens = providersUserData['fcmTokens'];
-                    }
+                //Otherwise user2 sent the message so we need user2's name and user1's tokens
+                    senderName = user2Data['name'];
+                    tokens = user1Data['fcmTokens'];
                 }
             }
 

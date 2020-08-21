@@ -926,6 +926,7 @@ class FirestoreAPIService {
     await _chatCollectionRef.getDocuments().then((value) async {
       for (DocumentSnapshot chatData in value.documents) {
         Chat chat = Chat.fromMap(chatData.data);
+        chat.ids = [chat.id1,chat.id2];
         await _chatCollectionRef
             .document(chat.chatid)
             .updateData(chat.toJson());

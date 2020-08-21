@@ -33,13 +33,13 @@ class _TestScreenState extends State<TestScreen> {
                 buttonTitle: 'Get version',
                 buttonColor: Color(kGenchiOrange),
                 onPressed: () async {
-//                  await firestoreApi.migrateToNewDatabaseArchitecture();
-                  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-
-                  print(packageInfo.appName);
-                  print(packageInfo.packageName);
-                  print(packageInfo.version);
-                  print(packageInfo.buildNumber);
+                  await firestoreApi.migrateToNewDatabaseArchitecture();
+//                  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+//
+//                  print(packageInfo.appName);
+//                  print(packageInfo.packageName);
+//                  print(packageInfo.version);
+//                  print(packageInfo.buildNumber);
 
                 },
               )

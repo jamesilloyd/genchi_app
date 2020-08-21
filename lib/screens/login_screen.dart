@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'home_screen.dart';
@@ -11,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'forgot_password_screen.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/models/screen_arguments.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";
@@ -41,11 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
           progressIndicator: CircularProgress(),
           inAsyncCall: showSpinner,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: SafeArea(
-              child: Stack(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height * .1,
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -58,92 +58,84 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * .1,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * .2,
-                        child: Center(
-                          child: Hero(
-                            tag: 'logo',
-                            child: Container(
-                              child: Image.asset('images/LogoAndName.png'),
-                            ),
-                          ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * .2,
+                    child: Center(
+                      child: Hero(
+                        tag: 'logo',
+                        child: Container(
+                          child: Image.asset('images/LogoAndName.png'),
                         ),
                       ),
-                      Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              SignInTextField(
-                                field: 'Email',
-                                onChanged: (value) {
-                                  email = value;
-                                },
-                                hintText: "Enter email",
-                              ),
-
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              SignInTextField(
-                                field: 'Password',
-                                onChanged: (value) {
-                                  password = value;
-                                },
-                                hintText: "Enter password",
-                                isPasswordField: true,
-                              ),
-
-                              showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
-                              RoundedButton(
-                                buttonColor: Color(kGenchiOrange),
-                                buttonTitle: "Log In",
-                                onPressed: () async {
-                                  setState(() {
-                                    showErrorField = false;
-                                    showSpinner = true;
-                                  });
-                                  try {
-                                    if (email == null) throw (Exception('Enter email'));
-
-                                    await authProvider.loginWithEmail(
-                                        email: email, password: password);
-
-                                    //This populates the current user simultaneously
-                                    if (await authProvider.isUserLoggedIn() == true) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          HomeScreen.id,
-                                          (Route<dynamic> route) => false);
-                                    }
-                                  } catch (e) {
-                                    print(e);
-                                    showErrorField = true;
-                                    errorMessage = e.message;
-                                  }
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-                                },
-                              ),
-                              RoundedButton(
-                                buttonColor: Color(kGenchiBlue),
-                                buttonTitle: "Forgot password",
-                                onPressed: () {
-                                  Navigator.pushNamed(context, ForgotPasswordScreen.id);
-                                },
-                              ),
-                            ],
-                          )),
-                    ],
+                    ),
                   ),
+                  Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          SignInTextField(
+                            field: 'Email',
+                            onChanged: (value) {
+                              email = value;
+                            },
+                            hintText: "Enter email",
+                            isNameField: false,
+                          ),
+
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          SignInTextField(
+                            field: 'Password',
+                            onChanged: (value) {
+                              password = value;
+                            },
+                            hintText: "Enter password",
+                            isPasswordField: true,
+                          ),
+
+                          showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
+                          RoundedButton(
+                            buttonColor: Color(kGenchiOrange),
+                            buttonTitle: "Log In",
+                            onPressed: () async {
+                              setState(() {
+                                showErrorField = false;
+                                showSpinner = true;
+                              });
+                              try {
+                                if (email == null) throw (Exception('Enter email'));
+
+                                await authProvider.loginWithEmail(
+                                    email: email, password: password);
+
+                                //This populates the current user simultaneously
+                                if (await authProvider.isUserLoggedIn() == true) {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      HomeScreen.id,
+                                      (Route<dynamic> route) => false);
+                                }
+                              } catch (e) {
+                                print(e);
+                                showErrorField = true;
+                                errorMessage = e.message;
+                              }
+                              setState(() {
+                                showSpinner = false;
+                              });
+                            },
+                          ),
+                          RoundedButton(
+                            buttonColor: Color(kGenchiBlue),
+                            buttonTitle: "Forgot password",
+                            onPressed: () {
+                              Navigator.pushNamed(context, ForgotPasswordScreen.id);
+                            },
+                          ),
+                        ],
+                      )),
                 ],
               ),
             ),

@@ -3,10 +3,8 @@ import 'dart:io' show Platform;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
 
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -15,9 +13,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
-import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -126,13 +122,13 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           name:
                           'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
-                      for (String pid in currentUser.providerProfiles) {
-                        ProviderUser provider =
-                            await fireStoreAPI.getProviderById(pid);
+                      for (String id in currentUser.providerProfiles) {
+                        User serviceProfile =
+                            await fireStoreAPI.getUserById(id);
 
-                        ///Check provider exists before deleting it
-                        if (provider != null) {
-                          await fireStoreAPI.deleteProvider(provider: provider);
+                        ///Check service profile exists before deleting it
+                        if (serviceProfile != null) {
+                          await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
                         }
                       }
                     }
@@ -175,7 +171,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   padding: EdgeInsets.all(15.0),
                   children: <Widget>[
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -188,20 +184,48 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        Container(
-                          height: 50.0,
-                          color: Color(kGenchiCream),
-                          child: DropdownButton<String>(
-                            value: accountTypeTextController.text,
-                            items: dropDownAccountTypeItems(),
-                            onChanged: (value) async {
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  accountTypeTextController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (String accountType
+                              in accountTypeList) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
                               if (value != accountTypeTextController.text && hasServiceProfiles) {
                                 bool change = await showYesNoAlert(
                                     context: context,
                                     title:
-                                        'Are you sure you want to change account type?',
+                                    'Are you sure you want to change account type?',
                                     body:
-                                        'Doing this will remove any other service accounts associated with this account.');
+                                    'Doing this will remove any other service accounts associated with this account.');
 
                                 if (change) {
                                   changesMade = true;
@@ -213,9 +237,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 accountTypeTextController.text = value;
                                 setState(() {});
                               }
-                            },
-                          ),
-                        ),
+                            }),
                       ],
                     ),
                     EditAccountField(
@@ -266,13 +288,13 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 name:
                                 'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
-                            for (String pid in currentUser.providerProfiles) {
-                              ProviderUser provider =
-                              await fireStoreAPI.getProviderById(pid);
+                            for (String id in currentUser.providerProfiles) {
+                              User serviceProfile =
+                              await fireStoreAPI.getUserById(id);
 
                               ///Check provider exists before deleting it
-                              if (provider != null) {
-                                await fireStoreAPI.deleteProvider(provider: provider);
+                              if (serviceProfile != null) {
+                                await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
                               }
                             }
                           }

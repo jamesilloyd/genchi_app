@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -102,7 +100,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       hintText: 'Summary of the job',
                     ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -116,22 +114,47 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        SizedBox(
-                          height: 50.0,
-                          child: Container(
-                            color: Color(kGenchiCream),
-                            child: DropdownButton<String>(
-                              value: initialDropDownValue(currentType: serviceController.text),
-                              items: dropDownServiceItems(),
-                              onChanged: (value) {
-                                setState(() {
-                                  serviceController.text = value;
-                                  changesMade = true;
-                                });
-                              },
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  serviceController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (Service serviceType in servicesList) {
+                                var newItem = new PopupMenuItem(
+                                  child: Text(
+                                    serviceType.databaseValue,
+                                  ),
+                                  value: serviceType.databaseValue,
+                                );
+                                items.add(newItem);
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
+                              setState(() {
+                                changesMade = true;
+                                serviceController.text = value;
+                              });
+                            }),
                       ],
                     ),
                     EditAccountField(
@@ -190,7 +213,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                   time: Timestamp.now(),
                                   price: price,
                                   hirerId: authProvider.currentUser.id),
-                              uid: authProvider.currentUser.id);
+                              hirerId: authProvider.currentUser.id);
 
                           await authProvider.updateCurrentUserData();
                           setState(() {

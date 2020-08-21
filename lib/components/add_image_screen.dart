@@ -6,14 +6,13 @@ import 'dart:io';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -107,9 +106,9 @@ class _AddImageScreenState extends State<AddImageScreen> {
   Widget build(BuildContext context) {
     if(debugMode) print('Add Image Screen: Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
-    final providerService = Provider.of<ProviderService>(context);
-    ProviderUser currentProvider = providerService.currentProvider;
+
+    final accountService = Provider.of<AccountService>(context);
+    User currentUser = accountService.currentAccount;
 
     return ModalProgressHUD(
           inAsyncCall: showSpinner,
@@ -239,7 +238,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                                 });
                                 await firestoreAPI.deleteDisplayPicture(user: currentUser);
                                 await authProvider.updateCurrentUserData();
-                                if(!widget.isUser) await providerService.updateCurrentProvider(currentProvider.pid);
+                                if(!widget.isUser) await accountService.updateCurrentAccount(id: currentUser.id);
                                 setState(() {
                                   showSpinner = false;
                                 });
@@ -297,7 +296,7 @@ class _UploaderState extends State<Uploader> {
 
   Future<bool> updateDisplayPicture() async {
     final authProvider = Provider.of<AuthenticationService>(context,listen: false);
-    final providerService = Provider.of<ProviderService>(context, listen: false);
+    final accountService = Provider.of<AccountService>(context, listen: false);
 
     try {
       filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
@@ -310,15 +309,15 @@ class _UploaderState extends State<Uploader> {
       print(downloadUrl);
 
 
-      String oldFileName = widget.isUser ? authProvider.currentUser.displayPictureFileName : providerService.currentProvider.displayPictureFileName;
+      String oldFileName = authProvider.currentUser.displayPictureFileName;
       print('Updating firestore user');
 
       await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
 
       print('Updating firestore providers');
 
-      for(String pid in authProvider.currentUser.providerProfiles) {
-        await firestoreAPI.updateProvider(provider: ProviderUser(displayPictureFileName: filePath,displayPictureURL: downloadUrl), pid: pid);
+      for(String id in authProvider.currentUser.providerProfiles) {
+        await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: id);
       }
 
       print('Updating current user and provider');
@@ -326,7 +325,7 @@ class _UploaderState extends State<Uploader> {
         await authProvider.updateCurrentUserData();
       } else {
         await authProvider.updateCurrentUserData();
-        await providerService.updateCurrentProvider(providerService.currentProvider.pid);
+        await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
       }
       print('Deleting old file');
       if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();

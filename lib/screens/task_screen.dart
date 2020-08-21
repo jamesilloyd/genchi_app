@@ -40,6 +40,7 @@ class _TaskScreenState extends State<TaskScreen> {
   bool showSpinner = false;
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   FirebaseAnalytics analytics = FirebaseAnalytics();
+  List userPidsAndId =[];
 
   Widget buildHirersTask({@required Task task, bool enableChatView = true}) {
     ///User is looking at their own task
@@ -192,7 +193,13 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
             SizedBox(
               height: 5,
-            )
+            ),
+            Divider(
+              height: 0,
+              thickness: 1,
+              indent: 15,
+              endIndent: 15,
+            ),
           ];
 
           ///Show user's application
@@ -205,7 +212,7 @@ class _TaskScreenState extends State<TaskScreen> {
               service: appliedAccount.category,
               lastMessage: usersApplication.lastMessage,
               time: usersApplication.time,
-              type: 'JOB',
+              type: appliedAccount.accountType,
               hasUnreadMessage: usersApplication.applicantHasUnreadMessage,
               onTap: () async {
                 setState(() {
@@ -345,7 +352,8 @@ class _TaskScreenState extends State<TaskScreen> {
     Task currentTask = taskProvider.currentTask;
     bool isUsersTask = currentTask.hirerId == currentUser.id;
 
-    List userPidsAndId = currentUser.providerProfiles;
+    userPidsAndId.clear();
+    userPidsAndId.addAll(currentUser.providerProfiles);
     userPidsAndId.add(currentUser.id);
 
     return Scaffold(
@@ -580,28 +588,6 @@ class _TaskScreenState extends State<TaskScreen> {
                                   }
                                 },
                               ),
-//                              FutureBuilder(
-//                                future:
-//                                    firestoreAPI.getUserById(currentUser.id),
-//                                builder: (context, snapshot) {
-//                                  if (!snapshot.hasData) {
-//                                    return SizedBox();
-//                                  } else {
-//                                    return UserCard(
-//                                      user: snapshot.data,
-//                                      onTap: () async {
-//
-//                                        bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-//                                        if(apply) {
-//                                          Navigator.pop(
-//                                              context, serviceProvider.id);
-//                                        }
-//
-//                                      },
-//                                    );
-//                                  }
-//                                },
-//                              ),
                               SizedBox(
                                 height: 40,
                                 child: Align(
@@ -681,6 +667,7 @@ class _TaskScreenState extends State<TaskScreen> {
                                         await firestoreAPI.addServiceProvider(
                                             serviceUser: User(
                                                 mainAccountId: authService.currentUser.id,
+                                                accountType: 'Service Provider',
                                                 displayPictureURL: authService
                                                     .currentUser
                                                     .displayPictureURL,

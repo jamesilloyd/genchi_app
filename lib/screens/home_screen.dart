@@ -121,8 +121,11 @@ class _HomeScreenState extends State<HomeScreen> {
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
         child: BottomNavigationBar(
             elevation: 4,
+            type: BottomNavigationBarType.fixed,
             currentIndex: _page ?? startingIndex,
             showUnselectedLabels: true,
+            selectedFontSize: 14,
+            unselectedFontSize: 14,
             selectedItemColor: Color(kGenchiOrange),
             unselectedItemColor: Colors.black,
             onTap: onPageChanged,

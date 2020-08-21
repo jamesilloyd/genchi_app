@@ -79,8 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         Scaffold(
-          appBar:
-              BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+          appBar: BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
           backgroundColor: Colors.transparent,
           body: ModalProgressHUD(
             inAsyncCall: showSpinner,
@@ -142,12 +141,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ////                      throw Exception('ERORRRORR');
 //                    },
 //                  ),
-                  ProfileOptionTile(
-                    text: 'Test Screen',
-                    onPressed: ()  {
-                     Navigator.pushNamed(context, TestScreen.id);
-                    },
-                  ),
+//                  ProfileOptionTile(
+//                    text: 'Test Screen',
+//                    onPressed: ()  {
+//                     Navigator.pushNamed(context, TestScreen.id);
+//                    },
+//                  ),
                     if (userIsProvider)
                       ProfileOptionTile(
                         text: 'Service Profiles',
@@ -196,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       context: context,
                                       title: 'Create Service Account?',
                                       body:
-                                          "Are you ready to provide your skills to the Cambridge community?");
+                                      "Are you ready to provide your skills to the Cambridge community?");
                                   if (createAccount) {
                                     setState(() {
                                       showSpinner = true;
@@ -207,17 +206,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         name: 'provider_account_created');
 
                                     DocumentReference result =
-                                        await firestoreAPI.addServiceProvider(
-                                            serviceUser: User(
-                                                name: currentUser.name,
-                                                mainAccountId: currentUser.id,
-                                                timeStamp: Timestamp.now(),
-                                                displayPictureURL: currentUser
-                                                    .displayPictureURL,
-                                                displayPictureFileName:
-                                                    currentUser
-                                                        .displayPictureFileName),
-                                            uid: authProvider.currentUser.id);
+                                    await firestoreAPI.addServiceProvider(
+                                        serviceUser: User(
+                                          name: currentUser.name,
+                                          mainAccountId: currentUser.id,
+                                          accountType: 'Service Provider',
+                                          displayPictureURL:
+                                          currentUser.displayPictureURL,
+                                          displayPictureFileName:
+                                          currentUser.displayPictureFileName,
+                                          timeStamp: Timestamp.now(),
+                                        ),
+                                        uid: authProvider.currentUser.id);
+
                                     await authProvider.updateCurrentUserData();
 
                                     await accountService.updateCurrentAccount(
@@ -282,6 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     serviceUser: User(
                                         name: currentUser.name,
                                         mainAccountId: currentUser.id,
+                                        accountType: 'Service Provider',
                                         displayPictureURL:
                                             currentUser.displayPictureURL,
                                         displayPictureFileName:

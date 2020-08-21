@@ -47,51 +47,11 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
 
   final User user;
   final User otherUser;
-//  final bool userIsProvider;
 
   @override
   Widget build(BuildContext context) {
     final accountService = Provider.of<AccountService>(context);
     return AppBar(
-      //TODO add this back in later once we've clarified the UI
-//      bottom: PreferredSize(
-//        preferredSize: const Size.fromHeight(60.0),
-//        child: Theme(
-//          data: Theme.of(context).copyWith(accentColor: Colors.white),
-//          child: Container(
-//            height: 60.0,
-//            color: Color(kGenchiCream),
-//            alignment: Alignment.center,
-//            child: GestureDetector(
-//              onTap: () async {
-//                await providerService.updateCurrentProvider(provider.pid);
-//                Navigator.pushNamed(context, ProviderScreen.id);
-//              },
-//              child: Padding(
-//                padding: const EdgeInsets.all(8.0),
-//                child: FittedBox(
-//                  fit: BoxFit.contain,
-//                  child: Row(
-//                    mainAxisAlignment: MainAxisAlignment.center,
-//                    crossAxisAlignment: CrossAxisAlignment.center,
-//                    children: <Widget>[
-//                      if(userIsProvider) Text(
-//                        provider.name,
-//                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-//                      ),
-//                      SizedBox(width: 10,),
-//                      Text(
-//                        provider.type,
-//                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(kGenchiOrange)),
-//                      ),
-//                    ],
-//                  ),
-//                ),
-//              ),
-//            ),
-//          ),
-//        ),
-//      ),
       iconTheme: IconThemeData(
         color: Colors.black,
       ),
@@ -143,6 +103,40 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ],
+        ),
+      ),
+      //TODO add this back in later once we've clarified the UI
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: Theme(
+          data: Theme.of(context).copyWith(accentColor: Colors.white),
+          child: Container(
+            height: 60.0,
+            color: Color(kGenchiCream),
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onTap: () async {
+                await accountService.updateCurrentAccount(id: user.id);
+                Navigator.pushNamed(context, UserScreen.id);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        user.accountType == 'Service Provider' ? '${user.name} - ${user.category}' : user.name,
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
       backgroundColor: Color(kGenchiGreen),

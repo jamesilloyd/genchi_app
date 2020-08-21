@@ -48,19 +48,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
     final authProvider = Provider.of<AuthenticationService>(context);
+    final accountService = Provider.of<AccountService>(context);
 
     final ChatScreenArguments args = ModalRoute.of(context).settings.arguments;
     userIsUser1 = args.userIsUser1;
+
     ///We do this because user may be using their provider chat
     userAccount = userIsUser1 ? args.user1 : args.user2;
     otherUser = userIsUser1 ? args.user2 : args.user1;
 
     if (thisChat == null) thisChat = args.chat;
+
     if (isFirstInstance == null) isFirstInstance = args.isFirstInstance;
-
-
+    if (kDebugMode) print('Chat Screen: thisChat.id is ${thisChat.chatid}');
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
@@ -138,7 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (debugMode)
                                 print(
                                     'Chat screen: message text is not null and this is the first instance so creating new chat ');
-                              analytics.logEvent(name: 'new_private_chat_created');
+                              analytics.logEvent(
+                                  name: 'new_private_chat_created');
                               setState(() {
                                 messageTextController.clear();
                                 showSpinner = true;
@@ -146,11 +148,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
                               DocumentReference result =
                                   await firestoreAPI.addNewChat(
-                                    ///Make user initiator from their main account
+                                ///Make user initiator from their main account
                                 initiatorId: userAccount.id,
                                 recipientId: otherUser.id,
                               );
+
+                              ///Update users' chats
                               await authProvider.updateCurrentUserData();
+                              await accountService.updateCurrentAccount(id: otherUser.id);
 
                               thisChat = await firestoreAPI
                                   .getChatById(result.documentID);
@@ -175,7 +180,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 print(
                                     'Chat screen: Message text is not null and this is NOT the first instance');
 
-                              analytics.logEvent(name: 'private_chat_message_sent');
+                              analytics.logEvent(
+                                  name: 'private_chat_message_sent');
                               setState(() => messageTextController.clear());
                               await firestoreAPI.addMessageToChat(
                                   chatId: thisChat.chatid,

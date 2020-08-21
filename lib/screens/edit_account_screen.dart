@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -70,6 +71,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     User currentUser = authProvider.currentUser;
+    final accountService = Provider.of<AccountService>(context);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -122,6 +125,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     await authProvider.updateCurrentUserName(
                         name: nameController.text);
                   }
+
+                  await accountService.updateCurrentAccount(id: currentUser.id);
                   await authProvider.updateCurrentUserData();
 
                   setState(() {
@@ -310,6 +315,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                               name: nameController.text);
                         }
 
+                        await accountService.updateCurrentAccount(id: currentUser.id);
                         await authProvider.updateCurrentUserData();
 
                         setState(() {

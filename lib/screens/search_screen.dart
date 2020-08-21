@@ -5,6 +5,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/app_bar.dart';
+import 'package:genchi_app/components/rounded_button.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -13,6 +14,7 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/task_card.dart';
 
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/services.dart';
@@ -33,7 +35,6 @@ class SearchScreen extends StatefulWidget {
 //TODO can we implement pagination please!!!!
 class _SearchScreenState extends State<SearchScreen>
     with AutomaticKeepAliveClientMixin {
-
   List<User> users;
   List<User> serviceProviders;
 
@@ -63,6 +64,7 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
+
     analytics.setCurrentScreen(screenName: 'home/search_screen');
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
   }
@@ -125,6 +127,46 @@ class _SearchScreenState extends State<SearchScreen>
                 child: ListView(
                   children: <Widget>[
                     SizedBox(height: 20),
+                    FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RoundedButton(
+                              buttonTitle: 'Charities',
+                              buttonColor: Color(kGenchiGreen),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchGroupScreen(
+                                      accountType: 'Charity',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            RoundedButton(
+                              buttonTitle: 'Societies',
+                              buttonColor: Color(kGenchiGreen),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchGroupScreen(
+                                      accountType: 'Society',
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
@@ -137,18 +179,6 @@ class _SearchScreenState extends State<SearchScreen>
                                 fontSize: 20,
                               ),
                             ),
-                            //TODO add this in when we have more services on the app
-//                            GestureDetector(
-//                              onTap: () {},
-//                              child: Text(
-//                                'See all',
-//                                textAlign: TextAlign.end,
-//                                style: TextStyle(
-//                                    fontWeight: FontWeight.w500,
-//                                    fontSize: 16,
-//                                    color: Color(kGenchiGreen)),
-//                              ),
-//                            )
                           ],
                         ),
                       ),
@@ -206,7 +236,6 @@ class _SearchScreenState extends State<SearchScreen>
                                           color: Colors.black,
                                           size: 30,
                                         ),
-
                                         SizedBox(
                                           width: 5,
                                         )
@@ -233,20 +262,6 @@ class _SearchScreenState extends State<SearchScreen>
                                     });
                                   }),
                             )),
-                            //TODO: add this when we have more search options
-//                            GestureDetector(
-//                              onTap: () {
-//                                Navigator.pushNamed(context, SearchTasksScreen.id);
-//                              },
-//                              child: Text(
-//                                'See all',
-//                                textAlign: TextAlign.end,
-//                                style: TextStyle(
-//                                    fontWeight: FontWeight.w500,
-//                                    fontSize: 16,
-//                                    color: Color(kGenchiGreen)),
-//                              ),
-//                            )
                           ],
                         ),
                       ),
@@ -283,6 +298,7 @@ class _SearchScreenState extends State<SearchScreen>
 
                             if ((task.service == filter) || (filter == 'ALL')) {
                               final widget = TaskCard(
+                                hirerType: hirer.accountType,
                                 image: hirer.displayPictureURL == null
                                     ? null
                                     : CachedNetworkImageProvider(

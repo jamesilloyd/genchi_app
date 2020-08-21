@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Chat {
 
+  ///id1 is usually the chat initiator
   String id1;
   String id2;
   String chatid;

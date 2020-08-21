@@ -238,7 +238,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                                 });
                                 await firestoreAPI.deleteDisplayPicture(user: currentUser);
                                 await authProvider.updateCurrentUserData();
-                                if(!widget.isUser) await accountService.updateCurrentAccount(id: currentUser.id);
+                                await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
                                 setState(() {
                                   showSpinner = false;
                                 });
@@ -321,12 +321,9 @@ class _UploaderState extends State<Uploader> {
       }
 
       print('Updating current user and provider');
-      if(widget.isUser) {
-        await authProvider.updateCurrentUserData();
-      } else {
         await authProvider.updateCurrentUserData();
         await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
-      }
+
       print('Deleting old file');
       if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();
 

@@ -28,7 +28,6 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
@@ -42,26 +41,23 @@ class _UserScreenState extends State<UserScreen> {
   User currentUser;
 
   Widget buildActionSection(
-      {@required bool isUsersProfile, @required User account, @required User currentUser}) {
-
+      {@required bool isUsersProfile,
+      @required User account,
+      @required User currentUser}) {
     bool isFavourite = currentUser.favourites.contains(account.id);
 
     if (account.accountType == 'Service Provider') {
       ///looking at service provider profile
       if (isUsersProfile) {
-
         ///Looking at their own service profile
         return RoundedButton(
             buttonColor: Color(kGenchiGreen),
             buttonTitle: 'Edit Profile',
             fontColor: Colors.white,
             onPressed: () {
-              Navigator.pushNamed(
-                  context, EditProviderAccountScreen.id);
-            }
-        );
+              Navigator.pushNamed(context, EditProviderAccountScreen.id);
+            });
       } else {
-
         ///looking at someone else's provider profile
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -79,14 +75,12 @@ class _UserScreenState extends State<UserScreen> {
 
                   final commonChatIds = allChats.fold<Set>(
                       allChats.first.toSet(),
-                          (a, b) => a.intersection(b.toSet()));
+                      (a, b) => a.intersection(b.toSet()));
 
                   if (kDebugMode)
-                    print(
-                        'User Screen: Common Chats = $commonChatIds');
+                    print('User Screen: Common Chats = $commonChatIds');
 
                   if (commonChatIds.isEmpty) {
-
                     ///This is a new chat
                     Navigator.pushNamed(context, ChatScreen.id,
                         arguments: ChatScreenArguments(
@@ -97,20 +91,21 @@ class _UserScreenState extends State<UserScreen> {
                             isFirstInstance: true));
                   } else {
                     ///This is an existing chat
-                    Chat existingChat = await firestoreAPI
-                        .getChatById(commonChatIds.first);
+                    Chat existingChat =
+                        await firestoreAPI.getChatById(commonChatIds.first);
 
                     ///Check that the chat exists in database
                     if (existingChat != null) {
                       ///Work out if the current user is user 1
 
                       //TODO: what if it is one of their provider accounts that is messaging the user???
-                      bool currentUserIsUser1 = existingChat.id1 == currentUser.id;
+                      bool currentUserIsUser1 =
+                          existingChat.id1 == currentUser.id;
                       Navigator.pushNamed(context, ChatScreen.id,
                           arguments: ChatScreenArguments(
-                              chat: existingChat,
-                              user1: currentUserIsUser1 ? currentUser : account,
-                              user2: currentUserIsUser1 ? account : currentUser,
+                            chat: existingChat,
+                            user1: currentUserIsUser1 ? currentUser : account,
+                            user2: currentUserIsUser1 ? account : currentUser,
                             userIsUser1: currentUserIsUser1,
                           ));
                     }
@@ -124,31 +119,29 @@ class _UserScreenState extends State<UserScreen> {
             Expanded(
               flex: 1,
               child: RoundedButton(
-                buttonColor: isFavourite
-                    ? Color(kGenchiGreen)
-                    : Color(kGenchiBlue),
+                buttonColor:
+                    isFavourite ? Color(kGenchiGreen) : Color(kGenchiBlue),
                 fontColor: Colors.white,
-                buttonTitle: isFavourite
-                    ? 'Added to Favourites'
-                    : 'Add to Favourites',
+                buttonTitle:
+                    isFavourite ? 'Added to Favourites' : 'Add to Favourites',
                 onPressed: () async {
                   if (isFavourite) {
                     await analytics.logEvent(
-                        name: 'unfavourited_user',
-                        );
+                      name: 'unfavourited_user',
+                    );
                     await firestoreAPI.removeUserFavourite(
-                        uid: currentUser.id,
-                        favouriteId: account.id);
+                        uid: currentUser.id, favouriteId: account.id);
                   } else {
                     await analytics.logEvent(
-                        name: 'favourited_user',
-                        );
+                      name: 'favourited_user',
+                    );
                     await firestoreAPI.addUserFavourite(
-                        uid: currentUser.id,
-                        favouriteId: account.id);
+                        uid: currentUser.id, favouriteId: account.id);
                   }
 
-                  await Provider.of<AuthenticationService>(context, listen: false).updateCurrentUserData();
+                  await Provider.of<AuthenticationService>(context,
+                          listen: false)
+                      .updateCurrentUserData();
                   setState(() {});
                 },
               ),
@@ -160,14 +153,14 @@ class _UserScreenState extends State<UserScreen> {
       ///Looking at non service provider profile
       if (isUsersProfile) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             RoundedButton(
               buttonColor: Color(kGenchiOrange),
               buttonTitle: 'Edit Profile',
               fontColor: Colors.white,
               onPressed: () async {
-                await analytics
-                    .logEvent(name: 'hirer_edit_hirer_screen');
+                await analytics.logEvent(name: 'hirer_edit_hirer_screen');
                 Navigator.pushNamed(context, EditAccountScreen.id);
               },
             ),
@@ -182,13 +175,12 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
-
   Widget buildAdminSection({@required BuildContext context}) {
-
     AuthenticationService authService =
-    Provider.of<AuthenticationService>(context, listen: false);
+        Provider.of<AuthenticationService>(context, listen: false);
 
-    AccountService accountService = Provider.of<AccountService>(context, listen: false);
+    AccountService accountService =
+        Provider.of<AccountService>(context, listen: false);
 
     return Column(
       children: <Widget>[
@@ -202,37 +194,35 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
         Center(
-          child: Text(
-              'id: ${accountService.currentAccount.id}'
+          child: Text('id: ${accountService.currentAccount.id}'),
+        ),
+        if (accountService.currentAccount.accountType == 'Service Provider')
+          RoundedButton(
+            buttonTitle: "Delete account",
+            buttonColor: Color(kGenchiBlue),
+            elevation: false,
+            onPressed: () async {
+              ///Get most up to data provider
+              User serviceProvider = accountService.currentAccount;
+              bool delete = await showYesNoAlert(
+                  context: context, title: 'Delete this account?');
+
+              if (delete) {
+                await FirebaseAnalytics()
+                    .logEvent(name: 'provider_account_deleted');
+                await firestoreAPI.deleteServiceProvider(
+                    serviceProvider: serviceProvider);
+                await authService.updateCurrentUserData();
+
+                Navigator.pushNamedAndRemoveUntil(
+                    context, HomeScreen.id, (Route<dynamic> route) => false,
+                    arguments: HomeScreenArguments(startingIndex: 0));
+              }
+            },
           ),
-        ),
-
-        if(accountService.currentAccount.accountType == 'Service Provider') RoundedButton(
-          buttonTitle: "Delete account",
-          buttonColor: Color(kGenchiBlue),
-          elevation: false,
-          onPressed: () async {
-            ///Get most up to data provider
-            User serviceProvider = accountService.currentAccount;
-            bool delete = await showYesNoAlert(
-                context: context, title: 'Delete this account?');
-
-            if (delete) {
-              await FirebaseAnalytics().logEvent(
-                  name: 'provider_account_deleted');
-              await firestoreAPI.deleteServiceProvider(serviceProvider: serviceProvider);
-              await authService.updateCurrentUserData();
-
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomeScreen.id, (Route<dynamic> route) => false,
-                  arguments: HomeScreenArguments(startingIndex: 0));
-            }
-          },
-        ),
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +230,7 @@ class _UserScreenState extends State<UserScreen> {
     account = accountService.currentAccount;
 
     AuthenticationService authService =
-    Provider.of<AuthenticationService>(context);
+        Provider.of<AuthenticationService>(context);
     currentUser = authService.currentUser;
 
     isUsersOwnProfile = (account.id == currentUser.id) ||
@@ -281,6 +271,34 @@ class _UserScreenState extends State<UserScreen> {
             Divider(
               thickness: 1,
             ),
+            if (account.category != '')
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Text(
+                          "Category",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 25.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        account.category ?? "",
+                        style: TextStyle(
+                            fontSize: 20.0, color: Color(kGenchiOrange)),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  )
+                ],
+              ),
             Container(
               child: Text(
                 "About Me",
@@ -300,7 +318,7 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ),
             SizedBox(height: 10),
-            if(currentUser.admin) buildAdminSection(context: context),
+            if (currentUser.admin) buildAdminSection(context: context),
           ],
         ),
       ),

@@ -8,6 +8,7 @@ Widget TaskCard(
     {@required Task task,
     @required ImageProvider image,
     @required Function onTap,
+    @required String hirerType,
     bool isDisplayTask = true,
     bool hasUnreadMessage = false}) {
   return Column(
@@ -52,39 +53,36 @@ Widget TaskCard(
           ),
         ),
         subtitle: Text(
-          task.details,
+          "Posted ${getSummaryTime(time: task.time)}: ${task.details}",
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 14),
         ),
         trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            if (!isDisplayTask)
-              hasUnreadMessage
-                  ? Container(
-                      height: 15,
-                      width: 15,
-                      decoration: BoxDecoration(
-                        color: Color(kGenchiOrange),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
+            hasUnreadMessage
+                ? Container(
+                    height: 15,
+                    width: 15,
+                    decoration: BoxDecoration(
+                      color: Color(kGenchiOrange),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10.0),
                       ),
-                    )
-                  : SizedBox(height: 15.0),
+                    ),
+                  )
+                : SizedBox(height: 15.0),
+            Text(
+              hirerType,
+              textAlign: TextAlign.end,
+              style: TextStyle(fontSize: 15),
+            ),
             Text(
               task.service,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 16, color: Color(kGenchiOrange)),
-            ),
-            Text(
-              'Posted ${getSummaryTime(time: task.time)}',
-              textAlign: TextAlign.end,
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 15, color: Color(kGenchiOrange)),
             ),
           ],
         ),

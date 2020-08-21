@@ -18,11 +18,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String email;
-  String password;
+  String email = '';
+  String password = '';
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             hintText: "Enter password",
                             isPasswordField: true,
                           ),
-
                           showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
                           RoundedButton(
                             buttonColor: Color(kGenchiOrange),

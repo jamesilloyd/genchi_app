@@ -79,7 +79,7 @@ class TaskApplication {
         this.time});
 
   TaskApplication.fromMap(Map snapshot)
-      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? '',
+      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? snapshot['applicantid']??'',
         hirerid = snapshot['hirerid'] ?? '',
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
         applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,

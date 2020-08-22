@@ -15,6 +15,7 @@ import 'package:genchi_app/components/task_card.dart';
 
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/search_group_screen.dart';
+import 'package:genchi_app/screens/service_categories_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/services.dart';
@@ -48,6 +49,7 @@ class _SearchScreenState extends State<SearchScreen>
       GlobalKey<LiquidPullToRefreshState>();
 
   bool showSpinner = false;
+  bool showServiceProviders = false;
   String filter = 'ALL';
 
   Map<String, Future> serviceFutures = {};
@@ -127,84 +129,173 @@ class _SearchScreenState extends State<SearchScreen>
                 child: ListView(
                   children: <Widget>[
                     SizedBox(height: 20),
-                    FittedBox(
-                      fit: BoxFit.contain,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            RoundedButton(
-                              buttonTitle: 'Charities',
-                              buttonColor: Color(kGenchiGreen),
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchGroupScreen(
-                                      accountType: 'Charity',
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex:1 ,
+                          child: GestureDetector(
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 90,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    color: Color(kGenchiLightOrange),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(45.0),
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            RoundedButton(
-                              buttonTitle: 'Societies',
-                              buttonColor: Color(kGenchiGreen),
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchGroupScreen(
-                                      accountType: 'Society',
-                                    ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Image(
+                                      image: AssetImage('images/individual.png'),),
                                   ),
-                                );
-                              },
-                            )
-                          ],
+                                ),
+                                Text('SERVICE PROVIDERS',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                )
+                              ],
+                            ),
+                            onTap: (){
+                              //TODO add in show, no show functionality
+                              setState(() {
+                                showServiceProviders = !showServiceProviders;
+                              });
+                            },
+                          ),
                         ),
-                      ),
+                        Expanded(
+                          flex:1,
+                          child: GestureDetector(
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 90,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    color: Color(kGenchiLightOrange),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(45.0),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Icon(
+                                      Icons.people,
+                                      size: 50,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text('SOCIETIES',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                )
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SearchGroupScreen(
+                                    accountType: 'Society',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          flex:1,
+                          child: GestureDetector(
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 90,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    color: Color(kGenchiLightOrange),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(45.0),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Image(
+                                      image: AssetImage('images/charities.png'),),
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text('CHARITIES',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                )
+                              ],
+                            ),
+                            onTap: (){
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SearchGroupScreen(
+                                    accountType: 'Charity',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Container(
-                        child: Row(
+                    SizedBox(height: 15,),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      height: showServiceProviders ? 150 : 0,
+                      child: ClipRect(
+                        clipBehavior: Clip.hardEdge,
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'PROVIDERS',
-                              style: TextStyle(
-                                fontSize: 20,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Text(
+                                'SERVICE PROVIDER CATEGORIES',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Divider(
+                                height: 0,
+                                thickness: 1,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              height: (MediaQuery.of(context).size.width - 40) /
+                                      (2.5 * 1.6) +
+                                  15,
+                              child: Center(
+                                child: ListView(
+                                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                  scrollDirection: Axis.horizontal,
+                                  children: buildServiceTiles(),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Divider(
-                        height: 0,
-                        thickness: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      height: (MediaQuery.of(context).size.width - 40) /
-                              (2.5 * 1.6) +
-                          15,
-                      child: Center(
-                        child: ListView(
-                          padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                          scrollDirection: Axis.horizontal,
-                          children: buildServiceTiles(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(

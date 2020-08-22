@@ -34,7 +34,7 @@ class Chat {
         user1HasUnreadMessage = snapshot['user1HasUnreadMessage'] ?? snapshot['userHasUnreadMessage'] ?? false,
         user2HasUnreadMessage = snapshot['user2HasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
-        chatid = snapshot['chatid'] ?? '',
+        chatid = snapshot['chatid'],
         isHiddenFromUser1 = snapshot['isHiddenFromUser1'] ?? snapshot['isHiddenFromUser'] ?? false,
         isHiddenFromUser2 = snapshot['isHiddenFromUser2'] ?? snapshot['isHiddenFromProvider'] ?? false,
         time = snapshot['time'] ?? Timestamp.now();

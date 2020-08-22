@@ -26,7 +26,7 @@ class Task {
 
 
   Task.fromMap(Map snapshot)
-      : taskId = snapshot['taskId'] ?? '',
+      : taskId = snapshot['taskId'],
         hirerId = snapshot['hirerId'] ?? '',
         service = snapshot['service'] ?? '',
         title = snapshot['title'] ?? '',
@@ -84,7 +84,7 @@ class TaskApplication {
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
         applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
-        applicationId = snapshot['applicationId'] ?? '',
+        applicationId = snapshot['applicationId'],
         isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
         taskid = snapshot['taskid'] ?? '',

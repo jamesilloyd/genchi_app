@@ -271,7 +271,7 @@ class _UserScreenState extends State<UserScreen> {
             Divider(
               thickness: 1,
             ),
-            if (account.category != '')
+            if (account.accountType != 'Individual')
               Column(
                 children: [
                   Row(

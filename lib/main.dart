@@ -13,6 +13,7 @@ import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
+import 'package:genchi_app/screens/service_categories_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
@@ -41,10 +42,8 @@ void main() {
 }
 
 class Genchi extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
@@ -80,15 +79,14 @@ class StartUp extends StatelessWidget {
               FirebaseAnalyticsObserver(analytics: analytics),
             ],
             theme: ThemeData(
-              fontFamily: 'FuturaPT',
-              canvasColor: Colors.white,
-              cursorColor: Color(kGenchiOrange),
-              scaffoldBackgroundColor: Colors.white,
-              primaryColor: Color(kGenchiOrange),
-              indicatorColor: Color(kGenchiOrange),
-              textSelectionHandleColor: Color(kGenchiOrange),
-              hintColor: Colors.black45
-            ),
+                fontFamily: 'FuturaPT',
+                canvasColor: Colors.white,
+                cursorColor: Color(kGenchiOrange),
+                scaffoldBackgroundColor: Colors.white,
+                primaryColor: Color(kGenchiOrange),
+                indicatorColor: Color(kGenchiOrange),
+                textSelectionHandleColor: Color(kGenchiOrange),
+                hintColor: Colors.black45),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {
               WelcomeScreen.id: (context) => WelcomeScreen(),
@@ -98,7 +96,8 @@ class StartUp extends StatelessWidget {
               HomeScreen.id: (context) => HomeScreen(),
               EditAccountScreen.id: (context) => EditAccountScreen(),
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
-              EditProviderAccountScreen.id: (context) => EditProviderAccountScreen(),
+              EditProviderAccountScreen.id: (context) =>
+                  EditProviderAccountScreen(),
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
@@ -108,11 +107,15 @@ class StartUp extends StatelessWidget {
               ApplicationChatScreen.id: (context) => ApplicationChatScreen(),
               SearchTasksScreen.id: (context) => SearchTasksScreen(),
               OnboardingScreen.id: (context) => OnboardingScreen(),
-              EditAccountSettingsScreen.id: (context) => EditAccountSettingsScreen(),
-              UserScreen.id : (context) => UserScreen(),
+              EditAccountSettingsScreen.id: (context) =>
+                  EditAccountSettingsScreen(),
+              UserScreen.id: (context) => UserScreen(),
+              ServiceCategoriesScreen.id: (context) =>
+                  ServiceCategoriesScreen(),
             },
           );
         }
+
         /// The async function is still loading
         return SplashScreen();
       },

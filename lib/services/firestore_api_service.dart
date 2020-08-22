@@ -13,13 +13,13 @@ class FirestoreAPIService {
   ///PRODUCTION MODE
 //  CollectionReference _usersCollectionRef =
 //  Firestore.instance.collection('users');
-
-//  CollectionReference _providersCollectionRef =
+//
+//  CollectionReference _providerCollectionRef =
 //  Firestore.instance.collection('providers');
-
+//
 //  CollectionReference _chatCollectionRef =
 //  Firestore.instance.collection('chats');
-
+//
 //  CollectionReference _taskCollectionRef =
 //  Firestore.instance.collection('tasks');
 
@@ -60,7 +60,10 @@ class FirestoreAPIService {
         'accountType', isEqualTo: accountType).orderBy('name').
     getDocuments();
 
+
     users = result.documents.map((doc) => User.fromMap(doc.data)).toList();
+
+    users.sort((a, b) => a.category.compareTo(b.category));
 
     return users;
   }
@@ -903,44 +906,56 @@ class FirestoreAPIService {
   Future migrateToNewDatabaseArchitecture() async {
     print('started migrateToNewDatabaseArchitecture');
 
+    print('USERS');
     ///Update all user fields
     await _usersCollectionRef.getDocuments().then((value) async {
       for (DocumentSnapshot userData in value.documents) {
         User user = User.fromMap(userData.data);
-        await _usersCollectionRef.document(user.id).updateData(user.toJson());
+        print(user.id);
+        if(user.id != null){
+        await _usersCollectionRef.document(user.id).updateData(user.toJson());}
       }
     });
 
+    print('PROVIDERS');
     ///need to move all providers into users collection and update fields
     await _providerCollectionRef.getDocuments().then((value) async {
       for (DocumentSnapshot providerData in value.documents) {
         User serviceProvider = User.fromMap(providerData.data);
         serviceProvider.accountType = 'Service Provider';
+        print(serviceProvider.id);
+        if(serviceProvider.id != null){
         await _usersCollectionRef
             .document(serviceProvider.id)
-            .setData(serviceProvider.toJson(), merge: true);
+            .setData(serviceProvider.toJson(), merge: true);}
       }
     });
 
+    print('CHATS');
     ///Update all chats
     await _chatCollectionRef.getDocuments().then((value) async {
       for (DocumentSnapshot chatData in value.documents) {
         Chat chat = Chat.fromMap(chatData.data);
         chat.ids = [chat.id1,chat.id2];
+        print(chat.chatid);
+        if(chat.chatid != null){
         await _chatCollectionRef
             .document(chat.chatid)
-            .updateData(chat.toJson());
+            .updateData(chat.toJson());}
       }
     });
 
+    print('TASKS');
     ///Update all tasks and taskApplications
     await _taskCollectionRef.getDocuments().then((value1) async {
       for (DocumentSnapshot doc1 in value1.documents) {
         ///Update the task document
         Task task = Task.fromMap(doc1.data);
+        print(task.taskId);
+        if(task.taskId != null){
         await _taskCollectionRef
             .document(task.taskId)
-            .updateData(task.toJson());
+            .updateData(task.toJson());}
 
         ///Update the task application documents
         await _taskCollectionRef
@@ -951,11 +966,14 @@ class FirestoreAPIService {
           for (DocumentSnapshot doc2 in value2.documents) {
             TaskApplication taskApplication =
             TaskApplication.fromMap(doc2.data);
-            await _taskCollectionRef
-                .document(task.taskId)
-                .collection(applicantCollectionName)
-                .document(taskApplication.applicationId)
-                .updateData(taskApplication.toJson());
+            print(taskApplication.applicationId);
+            if(taskApplication.applicationId != null){
+              await _taskCollectionRef
+                  .document(task.taskId)
+                  .collection(applicantCollectionName)
+                  .document(taskApplication.applicationId)
+                  .updateData(taskApplication.toJson());
+            }
           }
         });
       }

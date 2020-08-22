@@ -32,7 +32,7 @@ class _SearchGroupScreenState extends State<SearchGroupScreen> {
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: widget.accountType),
+          appBar: BasicAppNavigationBar(barTitle: widget.accountType == 'Charity' ? 'Charities':'Societies'),
           body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: FutureBuilder(

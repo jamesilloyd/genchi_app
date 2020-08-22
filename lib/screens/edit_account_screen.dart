@@ -117,6 +117,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       user: User(
                         name: nameController.text,
                         bio: bioController.text,
+                        category: categoryController.text,
                       ),
                       uid: currentUser.id);
 
@@ -224,57 +225,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       textController: nameController,
                     ),
 
-                    if(currentUser.accountType != 'Individual') Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          height: 30.0,
-                        ),
-                        Text(
-                          'Category',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                  border: Border.all(color: Colors.black)
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  'TODO',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              //TODO add in categories for societies and charities
-                              for (String accountType
-                              in accountTypeList) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {}),
-                      ],
+                    if(currentUser.accountType != 'Individual') EditAccountField(
+                      field: "Category",
+                      hintText: 'What type of ${currentUser.accountType.toLowerCase()} are you?',
+                      onChanged: (value) {
+                        changesMade = true;
+                      },
+                      textController: categoryController,
                     ),
                     EditAccountField(
                       field: "About",
@@ -283,7 +240,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         changesMade = true;
                       },
                       textController: bioController,
-                      hintText: 'College, Interests, Societies, etc.',
+                      hintText: currentUser.accountType == 'Individual'?'College, Interests, Societies, etc.':'Describe what you do you.',
                     ),
                     SizedBox(
                       height: 20.0,
@@ -306,6 +263,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             user: User(
                               name: nameController.text,
                               bio: bioController.text,
+                              category: categoryController.text,
                             ),
                             uid: currentUser.id);
 

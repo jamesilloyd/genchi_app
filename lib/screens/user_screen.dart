@@ -46,19 +46,23 @@ class _UserScreenState extends State<UserScreen> {
       @required User currentUser}) {
     bool isFavourite = currentUser.favourites.contains(account.id);
 
-    if (account.accountType == 'Service Provider') {
-      ///looking at service provider profile
+    if (account.accountType != 'Individual') {
+      ///looking at a service provider, charity, or society
       if (isUsersProfile) {
-        ///Looking at their own service profile
+        ///Looking at their own account
         return RoundedButton(
             buttonColor: Color(kGenchiGreen),
             buttonTitle: 'Edit Profile',
             fontColor: Colors.white,
             onPressed: () {
-              Navigator.pushNamed(context, EditProviderAccountScreen.id);
+              Navigator.pushNamed(
+                  context,
+                  account.accountType == 'Service Provider'
+                      ? EditProviderAccountScreen.id
+                      : EditAccountScreen.id);
             });
       } else {
-        ///looking at someone else's provider profile
+        ///looking at someone else's account
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -98,9 +102,10 @@ class _UserScreenState extends State<UserScreen> {
                     if (existingChat != null) {
                       ///Work out if the current user is user 1
 
-                      //TODO: what if it is one of their provider accounts that is messaging the user???
+                      //TODO, what if this account has already messages one of the provider accounts?
                       bool currentUserIsUser1 =
                           existingChat.id1 == currentUser.id;
+
                       Navigator.pushNamed(context, ChatScreen.id,
                           arguments: ChatScreenArguments(
                             chat: existingChat,
@@ -150,7 +155,7 @@ class _UserScreenState extends State<UserScreen> {
         );
       }
     } else {
-      ///Looking at non service provider profile
+      ///Looking at an individual account
       if (isUsersProfile) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -160,7 +165,6 @@ class _UserScreenState extends State<UserScreen> {
               buttonTitle: 'Edit Profile',
               fontColor: Colors.white,
               onPressed: () async {
-                await analytics.logEvent(name: 'hirer_edit_hirer_screen');
                 Navigator.pushNamed(context, EditAccountScreen.id);
               },
             ),

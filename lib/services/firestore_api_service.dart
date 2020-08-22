@@ -11,30 +11,30 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-//  CollectionReference _usersCollectionRef =
-//  Firestore.instance.collection('users');
-//
-//  CollectionReference _providerCollectionRef =
-//  Firestore.instance.collection('providers');
-//
-//  CollectionReference _chatCollectionRef =
-//  Firestore.instance.collection('chats');
-//
-//  CollectionReference _taskCollectionRef =
-//  Firestore.instance.collection('tasks');
-
-  ///DEVELOP MODE
   static CollectionReference _usersCollectionRef =
-  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/users');
+  Firestore.instance.collection('users');
+
+  static CollectionReference _providerCollectionRef =
+  Firestore.instance.collection('providers');
 
   static CollectionReference _chatCollectionRef =
-  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+  Firestore.instance.collection('chats');
 
   static CollectionReference _taskCollectionRef =
-  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+  Firestore.instance.collection('tasks');
 
-  static CollectionReference _providerCollectionRef = Firestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/providers');
+  ///DEVELOP MODE
+//  static CollectionReference _usersCollectionRef =
+//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/users');
+//
+//  static CollectionReference _chatCollectionRef =
+//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+//
+//  static CollectionReference _taskCollectionRef =
+//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+//
+//  static CollectionReference _providerCollectionRef = Firestore.instance
+//      .collection('development/sSqkhUUghSa8kFVLE05Z/providers');
 
   static CollectionReference _developmentCollectionRef =
   Firestore.instance.collection('development');

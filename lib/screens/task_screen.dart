@@ -40,7 +40,12 @@ class _TaskScreenState extends State<TaskScreen> {
   bool showSpinner = false;
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   FirebaseAnalytics analytics = FirebaseAnalytics();
-  List userPidsAndId =[];
+  List userPidsAndId = [];
+
+  TextStyle titleTextStyle = TextStyle(
+    fontSize: 20.0,
+    fontWeight: FontWeight.w500,
+  );
 
   Widget buildHirersTask({@required Task task, bool enableChatView = true}) {
     ///User is looking at their own task
@@ -51,7 +56,8 @@ class _TaskScreenState extends State<TaskScreen> {
           return CircularProgress();
         }
 
-        final List<Map<String, dynamic>> applicationAndProviders = snapshot.data;
+        final List<Map<String, dynamic>> applicationAndProviders =
+            snapshot.data;
 
         if (applicationAndProviders.isEmpty) {
           return Center(
@@ -87,7 +93,8 @@ class _TaskScreenState extends State<TaskScreen> {
         ];
 
         for (Map applicationAndProvider in applicationAndProviders) {
-          TaskApplication taskApplication = applicationAndProvider['application'];
+          TaskApplication taskApplication =
+              applicationAndProvider['application'];
           User applicant = applicationAndProvider['applicant'];
 
           MessageListItem chatWidget = MessageListItem(
@@ -151,7 +158,6 @@ class _TaskScreenState extends State<TaskScreen> {
       {@required Function applyFunction,
       @required List userpidsAndId,
       @required Task task}) {
-
     ///User is looking at someone else's task, provide them with the option to apply
     return FutureBuilder(
       future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
@@ -301,9 +307,7 @@ class _TaskScreenState extends State<TaskScreen> {
           style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
         )),
         Center(
-          child: Text(
-            'id: ${currentTask.taskId}'
-          ),
+          child: Text('id: ${currentTask.taskId}'),
         ),
         RoundedButton(
           buttonTitle: 'Delete task',
@@ -312,7 +316,7 @@ class _TaskScreenState extends State<TaskScreen> {
           onPressed: () async {
             bool deleteTask = await showYesNoAlert(
                 context: context,
-            title: 'Are you sure you want to delete this job?');
+                title: 'Are you sure you want to delete this job?');
 
             if (deleteTask) {
               setState(() {
@@ -407,30 +411,128 @@ class _TaskScreenState extends State<TaskScreen> {
                           currentTask.title,
                           style: TextStyle(
                             fontSize: 26,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                      Text(
-                        currentTask.service,
-//                textAlign: TextAlign.end,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: Color(kGenchiOrange)),
-                      ),
                     ],
                   ),
-                  Divider(thickness: 1),
+                  Divider(
+                    thickness: 1,
+                    height: 10,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  FutureBuilder(
+                    ///We probably don't need to check that the user exists here as the
+                    ///task would have been deleted if the hirer doesn't exist.
+                    ///Worst case scenario the infite scoller appears
+                    future: firestoreAPI.getUserById(currentTask.hirerId),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text('');
+                      }
+                      User hirer = snapshot.data;
+
+                      return GestureDetector(
+                        onTap: () async {
+                          await accountService.updateCurrentAccount(
+                              id: currentTask.hirerId);
+                          Navigator.pushNamed(context, UserScreen.id);
+                        },
+                        child: Row(
+                          children: [
+                            hirer.displayPictureURL == null
+                                ///Show default image
+                                ? CircleAvatar(
+                                    radius: 45,
+                                    backgroundColor: Color(0xffC4C4C4),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Color(0xff585858),
+                                        size: 35,
+                                      ),
+                                    ),
+                                  )
+
+                                ///Show provider image
+                                : Container(
+                                    height: 90,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(kGenchiCream),
+                                    ),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Image(
+                                      image: CachedNetworkImageProvider(
+                                          hirer.displayPictureURL),
+                                      fit: BoxFit.cover,
+                                      gaplessPlayback: true,
+                                    ),
+                                  ),
+                            SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    hirer.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    hirer.bio,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                  Text(
+                                    "Posted ${getTaskPostedTime(time: currentTask.time)}",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(kGenchiOrange)),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Text('Category', style: titleTextStyle),
+                  Divider(
+                    thickness: 1,
+                    height: 8,
+                  ),
+                  Text(
+                    currentTask.service.toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Color(kGenchiOrange)),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Container(
-                    child: Text(
-                      "Details",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    child: Text("Details",
+                        textAlign: TextAlign.left, style: titleTextStyle),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    height: 8,
                   ),
                   SelectableLinkify(
                     text: currentTask.details ?? "",
@@ -441,14 +543,12 @@ class _TaskScreenState extends State<TaskScreen> {
                   ),
                   SizedBox(height: 10),
                   Container(
-                    child: Text(
-                      "Job Timings",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    child: Text("Job Timings",
+                        textAlign: TextAlign.left, style: titleTextStyle),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    height: 8,
                   ),
                   SelectableLinkify(
                     text: currentTask.date ?? "",
@@ -462,11 +562,12 @@ class _TaskScreenState extends State<TaskScreen> {
                     child: Text(
                       "Incentive",
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: titleTextStyle
                     ),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    height: 8,
                   ),
                   SelectableText(
                     currentTask.price ?? "",
@@ -474,54 +575,6 @@ class _TaskScreenState extends State<TaskScreen> {
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
-                  Container(
-                    child: Text(
-                      "Date Posted",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  SelectableText(
-                    getTaskPostedTime(time: currentTask.time),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(height: 5),
-                  Divider(
-                    thickness: 1,
-                  ),
-                  Text(
-                    'Hirer',
-                    style: TextStyle(
-                      fontSize: 25.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  FutureBuilder(
-                    ///We probably don't need to check that the user exists here as the
-                    ///task would have been deleted if the hirer doesn't exist.
-                    ///Worst case scenario the infite scoller appears
-                    future: firestoreAPI.getUserById(currentTask.hirerId),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Text('');
-                      }
-                      User hirer = snapshot.data;
-                      return UserCard(
-                          user: hirer,
-                          onTap: () async {
-                            await accountService.updateCurrentAccount(
-                                id: currentTask.hirerId);
-                            Navigator.pushNamed(context, UserScreen.id);
-                          });
-                    },
-                  ),
                 ],
               ),
             ),
@@ -580,11 +633,12 @@ class _TaskScreenState extends State<TaskScreen> {
                               //TODO going to try and use current user here (may not work)
                               UserCard(
                                 user: currentUser,
-                                onTap:  () async {
-                                  bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-                                  if(apply) {
-                                    Navigator.pop(
-                                        context, currentUser.id);
+                                onTap: () async {
+                                  bool apply = await showYesNoAlert(
+                                      context: context,
+                                      title: 'Apply with this account?');
+                                  if (apply) {
+                                    Navigator.pop(context, currentUser.id);
                                   }
                                 },
                               ),
@@ -617,13 +671,15 @@ class _TaskScreenState extends State<TaskScreen> {
 
                                   List<UserCard> userCards = [];
 
-                                  for (User serviceProvider in serviceProviders) {
+                                  for (User serviceProvider
+                                      in serviceProviders) {
                                     UserCard userCard = UserCard(
                                       user: serviceProvider,
                                       onTap: () async {
-
-                                        bool apply = await showYesNoAlert(context: context, title: 'Apply with this account?');
-                                        if(apply) {
+                                        bool apply = await showYesNoAlert(
+                                            context: context,
+                                            title: 'Apply with this account?');
+                                        if (apply) {
                                           Navigator.pop(
                                               context, serviceProvider.id);
                                         }
@@ -643,8 +699,7 @@ class _TaskScreenState extends State<TaskScreen> {
                               ),
                               RoundedButton(
                                 buttonColor: Color(kGenchiGreen),
-                                buttonTitle:
-                                    'Create a service account first?',
+                                buttonTitle: 'Create a service account first?',
                                 onPressed: () async {
                                   bool createAccount = await showYesNoAlert(
                                       context: context,
@@ -666,7 +721,8 @@ class _TaskScreenState extends State<TaskScreen> {
                                     DocumentReference result =
                                         await firestoreAPI.addServiceProvider(
                                             serviceUser: User(
-                                                mainAccountId: authService.currentUser.id,
+                                                mainAccountId:
+                                                    authService.currentUser.id,
                                                 accountType: 'Service Provider',
                                                 displayPictureURL: authService
                                                     .currentUser
@@ -678,16 +734,15 @@ class _TaskScreenState extends State<TaskScreen> {
 
                                     await authService.updateCurrentUserData();
 
-                                    await accountService.updateCurrentAccount(id:
-                                        result.documentID);
+                                    await accountService.updateCurrentAccount(
+                                        id: result.documentID);
 
                                     //TODO is there a way to reload? rather then closing the modal and having to reopen?
 
-                                    Navigator.pushNamed(
-                                        context, UserScreen.id).then((value) {
-                                          Navigator.pop(context);
-                                    }
-                                    );
+                                    Navigator.pushNamed(context, UserScreen.id)
+                                        .then((value) {
+                                      Navigator.pop(context);
+                                    });
                                     Navigator.pushNamed(
                                         context, EditProviderAccountScreen.id);
                                   }
@@ -699,8 +754,7 @@ class _TaskScreenState extends State<TaskScreen> {
                       );
 
                       if (debugMode)
-                        print(
-                            'Task Screen: applied with id $selectedId');
+                        print('Task Screen: applied with id $selectedId');
 
                       if (selectedId != null) {
                         setState(() {
@@ -721,10 +775,11 @@ class _TaskScreenState extends State<TaskScreen> {
                           applicationId: chatRef.documentID,
                         );
 
-                        User applicantProfile = await firestoreAPI
-                            .getUserById(selectedId);
+                        User applicantProfile =
+                            await firestoreAPI.getUserById(selectedId);
 
-                        User hirer = await firestoreAPI.getUserById(currentTask.hirerId);
+                        User hirer =
+                            await firestoreAPI.getUserById(currentTask.hirerId);
 
                         setState(() {
                           showSpinner = false;

@@ -112,6 +112,7 @@ const kGenchiCream = 0xfff9f8eb;
 const kGenchiGreen = 0xff76b39d;
 const kGenchiLightOrange = 0xffF7BE66;
 const kGenchiBrown = 0xffD3CCAF;
+const kGenchiLightBlue = 0xff534F8E;
 
 const debugMode = true;
 const bool devMode = true;

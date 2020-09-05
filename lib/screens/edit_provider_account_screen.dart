@@ -183,7 +183,6 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       DisplayPicture(
                         imageUrl: serviceProvider.displayPictureURL,
                         height: 0.25,
-                        border: true,
                       ),
                       Positioned(
                         right: (MediaQuery.of(context).size.width -

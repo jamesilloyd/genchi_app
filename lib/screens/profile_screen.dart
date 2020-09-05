@@ -84,56 +84,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
           body: ModalProgressHUD(
             inAsyncCall: showSpinner,
             progressIndicator: CircularProgress(),
-            child: Container(
-              child: Center(
-                child: ListView(
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
-                  children: <Widget>[
-                    GestureDetector(
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            DisplayPicture(
-                              imageUrl: currentUser.displayPictureURL,
-                              height: 0.25,
-                              border: true,
-                            ),
-                            Positioned(
-                              right: MediaQuery.of(context).size.width / 2 -
-                                  MediaQuery.of(context).size.height * 0.11,
-                              top: MediaQuery.of(context).size.height * 0.22,
-                              child: Container(
-                                height: 30,
-                                width: 30,
-                                padding: EdgeInsets.all(2),
-                                decoration: new BoxDecoration(
-                                  color: Color(kGenchiCream),
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                      color: Color(0xff585858), width: 2),
-                                ),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.remove_red_eye,
-                                    size: 20,
-                                    color: Color(0xff585858),
-                                  )),
-                                ),
+            child: Center(
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          DisplayPicture(
+                            imageUrl: currentUser.displayPictureURL,
+                            height: 0.25,
+                          ),
+                          Positioned(
+                            right: MediaQuery.of(context).size.width / 2 -
+                                MediaQuery.of(context).size.height * 0.11,
+                            top: MediaQuery.of(context).size.height * 0.22,
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              padding: EdgeInsets.all(2),
+                              decoration: new BoxDecoration(
+                                color: Color(kGenchiCream),
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                    color: Color(0xff585858), width: 2),
                               ),
-                            )
-                          ],
-                        ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Center(
+                                    child: Icon(
+                                  Icons.remove_red_eye,
+                                  size: 20,
+                                  color: Color(0xff585858),
+                                )),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                      onTap: () async {
-                        await accountService.updateCurrentAccount(
-                            id: currentUser.id);
-                        Navigator.pushNamed(context, UserScreen.id);
-                      },
                     ),
+                    onTap: () async {
+                      await accountService.updateCurrentAccount(
+                          id: currentUser.id);
+                      Navigator.pushNamed(context, UserScreen.id);
+                    },
+                  ),
 //                  ProfileOptionTile(
 //                    text: 'Crash',
 //                    onPressed: () {
@@ -147,220 +145,219 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //                     Navigator.pushNamed(context, TestScreen.id);
 //                    },
 //                  ),
-                    if (userIsProvider)
-                      ProfileOptionTile(
-                        text: 'Service Profiles',
-                        isPressable: false,
-                        onPressed: () {},
-                      ),
-                    if (userIsProvider)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: FutureBuilder(
-                          ///This function returns a list of providerUsers
-                          future: firestoreAPI.getServiceProviders(
-                              ids: currentUser.providerProfiles),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return CircularProgress();
-                            }
-                            final List<User> serviceProviders = snapshot.data;
+                  if (userIsProvider)
+                    ProfileOptionTile(
+                      text: 'Service Profiles',
+                      isPressable: false,
+                      onPressed: () {},
+                    ),
+                  if (userIsProvider)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: FutureBuilder(
+                        ///This function returns a list of providerUsers
+                        future: firestoreAPI.getServiceProviders(
+                            ids: currentUser.providerProfiles),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgress();
+                          }
+                          final List<User> serviceProviders = snapshot.data;
 
-                            List<Widget> providerCards = [];
+                          List<Widget> providerCards = [];
 
-                            for (User serviceProvider in serviceProviders) {
-                              Widget pCard = ProviderAccountCard(
-                                  width: (MediaQuery.of(context).size.width -
-                                          20 * 3) /
-                                      2.2,
-                                  serviceProvider: serviceProvider,
-                                  isSmallScreen:
-                                      MediaQuery.of(context).size.height < 600,
-                                  onPressed: () async {
-                                    await accountService.updateCurrentAccount(
-                                        id: serviceProvider.id);
-                                    Navigator.pushNamed(context, UserScreen.id);
-                                  });
-                              providerCards.add(pCard);
-                            }
-
-                            ///add the "add provider" card
-                            providerCards.add(
-                              AddProviderCard(
+                          for (User serviceProvider in serviceProviders) {
+                            Widget pCard = ProviderAccountCard(
                                 width: (MediaQuery.of(context).size.width -
                                         20 * 3) /
                                     2.2,
+                                serviceProvider: serviceProvider,
+                                isSmallScreen:
+                                    MediaQuery.of(context).size.height < 600,
                                 onPressed: () async {
-                                  bool createAccount = await showYesNoAlert(
-                                      context: context,
-                                      title: 'Create Service Account?',
-                                      body:
-                                      "Are you ready to provide your skills to the Cambridge community?");
-                                  if (createAccount) {
-                                    setState(() {
-                                      showSpinner = true;
-                                    });
+                                  await accountService.updateCurrentAccount(
+                                      id: serviceProvider.id);
+                                  Navigator.pushNamed(context, UserScreen.id);
+                                });
+                            providerCards.add(pCard);
+                          }
 
-                                    ///Log event in firebase
-                                    await analytics.logEvent(
-                                        name: 'provider_account_created');
+                          ///add the "add provider" card
+                          providerCards.add(
+                            AddProviderCard(
+                              width: (MediaQuery.of(context).size.width -
+                                      20 * 3) /
+                                  2.2,
+                              onPressed: () async {
+                                bool createAccount = await showYesNoAlert(
+                                    context: context,
+                                    title: 'Create Service Account?',
+                                    body:
+                                    "Are you ready to provide your skills to the Cambridge community?");
+                                if (createAccount) {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
 
-                                    DocumentReference result =
-                                    await firestoreAPI.addServiceProvider(
-                                        serviceUser: User(
-                                          name: currentUser.name,
-                                          mainAccountId: currentUser.id,
-                                          accountType: 'Service Provider',
-                                          displayPictureURL:
-                                          currentUser.displayPictureURL,
-                                          displayPictureFileName:
-                                          currentUser.displayPictureFileName,
-                                          timeStamp: Timestamp.now(),
-                                        ),
-                                        uid: authProvider.currentUser.id);
+                                  ///Log event in firebase
+                                  await analytics.logEvent(
+                                      name: 'provider_account_created');
 
-                                    await authProvider.updateCurrentUserData();
-
-                                    await accountService.updateCurrentAccount(
-                                        id: result.documentID);
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
-
-                                    Navigator.pushNamed(context, UserScreen.id);
-                                    Navigator.pushNamed(
-                                        context, EditProviderAccountScreen.id);
-                                  }
-                                },
-                              ),
-                            );
-
-                            return Container(
-                              height:
-                                  (MediaQuery.of(context).size.width - 20 * 3) /
-                                          (2.2 * 1.77) +
-                                      20,
-                              child: ListView(
-                                padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                                scrollDirection: Axis.horizontal,
-                                children: providerCards,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    if (userIsProvider)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Divider(
-                          height: 0,
-                          thickness: 1,
-                          color: Colors.black,
-                        ),
-                      ),
-                    //TODO there must be a better way of doing this than using a string
-                    if (!userIsProvider &&
-                        currentUser.accountType == 'Individual')
-                      ProfileOptionTile(
-                        text: 'Create Service Profile',
-                        onPressed: () async {
-                          bool createAccount = await showYesNoAlert(
-                              context: context,
-                              title: 'Create Service Account?',
-                              body:
-                                  "Are you ready to provide your skills to the Cambridge community?");
-                          if (createAccount) {
-                            setState(() {
-                              showSpinner = true;
-                            });
-
-                            ///Log event in firebase
-                            await analytics.logEvent(
-                                name: 'provider_account_created');
-
-                            DocumentReference result =
-                                await firestoreAPI.addServiceProvider(
-                                    serviceUser: User(
+                                  DocumentReference result =
+                                  await firestoreAPI.addServiceProvider(
+                                      serviceUser: User(
                                         name: currentUser.name,
                                         mainAccountId: currentUser.id,
                                         accountType: 'Service Provider',
                                         displayPictureURL:
-                                            currentUser.displayPictureURL,
+                                        currentUser.displayPictureURL,
                                         displayPictureFileName:
-                                            currentUser.displayPictureFileName,
+                                        currentUser.displayPictureFileName,
                                         timeStamp: Timestamp.now(),
-                                    ),
-                                    uid: authProvider.currentUser.id);
+                                      ),
+                                      uid: authProvider.currentUser.id);
 
-                            await authProvider.updateCurrentUserData();
+                                  await authProvider.updateCurrentUserData();
 
-                            await accountService.updateCurrentAccount(
-                                id: result.documentID);
-                            setState(() {
-                              showSpinner = false;
-                            });
+                                  await accountService.updateCurrentAccount(
+                                      id: result.documentID);
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
 
-                            Navigator.pushNamed(context, UserScreen.id);
-                            Navigator.pushNamed(
-                                context, EditProviderAccountScreen.id);
-                          }
+                                  Navigator.pushNamed(context, UserScreen.id);
+                                  Navigator.pushNamed(
+                                      context, EditProviderAccountScreen.id);
+                                }
+                              },
+                            ),
+                          );
+
+                          return Container(
+                            height:
+                                (MediaQuery.of(context).size.width - 20 * 3) /
+                                        (2.2 * 1.77) +
+                                    20,
+                            child: ListView(
+                              padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                              scrollDirection: Axis.horizontal,
+                              children: providerCards,
+                            ),
+                          );
                         },
                       ),
-                    ProfileOptionTile(
-                      text: 'Favourites',
-                      onPressed: () {
-                        Navigator.pushNamed(context, FavouritesScreen.id);
-                      },
                     ),
-                    ProfileOptionTile(
-                      text: 'Account Settings',
-                      onPressed: () {
-                        Navigator.pushNamed(
-                            context, EditAccountSettingsScreen.id);
-                      },
+                  if (userIsProvider)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        height: 0,
+                        thickness: 1,
+                        color: Colors.black,
+                      ),
                     ),
+                  //TODO there must be a better way of doing this than using a string
+                  if (!userIsProvider &&
+                      currentUser.accountType == 'Individual')
                     ProfileOptionTile(
-                      text: 'About Genchi',
-                      onPressed: () {
-                        Navigator.pushNamed(context, AboutScreen.id);
-                      },
-                    ),
-                    ProfileOptionTile(
-                      text: 'Give Feedback',
+                      text: 'Create Service Profile',
                       onPressed: () async {
-                        if (await canLaunch(GenchiFeedbackURL)) {
-                          await launch(GenchiFeedbackURL);
-                        } else {
-                          print("Could not open URL");
+                        bool createAccount = await showYesNoAlert(
+                            context: context,
+                            title: 'Create Service Account?',
+                            body:
+                                "Are you ready to provide your skills to the Cambridge community?");
+                        if (createAccount) {
+                          setState(() {
+                            showSpinner = true;
+                          });
+
+                          ///Log event in firebase
+                          await analytics.logEvent(
+                              name: 'provider_account_created');
+
+                          DocumentReference result =
+                              await firestoreAPI.addServiceProvider(
+                                  serviceUser: User(
+                                      name: currentUser.name,
+                                      mainAccountId: currentUser.id,
+                                      accountType: 'Service Provider',
+                                      displayPictureURL:
+                                          currentUser.displayPictureURL,
+                                      displayPictureFileName:
+                                          currentUser.displayPictureFileName,
+                                      timeStamp: Timestamp.now(),
+                                  ),
+                                  uid: authProvider.currentUser.id);
+
+                          await authProvider.updateCurrentUserData();
+
+                          await accountService.updateCurrentAccount(
+                              id: result.documentID);
+                          setState(() {
+                            showSpinner = false;
+                          });
+
+                          Navigator.pushNamed(context, UserScreen.id);
+                          Navigator.pushNamed(
+                              context, EditProviderAccountScreen.id);
                         }
                       },
                     ),
-                    ProfileOptionTile(
-                      text: 'Log Out',
-                      onPressed: () {
-                        Platform.isIOS
-                            ? showAlertIOS(
-                                context: context,
-                                actionFunction: () async {
-                                  await authProvider.signUserOut();
-                                  Navigator.of(context, rootNavigator: true)
-                                      .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                          (Route<dynamic> route) => false);
-                                },
-                                alertMessage: "Log out")
-                            : showAlertAndroid(
-                                context: context,
-                                actionFunction: () async {
-                                  await authProvider.signUserOut();
-                                  Navigator.of(context, rootNavigator: true)
-                                      .pushNamedAndRemoveUntil(WelcomeScreen.id,
-                                          (Route<dynamic> route) => false);
-                                },
-                                alertMessage: "Log out");
-                      },
-                    ),
-                  ],
-                ),
+                  ProfileOptionTile(
+                    text: 'Favourites',
+                    onPressed: () {
+                      Navigator.pushNamed(context, FavouritesScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Account Settings',
+                    onPressed: () {
+                      Navigator.pushNamed(
+                          context, EditAccountSettingsScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'About Genchi',
+                    onPressed: () {
+                      Navigator.pushNamed(context, AboutScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Give Feedback',
+                    onPressed: () async {
+                      if (await canLaunch(GenchiFeedbackURL)) {
+                        await launch(GenchiFeedbackURL);
+                      } else {
+                        print("Could not open URL");
+                      }
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Log Out',
+                    onPressed: () {
+                      Platform.isIOS
+                          ? showAlertIOS(
+                              context: context,
+                              actionFunction: () async {
+                                await authProvider.signUserOut();
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                        (Route<dynamic> route) => false);
+                              },
+                              alertMessage: "Log out")
+                          : showAlertAndroid(
+                              context: context,
+                              actionFunction: () async {
+                                await authProvider.signUserOut();
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(WelcomeScreen.id,
+                                        (Route<dynamic> route) => false);
+                              },
+                              alertMessage: "Log out");
+                    },
+                  ),
+                ],
               ),
             ),
           ),

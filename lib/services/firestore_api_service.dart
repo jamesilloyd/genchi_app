@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:genchi_app/main.dart';
 import '../models/user.dart';
 import '../models/chat.dart';
 import 'package:genchi_app/models/task.dart';
@@ -11,30 +10,30 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  static CollectionReference _usersCollectionRef =
-  Firestore.instance.collection('users');
-
-  static CollectionReference _providerCollectionRef =
-  Firestore.instance.collection('providers');
-
-  static CollectionReference _chatCollectionRef =
-  Firestore.instance.collection('chats');
-
-  static CollectionReference _taskCollectionRef =
-  Firestore.instance.collection('tasks');
-
-  ///DEVELOP MODE
 //  static CollectionReference _usersCollectionRef =
-//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/users');
+//  Firestore.instance.collection('users');
+//
+//  static CollectionReference _providerCollectionRef =
+//  Firestore.instance.collection('providers');
 //
 //  static CollectionReference _chatCollectionRef =
-//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+//  Firestore.instance.collection('chats');
 //
 //  static CollectionReference _taskCollectionRef =
-//  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
-//
-//  static CollectionReference _providerCollectionRef = Firestore.instance
-//      .collection('development/sSqkhUUghSa8kFVLE05Z/providers');
+//  Firestore.instance.collection('tasks');
+
+  ///DEVELOP MODE
+  static CollectionReference _usersCollectionRef =
+  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/users');
+
+  static CollectionReference _chatCollectionRef =
+  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+
+  static CollectionReference _taskCollectionRef =
+  Firestore.instance.collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+
+  static CollectionReference _providerCollectionRef = Firestore.instance
+      .collection('development/sSqkhUUghSa8kFVLE05Z/providers');
 
   static CollectionReference _developmentCollectionRef =
   Firestore.instance.collection('development');

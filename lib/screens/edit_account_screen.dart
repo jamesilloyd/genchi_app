@@ -185,7 +185,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           DisplayPicture(
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
-                            border: true,
                             isEdit: true,
                           ),
                           Positioned(

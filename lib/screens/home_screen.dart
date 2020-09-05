@@ -59,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
     /// Save it to Firestore
     if (fcmToken != null) {
       firestoreAPI.addFCMToken(token: fcmToken, user: currentUser);
-
     }
   }
 
@@ -131,49 +130,15 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon:
-                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                title: Text('Search'),
-              ),
-              BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
                     ? CupertinoIcons.folder
                     : Icons.folder_open),
-
-                //TODO WORK OUT HOW TO DO NOTIFICATIONS - problem is in how to get the numbers - would have to stream the user
-//                Stack(
-//                  children: <Widget>[
-//                    Icon(Platform.isIOS
-//                        ? CupertinoIcons.folder
-//                        : Icons.folder_open),
-//                    Positioned(
-//                      right: -5,
-////                      top: -3,
-//                      child: new Container(
-//                        padding: EdgeInsets.all(1),
-//                        decoration: new BoxDecoration(
-//                          color: Colors.red,
-//                          borderRadius: BorderRadius.circular(10),
-//                        ),
-//                        constraints: BoxConstraints(
-//                          minWidth: 20,
-//                          minHeight: 20,
-//                        ),
-//                        child: Center(
-//                          child: new Text(
-//                            '10',
-//                            style: new TextStyle(
-//                              color: Colors.white,
-//                              fontSize: 8,
-//                            ),
-//                            textAlign: TextAlign.center,
-//                          ),
-//                        ),
-//                      ),
-//                    )
-//                  ],
-//                ),
-                title: Text('My Jobs'),
+                title: Text('Jobs'),
+              ),
+              BottomNavigationBarItem(
+                icon:
+                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+                title: Text('Browse'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS

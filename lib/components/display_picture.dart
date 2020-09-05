@@ -9,13 +9,11 @@ class DisplayPicture extends StatelessWidget {
   const DisplayPicture({
     @required this.imageUrl,
     @required this.height,
-    this.border = false,
     this.isEdit = false,
   });
 
   final String imageUrl;
   final double height;
-  final bool border;
   final bool isEdit;
 
 
@@ -37,7 +35,6 @@ class DisplayPicture extends StatelessWidget {
                 height: 50.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
                   image: DecorationImage(
                       image: imageProvider, fit: BoxFit.cover),
                 ),
@@ -48,7 +45,6 @@ class DisplayPicture extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Color(0xffC4C4C4),
-                border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,

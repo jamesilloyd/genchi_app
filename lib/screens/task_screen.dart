@@ -186,7 +186,6 @@ class _TaskScreenState extends State<TaskScreen> {
 
         if (applied) {
           ///user has already applied
-
           List<Widget> widgets = [
             Center(
               child: Text(
@@ -282,9 +281,9 @@ class _TaskScreenState extends State<TaskScreen> {
           ///user has not applied
           return Center(
             child: RoundedButton(
-              fontColor: Color(kGenchiCream),
-              buttonColor: Color(kGenchiGreen),
-              buttonTitle: 'Apply',
+              fontColor: Colors.black,
+              buttonColor: Color(kGenchiLightOrange),
+              buttonTitle: 'APPLY',
               onPressed: applyFunction,
               elevation: true,
             ),
@@ -444,36 +443,36 @@ class _TaskScreenState extends State<TaskScreen> {
                         child: Row(
                           children: [
                             hirer.displayPictureURL == null
-                                ///Show default image
+                            ///Show default image
                                 ? CircleAvatar(
-                                    radius: 45,
-                                    backgroundColor: Color(0xffC4C4C4),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Icon(
-                                        Icons.person,
-                                        color: Color(0xff585858),
-                                        size: 35,
-                                      ),
-                                    ),
-                                  )
+                              radius: 45,
+                              backgroundColor: Color(0xffC4C4C4),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Icon(
+                                  Icons.person,
+                                  color: Color(0xff585858),
+                                  size: 35,
+                                ),
+                              ),
+                            )
 
-                                ///Show provider image
+                            ///Show provider image
                                 : Container(
-                                    height: 90,
-                                    width: 90,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(kGenchiCream),
-                                    ),
-                                    clipBehavior: Clip.hardEdge,
-                                    child: Image(
-                                      image: CachedNetworkImageProvider(
-                                          hirer.displayPictureURL),
-                                      fit: BoxFit.cover,
-                                      gaplessPlayback: true,
-                                    ),
-                                  ),
+                              height: 90,
+                              width: 90,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(kGenchiCream),
+                              ),
+                              clipBehavior: Clip.hardEdge,
+                              child: Image(
+                                image: CachedNetworkImageProvider(
+                                    hirer.displayPictureURL),
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                              ),
+                            ),
                             SizedBox(width: 15),
                             Expanded(
                               child: Column(
@@ -511,7 +510,6 @@ class _TaskScreenState extends State<TaskScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 10),
                   Text('Category', style: titleTextStyle),
                   Divider(
                     thickness: 1,
@@ -539,7 +537,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
                     style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
@@ -555,14 +553,14 @@ class _TaskScreenState extends State<TaskScreen> {
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
                     style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
                     child: Text(
-                      "Incentive",
-                      textAlign: TextAlign.left,
-                      style: titleTextStyle
+                        "Incentive",
+                        textAlign: TextAlign.left,
+                        style: titleTextStyle
                     ),
                   ),
                   Divider(
@@ -572,237 +570,237 @@ class _TaskScreenState extends State<TaskScreen> {
                   SelectableText(
                     currentTask.price ?? "",
                     style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 ],
               ),
             ),
             isUsersTask
                 ? buildHirersTask(task: currentTask)
                 : buildApplicantsTask(
-                    task: currentTask,
-                    userpidsAndId: userPidsAndId,
-                    applyFunction: () async {
-                      String selectedId = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20.0),
-                                topRight: Radius.circular(20.0))),
-                        builder: (context) => Container(
-                          height: MediaQuery.of(context).size.height * 0.75,
-                          padding: EdgeInsets.all(15.0),
-                          decoration: BoxDecoration(
-                            color: Color(kGenchiCream),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20.0),
-                              topRight: Radius.circular(20.0),
+              task: currentTask,
+              userpidsAndId: userPidsAndId,
+              applyFunction: () async {
+                String selectedId = await showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: modalBottomSheetBorder,
+                  builder: (context) => Container(
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    padding: EdgeInsets.all(15.0),
+                    decoration: modalBottomSheetContainerDecoration,
+                    child: ListView(
+                      children: <Widget>[
+                        Center(
+                            child: Text(
+                              'Apply with which account?',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )),
+                        SizedBox(
+                          height: 40,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'General Account',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500),
                             ),
                           ),
-                          child: ListView(
-                            children: <Widget>[
-                              Center(
-                                  child: Text(
-                                'Apply with which account?',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )),
-                              SizedBox(
-                                height: 40,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'General Account',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                              Divider(
-                                height: 1,
-                                thickness: 1,
-                              ),
+                        ),
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                        ),
 
-                              //TODO going to try and use current user here (may not work)
-                              UserCard(
-                                user: currentUser,
+                        //TODO going to try and use current user here (may not work)
+                        UserCard(
+                          user: currentUser,
+                          onTap: () async {
+                            bool apply = await showYesNoAlert(
+                                context: context,
+                                title: 'Apply with this account?');
+                            if (apply) {
+                              Navigator.pop(context, currentUser.id);
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Service Account(s)',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                        ),
+                        FutureBuilder(
+                          ///This function returns a list of providerUsers
+                          future: firestoreAPI.getServiceProviders(
+                              ids: currentUser.providerProfiles),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return CircularProgress();
+                            }
+                            final List<User> serviceProviders =
+                                snapshot.data;
+
+                            List<UserCard> userCards = [];
+
+                            for (User serviceProvider
+                            in serviceProviders) {
+                              UserCard userCard = UserCard(
+                                user: serviceProvider,
                                 onTap: () async {
                                   bool apply = await showYesNoAlert(
                                       context: context,
                                       title: 'Apply with this account?');
                                   if (apply) {
-                                    Navigator.pop(context, currentUser.id);
+                                    Navigator.pop(
+                                        context, serviceProvider.id);
                                   }
                                 },
-                              ),
-                              SizedBox(
-                                height: 40,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Service Account(s)',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                              Divider(
-                                height: 1,
-                                thickness: 1,
-                              ),
-                              FutureBuilder(
-                                ///This function returns a list of providerUsers
-                                future: firestoreAPI.getServiceProviders(
-                                    ids: currentUser.providerProfiles),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgress();
-                                  }
-                                  final List<User> serviceProviders =
-                                      snapshot.data;
+                              );
 
-                                  List<UserCard> userCards = [];
+                              userCards.add(userCard);
+                            }
 
-                                  for (User serviceProvider
-                                      in serviceProviders) {
-                                    UserCard userCard = UserCard(
-                                      user: serviceProvider,
-                                      onTap: () async {
-                                        bool apply = await showYesNoAlert(
-                                            context: context,
-                                            title: 'Apply with this account?');
-                                        if (apply) {
-                                          Navigator.pop(
-                                              context, serviceProvider.id);
-                                        }
-                                      },
-                                    );
-
-                                    userCards.add(userCard);
-                                  }
-
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: userCards,
-                                  );
-                                },
-                              ),
-                              RoundedButton(
-                                buttonColor: Color(kGenchiGreen),
-                                buttonTitle: 'Create a service account first?',
-                                onPressed: () async {
-                                  bool createAccount = await showYesNoAlert(
-                                      context: context,
-                                      title:
-                                          'Create a service account before applying to this job?');
-                                  if (createAccount) {
-                                    ///Log event in firebase
-                                    await analytics.logEvent(
-                                        name: 'provider_account_created');
-
-                                    AuthenticationService authService =
-                                        Provider.of<AuthenticationService>(
-                                            context,
-                                            listen: false);
-                                    AccountService accountService =
-                                        Provider.of<AccountService>(context,
-                                            listen: false);
-
-                                    DocumentReference result =
-                                        await firestoreAPI.addServiceProvider(
-                                            serviceUser: User(
-                                                mainAccountId:
-                                                    authService.currentUser.id,
-                                                accountType: 'Service Provider',
-                                                displayPictureURL: authService
-                                                    .currentUser
-                                                    .displayPictureURL,
-                                                displayPictureFileName:
-                                                    authService.currentUser
-                                                        .displayPictureFileName),
-                                            uid: authService.currentUser.id);
-
-                                    await authService.updateCurrentUserData();
-
-                                    await accountService.updateCurrentAccount(
-                                        id: result.documentID);
-
-                                    //TODO is there a way to reload? rather then closing the modal and having to reopen?
-
-                                    Navigator.pushNamed(context, UserScreen.id)
-                                        .then((value) {
-                                      Navigator.pop(context);
-                                    });
-                                    Navigator.pushNamed(
-                                        context, EditProviderAccountScreen.id);
-                                  }
-                                },
-                              )
-                            ],
-                          ),
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.stretch,
+                              children: userCards,
+                            );
+                          },
                         ),
-                      );
+                        RoundedButton(
+                          buttonColor: Color(kGenchiGreen),
+                          buttonTitle: 'Create a service account first?',
+                          onPressed: () async {
+                            bool createAccount = await showYesNoAlert(
+                                context: context,
+                                title:
+                                'Create a service account before applying to this job?');
+                            if (createAccount) {
+                              ///Log event in firebase
+                              await analytics.logEvent(
+                                  name: 'provider_account_created');
 
-                      if (debugMode)
-                        print('Task Screen: applied with id $selectedId');
+                              AuthenticationService authService =
+                              Provider.of<AuthenticationService>(
+                                  context,
+                                  listen: false);
+                              AccountService accountService =
+                              Provider.of<AccountService>(context,
+                                  listen: false);
 
-                      if (selectedId != null) {
-                        setState(() {
-                          showSpinner = true;
-                        });
+                              DocumentReference result =
+                              await firestoreAPI.addServiceProvider(
+                                  serviceUser: User(
+                                      mainAccountId:
+                                      authService.currentUser.id,
+                                      accountType: 'Service Provider',
+                                      displayPictureURL: authService
+                                          .currentUser
+                                          .displayPictureURL,
+                                      displayPictureFileName:
+                                      authService.currentUser
+                                          .displayPictureFileName),
+                                  uid: authService.currentUser.id);
 
-                        await analytics.logEvent(name: 'task_application_sent');
+                              await authService.updateCurrentUserData();
 
-                        DocumentReference chatRef =
-                            await firestoreAPI.applyToTask(
-                                taskId: currentTask.taskId,
-                                applicantId: selectedId,
-                                hirerId: currentTask.hirerId);
+                              await accountService.updateCurrentAccount(
+                                  id: result.documentID);
 
-                        TaskApplication taskApplication =
-                            await firestoreAPI.getTaskApplicationById(
-                          taskId: currentTask.taskId,
-                          applicationId: chatRef.documentID,
-                        );
+                              //TODO is there a way to reload? rather then closing the modal and having to reopen?
 
-                        User applicantProfile =
-                            await firestoreAPI.getUserById(selectedId);
-
-                        User hirer =
-                            await firestoreAPI.getUserById(currentTask.hirerId);
-
-                        setState(() {
-                          showSpinner = false;
-                        });
-
-                        ///Check all necessary documents exist before entering chat
-                        if (hirer != null &&
-                            applicantProfile != null &&
-                            taskApplication != null) {
-                          Navigator.pushNamed(context, ApplicationChatScreen.id,
-                              arguments: ApplicationChatScreenArguments(
-                                taskApplication: taskApplication,
-                                hirer: hirer,
-                                applicant: applicantProfile,
-                                userIsApplicant: true,
-                              )).then((value) {
-                            ///Refresh screen
-                            setState(() {});
-                          });
-                        }
-                      }
-                    },
+                              Navigator.pushNamed(context, UserScreen.id)
+                                  .then((value) {
+                                Navigator.pop(context);
+                              });
+                              Navigator.pushNamed(
+                                  context, EditProviderAccountScreen.id);
+                            }
+                          },
+                        )
+                      ],
+                    ),
                   ),
+                );
+
+                if (debugMode)
+                  print('Task Screen: applied with id $selectedId');
+
+                if (selectedId != null) {
+                  setState(() {
+                    showSpinner = true;
+                  });
+
+                  await analytics.logEvent(name: 'task_application_sent');
+
+                  DocumentReference chatRef =
+                  await firestoreAPI.applyToTask(
+                      taskId: currentTask.taskId,
+                      applicantId: selectedId,
+                      hirerId: currentTask.hirerId);
+
+                  TaskApplication taskApplication =
+                  await firestoreAPI.getTaskApplicationById(
+                    taskId: currentTask.taskId,
+                    applicationId: chatRef.documentID,
+                  );
+
+                  User applicantProfile =
+                  await firestoreAPI.getUserById(selectedId);
+
+                  User hirer =
+                  await firestoreAPI.getUserById(currentTask.hirerId);
+
+                  setState(() {
+                    showSpinner = false;
+                  });
+
+                  ///Check all necessary documents exist before entering chat
+                  if (hirer != null &&
+                      applicantProfile != null &&
+                      taskApplication != null) {
+                    Navigator.pushNamed(context, ApplicationChatScreen.id,
+                        arguments: ApplicationChatScreenArguments(
+                          taskApplication: taskApplication,
+                          hirer: hirer,
+                          applicant: applicantProfile,
+                          userIsApplicant: true,
+                        )).then((value) {
+                      ///Refresh screen
+                      setState(() {});
+                    });
+                  }
+                }
+              },
+            ),
             if (currentUser.admin)
               buildAdminSection(context: context, currentTask: currentTask),
           ],

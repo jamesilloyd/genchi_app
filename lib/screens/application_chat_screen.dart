@@ -158,6 +158,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                                     text: messageText,
                                     time: Timestamp.now()),
                                 applicantIsSender: userIsApplicant);
+                            messageText = null;
                           } else {
                             if (debugMode)
                               print('Chat screen: Message text is null');

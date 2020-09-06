@@ -49,7 +49,6 @@ const kBadURLSnackbar = SnackBar(
   ),
 );
 
-
 const kProviderDoesNotExistSnackBar = SnackBar(
   backgroundColor: Color(kGenchiOrange),
   duration: Duration(seconds: 3),
@@ -103,6 +102,18 @@ const kSignInTextFieldDecoration = InputDecoration(
   focusedBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.white, width: 2.0),
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
+  ),
+);
+
+const modalBottomSheetBorder = RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)));
+
+const modalBottomSheetContainerDecoration = BoxDecoration(
+  color: Color(kGenchiCream),
+  borderRadius: BorderRadius.only(
+    topLeft: Radius.circular(20.0),
+    topRight: Radius.circular(20.0),
   ),
 );
 

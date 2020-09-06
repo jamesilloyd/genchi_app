@@ -17,8 +17,6 @@ class SearchServiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        height: width / 1.6,
-        width: width,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             color: Color(kGenchiLightOrange),

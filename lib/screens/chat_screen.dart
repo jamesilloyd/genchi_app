@@ -195,6 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             if (debugMode)
                               print('Chat screen: Message text is null');
                           }
+                          messageText = null;
                         },
                         child: Text(
                           'Send',

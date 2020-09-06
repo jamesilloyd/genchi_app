@@ -50,33 +50,35 @@ class _TaskSummaryScreenState extends State<TaskSummaryScreen> {
           child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
-                iconTheme: IconThemeData(
+              iconTheme: IconThemeData(
+                color: Colors.black,
+              ),
+              title: Text(
+                'Jobs Manager',
+                style: TextStyle(
                   color: Colors.black,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
                 ),
-                title: Text(
-                  'Jobs Manager',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w500,
-                  ),
+              ),
+              centerTitle: true,
+              backgroundColor: Color(kGenchiGreen),
+              elevation: 2.0,
+              brightness: Brightness.light,
+              bottom: TabBar(
+                indicatorColor: Color(kGenchiOrange),
+                labelColor: Colors.black,
+                labelStyle: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'FuturaPT',
+                  fontWeight: FontWeight.w500,
                 ),
-                centerTitle: true,
-                backgroundColor: Color(kGenchiGreen),
-                elevation: 2.0,
-                brightness: Brightness.light,
-                bottom: TabBar(
-                    indicatorColor: Color(kGenchiOrange),
-                    labelColor: Colors.black,
-                    labelStyle: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'FuturaPT',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    tabs: [
-                      Tab(text: 'Posted'),
-                      Tab(text: 'Applied For'),
-                    ])),
+                tabs: [
+                  Tab(text: 'Posted'),
+                  Tab(text: 'Applied For'),
+                ],
+              ),
+            ),
             body: TabBarView(
               children: <Widget>[
                 ListView(

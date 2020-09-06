@@ -20,10 +20,11 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen> {
       appBar: BasicAppNavigationBar(barTitle: "Service Providers"),
       body: Center(
         child: GridView.count(
+          shrinkWrap: true,
           crossAxisCount: 2,
           crossAxisSpacing: 20.0,
           mainAxisSpacing: 20.0,
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(15.0),
           childAspectRatio: 1.618,
           children: List.generate(
             servicesList.length,

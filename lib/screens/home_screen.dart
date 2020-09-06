@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/jobs_screen.dart';
 import 'package:genchi_app/screens/task_summary_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'search_screen.dart';
@@ -37,8 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static List<Widget> screens = [
+    JobsScreen(),
     SearchScreen(),
-    TaskSummaryScreen(),
     ChatSummaryScreen(),
     ProfileScreen(),
   ];
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 icon:
                     Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                title: Text('Browse'),
+                title: Text('Search'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS

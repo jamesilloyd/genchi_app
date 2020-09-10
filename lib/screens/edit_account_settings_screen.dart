@@ -209,7 +209,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                               List<PopupMenuItem<String>> items = [
                               ];
                               for (String accountType
-                              in accountTypeList) {
+                              in User().accessibleAccountTypes) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),
@@ -262,90 +262,94 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                     Divider(
                       height: 10,
                     ),
-                    RoundedButton(
-                      buttonTitle: 'Save changes',
-                      buttonColor: Color(kGenchiGreen),
-                      onPressed: () async {
-                        await analytics.logEvent(
-                            name: 'hirer_top_save_changes_button_pressed');
+                    Center(
+                      child: RoundedButton(
+                        buttonTitle: 'Save changes',
+                        buttonColor: Color(kGenchiGreen),
+                        onPressed: () async {
+                          await analytics.logEvent(
+                              name: 'hirer_top_save_changes_button_pressed');
 
-                        ///Check if the user has changed their account type and
-                        /// if they have we need to delete their service profiles (if they exist).
-                        if (currentUser.accountType !=
-                            accountTypeTextController.text && hasServiceProfiles) {
-                          bool deleteProviders = await showYesNoAlert(
-                              context: context,
-                              title: 'You have changed your account type',
-                              body:
-                              'We are going to delete your additional service accounts. Do you want to proceed?');
+                          ///Check if the user has changed their account type and
+                          /// if they have we need to delete their service profiles (if they exist).
+                          if (currentUser.accountType !=
+                              accountTypeTextController.text && hasServiceProfiles) {
+                            bool deleteProviders = await showYesNoAlert(
+                                context: context,
+                                title: 'You have changed your account type',
+                                body:
+                                'We are going to delete your additional service accounts. Do you want to proceed?');
 
-                          if (deleteProviders) {
+                            if (deleteProviders) {
+                              setState(() {
+                                showSpinner = true;
+                              });
+
+                              await analytics.logEvent(
+                                  name:
+                                  'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
+
+                              for (String id in currentUser.providerProfiles) {
+                                User serviceProfile =
+                                await fireStoreAPI.getUserById(id);
+
+                                ///Check provider exists before deleting it
+                                if (serviceProfile != null) {
+                                  await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
+                                }
+                              }
+                            }
+                          } else {
                             setState(() {
                               showSpinner = true;
                             });
-
-                            await analytics.logEvent(
-                                name:
-                                'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
-
-                            for (String id in currentUser.providerProfiles) {
-                              User serviceProfile =
-                              await fireStoreAPI.getUserById(id);
-
-                              ///Check provider exists before deleting it
-                              if (serviceProfile != null) {
-                                await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
-                              }
-                            }
                           }
-                        } else {
+
+                          await fireStoreAPI.updateUser(
+                              user: User(
+                                name: nameController.text,
+                                email: emailController.text,
+                                accountType: accountTypeTextController.text,
+                              ),
+                              uid: currentUser.id);
+
+                          ///If the user has changed their name just update it in the auth section
+                          if (nameController.text != currentUser.name) {
+                            await authProvider.updateCurrentUserName(
+                                name: nameController.text);
+                          }
+                          await authProvider.updateCurrentUserData();
+
                           setState(() {
-                            showSpinner = true;
+                            changesMade = false;
+                            showSpinner = false;
                           });
-                        }
-
-                        await fireStoreAPI.updateUser(
-                            user: User(
-                              name: nameController.text,
-                              email: emailController.text,
-                              accountType: accountTypeTextController.text,
-                            ),
-                            uid: currentUser.id);
-
-                        ///If the user has changed their name just update it in the auth section
-                        if (nameController.text != currentUser.name) {
-                          await authProvider.updateCurrentUserName(
-                              name: nameController.text);
-                        }
-                        await authProvider.updateCurrentUserData();
-
-                        setState(() {
-                          changesMade = false;
-                          showSpinner = false;
-                        });
-                        Navigator.pop(context);
-                      },
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
-                    RoundedButton(
-                      buttonColor: Color(kGenchiBlue),
-                      buttonTitle: "Change Password",
-                      elevation: false,
-                      onPressed: () async {
-                        bool forgotPassword = await showYesNoAlert(
-                            context: context,
-                            title: 'Send reset password email?');
+                    Center(
+                      child: RoundedButton(
+                        buttonColor: Color(kGenchiBlue),
+                        buttonTitle: "Change Password",
+                        elevation: false,
+                        onPressed: () async {
+                          bool forgotPassword = await showYesNoAlert(
+                              context: context,
+                              title: 'Send reset password email?');
 
-                        if (forgotPassword) {
-                          setState(() => showSpinner = true);
+                          if (forgotPassword) {
+                            setState(() => showSpinner = true);
 
-                          await authProvider.sendResetEmail(
-                              email: currentUser.email);
-                          Scaffold.of(context)
-                              .showSnackBar(kForgotPasswordSnackbar);
+                            await authProvider.sendResetEmail(
+                                email: currentUser.email);
+                            Scaffold.of(context)
+                                .showSnackBar(kForgotPasswordSnackbar);
 
-                          setState(() => showSpinner = false);
-                        }
-                      },
+                            setState(() => showSpinner = false);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),

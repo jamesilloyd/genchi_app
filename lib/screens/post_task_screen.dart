@@ -9,11 +9,11 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
 
 import 'package:provider/provider.dart';

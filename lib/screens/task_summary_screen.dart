@@ -18,6 +18,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'package:provider/provider.dart';
 
+
+//TODO: THIS IS NOW REDUNDANT!!!!!!!!!!!!!!!!!!!!!!
+
 class TaskSummaryScreen extends StatefulWidget {
   @override
   _TaskSummaryScreenState createState() => _TaskSummaryScreenState();

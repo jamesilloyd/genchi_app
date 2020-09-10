@@ -19,6 +19,7 @@ class RegistrationScreen extends StatefulWidget {
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
+
 class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
   String password;
@@ -98,7 +99,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Type',
+                          'Account Type',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -140,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     ),
                                     value: 'Select type')
                               ];
-                              for (String accountType in accountTypeList) {
+                              for (String accountType in User().accessibleAccountTypes) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),

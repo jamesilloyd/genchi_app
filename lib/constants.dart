@@ -121,6 +121,8 @@ const kGenchiOrange = 0xfff19300;
 const kGenchiBlue = 0xff05004e;
 const kGenchiCream = 0xfff9f8eb;
 const kGenchiGreen = 0xff76b39d;
+const kGenchiLightGreen = 0xffafcac0;
+
 const kGenchiLightOrange = 0xffF7BE66;
 const kGenchiBrown = 0xffD3CCAF;
 const kGenchiLightBlue = 0xff534F8E;

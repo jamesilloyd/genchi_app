@@ -33,6 +33,7 @@ class RoundedButton extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: fontColor,
+                fontWeight: FontWeight.w400,
                 fontSize: 18.0
               ),
             ),

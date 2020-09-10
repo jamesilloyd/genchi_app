@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/profile_cards.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/services/account_service.dart';

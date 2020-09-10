@@ -12,7 +12,6 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/account_service.dart';
 
@@ -307,75 +306,79 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                 Divider(
                   height: 30,
                 ),
-                RoundedButton(
-                  buttonTitle: 'Save changes',
-                  buttonColor: Color(kGenchiGreen),
-                  onPressed: () async {
-                    analytics.logEvent(name: 'provider_top_save_changes_button_pressed');
-                    setState(() {
-                      showSpinner = true;
-                    });
-
-                    await firestoreAPI.updateUser(
-                        user: User(
-                          name: nameTextController.text,
-                          category: serviceTextController.text,
-                          bio: bioTextController.text,
-                        ),
-                        uid: serviceProvider.id);
-
-                    await authProvider.updateCurrentUserData();
-                    await accountService.updateCurrentAccount(id: serviceProvider.id);
-
-                    setState(() {
-                      changesMade = false;
-                      showSpinner = false;
-                    });
-
-                    Navigator.of(context).pop();
-                  },
-                ),
-                RoundedButton(
-                  buttonTitle: "Delete provider account",
-                  buttonColor: Color(kGenchiBlue),
-                  elevation: false,
-                  onPressed: () async {
-
-                    ///Update the provider before deleting
-
-                    await accountService
-                        .updateCurrentAccount(id: serviceProvider.id);
-
-                    ///Get most up to data provider
-                    serviceProvider =
-                        Provider.of<AccountService>(context, listen: false)
-                            .currentAccount;
-
-                    bool delete = await showYesNoAlert(context: context, title: "Delete Service Account?");
-
-                    if(delete) {
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Save changes',
+                    buttonColor: Color(kGenchiGreen),
+                    onPressed: () async {
+                      analytics.logEvent(name: 'provider_top_save_changes_button_pressed');
                       setState(() {
                         showSpinner = true;
                       });
 
-                      ///Log event in firebase
-                      await analytics.logEvent(name: 'provider_account_deleted');
+                      await firestoreAPI.updateUser(
+                          user: User(
+                            name: nameTextController.text,
+                            category: serviceTextController.text,
+                            bio: bioTextController.text,
+                          ),
+                          uid: serviceProvider.id);
 
-                      await firestoreAPI.deleteServiceProvider(
-                          serviceProvider: serviceProvider);
                       await authProvider.updateCurrentUserData();
-                      changesMade = false;
-                      setState(() => showSpinner = false);
+                      await accountService.updateCurrentAccount(id: serviceProvider.id);
 
-                      Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          HomeScreen.id,
-                              (Route<dynamic> route) => false,
-                          arguments:
-                          HomeScreenArguments(startingIndex: 3));
+                      setState(() {
+                        changesMade = false;
+                        showSpinner = false;
+                      });
 
-                    }
-                  },
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: "Delete provider account",
+                    buttonColor: Color(kGenchiBlue),
+                    elevation: false,
+                    onPressed: () async {
+
+                      ///Update the provider before deleting
+
+                      await accountService
+                          .updateCurrentAccount(id: serviceProvider.id);
+
+                      ///Get most up to data provider
+                      serviceProvider =
+                          Provider.of<AccountService>(context, listen: false)
+                              .currentAccount;
+
+                      bool delete = await showYesNoAlert(context: context, title: "Delete Service Account?");
+
+                      if(delete) {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        ///Log event in firebase
+                        await analytics.logEvent(name: 'provider_account_deleted');
+
+                        await firestoreAPI.deleteServiceProvider(
+                            serviceProvider: serviceProvider);
+                        await authProvider.updateCurrentUserData();
+                        changesMade = false;
+                        setState(() => showSpinner = false);
+
+                        Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            HomeScreen.id,
+                                (Route<dynamic> route) => false,
+                            arguments:
+                            HomeScreenArguments(startingIndex: 3));
+
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

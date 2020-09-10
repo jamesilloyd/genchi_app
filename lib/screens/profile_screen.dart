@@ -208,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       serviceUser: User(
                                         name: currentUser.name,
                                         mainAccountId: currentUser.id,
-                                        accountType: 'Service Provider',
+                                        accountType: User().serviceProviderAccount,
                                         displayPictureURL:
                                         currentUser.displayPictureURL,
                                         displayPictureFileName:
@@ -281,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   serviceUser: User(
                                       name: currentUser.name,
                                       mainAccountId: currentUser.id,
-                                      accountType: 'Service Provider',
+                                      accountType: User().serviceProviderAccount,
                                       displayPictureURL:
                                           currentUser.displayPictureURL,
                                       displayPictureFileName:

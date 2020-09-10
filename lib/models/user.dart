@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
-class User extends ChangeNotifier {
+class User {
 
   ///For all account types
   String accountType;
@@ -19,8 +19,11 @@ class User extends ChangeNotifier {
   List<dynamic> posts;
   List<dynamic> fcmTokens;
 
-  ///For societies, charities and service Provider
+  ///For groups and service providers
   String category;
+
+  ///For groups
+  String subcategory;
 
   ///For service Providers
   String mainAccountId;
@@ -29,6 +32,16 @@ class User extends ChangeNotifier {
   List<dynamic> providerProfiles;
 
   bool admin;
+
+  static String groupAccount = 'Group';
+  static String individualAccount = 'Individual';
+  String serviceProviderAccount = 'Service Provider';
+
+  List<String> accessibleAccountTypes = [
+    groupAccount,
+    individualAccount,
+  ];
+
 
   User({
     this.accountType,
@@ -46,6 +59,7 @@ class User extends ChangeNotifier {
     this.posts,
     this.fcmTokens,
     this.category,
+    this.subcategory,
     this.mainAccountId,
     this.providerProfiles,
     this.admin,
@@ -67,6 +81,7 @@ class User extends ChangeNotifier {
         posts = snapshot['posts'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
         category = snapshot['category'] ?? snapshot['type'] ?? '',
+        subcategory = snapshot['subcategory'] ?? snapshot['category'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
         admin = snapshot['admin'] ?? false;
@@ -89,6 +104,7 @@ class User extends ChangeNotifier {
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
       if (category != null) "category": category,
+      if (subcategory != null) 'subcategory' : subcategory,
       if (mainAccountId != null) 'mainAccountId' : mainAccountId,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
       if (admin != null) 'admin': admin,
@@ -96,9 +112,105 @@ class User extends ChangeNotifier {
   }
 }
 
-List<String> accountTypeList = ['Individual', 'Society', 'Charity'];
-///and 'Service Provider'
 
-List<String> societyCategoryList = ['Sports'];
+///FOR Service Provider Accounts (Individual on the app)
+class Service {
 
-List<String> charityCategoryList = ['???'];
+  String nameSingular;
+  String namePlural;
+  String imageAddress;
+  ///Don't change this value
+  String databaseValue;
+
+  Service({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+}
+
+
+List<Service> servicesList = [
+  Service(nameSingular: 'Designer',
+      namePlural: 'Designers',
+      imageAddress: 'images/service_icons/designers.png',
+      databaseValue: 'Design'
+  ),
+  Service(nameSingular: 'Entertainment',
+      namePlural: 'Entertainment',
+      imageAddress: 'images/service_icons/entertainment.png',
+      databaseValue: 'Entertainment'
+  ),
+  Service(
+      nameSingular: 'Journalist',
+      namePlural: 'Journalists',
+      imageAddress: 'images/service_icons/tutors.png',
+      databaseValue: 'Journalism'
+  ),
+  Service(
+      nameSingular: 'Photographer',
+      namePlural: 'Photographers',
+      imageAddress: 'images/service_icons/photographers.png',
+      databaseValue: 'Photography'
+  ),
+  Service(
+      nameSingular: 'Researcher',
+      namePlural: 'Researchers',
+      imageAddress: 'images/service_icons/research.png',
+      databaseValue: 'Research'
+  ),
+  Service(
+      nameSingular: 'Software',
+      namePlural: 'Software',
+      imageAddress: 'images/service_icons/software.png',
+      databaseValue: 'Software'
+  ),
+  Service(
+      nameSingular: 'Other',
+      namePlural: 'Other',
+      imageAddress: 'images/service_icons/other.png',
+      databaseValue: 'Other'
+  ),
+];
+
+
+class GroupType {
+
+  String nameSingular;
+  String namePlural;
+  String imageAddress;
+  ///Don't change this value
+  String databaseValue;
+
+  GroupType({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+}
+
+
+List<GroupType> groupsList = [
+  GroupType(
+    nameSingular: 'Charity',
+    namePlural: 'Charities',
+    imageAddress: 'images/service_icons/other.png',
+    databaseValue: 'Charity',
+  ),
+  GroupType(
+    nameSingular: 'Entertainment',
+    namePlural: 'Entertainment',
+    imageAddress: 'images/service_icons/other.png',
+    databaseValue: 'Entertainment',
+  ),
+  GroupType(
+    nameSingular: 'Project Group',
+    namePlural: 'Project Groups',
+    imageAddress: 'images/service_icons/other.png',
+    databaseValue: 'Project',
+  ),
+  GroupType(
+    nameSingular: 'Society',
+    namePlural: 'Societies',
+    imageAddress: 'images/service_icons/other.png',
+    databaseValue: 'Society',
+  ),
+  GroupType(
+    nameSingular: 'Other',
+    namePlural: 'Others',
+    imageAddress: 'images/service_icons/other.png',
+    databaseValue: 'Other',
+  ),
+];

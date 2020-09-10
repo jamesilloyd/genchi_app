@@ -12,7 +12,6 @@ import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'search_provider_screen.dart';
@@ -23,7 +22,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 //TODO for some reason keeping the page alive is not working
-//TODO can we implement pagination please!!!!
 class _SearchScreenState extends State<SearchScreen>
     with AutomaticKeepAliveClientMixin {
   List<User> users;
@@ -215,25 +213,27 @@ class _SearchScreenState extends State<SearchScreen>
                     mainAxisSpacing: 20.0,
                     childAspectRatio: 1.618,
                     children: List.generate(
-                      servicesList.length,
+                      groupsList.length,
                       (index) {
-                        Service service;
 
-                        service = servicesList[index];
+                        GroupType groupType;
+
+                        groupType = groupsList[index];
 
                         return SearchServiceTile(
                           onPressed: () {
-                            //TODO need to take spaces out of value
                             FirebaseAnalytics().logEvent(
                                 name:
-                                    'search_button_clicked_for_${service.databaseValue}');
+                                    'search_button_clicked_for_${groupType.databaseValue}');
 
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    SearchProviderScreen(service: service)));
+
+                            //TODO: this needs implementing, it will be very similar functionality
+                            // Navigator.of(context).push(MaterialPageRoute(
+                            //     builder: (context) =>
+                            //         SearchProviderScreen(service: service)));
                           },
-                          buttonTitle: service.namePlural,
-                          imageAddress: service.imageAddress,
+                          buttonTitle: groupType.namePlural,
+                          imageAddress: groupType.imageAddress,
                           width: (MediaQuery.of(context).size.width - 50) / 2,
                         );
                       },
@@ -251,14 +251,14 @@ class _SearchScreenState extends State<SearchScreen>
                       (index) {
                         Service service;
 
-                        service = servicesList[servicesList.length - index - 1];
+                        service = servicesList[index];
 
                         return SearchServiceTile(
                           onPressed: () {
-                            //TODO need to take spaces out of value
                             FirebaseAnalytics().logEvent(
                                 name:
                                     'search_button_clicked_for_${service.databaseValue}');
+
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>

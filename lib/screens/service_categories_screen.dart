@@ -2,7 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/search_service_tile.dart';
-import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/search_provider_screen.dart';
 
 //TODO probably don't need this for now.

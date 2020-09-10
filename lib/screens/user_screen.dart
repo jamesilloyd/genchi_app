@@ -344,10 +344,22 @@ class _UserScreenState extends State<UserScreen> {
                               thickness: 1,
                               height: 5,
                             ),
-                            Text(
-                              account.category.toUpperCase() ?? "",
-                              style: TextStyle(
-                                  fontSize: 22.0, color: Color(kGenchiOrange), fontWeight: FontWeight.w500),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  account.category.toUpperCase() ?? "",
+                                  style: TextStyle(
+                                      fontSize: 22.0, color: Color(kGenchiOrange), fontWeight: FontWeight.w500),
+                                ),
+                                if(account.accountType == 'Group') Text(
+                                  account.subcategory.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 16.0, color: Color(kGenchiOrange), fontWeight: FontWeight.w500
+                                  ),
+                                )
+                              ],
                             ),
                             SizedBox(
                               height: 10,

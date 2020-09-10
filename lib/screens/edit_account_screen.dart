@@ -38,6 +38,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+  TextEditingController subCategoryController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -56,6 +57,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     nameController.text = user.name;
     bioController.text = user.bio;
     categoryController.text = user.category;
+    subCategoryController.text = user.subcategory;
   }
 
   @override
@@ -64,6 +66,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     nameController.dispose();
     bioController.dispose();
     categoryController.dispose();
+    subCategoryController.dispose();
   }
 
   //TODO: show the category section here as it's quite important
@@ -118,6 +121,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         name: nameController.text,
                         bio: bioController.text,
                         category: categoryController.text,
+                        subcategory: subCategoryController.text,
                       ),
                       uid: currentUser.id);
 
@@ -223,14 +227,70 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
+                    if(currentUser.accountType != 'Individual') Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
+                        ),
+                        Text(
+                          'Category',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
 
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  categoryController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (GroupType groupType in groupsList) {
+                                var newItem = new PopupMenuItem(
+                                  child: Text(
+                                    groupType.databaseValue,
+                                  ),
+                                  value: groupType.databaseValue,
+                                );
+                                items.add(newItem);
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
+                              setState(() {
+                                changesMade = true;
+                                categoryController.text = value;
+                              });
+                            }),
+                      ],
+                    ),
                     if(currentUser.accountType != 'Individual') EditAccountField(
-                      field: "Category",
-                      hintText: 'What type of ${currentUser.accountType.toLowerCase()} are you?',
+                      field: 'Subcategory',
+                      hintText: 'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
                       onChanged: (value) {
                         changesMade = true;
                       },
-                      textController: categoryController,
+                      textController: subCategoryController,
                     ),
                     EditAccountField(
                       field: "About",
@@ -247,40 +307,43 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     Divider(
                       height: 10,
                     ),
-                    RoundedButton(
-                      buttonTitle: 'Save changes',
-                      buttonColor: Color(kGenchiGreen),
-                      onPressed: () async {
-                        setState(() {
-                          showSpinner = true;
-                        });
+                    Center(
+                      child: RoundedButton(
+                        buttonTitle: 'Save changes',
+                        buttonColor: Color(kGenchiGreen),
+                        onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
 
-                        await analytics.logEvent(
-                            name: 'hirer_bottom_save_changes_button_pressed');
+                          await analytics.logEvent(
+                              name: 'hirer_bottom_save_changes_button_pressed');
 
-                        await fireStoreAPI.updateUser(
-                            user: User(
-                              name: nameController.text,
-                              bio: bioController.text,
-                              category: categoryController.text,
-                            ),
-                            uid: currentUser.id);
+                          await fireStoreAPI.updateUser(
+                              user: User(
+                                name: nameController.text,
+                                bio: bioController.text,
+                                category: categoryController.text,
+                                subcategory: subCategoryController.text
+                              ),
+                              uid: currentUser.id);
 
-                        ///If name has changed update in the auth section
-                        if(nameController.text != currentUser.name) {
-                          await authProvider.updateCurrentUserName(
-                              name: nameController.text);
-                        }
+                          ///If name has changed update in the auth section
+                          if(nameController.text != currentUser.name) {
+                            await authProvider.updateCurrentUserName(
+                                name: nameController.text);
+                          }
 
-                        await accountService.updateCurrentAccount(id: currentUser.id);
-                        await authProvider.updateCurrentUserData();
+                          await accountService.updateCurrentAccount(id: currentUser.id);
+                          await authProvider.updateCurrentUserData();
 
-                        setState(() {
-                          changesMade = false;
-                          showSpinner = false;
-                        });
-                        Navigator.pop(context);
-                      },
+                          setState(() {
+                            changesMade = false;
+                            showSpinner = false;
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                   ],
                 ),

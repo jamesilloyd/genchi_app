@@ -80,6 +80,7 @@ class StartUp extends StatelessWidget {
             ],
             theme: ThemeData(
                 fontFamily: 'FuturaPT',
+                accentColor: Color(kGenchiOrange),
                 canvasColor: Colors.white,
                 cursorColor: Color(kGenchiOrange),
                 scaffoldBackgroundColor: Colors.white,

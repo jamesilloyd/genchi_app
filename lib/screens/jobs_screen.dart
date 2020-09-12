@@ -169,29 +169,32 @@ class _JobsScreenState extends State<JobsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               children: [
                 SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                  Expanded(
-                    child: RoundedButton(
-                      buttonTitle: 'JOBS POSTED',
-                      buttonColor: Color(kGenchiLightOrange),
-                      fontColor: Colors.black,
-                      elevation: false,
-                      onPressed: () {},
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                    Expanded(
+                      child: RoundedButton(
+                        buttonTitle: 'JOBS POSTED',
+                        buttonColor: Color(kGenchiLightOrange),
+                        fontColor: Colors.black,
+                        elevation: true,
+                        onPressed: () {},
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 20),
-                  Expanded(
-                    child: RoundedButton(
-                      buttonTitle: 'JOBS APPLIED TO',
-                      buttonColor: Color(kGenchiLightOrange),
-                      fontColor: Colors.black,
-                      elevation: false,
-                      onPressed: () {},
+                    SizedBox(width: 30),
+                    Expanded(
+                      child: RoundedButton(
+                        buttonTitle: 'JOBS APPLIED TO',
+                        buttonColor: Color(kGenchiLightOrange),
+                        fontColor: Colors.black,
+                        elevation: true,
+                        onPressed: () {},
+                      ),
                     ),
-                  ),
-                ]),
+                  ]),
+                ),
                 // SizedBox(height: 10),
                 // //TODO sort out not updating problem
                 // FutureBuilder(

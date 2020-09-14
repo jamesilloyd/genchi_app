@@ -16,67 +16,64 @@ class UserCard extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              flex: 10,
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                title: Text(
-                  user.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-                leading: user.displayPictureURL == null
-                ///Show default image
-                    ? CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Color(0xffC4C4C4),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Icon(
-                            Icons.person,
-                            color: Color(0xff585858),
-                            size: 35,
-                          ),
-                        ),
-                      )
-                ///Show provider image
-                    : Container(
-                  height: 60,
-                  width: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(kGenchiCream),
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                  child: Image(
-                    image: CachedNetworkImageProvider(user.displayPictureURL),
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true,
-                  ),
-                ),
-
-                subtitle: Container(
-                  child: Text(
-                    user.bio,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                onTap: onTap,
-                trailing: user.accountType != 'Individual' ? Text(
-                  user.category,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
-                ) : Text(''),
+        Center(
+          child: ListTile(
+            // dense: true,
+            shape: Border.all(color: Colors.black, width: 2),
+            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+            title: Text(
+              user.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 20,
               ),
             ),
-          ],
+            leading: user.displayPictureURL == null
+            ///Show default image
+                ? CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Color(0xffC4C4C4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Icon(
+                        Icons.person,
+                        color: Color(0xff585858),
+                        size: 35,
+                      ),
+                    ),
+                  )
+            ///Show provider image
+                : Container(
+              height: 56,
+              width: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(kGenchiCream),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Image(
+                image: CachedNetworkImageProvider(user.displayPictureURL),
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+              ),
+            ),
+
+            subtitle: Container(
+              child: Text(
+                user.bio,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
+            ),
+            onTap: onTap,
+            trailing: user.accountType != 'Individual' ? Text(
+              user.category,
+              textAlign: TextAlign.end,
+              style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
+            ) : Text(''),
+          ),
         ),
         Divider(
           height: 0,

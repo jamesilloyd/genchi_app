@@ -108,14 +108,21 @@ class _SearchScreenState extends State<SearchScreen>
                             children: [
                               AnimatedContainer(
                                 duration: Duration(milliseconds: 200),
-                                height: filter == 'GROUPS' ? 90 : 80,
-                                width: filter == 'GROUPS' ? 90 : 80,
-                                decoration: BoxDecoration(
-                                  color: Color(kGenchiLightOrange),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(45.0),
-                                  ),
-                                ),
+                                height: filter == 'GROUPS' ? 100 : 80,
+                                width: filter == 'GROUPS' ? 100 : 80,
+                                decoration: filter == 'GROUPS'
+                                    ? BoxDecoration(
+                                        color: Color(kGenchiLightGreen),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(50.0),
+                                        ),
+                                      )
+                                    : BoxDecoration(
+                                        color: Color(kGenchiLightOrange),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(50.0),
+                                        ),
+                                      ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(15.0),
                                   child: FittedBox(
@@ -149,14 +156,21 @@ class _SearchScreenState extends State<SearchScreen>
                             children: [
                               AnimatedContainer(
                                 duration: Duration(milliseconds: 200),
-                                height: filter == 'INDIVIDUALS' ? 90 : 80,
-                                width: filter == 'INDIVIDUALS' ? 90 : 80,
-                                decoration: BoxDecoration(
-                                  color: Color(kGenchiLightOrange),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(45.0),
-                                  ),
-                                ),
+                                height: filter == 'INDIVIDUALS' ? 100 : 80,
+                                width: filter == 'INDIVIDUALS' ? 100 : 80,
+                                decoration: filter == 'INDIVIDUALS'
+                                    ? BoxDecoration(
+                                        color: Color(kGenchiLightGreen),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(50.0),
+                                        ),
+                                      )
+                                    : BoxDecoration(
+                                        color: Color(kGenchiLightOrange),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(50.0),
+                                        ),
+                                      ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(20.0),
                                   child: Image(
@@ -215,7 +229,6 @@ class _SearchScreenState extends State<SearchScreen>
                     children: List.generate(
                       groupsList.length,
                       (index) {
-
                         GroupType groupType;
 
                         groupType = groupsList[index];
@@ -225,7 +238,6 @@ class _SearchScreenState extends State<SearchScreen>
                             FirebaseAnalytics().logEvent(
                                 name:
                                     'search_button_clicked_for_${groupType.databaseValue}');
-
 
                             //TODO: this needs implementing, it will be very similar functionality
                             // Navigator.of(context).push(MaterialPageRoute(
@@ -258,7 +270,6 @@ class _SearchScreenState extends State<SearchScreen>
                             FirebaseAnalytics().logEvent(
                                 name:
                                     'search_button_clicked_for_${service.databaseValue}');
-
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>

@@ -10,17 +10,17 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-//  static CollectionReference _usersCollectionRef =
-//  Firestore.instance.collection('users');
-//
-//  static CollectionReference _providerCollectionRef =
-//  Firestore.instance.collection('providers');
-//
-//  static CollectionReference _chatCollectionRef =
-//  Firestore.instance.collection('chats');
-//
-//  static CollectionReference _taskCollectionRef =
-//  Firestore.instance.collection('tasks');
+ // static CollectionReference _usersCollectionRef =
+ // Firestore.instance.collection('users');
+ //
+ // static CollectionReference _providerCollectionRef =
+ // Firestore.instance.collection('providers');
+ //
+ // static CollectionReference _chatCollectionRef =
+ // Firestore.instance.collection('chats');
+ //
+ // static CollectionReference _taskCollectionRef =
+ // Firestore.instance.collection('tasks');
 
   ///DEVELOP MODE
   static CollectionReference _usersCollectionRef =

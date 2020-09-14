@@ -19,7 +19,7 @@ Widget TaskCard(
         onTap: onTap,
         leading: image == null
             ? CircleAvatar(
-                radius: 30,
+                radius: 28,
                 backgroundColor: Color(0xffC4C4C4),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -31,8 +31,8 @@ Widget TaskCard(
                 ),
               )
             : Container(
-                height: 60,
-                width: 60,
+                height: 56,
+                width: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(kGenchiCream),

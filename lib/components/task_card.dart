@@ -6,6 +6,7 @@ import 'package:genchi_app/constants.dart';
 ///
 Widget TaskCard(
     {@required Task task,
+    bool orangeBackground = false,
     @required ImageProvider image,
     @required Function onTap,
     @required String hirerType,
@@ -50,6 +51,7 @@ Widget TaskCard(
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 20,
+            fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400
           ),
         ),
         subtitle: Text(
@@ -67,7 +69,8 @@ Widget TaskCard(
                     height: 15,
                     width: 15,
                     decoration: BoxDecoration(
-                      color: Color(kGenchiOrange),
+                      color: Color(
+                          orangeBackground ? kGenchiGreen : kGenchiOrange),
                       borderRadius: BorderRadius.all(
                         Radius.circular(10.0),
                       ),
@@ -82,7 +85,11 @@ Widget TaskCard(
             Text(
               task.service,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 15, color: Color(kGenchiOrange)),
+              style: TextStyle(
+                  fontSize: 15,
+                  color:
+                      Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
+              fontWeight: FontWeight.w500),
             ),
           ],
         ),

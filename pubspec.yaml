@@ -65,6 +65,7 @@ flutter:
     - images/3.0x/
     - images/service_icons/
     - images/onboarding/
+    - images/group_icons/
 
   fonts:
     - family : FuturaPT

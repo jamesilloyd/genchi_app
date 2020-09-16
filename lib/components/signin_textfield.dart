@@ -29,7 +29,7 @@ class SignInTextField extends StatelessWidget {
         SizedBox(
           width: 250,
           child: TextField(
-              keyboardType: isPasswordField ? TextInputType.text: TextInputType.emailAddress,
+              keyboardType: isNameField ? TextInputType.text: TextInputType.emailAddress,
               obscureText: isPasswordField,
               textCapitalization: isNameField ? TextCapitalization.words : TextCapitalization.none,
               style: TextStyle(

@@ -66,7 +66,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                     height: 30,
                     child: Center(
                       child: Text(
-                        'No Providers Yet',
+                        'No Providers to display',
                         style: TextStyle(
                           fontSize: 20,
                         ),

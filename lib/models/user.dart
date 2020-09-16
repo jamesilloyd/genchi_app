@@ -186,31 +186,31 @@ List<GroupType> groupsList = [
   GroupType(
     nameSingular: 'Charity',
     namePlural: 'Charities',
-    imageAddress: 'images/service_icons/other.png',
+    imageAddress: 'images/group_icons/charity.png',
     databaseValue: 'Charity',
   ),
   GroupType(
     nameSingular: 'Entertainment',
     namePlural: 'Entertainment',
-    imageAddress: 'images/service_icons/other.png',
+    imageAddress: 'images/group_icons/entertainment.png',
     databaseValue: 'Entertainment',
   ),
   GroupType(
     nameSingular: 'Project Group',
     namePlural: 'Project Groups',
-    imageAddress: 'images/service_icons/other.png',
-    databaseValue: 'Project',
+    imageAddress: 'images/group_icons/project.png',
+    databaseValue: 'Project Group',
   ),
   GroupType(
     nameSingular: 'Society',
     namePlural: 'Societies',
-    imageAddress: 'images/service_icons/other.png',
+    imageAddress: 'images/group_icons/society.png',
     databaseValue: 'Society',
   ),
   GroupType(
     nameSingular: 'Other',
     namePlural: 'Others',
-    imageAddress: 'images/service_icons/other.png',
+    imageAddress: 'images/group_icons/other.png',
     databaseValue: 'Other',
   ),
 ];

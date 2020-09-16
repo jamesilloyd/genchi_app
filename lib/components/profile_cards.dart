@@ -69,7 +69,7 @@ class UserCard extends StatelessWidget {
             ),
             onTap: onTap,
             trailing: user.accountType != 'Individual' ? Text(
-              user.category,
+              user.accountType == 'Group' ? user.subcategory : user.category,
               textAlign: TextAlign.end,
               style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
             ) : Text(''),

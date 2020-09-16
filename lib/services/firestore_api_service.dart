@@ -50,19 +50,19 @@ class FirestoreAPIService {
     return serviceProviders;
   }
 
-  Future<List<User>> getUsersByAccountType({String accountType}) async {
+  Future<List<User>> getGroupsByAccountType({String groupType}) async {
     if (debugMode) print(
-        'FirestoreAPI: getUsersByAccountType called for $accountType');
+        'FirestoreAPI: getGroupsByAccountType called for $groupType');
     List<User> users = [];
 
     QuerySnapshot result = await _usersCollectionRef.where(
-        'accountType', isEqualTo: accountType).orderBy('name').
-    getDocuments();
+        'category', isEqualTo: groupType).where('accountType',isEqualTo: 'Group')
+    .getDocuments();
 
 
     users = result.documents.map((doc) => User.fromMap(doc.data)).toList();
 
-    users.sort((a, b) => a.category.compareTo(b.category));
+    users.sort((a, b) => a.subcategory.compareTo(b.subcategory));
 
     return users;
   }

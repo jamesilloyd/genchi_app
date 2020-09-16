@@ -244,16 +244,14 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                 : CachedNetworkImageProvider(
                                     otherUser.displayPictureURL),
                             name: otherUser.name,
-                            service: otherUser.accountType == 'Individual'
-                                ? user.category
-                                : otherUser.category,
+                            service: otherUser.category,
                             lastMessage: chat.lastMessage,
                             time: chat.time,
                             hasUnreadMessage: userIsUser1
                                 ? chat.user1HasUnreadMessage
                                 : chat.user2HasUnreadMessage,
                             //TODO what to put here?
-                            type: otherUser.accountType,
+                            type: otherUser.accountType == 'Service Provider' ? 'Individual' : otherUser.accountType,
                             deleteMessage: 'Archive',
                             onTap: () async {
                               setState(() {

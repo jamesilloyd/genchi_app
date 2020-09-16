@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 
 class SearchGroupScreen extends StatefulWidget {
 
-  final String accountType;
+  final GroupType groupType;
 
-  SearchGroupScreen({Key key, @required this.accountType}) : super(key: key);
+  SearchGroupScreen({Key key, @required this.groupType}) : super(key: key);
 
   @override
   _SearchGroupScreenState createState() => _SearchGroupScreenState();
@@ -24,6 +24,15 @@ class _SearchGroupScreenState extends State<SearchGroupScreen> {
 
   bool showSpinner = false;
 
+  Future getGroupsByCategory;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getGroupsByCategory = firestoreAPI.getGroupsByAccountType(groupType: widget.groupType.databaseValue);
+  }
+
   @override
   Widget build(BuildContext context) {
     final accountService = Provider.of<AccountService>(context);
@@ -32,11 +41,11 @@ class _SearchGroupScreenState extends State<SearchGroupScreen> {
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
       child: Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: widget.accountType == 'Charity' ? 'Charities':'Societies'),
+          appBar: BasicAppNavigationBar(barTitle: widget.groupType.namePlural),
           body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: FutureBuilder(
-                future: firestoreAPI.getUsersByAccountType(accountType: widget.accountType),
+                future: getGroupsByCategory,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Padding(
@@ -52,7 +61,7 @@ class _SearchGroupScreenState extends State<SearchGroupScreen> {
                       height: 30,
                       child: Center(
                         child: Text(
-                          'Nothing to display',
+                          'No ${widget.groupType.namePlural} to display',
                           style: TextStyle(
                             fontSize: 20,
                           ),

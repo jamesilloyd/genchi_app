@@ -11,6 +11,7 @@ import 'package:genchi_app/components/search_service_tile.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -239,10 +240,9 @@ class _SearchScreenState extends State<SearchScreen>
                                 name:
                                     'search_button_clicked_for_${groupType.databaseValue}');
 
-                            //TODO: this needs implementing, it will be very similar functionality
-                            // Navigator.of(context).push(MaterialPageRoute(
-                            //     builder: (context) =>
-                            //         SearchProviderScreen(service: service)));
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    SearchGroupScreen(groupType: groupType)));
                           },
                           buttonTitle: groupType.namePlural,
                           imageAddress: groupType.imageAddress,

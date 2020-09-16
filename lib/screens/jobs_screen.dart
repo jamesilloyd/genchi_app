@@ -40,12 +40,12 @@ class _JobsScreenState extends State<JobsScreen> {
   String filter = 'ALL';
   bool _isVisible = true;
   bool _isExpanded = false;
-  double height = 0;
   String appliedPosted = 'Posted';
+
+  double buttonHeight;
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
-
 
   void openBottomSection() async {
     await Duration(milliseconds: 500);
@@ -57,6 +57,8 @@ class _JobsScreenState extends State<JobsScreen> {
   @override
   void initState() {
     super.initState();
+
+
 
     _listScrollController.addListener(() {
       if (_listScrollController.position.userScrollDirection ==
@@ -82,6 +84,8 @@ class _JobsScreenState extends State<JobsScreen> {
       }
     });
 
+
+
     User currentUser =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     analytics.setCurrentScreen(screenName: 'home/jobs_screen');
@@ -103,6 +107,11 @@ class _JobsScreenState extends State<JobsScreen> {
     User currentUser = authProvider.currentUser;
 
     if (debugMode) print('Job screen activated');
+    buttonHeight =  0.07 *
+        (MediaQuery.of(context).size.height -
+            kToolbarHeight -
+            AppBar().preferredSize.height -
+            25);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -132,11 +141,7 @@ class _JobsScreenState extends State<JobsScreen> {
           children: [
             Container(
               height: 25 +
-                  0.07 *
-                      (MediaQuery.of(context).size.height -
-                          kToolbarHeight -
-                          AppBar().preferredSize.height -
-                          25),
+                  buttonHeight,
               width: MediaQuery.of(context).size.width,
               child: Column(
                 children: [
@@ -181,7 +186,6 @@ class _JobsScreenState extends State<JobsScreen> {
                                         MediaQuery.of(context).size.width / 8,
                                     height: 25,
                                     decoration: BoxDecoration(
-
                                       borderRadius: BorderRadius.vertical(
                                           top: Radius.circular(10)),
                                       color: Color(kGenchiLightOrange),
@@ -193,28 +197,29 @@ class _JobsScreenState extends State<JobsScreen> {
                                       size: 30,
                                     ),
                                   ),
-                                  if(notifications != 0) Positioned(
-                                    right: -10,
-                                    child: Container(
-                                      alignment: Alignment(100,100),
-                                      height: 20,
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white,width: 2)
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          notifications.toString(),
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400),
+                                  if (notifications != 0)
+                                    Positioned(
+                                      right: -10,
+                                      child: Container(
+                                        alignment: Alignment(100, 100),
+                                        height: 20,
+                                        width: 20,
+                                        decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white, width: 2)),
+                                        child: Center(
+                                          child: Text(
+                                            notifications.toString(),
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w400),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               );
                             },
@@ -232,18 +237,18 @@ class _JobsScreenState extends State<JobsScreen> {
                           child: FutureBuilder(
                             future: getUserTasksAppliedFuture,
                             builder: (context, snapshot) {
-
                               int notifications = 0;
 
                               final List<Map<String, dynamic>>
-                              tasksAndHirersAndNotification = snapshot.data;
+                                  tasksAndHirersAndNotification = snapshot.data;
 
                               ///Check how many notifications the user has
                               if (snapshot.hasData) {
                                 for (Map taskAndHirerAndNotification
-                                in tasksAndHirersAndNotification) {
+                                    in tasksAndHirersAndNotification) {
                                   bool userHasNotification =
-                                  taskAndHirerAndNotification['hasNotification'];
+                                      taskAndHirerAndNotification[
+                                          'hasNotification'];
                                   if (userHasNotification) notifications++;
                                 }
                               }
@@ -255,10 +260,9 @@ class _JobsScreenState extends State<JobsScreen> {
                                 children: [
                                   Container(
                                     width:
-                                    MediaQuery.of(context).size.width / 8,
+                                        MediaQuery.of(context).size.width / 8,
                                     height: 25,
                                     decoration: BoxDecoration(
-
                                       borderRadius: BorderRadius.vertical(
                                           top: Radius.circular(10)),
                                       color: Color(kGenchiLightGreen),
@@ -270,28 +274,29 @@ class _JobsScreenState extends State<JobsScreen> {
                                       size: 30,
                                     ),
                                   ),
-                                  if(notifications != 0) Positioned(
-                                    left: -10,
-                                    child: Container(
-                                      alignment: Alignment(100,100),
-                                      height: 20,
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white,width: 2)
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          notifications.toString(),
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400),
+                                  if (notifications != 0)
+                                    Positioned(
+                                      left: -10,
+                                      child: Container(
+                                        alignment: Alignment(100, 100),
+                                        height: 20,
+                                        width: 20,
+                                        decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white, width: 2)),
+                                        child: Center(
+                                          child: Text(
+                                            notifications.toString(),
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w400),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               );
                             },
@@ -299,57 +304,90 @@ class _JobsScreenState extends State<JobsScreen> {
                         ),
                       ]),
                   SizedBox(
-                    height: 0.07 *
-                        (MediaQuery.of(context).size.height -
-                            kToolbarHeight -
-                            AppBar().preferredSize.height -
-                            25),
+                    height: buttonHeight,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            /*TODO: here we want to add functionality that:
-                               - will select the correct filter
-                                -will expand the list if not already expanded
-                                -will not close the list if already expanded*/
                             onTap: () {
+                              if (!_isExpanded) {
+                                _panelController.animatePanelToPosition(1.0,
+                                    duration: Duration(milliseconds: 500),
+                                    curve: Curves.fastOutSlowIn);
+                                _isExpanded = true;
+                              }
                               setState(() {
                                 appliedPosted = 'Posted';
                               });
                             },
                             child: Container(
+                              foregroundDecoration: BoxDecoration(
+                                gradient:  LinearGradient(
+                                  begin: Alignment(0, 1.5),
+                                  end: Alignment(0, 0.5),
+                                  colors: [appliedPosted == 'Applied' ? Colors.black12:Colors.transparent, Colors.transparent],
+                                ),
+                              ),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10)),
-                                color: Color(kGenchiLightOrange),
+                                  borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(10)),
+                                  color: Color(kGenchiLightOrange),
+                                  // boxShadow: [
+                                  //   if (appliedPosted == 'Posted')
+                                  //     BoxShadow(
+                                  //         color: Colors.black12,
+                                  //         blurRadius: 10,
+                                  //         spreadRadius: 6,
+                                  //         offset: Offset(10, -3))
+                                  // ],
                               ),
                               child: Center(
                                 child: Text(
-                                  'Posted Jobs',
+                                  'Posted',
                                   style: TextStyle(fontSize: 18),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
+                              if (!_isExpanded) {
+                                _panelController.animatePanelToPosition(1.0,
+                                    duration: Duration(milliseconds: 500),
+                                    curve: Curves.fastOutSlowIn);
+                                _isExpanded = true;
+                              }
                               setState(() {
                                 appliedPosted = 'Applied';
                               });
                             },
                             child: Container(
+                              foregroundDecoration: BoxDecoration(
+                                gradient:  LinearGradient(
+                                  begin: Alignment(0, 1.5),
+                                  end: Alignment(0, 0.5),
+                                  colors:  [appliedPosted == 'Posted'? Colors.black12 : Colors.transparent, Colors.transparent],
+                                ),
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(10)),
                                 color: Color(kGenchiLightGreen),
+                                // boxShadow: [
+                                //   if (appliedPosted == 'Applied')
+                                //     BoxShadow(
+                                //         color: Colors.black12,
+                                //         blurRadius: 3,
+                                //         spreadRadius: 1,
+                                //         offset: Offset(-1, 3))
+                                // ],
                               ),
                               child: Center(
                                 child: Text(
-                                  'Jobs Applied To',
+                                  'Applied To',
                                   style: TextStyle(fontSize: 18),
                                 ),
                               ),
@@ -363,27 +401,187 @@ class _JobsScreenState extends State<JobsScreen> {
               ),
             ),
             Container(
-              color: Colors.white,
+              color: appliedPosted == 'Posted'
+                  ? Color(kGenchiLightOrange)
+                  : Color(kGenchiLightGreen),
               height: MediaQuery.of(context).size.height -
                   kToolbarHeight -
                   AppBar().preferredSize.height -
                   25 -
-                  0.07 *
-                      (MediaQuery.of(context).size.height -
-                          kToolbarHeight -
-                          AppBar().preferredSize.height -
-                          25),
+                  buttonHeight,
               child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 15),
                 children: [
-                  // FutureBuilder(),
-                  SizedBox(
-                    height: 25 +
-                        0.07 *
-                            (MediaQuery.of(context).size.height -
-                                kToolbarHeight -
-                                AppBar().preferredSize.height -
-                                25),
-                  )
+                  SizedBox(height:15),
+                  //TODO: we need some button here that closes the sheet
+                  Center(
+                    child: Text(
+                      appliedPosted == 'Posted'
+                          ? "JOBS YOU'VE POSTED"
+                          : "JOBS YOU'VE APPLIED TO",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 0,
+                    thickness: 1,
+                  ),
+                  Visibility(
+                    visible: appliedPosted == 'Posted',
+                    child: FutureBuilder(
+                      future: getUserTasksPostedAndNotificationsFuture,
+                      builder: (context, snapshot) {
+                        final List<Map<String, dynamic>>
+                            userTasksAndNotifications = snapshot.data;
+                        List<Widget> taskWidgets = [];
+
+                        if (snapshot.hasData) {
+                          if (userTasksAndNotifications.isEmpty) {
+                            return Container(
+                              height: 30,
+                              child: Center(
+                                child: Text(
+                                  'You have not posted a job!',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          for (Map taskAndNotification
+                              in userTasksAndNotifications) {
+                            Task task = taskAndNotification['task'];
+                            bool userHasNotification =
+                                taskAndNotification['hasNotification'];
+
+                            Widget tCard = TaskCard(
+                                orangeBackground: true,
+                                hirerType: currentUser.accountType == 'Group' ? currentUser.category :'Individual',
+                                image: currentUser.displayPictureURL == null
+                                    ? null
+                                    : CachedNetworkImageProvider(
+                                        currentUser.displayPictureURL),
+                                task: task,
+                                hasUnreadMessage: userHasNotification,
+                                isDisplayTask: false,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+
+                                  await taskProvider.updateCurrentTask(
+                                      taskId: task.taskId);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                  Navigator.pushNamed(context, TaskScreen.id)
+                                      .then((value) {
+                                    ///Refresh the tasks to remove notifications.
+                                    getUserTasksPostedAndNotificationsFuture =
+                                        firestoreAPI
+                                            .getUserTasksPostedAndNotifications(
+                                                postIds: currentUser.posts);
+                                    setState(() {
+                                    });
+                                  });
+                                });
+                            taskWidgets.add(tCard);
+                          }
+                        }
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: taskWidgets,
+                        );
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: appliedPosted == 'Applied',
+                    child: FutureBuilder(
+                      future: getUserTasksAppliedFuture,
+                      builder: (context, snapshot) {
+                        final List<Map<String, dynamic>>
+                            tasksAndHirersAndNotification = snapshot.data;
+
+                        List<Widget> taskWidgets = [];
+                        if(snapshot.hasData) {
+                          if (tasksAndHirersAndNotification.isEmpty) {
+                            return Container(
+                              height: 30,
+                              child: Center(
+                                child: Text(
+                                  'You have not applied to a job!',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+
+                            for (Map taskAndHirerAndNotification
+                            in tasksAndHirersAndNotification) {
+                              Task task = taskAndHirerAndNotification['task'];
+                              User hirer = taskAndHirerAndNotification['hirer'];
+                              bool userHasNotification =
+                              taskAndHirerAndNotification['hasNotification'];
+
+                              Widget tCard = TaskCard(
+                                  hirerType: hirer.accountType == 'Group'
+                                      ? hirer.category
+                                      : 'Individual',
+                                  image: hirer.displayPictureURL == null
+                                      ? null
+                                      : CachedNetworkImageProvider(
+                                      hirer.displayPictureURL),
+                                  task: task,
+                                  hasUnreadMessage: userHasNotification,
+                                  isDisplayTask: false,
+                                  onTap: () async {
+                                    setState(() {
+                                      showSpinner = true;
+                                    });
+
+                                    await taskProvider.updateCurrentTask(
+                                        taskId: task.taskId);
+
+                                    setState(() {
+                                      showSpinner = false;
+                                    });
+
+                                    Navigator.pushNamed(context, TaskScreen.id)
+                                        .then((value) {
+                                      getUserTasksAppliedFuture = firestoreAPI
+                                          .getUserTasksAppliedAndNotifications(
+                                          providerIds:
+                                          currentUser.providerProfiles,
+                                          mainId: currentUser.id);
+                                      setState(() {
+
+                                      });
+                                    });
+                                  });
+                              taskWidgets.add(tCard);
+                            }
+
+                        }
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: taskWidgets,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -420,7 +618,7 @@ class _JobsScreenState extends State<JobsScreen> {
                 controller: _listScrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: [
-                  SizedBox(height: 10),
+                  SizedBox(height: 25),
                   Center(
                     child: Container(
                       margin: EdgeInsets.symmetric(vertical: 10.0),
@@ -470,405 +668,6 @@ class _JobsScreenState extends State<JobsScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  FutureBuilder(
-                    future: getUserTasksPostedAndNotificationsFuture,
-                    builder: (context, snapshot) {
-                      final List<Map<String, dynamic>>
-                          userTasksAndNotifications = snapshot.data;
-
-                      int notifications = 0;
-
-                      ///Check how many notifications the user has
-                      if (snapshot.hasData) {
-                        for (Map taskAndNotification
-                            in userTasksAndNotifications) {
-                          bool userHasNotification =
-                              taskAndNotification['hasNotification'];
-                          if (userHasNotification) notifications++;
-                        }
-                      }
-                      return GestureDetector(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (notifications != 0)
-                              Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  color: Color(kGenchiOrange),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    notifications.toString(),
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                            SizedBox(width: 10),
-                            Text(
-                              'YOUR POSTED JOBS',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: !snapshot.hasData
-                            ? () {}
-                            : () async {
-                                await showModalBottomSheet(
-                                  context: context,
-                                  shape: modalBottomSheetBorder,
-                                  isScrollControlled: true,
-                                  builder: (context) => StatefulBuilder(builder:
-                                      (BuildContext context,
-                                          StateSetter setModalState) {
-                                    return Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.9,
-                                      padding: EdgeInsets.all(15.0),
-                                      decoration:
-                                          modalBottomSheetContainerDecoration,
-                                      child: ListView(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              SizedBox(width: 25),
-                                              Container(
-                                                height: 50,
-                                                child: Center(
-                                                  child: Text(
-                                                    'Your Posted Jobs',
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 25.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Icon(
-                                                  Icons.close,
-                                                  size: 25,
-                                                  color: Colors.black,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          Divider(
-                                            height: 0,
-                                            thickness: 1,
-                                          ),
-                                          FutureBuilder(
-                                            future:
-                                                getUserTasksPostedAndNotificationsFuture,
-                                            builder: (context, snapshot) {
-                                              final List<Map<String, dynamic>>
-                                                  userTasksAndNotifications =
-                                                  snapshot.data;
-                                              List<Widget> taskWidgets = [];
-
-                                              if (snapshot.hasData) {
-                                                if (userTasksAndNotifications
-                                                    .isEmpty) {
-                                                  return Container(
-                                                    height: 30,
-                                                    child: Center(
-                                                      child: Text(
-                                                        'You have not posted a job!',
-                                                        style: TextStyle(
-                                                          fontSize: 20,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-
-                                                for (Map taskAndNotification
-                                                    in userTasksAndNotifications) {
-                                                  Task task =
-                                                      taskAndNotification[
-                                                          'task'];
-                                                  bool userHasNotification =
-                                                      taskAndNotification[
-                                                          'hasNotification'];
-
-                                                  Widget tCard = TaskCard(
-                                                      hirerType: currentUser
-                                                          .accountType,
-                                                      image: currentUser
-                                                                  .displayPictureURL ==
-                                                              null
-                                                          ? null
-                                                          : CachedNetworkImageProvider(
-                                                              currentUser
-                                                                  .displayPictureURL),
-                                                      task: task,
-                                                      hasUnreadMessage:
-                                                          userHasNotification,
-                                                      isDisplayTask: false,
-                                                      onTap: () async {
-                                                        setState(() {
-                                                          showSpinner = true;
-                                                        });
-
-                                                        await taskProvider
-                                                            .updateCurrentTask(
-                                                                taskId: task
-                                                                    .taskId);
-
-                                                        setState(() {
-                                                          showSpinner = false;
-                                                        });
-                                                        Navigator.pushNamed(
-                                                                context,
-                                                                TaskScreen.id)
-                                                            .then((value) {
-                                                          ///Refresh the tasks to remove notifications.
-                                                          getUserTasksPostedAndNotificationsFuture =
-                                                              firestoreAPI.getUserTasksPostedAndNotifications(
-                                                                  postIds:
-                                                                      currentUser
-                                                                          .posts);
-                                                          setModalState(() {});
-                                                        });
-                                                      });
-                                                  taskWidgets.add(tCard);
-                                                }
-                                              }
-
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.stretch,
-                                                children: taskWidgets,
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                ).then((value) => setState(() {}));
-                              },
-                      );
-                    },
-                  ),
-                  Divider(
-                    height: 5,
-                    thickness: 1,
-                  ),
-                  SizedBox(height: 10),
-                  FutureBuilder(
-                    future: getUserTasksAppliedFuture,
-                    builder: (context, snapshot) {
-                      int notifications = 0;
-
-                      final List<Map<String, dynamic>>
-                          tasksAndHirersAndNotification = snapshot.data;
-
-                      ///Check how many notifications the user has
-                      if (snapshot.hasData) {
-                        for (Map taskAndHirerAndNotification
-                            in tasksAndHirersAndNotification) {
-                          bool userHasNotification =
-                              taskAndHirerAndNotification['hasNotification'];
-                          if (userHasNotification) notifications++;
-                        }
-                      }
-
-                      return GestureDetector(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (notifications != 0)
-                              Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  color: Color(kGenchiOrange),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    notifications.toString(),
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                            SizedBox(width: 10),
-                            Text(
-                              'YOUR APPLIED JOBS',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: !snapshot.hasData
-                            ? () {}
-                            : () async {
-                                await showModalBottomSheet(
-                                  context: context,
-                                  shape: modalBottomSheetBorder,
-                                  isScrollControlled: true,
-                                  builder: (context) => StatefulBuilder(builder:
-                                      (BuildContext context,
-                                          StateSetter setModalState) {
-                                    return Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.9,
-                                      padding: EdgeInsets.all(15.0),
-                                      decoration:
-                                          modalBottomSheetContainerDecoration,
-                                      child: ListView(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              SizedBox(width: 25),
-                                              Container(
-                                                height: 50,
-                                                child: Center(
-                                                  child: Text(
-                                                    'Your Applied Jobs',
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 25.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Icon(
-                                                  Icons.close,
-                                                  size: 25,
-                                                  color: Colors.black,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          Divider(
-                                            height: 0,
-                                            thickness: 1,
-                                          ),
-                                          FutureBuilder(
-                                            future: getUserTasksAppliedFuture,
-                                            builder: (context, snapshot) {
-                                              final List<Map<String, dynamic>>
-                                                  tasksAndHirersAndNotification =
-                                                  snapshot.data;
-
-                                              List<Widget> taskWidgets = [];
-
-                                              if (snapshot.hasData) {
-                                                for (Map taskAndHirerAndNotification
-                                                    in tasksAndHirersAndNotification) {
-                                                  Task task =
-                                                      taskAndHirerAndNotification[
-                                                          'task'];
-                                                  User hirer =
-                                                      taskAndHirerAndNotification[
-                                                          'hirer'];
-                                                  bool userHasNotification =
-                                                      taskAndHirerAndNotification[
-                                                          'hasNotification'];
-
-                                                  if (userHasNotification)
-                                                    notifications++;
-
-                                                  Widget tCard = TaskCard(
-                                                      hirerType:
-                                                          hirer.accountType,
-                                                      image: hirer.displayPictureURL ==
-                                                              null
-                                                          ? null
-                                                          : CachedNetworkImageProvider(
-                                                              hirer
-                                                                  .displayPictureURL),
-                                                      task: task,
-                                                      hasUnreadMessage:
-                                                          userHasNotification,
-                                                      isDisplayTask: false,
-                                                      onTap: () async {
-                                                        setState(() {
-                                                          showSpinner = true;
-                                                        });
-
-                                                        await taskProvider
-                                                            .updateCurrentTask(
-                                                                taskId: task
-                                                                    .taskId);
-
-                                                        setState(() {
-                                                          showSpinner = false;
-                                                        });
-
-                                                        Navigator.pushNamed(
-                                                                context,
-                                                                TaskScreen.id)
-                                                            .then((value) {
-                                                          getUserTasksAppliedFuture =
-                                                              firestoreAPI.getUserTasksAppliedAndNotifications(
-                                                                  providerIds:
-                                                                      currentUser
-                                                                          .providerProfiles,
-                                                                  mainId:
-                                                                      currentUser
-                                                                          .id);
-                                                          setModalState(() {});
-                                                        });
-                                                      });
-                                                  taskWidgets.add(tCard);
-                                                }
-                                              }
-
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.stretch,
-                                                children: taskWidgets,
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                ).then((value) => setState(() {}));
-                              },
-                      );
-                    },
-                  ),
-                  Divider(
-                    height: 5,
-                    thickness: 1,
                   ),
                   SizedBox(height: 10),
                   Row(
@@ -952,7 +751,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
                         if ((task.service == filter) || (filter == 'ALL')) {
                           final widget = TaskCard(
-                            hirerType: hirer.accountType,
+                            hirerType: hirer.accountType == 'Group' ? hirer.category : 'Individual',
                             image: hirer.displayPictureURL == null
                                 ? null
                                 : CachedNetworkImageProvider(

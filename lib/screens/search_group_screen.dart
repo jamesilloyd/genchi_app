@@ -28,7 +28,6 @@ class _SearchGroupScreenState extends State<SearchGroupScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getGroupsByCategory = firestoreAPI.getGroupsByAccountType(groupType: widget.groupType.databaseValue);
   }

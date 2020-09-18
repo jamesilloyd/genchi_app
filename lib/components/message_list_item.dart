@@ -4,7 +4,6 @@ import 'package:genchi_app/constants.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/services/time_formatting.dart';
-import 'package:intl/intl.dart';
 
 
 class MessageListItem extends StatelessWidget {

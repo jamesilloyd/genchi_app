@@ -79,7 +79,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         Scaffold(
-          appBar: BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
+          appBar:
+              BasicAppNavigationBar(barTitle: currentUser.name ?? "Profile"),
           backgroundColor: Colors.transparent,
           body: ModalProgressHUD(
             inAsyncCall: showSpinner,
@@ -185,15 +186,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ///add the "add provider" card
                           providerCards.add(
                             AddProviderCard(
-                              width: (MediaQuery.of(context).size.width -
-                                      20 * 3) /
-                                  2.2,
+                              width:
+                                  (MediaQuery.of(context).size.width - 20 * 3) /
+                                      2.2,
                               onPressed: () async {
                                 bool createAccount = await showYesNoAlert(
                                     context: context,
                                     title: 'Create Service Account?',
                                     body:
-                                    "Are you ready to provide your skills to the Cambridge community?");
+                                        "Are you ready to provide your skills to the Cambridge community?");
                                 if (createAccount) {
                                   setState(() {
                                     showSpinner = true;
@@ -204,18 +205,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       name: 'provider_account_created');
 
                                   DocumentReference result =
-                                  await firestoreAPI.addServiceProvider(
-                                      serviceUser: User(
-                                        name: currentUser.name,
-                                        mainAccountId: currentUser.id,
-                                        accountType: User().serviceProviderAccount,
-                                        displayPictureURL:
-                                        currentUser.displayPictureURL,
-                                        displayPictureFileName:
-                                        currentUser.displayPictureFileName,
-                                        timeStamp: Timestamp.now(),
-                                      ),
-                                      uid: authProvider.currentUser.id);
+                                      await firestoreAPI.addServiceProvider(
+                                          serviceUser: User(
+                                            name: currentUser.name,
+                                            mainAccountId: currentUser.id,
+                                            accountType:
+                                                User().serviceProviderAccount,
+                                            displayPictureURL:
+                                                currentUser.displayPictureURL,
+                                            displayPictureFileName: currentUser
+                                                .displayPictureFileName,
+                                            fcmTokens: currentUser.fcmTokens,
+                                            timeStamp: Timestamp.now(),
+                                          ),
+                                          uid: authProvider.currentUser.id);
 
                                   await authProvider.updateCurrentUserData();
 
@@ -279,14 +282,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           DocumentReference result =
                               await firestoreAPI.addServiceProvider(
                                   serviceUser: User(
-                                      name: currentUser.name,
-                                      mainAccountId: currentUser.id,
-                                      accountType: User().serviceProviderAccount,
-                                      displayPictureURL:
-                                          currentUser.displayPictureURL,
-                                      displayPictureFileName:
-                                          currentUser.displayPictureFileName,
-                                      timeStamp: Timestamp.now(),
+                                    name: currentUser.name,
+                                    mainAccountId: currentUser.id,
+                                    accountType: User().serviceProviderAccount,
+                                    displayPictureURL:
+                                        currentUser.displayPictureURL,
+                                    displayPictureFileName:
+                                        currentUser.displayPictureFileName,
+                                    fcmTokens: currentUser.fcmTokens,
+                                    timeStamp: Timestamp.now(),
                                   ),
                                   uid: authProvider.currentUser.id);
 

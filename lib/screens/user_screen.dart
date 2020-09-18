@@ -106,7 +106,6 @@ class _UserScreenState extends State<UserScreen> {
                     if (existingChat != null) {
                       ///Work out if the current user is user 1
 
-                      //TODO, what if this account has already messages one of the provider accounts?
                       bool currentUserIsUser1 =
                           existingChat.id1 == currentUser.id;
 

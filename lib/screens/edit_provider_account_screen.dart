@@ -25,7 +25,6 @@ import 'home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-//TODO: change these to just use text editing controllers
 
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
@@ -124,6 +123,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                           name: nameTextController.text,
                           category: serviceTextController.text,
                           bio: bioTextController.text,
+                          fcmTokens: authProvider.currentUser.fcmTokens,
                       ),
                       uid: serviceProvider.id);
 
@@ -284,21 +284,21 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     changesMade = true;
                   },
                 ),
-                //TODO Implement the following fields
-                EditAccountField(
-                  hintText: 'Coming soon',
-                  field: "Portfolio Pictures",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
-                ),
-                EditAccountField(
-                  hintText: 'Coming soon',
-                  field: "Tags",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
-                ),
+                // //TODO Implement the following fields
+                // EditAccountField(
+                //   hintText: 'Coming soon',
+                //   field: "Portfolio Pictures",
+                //   isEditable: false,
+                //   onChanged: (value) {},
+                //   textController: TextEditingController(),
+                // ),
+                // EditAccountField(
+                //   hintText: 'Coming soon',
+                //   field: "Tags",
+                //   isEditable: false,
+                //   onChanged: (value) {},
+                //   textController: TextEditingController(),
+                // ),
 
                 SizedBox(
                   height: 10.0,
@@ -321,6 +321,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                             name: nameTextController.text,
                             category: serviceTextController.text,
                             bio: bioTextController.text,
+                            fcmTokens: authProvider.currentUser.fcmTokens,
                           ),
                           uid: serviceProvider.id);
 

@@ -66,11 +66,11 @@ class User {
   });
   //TODO delete the type redundancy after successfull migration
   User.fromMap(Map snapshot)
-      : accountType = snapshot['accountType'] ?? 'Individual',
+      : accountType =  snapshot['accountType'] ?? 'Individual',
         id = snapshot['id'] ?? snapshot['pid'],
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
-        bio = '${snapshot['bio']??''} ${snapshot['experience'] ?? ''}',
+        bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
         displayPictureURL = snapshot['displayPictureURL'],
         timeStamp = snapshot['timeStamp'],

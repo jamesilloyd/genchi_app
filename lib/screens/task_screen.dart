@@ -628,7 +628,6 @@ class _TaskScreenState extends State<TaskScreen> {
                           thickness: 1,
                         ),
 
-                        //TODO going to try and use current user here (may not work)
                         UserCard(
                           user: currentUser,
                           onTap: () async {
@@ -735,7 +734,9 @@ class _TaskScreenState extends State<TaskScreen> {
                               await accountService.updateCurrentAccount(
                                   id: result.documentID);
 
-                              //TODO is there a way to reload? rather then closing the modal and having to reopen?
+                              /*TODO is there a way to reload? rather then closing the modal and having to reopen?
+                                 use slide up widget instead!
+                                */
 
                               Navigator.pushNamed(context, UserScreen.id)
                                   .then((value) {

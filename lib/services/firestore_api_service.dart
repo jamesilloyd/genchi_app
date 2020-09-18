@@ -313,7 +313,6 @@ class FirestoreAPIService {
 
     ///Grabbing chats associated with provider profiles
     if (user.providerProfiles.isNotEmpty) {
-      //TODO HOW DO WE QUERY THIS??? TODO HOW DO WE QUERY THIS??? TODO HOW DO WE QUERY THIS??? TODO HOW DO WE QUERY THIS??? TODO HOW DO WE QUERY THIS??? TODO HOW DO WE QUERY THIS???
       Stream stream2 = _chatCollectionRef
           .where('ids', arrayContainsAny: user.providerProfiles)
           .orderBy('time', descending: true)
@@ -892,14 +891,6 @@ class FirestoreAPIService {
     await _usersCollectionRef.document(user.id).updateData({
       'fcmTokens': FieldValue.arrayUnion([token])
     });
-
-    ///Add to any provider profiles they own
-    if (user.providerProfiles.isNotEmpty)
-      for (String pid in user.providerProfiles) {
-        await _usersCollectionRef.document(pid).updateData({
-          'fcmTokens': FieldValue.arrayUnion([token])
-        });
-      }
   }
 
   Future migrateToNewDatabaseArchitecture() async {

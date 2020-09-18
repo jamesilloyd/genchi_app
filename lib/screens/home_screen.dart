@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/jobs_screen.dart';
-import 'package:genchi_app/screens/task_summary_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
@@ -131,9 +130,34 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Platform.isIOS
-                    ? CupertinoIcons.folder
-                    : Icons.folder_open),
+                icon: Stack(
+                  alignment: Alignment.center,
+                  children: [Icon(Platform.isIOS
+                      ? CupertinoIcons.folder
+                      : Icons.folder_open),
+                  // if(notificationService.jobNotifications != null && notificationService.jobNotifications !=0 ) Align(
+                  //   alignment: Alignment(.4,0),
+                  //   child: Container(
+                  //     height: 20,
+                  //     width: 20,
+                  //     decoration: BoxDecoration(
+                  //         color: Colors.red,
+                  //         shape: BoxShape.circle,
+                  //         border: Border.all(
+                  //             color: Colors.white, width: 2)),
+                  //     child: Center(
+                  //       child: Text(
+                  //         notificationService.jobNotifications.toString(),
+                  //         style: TextStyle(
+                  //             fontSize: 11,
+                  //             color: Colors.white,
+                  //             fontWeight: FontWeight.w400),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // )
+                  ]
+                ),
                 title: Text('Jobs'),
               ),
               BottomNavigationBarItem(

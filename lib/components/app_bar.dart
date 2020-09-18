@@ -105,7 +105,6 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ),
-      //TODO add this back in later once we've clarified the UI
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: Theme(

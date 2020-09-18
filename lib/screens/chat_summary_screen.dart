@@ -250,7 +250,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                             hasUnreadMessage: userIsUser1
                                 ? chat.user1HasUnreadMessage
                                 : chat.user2HasUnreadMessage,
-                            //TODO what to put here?
                             type: otherUser.accountType == 'Service Provider' ? 'Individual' : otherUser.accountType,
                             deleteMessage: 'Archive',
                             onTap: () async {

@@ -88,9 +88,6 @@ class _TestScreenState extends State<TestScreen> {
               child: Text('This is the sliding widget'),
             ),
           ]),
-          //TODO: put the little arrows in here
-          // collapsed: Container(
-          //   color: Colors.red,
           //   height: 50,
           // ),
           body: ListView(

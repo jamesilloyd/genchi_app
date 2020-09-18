@@ -13,7 +13,6 @@ import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
-import 'package:genchi_app/screens/service_categories_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
@@ -27,6 +26,7 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
@@ -46,16 +46,14 @@ class Genchi extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        //TODO: add in state provider for bottom sheet.
+        // ChangeNotifierProvider(create: (_) =>),
         ChangeNotifierProvider(create: (_) => AuthenticationService()),
         ChangeNotifierProvider(create: (_) => AccountService()),
-
-        //TODO: how do we stream the current user
-//        StreamProvider<User>.value(
-//
-//          value: Firestore.instance.collection('users').document().snapshots(),
-//
-//        ),
+        //TODO: implement this
+        // ChangeNotifierProvider(create: (_) => NotificationService()),
         ChangeNotifierProvider(create: (_) => TaskService()),
+
       ],
       child: StartUp(),
     );
@@ -110,8 +108,6 @@ class StartUp extends StatelessWidget {
               EditAccountSettingsScreen.id: (context) =>
                   EditAccountSettingsScreen(),
               UserScreen.id: (context) => UserScreen(),
-              ServiceCategoriesScreen.id: (context) =>
-                  ServiceCategoriesScreen(),
             },
           );
         }

@@ -4,7 +4,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 
 
-//TODO: make function that will handle the different account types
 class UserCard extends StatelessWidget {
   final Function onTap;
   final User user;

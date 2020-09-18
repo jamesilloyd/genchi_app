@@ -15,6 +15,7 @@ import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -41,23 +42,24 @@ class _JobsScreenState extends State<JobsScreen> {
   bool _isVisible = true;
   bool _isExpanded = false;
   String appliedPosted = 'Posted';
+  int postedNotifications = 0;
+  int appliedNotifications = 0;
 
   double buttonHeight;
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
-      GlobalKey<LiquidPullToRefreshState>();
+  GlobalKey<LiquidPullToRefreshState>();
 
   void openBottomSection() async {
     await Duration(milliseconds: 500);
 
-    _panelController.animatePanelToPosition(0.07,
+    _panelController.animatePanelToPosition(0.08,
         duration: Duration(milliseconds: 150));
   }
 
   @override
   void initState() {
     super.initState();
-
 
 
     _listScrollController.addListener(() {
@@ -75,7 +77,7 @@ class _JobsScreenState extends State<JobsScreen> {
             ScrollDirection.forward) {
           if (_isVisible == false) {
             setState(() {
-              _panelController.animatePanelToPosition(0.07,
+              _panelController.animatePanelToPosition(0.08,
                   duration: Duration(milliseconds: 150));
               _isVisible = true;
             });
@@ -85,9 +87,10 @@ class _JobsScreenState extends State<JobsScreen> {
     });
 
 
-
     User currentUser =
-        Provider.of<AuthenticationService>(context, listen: false).currentUser;
+        Provider
+            .of<AuthenticationService>(context, listen: false)
+            .currentUser;
     analytics.setCurrentScreen(screenName: 'home/jobs_screen');
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
     getUserTasksPostedAndNotificationsFuture = firestoreAPI
@@ -107,8 +110,11 @@ class _JobsScreenState extends State<JobsScreen> {
     User currentUser = authProvider.currentUser;
 
     if (debugMode) print('Job screen activated');
-    buttonHeight =  0.07 *
-        (MediaQuery.of(context).size.height -
+    buttonHeight = 0.08 *
+        (MediaQuery
+            .of(context)
+            .size
+            .height -
             kToolbarHeight -
             AppBar().preferredSize.height -
             25);
@@ -119,7 +125,7 @@ class _JobsScreenState extends State<JobsScreen> {
         barTitle: 'Jobs',
       ),
       body: SlidingUpPanel(
-        snapPoint: 0.07,
+        snapPoint: 0.08,
         onPanelClosed: () {
           setState(() {
             _isExpanded = false;
@@ -133,7 +139,10 @@ class _JobsScreenState extends State<JobsScreen> {
         boxShadow: [BoxShadow(color: Colors.transparent)],
         color: Colors.transparent,
         minHeight: 25,
-        maxHeight: MediaQuery.of(context).size.height -
+        maxHeight: MediaQuery
+            .of(context)
+            .size
+            .height -
             kToolbarHeight -
             AppBar().preferredSize.height,
         controller: _panelController,
@@ -142,7 +151,10 @@ class _JobsScreenState extends State<JobsScreen> {
             Container(
               height: 25 +
                   buttonHeight,
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               child: Column(
                 children: [
                   Row(
@@ -162,19 +174,21 @@ class _JobsScreenState extends State<JobsScreen> {
                             future: getUserTasksPostedAndNotificationsFuture,
                             builder: (context, snapshot) {
                               final List<Map<String, dynamic>>
-                                  userTasksAndNotifications = snapshot.data;
+                              userTasksAndNotifications = snapshot.data;
 
-                              int notifications = 0;
+                              postedNotifications = 0;
 
                               ///Check how many notifications the user has
                               if (snapshot.hasData) {
                                 for (Map taskAndNotification
-                                    in userTasksAndNotifications) {
+                                in userTasksAndNotifications) {
                                   bool userHasNotification =
-                                      taskAndNotification['hasNotification'];
-                                  if (userHasNotification) notifications++;
+                                  taskAndNotification['hasNotification'];
+                                  if (userHasNotification) postedNotifications++;
                                 }
+
                               }
+
 
                               return Stack(
                                 alignment: Alignment.centerRight,
@@ -183,7 +197,10 @@ class _JobsScreenState extends State<JobsScreen> {
                                 children: [
                                   Container(
                                     width:
-                                        MediaQuery.of(context).size.width / 8,
+                                    MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width / 8,
                                     height: 25,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.vertical(
@@ -197,7 +214,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                       size: 30,
                                     ),
                                   ),
-                                  if (notifications != 0)
+                                  if (postedNotifications != 0)
                                     Positioned(
                                       right: -10,
                                       child: Container(
@@ -211,7 +228,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                                 color: Colors.white, width: 2)),
                                         child: Center(
                                           child: Text(
-                                            notifications.toString(),
+                                            postedNotifications.toString(),
                                             style: TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.white,
@@ -237,21 +254,25 @@ class _JobsScreenState extends State<JobsScreen> {
                           child: FutureBuilder(
                             future: getUserTasksAppliedFuture,
                             builder: (context, snapshot) {
-                              int notifications = 0;
+                              appliedNotifications = 0;
 
                               final List<Map<String, dynamic>>
-                                  tasksAndHirersAndNotification = snapshot.data;
+                              tasksAndHirersAndNotification = snapshot.data;
 
                               ///Check how many notifications the user has
                               if (snapshot.hasData) {
                                 for (Map taskAndHirerAndNotification
-                                    in tasksAndHirersAndNotification) {
+                                in tasksAndHirersAndNotification) {
                                   bool userHasNotification =
-                                      taskAndHirerAndNotification[
-                                          'hasNotification'];
-                                  if (userHasNotification) notifications++;
+                                  taskAndHirerAndNotification[
+                                  'hasNotification'];
+                                  if (userHasNotification) appliedNotifications++;
                                 }
                               }
+
+                                // notificationService.updateJobNotifications(
+                                //     notifications: postedNotifications +
+                                //         appliedNotifications);
 
                               return Stack(
                                 alignment: Alignment.centerLeft,
@@ -260,7 +281,10 @@ class _JobsScreenState extends State<JobsScreen> {
                                 children: [
                                   Container(
                                     width:
-                                        MediaQuery.of(context).size.width / 8,
+                                    MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width / 8,
                                     height: 25,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.vertical(
@@ -274,7 +298,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                       size: 30,
                                     ),
                                   ),
-                                  if (notifications != 0)
+                                  if (appliedNotifications != 0)
                                     Positioned(
                                       left: -10,
                                       child: Container(
@@ -288,7 +312,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                                 color: Colors.white, width: 2)),
                                         child: Center(
                                           child: Text(
-                                            notifications.toString(),
+                                            appliedNotifications.toString(),
                                             style: TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.white,
@@ -323,24 +347,29 @@ class _JobsScreenState extends State<JobsScreen> {
                             },
                             child: Container(
                               foregroundDecoration: BoxDecoration(
-                                gradient:  LinearGradient(
+                                gradient: LinearGradient(
                                   begin: Alignment(0, 1.5),
                                   end: Alignment(0, 0.5),
-                                  colors: [appliedPosted == 'Applied' ? Colors.black12:Colors.transparent, Colors.transparent],
+                                  colors: [
+                                    appliedPosted == 'Applied'
+                                        ? Colors.black12
+                                        : Colors.transparent,
+                                    Colors.transparent
+                                  ],
                                 ),
                               ),
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(10)),
-                                  color: Color(kGenchiLightOrange),
-                                  // boxShadow: [
-                                  //   if (appliedPosted == 'Posted')
-                                  //     BoxShadow(
-                                  //         color: Colors.black12,
-                                  //         blurRadius: 10,
-                                  //         spreadRadius: 6,
-                                  //         offset: Offset(10, -3))
-                                  // ],
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(10)),
+                                color: Color(kGenchiLightOrange),
+                                // boxShadow: [
+                                //   if (appliedPosted == 'Posted')
+                                //     BoxShadow(
+                                //         color: Colors.black12,
+                                //         blurRadius: 10,
+                                //         spreadRadius: 6,
+                                //         offset: Offset(10, -3))
+                                // ],
                               ),
                               child: Center(
                                 child: Text(
@@ -366,10 +395,15 @@ class _JobsScreenState extends State<JobsScreen> {
                             },
                             child: Container(
                               foregroundDecoration: BoxDecoration(
-                                gradient:  LinearGradient(
+                                gradient: LinearGradient(
                                   begin: Alignment(0, 1.5),
                                   end: Alignment(0, 0.5),
-                                  colors:  [appliedPosted == 'Posted'? Colors.black12 : Colors.transparent, Colors.transparent],
+                                  colors: [
+                                    appliedPosted == 'Posted'
+                                        ? Colors.black12
+                                        : Colors.transparent,
+                                    Colors.transparent
+                                  ],
                                 ),
                               ),
                               decoration: BoxDecoration(
@@ -404,7 +438,10 @@ class _JobsScreenState extends State<JobsScreen> {
               color: appliedPosted == 'Posted'
                   ? Color(kGenchiLightOrange)
                   : Color(kGenchiLightGreen),
-              height: MediaQuery.of(context).size.height -
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height -
                   kToolbarHeight -
                   AppBar().preferredSize.height -
                   25 -
@@ -412,15 +449,14 @@ class _JobsScreenState extends State<JobsScreen> {
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 children: [
-                  SizedBox(height:15),
-                  //TODO: we need some button here that closes the sheet
+                  SizedBox(height: 15),
                   Center(
                     child: Text(
                       appliedPosted == 'Posted'
-                          ? "JOBS YOU'VE POSTED"
-                          : "JOBS YOU'VE APPLIED TO",
+                          ? "Jobs you've posted"
+                          : "Jobs you've applied to",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                       ),
                     ),
                   ),
@@ -434,7 +470,7 @@ class _JobsScreenState extends State<JobsScreen> {
                       future: getUserTasksPostedAndNotificationsFuture,
                       builder: (context, snapshot) {
                         final List<Map<String, dynamic>>
-                            userTasksAndNotifications = snapshot.data;
+                        userTasksAndNotifications = snapshot.data;
                         List<Widget> taskWidgets = [];
 
                         if (snapshot.hasData) {
@@ -453,18 +489,20 @@ class _JobsScreenState extends State<JobsScreen> {
                           }
 
                           for (Map taskAndNotification
-                              in userTasksAndNotifications) {
+                          in userTasksAndNotifications) {
                             Task task = taskAndNotification['task'];
                             bool userHasNotification =
-                                taskAndNotification['hasNotification'];
+                            taskAndNotification['hasNotification'];
 
                             Widget tCard = TaskCard(
                                 orangeBackground: true,
-                                hirerType: currentUser.accountType == 'Group' ? currentUser.category :'Individual',
+                                hirerType: currentUser.accountType == 'Group'
+                                    ? currentUser.category
+                                    : 'Individual',
                                 image: currentUser.displayPictureURL == null
                                     ? null
                                     : CachedNetworkImageProvider(
-                                        currentUser.displayPictureURL),
+                                    currentUser.displayPictureURL),
                                 task: task,
                                 hasUnreadMessage: userHasNotification,
                                 isDisplayTask: false,
@@ -485,9 +523,9 @@ class _JobsScreenState extends State<JobsScreen> {
                                     getUserTasksPostedAndNotificationsFuture =
                                         firestoreAPI
                                             .getUserTasksPostedAndNotifications(
-                                                postIds: currentUser.posts);
-                                    setState(() {
-                                    });
+                                            postIds: currentUser.posts);
+
+                                    setState(() {});
                                   });
                                 });
                             taskWidgets.add(tCard);
@@ -508,10 +546,10 @@ class _JobsScreenState extends State<JobsScreen> {
                       future: getUserTasksAppliedFuture,
                       builder: (context, snapshot) {
                         final List<Map<String, dynamic>>
-                            tasksAndHirersAndNotification = snapshot.data;
+                        tasksAndHirersAndNotification = snapshot.data;
 
                         List<Widget> taskWidgets = [];
-                        if(snapshot.hasData) {
+                        if (snapshot.hasData) {
                           if (tasksAndHirersAndNotification.isEmpty) {
                             return Container(
                               height: 30,
@@ -527,51 +565,50 @@ class _JobsScreenState extends State<JobsScreen> {
                           }
 
 
-                            for (Map taskAndHirerAndNotification
-                            in tasksAndHirersAndNotification) {
-                              Task task = taskAndHirerAndNotification['task'];
-                              User hirer = taskAndHirerAndNotification['hirer'];
-                              bool userHasNotification =
-                              taskAndHirerAndNotification['hasNotification'];
+                          for (Map taskAndHirerAndNotification
+                          in tasksAndHirersAndNotification) {
+                            Task task = taskAndHirerAndNotification['task'];
+                            User hirer = taskAndHirerAndNotification['hirer'];
+                            bool userHasNotification =
+                            taskAndHirerAndNotification['hasNotification'];
 
-                              Widget tCard = TaskCard(
-                                  hirerType: hirer.accountType == 'Group'
-                                      ? hirer.category
-                                      : 'Individual',
-                                  image: hirer.displayPictureURL == null
-                                      ? null
-                                      : CachedNetworkImageProvider(
-                                      hirer.displayPictureURL),
-                                  task: task,
-                                  hasUnreadMessage: userHasNotification,
-                                  isDisplayTask: false,
-                                  onTap: () async {
+                            Widget tCard = TaskCard(
+                                hirerType: hirer.accountType == 'Group'
+                                    ? hirer.category
+                                    : 'Individual',
+                                image: hirer.displayPictureURL == null
+                                    ? null
+                                    : CachedNetworkImageProvider(
+                                    hirer.displayPictureURL),
+                                task: task,
+                                hasUnreadMessage: userHasNotification,
+                                isDisplayTask: false,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+
+                                  await taskProvider.updateCurrentTask(
+                                      taskId: task.taskId);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+
+                                  Navigator.pushNamed(context, TaskScreen.id)
+                                      .then((value) {
+                                    getUserTasksAppliedFuture = firestoreAPI
+                                        .getUserTasksAppliedAndNotifications(
+                                        providerIds:
+                                        currentUser.providerProfiles,
+                                        mainId: currentUser.id);
                                     setState(() {
-                                      showSpinner = true;
-                                    });
 
-                                    await taskProvider.updateCurrentTask(
-                                        taskId: task.taskId);
-
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
-
-                                    Navigator.pushNamed(context, TaskScreen.id)
-                                        .then((value) {
-                                      getUserTasksAppliedFuture = firestoreAPI
-                                          .getUserTasksAppliedAndNotifications(
-                                          providerIds:
-                                          currentUser.providerProfiles,
-                                          mainId: currentUser.id);
-                                      setState(() {
-
-                                      });
                                     });
                                   });
-                              taskWidgets.add(tCard);
-                            }
-
+                                });
+                            taskWidgets.add(tCard);
+                          }
                         }
 
                         return Column(
@@ -682,47 +719,48 @@ class _JobsScreenState extends State<JobsScreen> {
                       ),
                       SizedBox(
                           child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: PopupMenuButton(
-                            elevation: 1,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text(
-                                    filter.toUpperCase(),
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                  SizedBox(width: 5),
-                                  ImageIcon(
-                                    AssetImage('images/filter.png'),
-                                    color: Colors.black,
-                                    size: 30,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  )
-                                ]),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                                const PopupMenuItem<String>(
-                                    child: const Text('ALL'), value: 'ALL'),
-                              ];
-                              for (Service service in servicesList) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(
-                                          service.databaseValue.toUpperCase()),
-                                      value: service.databaseValue),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {
-                              setState(() {
-                                filter = value;
-                              });
-                            }),
-                      )),
+                            alignment: Alignment.bottomCenter,
+                            child: PopupMenuButton(
+                                elevation: 1,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Text(
+                                        filter.toUpperCase(),
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      SizedBox(width: 5),
+                                      ImageIcon(
+                                        AssetImage('images/filter.png'),
+                                        color: Colors.black,
+                                        size: 30,
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      )
+                                    ]),
+                                itemBuilder: (_) {
+                                  List<PopupMenuItem<String>> items = [
+                                    const PopupMenuItem<String>(
+                                        child: const Text('ALL'), value: 'ALL'),
+                                  ];
+                                  for (Service service in servicesList) {
+                                    items.add(
+                                      new PopupMenuItem<String>(
+                                          child: Text(
+                                              service.databaseValue
+                                                  .toUpperCase()),
+                                          value: service.databaseValue),
+                                    );
+                                  }
+                                  return items;
+                                },
+                                onSelected: (value) {
+                                  setState(() {
+                                    filter = value;
+                                  });
+                                }),
+                          )),
                     ],
                   ),
                   Divider(
@@ -751,11 +789,12 @@ class _JobsScreenState extends State<JobsScreen> {
 
                         if ((task.service == filter) || (filter == 'ALL')) {
                           final widget = TaskCard(
-                            hirerType: hirer.accountType == 'Group' ? hirer.category : 'Individual',
+                            hirerType: hirer.accountType == 'Group' ? hirer
+                                .category : 'Individual',
                             image: hirer.displayPictureURL == null
                                 ? null
                                 : CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
+                                hirer.displayPictureURL),
                             task: task,
                             onTap: () async {
                               setState(() {

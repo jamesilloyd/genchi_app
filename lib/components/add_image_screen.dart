@@ -21,9 +21,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-/* TODO: things left to do here:
-    -handle timeout/failure errors
- */
 
 Color _iconColor = Color(kGenchiCream);
 

@@ -28,7 +28,6 @@ class EditAccountScreen extends StatefulWidget {
   _EditAccountScreenState createState() => _EditAccountScreenState();
 }
 
-//TODO: need to add how category if account is society / charity
 class _EditAccountScreenState extends State<EditAccountScreen> {
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
@@ -69,7 +68,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     subCategoryController.dispose();
   }
 
-  //TODO: show the category section here as it's quite important
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);

@@ -18,10 +18,6 @@ import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-/* TODO check again that you are not just passing current user as
-    sender and actually sending the account that sent the message
-    this is only a problem for tasks */
-
 class ApplicationChatScreen extends StatefulWidget {
   static const String id = "application_chat_screen";
 

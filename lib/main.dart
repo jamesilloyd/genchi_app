@@ -84,6 +84,7 @@ class StartUp extends StatelessWidget {
                 primaryColor: Color(kGenchiOrange),
                 indicatorColor: Color(kGenchiOrange),
                 textSelectionHandleColor: Color(kGenchiOrange),
+                accentColor: Color(kGenchiOrange),
                 hintColor: Colors.black45),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {

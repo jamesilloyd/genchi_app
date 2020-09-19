@@ -64,7 +64,7 @@ class User {
     this.providerProfiles,
     this.admin,
   });
-  //TODO delete the type redundancy after successfull migration
+  //TODO delete redundancy for 1.0.6
   User.fromMap(Map snapshot)
       : accountType =  snapshot['accountType'] ?? 'Individual',
         id = snapshot['id'] ?? snapshot['pid'],

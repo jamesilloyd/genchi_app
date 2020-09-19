@@ -639,114 +639,119 @@ class _TaskScreenState extends State<TaskScreen> {
                             }
                           },
                         ),
-                        SizedBox(
-                          height: 40,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Service Account(s)',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500),
+                        if(currentUser.accountType == 'Individual') Column(
+                          children: [
+                            SizedBox(
+                              height: 40,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Service Account(s)',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        Divider(
-                          height: 1,
-                          thickness: 1,
-                        ),
-                        FutureBuilder(
-                          ///This function returns a list of providerUsers
-                          future: firestoreAPI.getServiceProviders(
-                              ids: currentUser.providerProfiles),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return CircularProgress();
-                            }
-                            final List<User> serviceProviders =
-                                snapshot.data;
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                            ),
+                            FutureBuilder(
+                              ///This function returns a list of providerUsers
+                              future: firestoreAPI.getServiceProviders(
+                                  ids: currentUser.providerProfiles),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return CircularProgress();
+                                }
+                                final List<User> serviceProviders =
+                                    snapshot.data;
 
-                            List<UserCard> userCards = [];
+                                List<UserCard> userCards = [];
 
-                            for (User serviceProvider
-                            in serviceProviders) {
-                              UserCard userCard = UserCard(
-                                user: serviceProvider,
-                                onTap: () async {
-                                  bool apply = await showYesNoAlert(
-                                      context: context,
-                                      title: 'Apply with this account?');
-                                  if (apply) {
-                                    Navigator.pop(
-                                        context, serviceProvider.id);
-                                  }
-                                },
-                              );
+                                for (User serviceProvider
+                                in serviceProviders) {
+                                  UserCard userCard = UserCard(
+                                    user: serviceProvider,
+                                    onTap: () async {
+                                      bool apply = await showYesNoAlert(
+                                          context: context,
+                                          title: 'Apply with this account?');
+                                      if (apply) {
+                                        Navigator.pop(
+                                            context, serviceProvider.id);
+                                      }
+                                    },
+                                  );
 
-                              userCards.add(userCard);
-                            }
+                                  userCards.add(userCard);
+                                }
 
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment:
-                              CrossAxisAlignment.stretch,
-                              children: userCards,
-                            );
-                          },
-                        ),
-                        RoundedButton(
-                          buttonColor: Color(kGenchiGreen),
-                          buttonTitle: 'Create a service account first?',
-                          onPressed: () async {
-                            bool createAccount = await showYesNoAlert(
-                                context: context,
-                                title:
-                                'Create a service account before applying to this job?');
-                            if (createAccount) {
-                              ///Log event in firebase
-                              await analytics.logEvent(
-                                  name: 'provider_account_created');
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
+                                  children: userCards,
+                                );
+                              },
+                            ),
+                            if(currentUser.providerProfiles.isEmpty) RoundedButton(
+                              buttonColor: Color(kGenchiGreen),
+                              buttonTitle: 'Create a service account first?',
+                              onPressed: () async {
+                                bool createAccount = await showYesNoAlert(
+                                    context: context,
+                                    title:
+                                    'Create a service account before applying to this job?');
+                                if (createAccount) {
+                                  ///Log event in firebase
+                                  await analytics.logEvent(
+                                      name: 'provider_account_created');
 
-                              AuthenticationService authService =
-                              Provider.of<AuthenticationService>(
-                                  context,
-                                  listen: false);
-                              AccountService accountService =
-                              Provider.of<AccountService>(context,
-                                  listen: false);
+                                  AuthenticationService authService =
+                                  Provider.of<AuthenticationService>(
+                                      context,
+                                      listen: false);
+                                  AccountService accountService =
+                                  Provider.of<AccountService>(context,
+                                      listen: false);
 
-                              DocumentReference result =
-                              await firestoreAPI.addServiceProvider(
-                                  serviceUser: User(
-                                      mainAccountId:
-                                      authService.currentUser.id,
-                                      accountType: 'Service Provider',
-                                      displayPictureURL: authService
-                                          .currentUser
-                                          .displayPictureURL,
-                                      displayPictureFileName:
-                                      authService.currentUser
-                                          .displayPictureFileName),
-                                  uid: authService.currentUser.id);
+                                  DocumentReference result =
+                                  await firestoreAPI.addServiceProvider(
+                                      serviceUser: User(
+                                          mainAccountId:
+                                          authService.currentUser.id,
+                                          accountType: 'Service Provider',
+                                          displayPictureURL: authService
+                                              .currentUser
+                                              .displayPictureURL,
+                                          displayPictureFileName:
+                                          authService.currentUser
+                                              .displayPictureFileName),
+                                      uid: authService.currentUser.id);
 
-                              await authService.updateCurrentUserData();
+                                  await authService.updateCurrentUserData();
 
-                              await accountService.updateCurrentAccount(
-                                  id: result.documentID);
+                                  await accountService.updateCurrentAccount(
+                                      id: result.documentID);
 
-                              /*TODO is there a way to reload? rather then closing the modal and having to reopen?
+                                  /*TODO is there a way to reload? rather then closing the modal and having to reopen?
                                  use slide up widget instead!
                                 */
 
-                              Navigator.pushNamed(context, UserScreen.id)
-                                  .then((value) {
-                                Navigator.pop(context);
-                              });
-                              Navigator.pushNamed(
-                                  context, EditProviderAccountScreen.id);
-                            }
-                          },
+                                  Navigator.pushNamed(context, UserScreen.id)
+                                      .then((value) {
+                                    Navigator.pop(context);
+                                  });
+                                  Navigator.pushNamed(
+                                      context, EditProviderAccountScreen.id);
+                                }
+                              },
+                            )
+                          ],
                         )
+
                       ],
                     ),
                   ),

@@ -62,6 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+  //TODO move fcm token to login/registration
   @override
   void initState() {
     super.initState();

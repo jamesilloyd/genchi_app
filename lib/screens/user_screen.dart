@@ -52,7 +52,7 @@ class _UserScreenState extends State<UserScreen> {
         ///Looking at their own account
         return Center(
           child: RoundedButton(
-            elevation: false,
+              elevation: false,
               buttonColor: Color(kGenchiGreen),
               buttonTitle: 'Edit Profile',
               fontColor: Colors.white,
@@ -166,7 +166,7 @@ class _UserScreenState extends State<UserScreen> {
             Center(
               child: RoundedButton(
                 elevation: false,
-                buttonColor: Color(kGenchiOrange),
+                buttonColor: Color(kGenchiGreen),
                 buttonTitle: 'Edit Profile',
                 fontColor: Colors.white,
                 onPressed: () async {
@@ -234,6 +234,7 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  //TODO: fix profile drag problem
   @override
   Widget build(BuildContext context) {
     AccountService accountService = Provider.of<AccountService>(context);
@@ -265,139 +266,148 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ),
           ),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            iconTheme: IconThemeData(
-              color: Colors.black,
-            ),
-            centerTitle: true,
-            title: Text(
-              account.accountType,
-              maxLines: 1,
-              style: TextStyle(
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              iconTheme: IconThemeData(
                 color: Colors.black,
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
               ),
+              centerTitle: true,
+              title: Text(
+                account.accountType,
+                maxLines: 1,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              backgroundColor: Color(kGenchiGreen),
+              elevation: 0,
+              brightness: Brightness.light,
             ),
-            backgroundColor: Color(kGenchiGreen),
-            elevation: 0,
-            brightness: Brightness.light,
-          ),
-          body: Center(
-            child: ListView(
-              children: <Widget>[
-                Stack(
-                  children: [
-                    Container(
-                      color: Color(kGenchiGreen),
-                      height: MediaQuery.of(context).size.height*0.09,
+            body: Stack(
+
+              children: [
+                ListView(
+                  children: <Widget>[
+                    Stack(
+
+                      children: [
+                        Container(
+                          color: Color(kGenchiGreen),
+                          height: MediaQuery.of(context).size.height * 0.09,
+                        ),
+                        Center(
+                          child: DisplayPicture(
+                            imageUrl: account.displayPictureURL,
+                            height: 0.15,
+                          ),
+                        ),
+                      ],
                     ),
-                    Center(
-                      child: DisplayPicture(
-                        imageUrl: account.displayPictureURL,
-                        height: 0.15,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10),
+                          Center(
+                            child: SelectableText(
+                              account.name,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 25.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          buildActionSection(
+                              isUsersProfile: isUsersOwnProfile,
+                              account: account,
+                              currentUser: currentUser),
+                          if (account.accountType != 'Individual')
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Text(
+                                    "Category",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontSize: 22.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Divider(
+                                  thickness: 1,
+                                  height: 5,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      account.category.toUpperCase() ?? "",
+                                      style: TextStyle(
+                                          fontSize: 22.0,
+                                          color: Color(kGenchiOrange),
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    if (account.accountType == 'Group')
+                                      Text(
+                                        account.subcategory.toUpperCase(),
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Color(kGenchiOrange),
+                                            fontWeight: FontWeight.w500),
+                                      )
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                )
+                              ],
+                            ),
+                          Container(
+                            child: Text(
+                              "About Me",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Divider(
+                            thickness: 1,
+                            height: 5,
+                          ),
+                          SelectableLinkify(
+                            text: account.bio,
+                            onOpen: _onOpenLink,
+                            options: LinkifyOptions(
+                                humanize: false, defaultToHttps: true),
+                            style: TextStyle(
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          if (currentUser.admin)
+                            buildAdminSection(context: context),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10),
-                      Center(
-                        child: SelectableText(
-                          account.name,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 25.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      buildActionSection(
-                          isUsersProfile: isUsersOwnProfile,
-                          account: account,
-                          currentUser: currentUser),
-                      if (account.accountType != 'Individual')
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              child: Text(
-                                "Category",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 22.0,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                            Divider(
-                              thickness: 1,
-                              height: 5,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  account.category.toUpperCase() ?? "",
-                                  style: TextStyle(
-                                      fontSize: 22.0, color: Color(kGenchiOrange), fontWeight: FontWeight.w500),
-                                ),
-                                if(account.accountType == 'Group') Text(
-                                  account.subcategory.toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 16.0, color: Color(kGenchiOrange), fontWeight: FontWeight.w500
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            )
-                          ],
-                        ),
-                      Container(
-                        child: Text(
-                          "About Me",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      Divider(
-                        thickness: 1,
-                        height: 5,
-                      ),
-                      SelectableLinkify(
-                        text: account.bio,
-                        onOpen: _onOpenLink,
-                        options: LinkifyOptions(humanize: false, defaultToHttps: true),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      if (currentUser.admin) buildAdminSection(context: context),
-
-                    ],
-                  ),
-                ),
-
               ],
             ),
           ),
-        ),
         ],
       ),
     );

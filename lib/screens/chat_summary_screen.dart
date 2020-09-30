@@ -44,7 +44,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: "/home/chat_summary_screen");
-    User user = Provider.of<AuthenticationService>(context,listen:false).currentUser;
+    GenchiUser user = Provider.of<AuthenticationService>(context,listen:false).currentUser;
     accountIdsAndNames.add({'id':user.id,'name':user.name});
   }
 
@@ -53,7 +53,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
     print('Chat summary screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return ModalProgressHUD(
@@ -118,7 +118,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       accountIdsAndNames.add({'id': 'ALL', 'name': 'ALL'});
                       accountIdsAndNames.add({'id':currentUser.id,'name':'${currentUser.name} (Main)'});
 
-                      for (User account in serviceAccounts) {
+                      for (GenchiUser account in serviceAccounts) {
                         accountIdsAndNames
                             .add({'id': account.id, 'name': '${account.name} - ${account.category}'});
                       }
@@ -163,7 +163,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                           value: currentUser.id,
                                         ),
                                       ];
-                                      for (User account in serviceAccounts) {
+                                      for (GenchiUser account in serviceAccounts) {
                                         items.add(new PopupMenuItem<String>(
                                           child: Text('${account.name} - ${account.category}'),
                                           value: account.id,
@@ -232,8 +232,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                     for (Map chatAndUsers in chatsAndUsers) {
                       if (chatAndUsers != null) {
                         Chat chat = chatAndUsers['chat'];
-                        User user = chatAndUsers['user'];
-                        User otherUser = chatAndUsers['otherUser'];
+                        GenchiUser user = chatAndUsers['user'];
+                        GenchiUser otherUser = chatAndUsers['otherUser'];
                         bool userIsUser1 = chatAndUsers['userIsUser1'];
 
                         if ((filter == user.id || filter == 'ALL')) {

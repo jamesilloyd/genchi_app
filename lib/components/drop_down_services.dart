@@ -20,7 +20,7 @@ List<DropdownMenuItem> dropDownServiceItems() {
 
 List<DropdownMenuItem> dropDownAccountTypeItems() {
   List<DropdownMenuItem<String>> dropdownItems = [];
-  for (String accountType in User().accessibleAccountTypes) {
+  for (String accountType in GenchiUser().accessibleAccountTypes) {
     var newItem = DropdownMenuItem(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10,0,0,0),

@@ -209,3 +209,72 @@ export const sendApplicationMessageNotification = functions.firestore.document('
     }
 
 })
+
+
+
+
+
+export const newApplicantNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicationId}')
+.onCreate(async (snapshot, context) => {
+
+    const applicationData = snapshot.data();
+
+    const task = await db.collection('tasks').doc(context.params.taskId).get();
+    const taskData = task.data();
+
+    let tokens;
+    let applicantName;
+    let taskTitle;
+
+    ///taskTitle -> application -> task -> task.title
+
+    if(applicationData && taskData) {
+
+        //The hirer in the application
+        const hirer = await db.collection('users').doc(applicationData['hirerid']).get();
+        const hirerData = hirer.data();
+
+        // Ther applicant in the application
+        const applicantId = applicationData['applicantId'];
+        const applicant = await db.collection('users').doc(applicantId).get();
+        const applicantData = applicant.data();
+
+        
+
+        if(hirerData && applicantData) {
+
+            applicantName = applicantData['name'];
+            tokens = hirerData['fcmTokens'];
+
+        }
+
+        //Now need to find taskTitle
+        taskTitle = taskData['title'];
+
+
+        const payload : admin.messaging.MessagingPayload = {
+
+            notification : {
+                title : 'New applicant!!!',
+                body : applicantName + ' has applied to: ' + taskTitle,
+                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                badge : '1'
+            },
+        };
+    
+        if(tokens != null) {
+            return fcm.sendToDevice(tokens,payload).then((response) => {
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+            console.log('Error sending message:', error);
+            });
+        } else {
+            return 0;
+        }
+
+    }
+
+})
+
+

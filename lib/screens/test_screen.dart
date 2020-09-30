@@ -69,186 +69,19 @@ class _TestScreenState extends State<TestScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: SlidingUpPanel(
-          controller: panelController,
-          minHeight: 25,
-          maxHeight: 800,
-          header: AnimatedContainer(
-            duration: Duration(milliseconds: 150),
-            height: 100,
-            width: MediaQuery.of(context).size.width,
-            color: Colors.pink,
-            child: Center(child: Text('HEADER')),
-          ),
-          panel: ListView(children: [
-            SizedBox(
-              height: 100,
-            ),
-            Center(
-              child: Text('This is the sliding widget'),
-            ),
-          ]),
-          //   height: 50,
-          // ),
-          body: ListView(
-            controller: _listScrollController,
-            children: [
-              //
-              // FlatButton(
-              //   onPressed: (){
-              //
-              //     // panelController.animatePanelToPosition(0.)
-              //   },
-              // ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-              Container(
-                height: 75,
-                child: Center(
-                  child: Text('This is the widget behind the sliding panel'),
-                ),
-              ),
-            ],
+        body: Center(
+          child: RoundedButton(
+            buttonColor: Color(kGenchiGreen),
+            buttonTitle: 'Migrate',
+            onPressed: ()async{
+
+              await firestoreApi.migrateSocitiesAndCharitiesToGroups();
+
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBody() {
-    return InkWell(
-      onTap: _toggleDraggableScrollableSheet,
-      child: DraggableScrollableActuator(
-        child: DraggableScrollableSheet(
-          key: Key(initialExtent.toString()),
-          minChildSize: minExtent,
-          maxChildSize: maxExtent,
-          initialChildSize: initialExtent,
-          builder: _draggableScrollableSheetBuilder,
-        ),
-      ),
-    );
-  }
-
-  void _toggleDraggableScrollableSheet() {
-    if (draggableSheetContext != null) {
-      setState(() {
-        initialExtent = isExpanded ? minExtent : maxExtent;
-        isExpanded = !isExpanded;
-      });
-      DraggableScrollableActuator.reset(draggableSheetContext);
-    }
-  }
-
-  Widget _draggableScrollableSheetBuilder(
-    BuildContext context,
-    ScrollController scrollController,
-  ) {
-    draggableSheetContext = context;
-    return Column(
-      children: [
-        Container(
-          height: 200,
-          color: Colors.red,
-        ),
-        Container(
-          height: 200,
-          color: Colors.blue,
-        ),
-        Container(
-          height: 200,
-          color: Colors.green,
-        )
-      ],
-    );
-
-    SingleChildScrollView(
-      controller: scrollController,
-      child: Column(
-        children: colors
-            .map((color) => Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: color,
-                ))
-            .toList(),
-      ),
-    );
-  }
 }

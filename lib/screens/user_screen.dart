@@ -35,15 +35,15 @@ class _UserScreenState extends State<UserScreen> {
   bool isUsersOwnProfile;
 
   ///The profile being viewed
-  User account;
+  GenchiUser account;
 
   ///The app user
-  User currentUser;
+  GenchiUser currentUser;
 
   Widget buildActionSection(
       {@required bool isUsersProfile,
-      @required User account,
-      @required User currentUser}) {
+      @required GenchiUser account,
+      @required GenchiUser currentUser}) {
     bool isFavourite = currentUser.favourites.contains(account.id);
 
     if (account.accountType != 'Individual') {
@@ -213,7 +213,7 @@ class _UserScreenState extends State<UserScreen> {
             elevation: false,
             onPressed: () async {
               ///Get most up to data provider
-              User serviceProvider = accountService.currentAccount;
+              GenchiUser serviceProvider = accountService.currentAccount;
               bool delete = await showYesNoAlert(
                   context: context, title: 'Delete this account?');
 
@@ -392,7 +392,7 @@ class _UserScreenState extends State<UserScreen> {
                             text: account.bio,
                             onOpen: _onOpenLink,
                             options: LinkifyOptions(
-                                humanize: false, defaultToHttps: true),
+                                humanize: false, defaultToHttps: true,),
                             style: TextStyle(
                               fontSize: 16.0,
                             ),

@@ -9,11 +9,11 @@ class AuthenticationService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirestoreAPIService _firestoreCRUDModel = FirestoreAPIService();
 
-  User _currentUser;
+  GenchiUser _currentUser;
 
-  User get currentUser => _currentUser;
+  GenchiUser get currentUser => _currentUser;
 
-  Future _populateCurrentUser(FirebaseUser user) async {
+  Future _populateCurrentUser(User user) async {
     print("populating current user");
     if (user != null) {
       if (debugMode)
@@ -24,10 +24,13 @@ class AuthenticationService extends ChangeNotifier {
     }
   }
 
+  //TODO: change the name of this
   Future<bool> isUserLoggedIn() async {
+
+
     try {
       print("isUserLoggedIn");
-      var user = await _firebaseAuth.currentUser();
+      var user =  _firebaseAuth.currentUser;
       if (user != null) {
         await _populateCurrentUser(user); // Populate the
         return true;
@@ -40,16 +43,14 @@ class AuthenticationService extends ChangeNotifier {
   }
 
   Future updateCurrentUserData() async {
-    var user = await _firebaseAuth.currentUser();
+    var user = _firebaseAuth.currentUser;
     await _populateCurrentUser(user);
   }
 
   Future updateCurrentUserName({@required String name}) async {
-    var user = await _firebaseAuth.currentUser();
+    var user = _firebaseAuth.currentUser;
 
-    UserUpdateInfo userUpdateInfo = UserUpdateInfo();
-    userUpdateInfo.displayName = name;
-    await user.updateProfile(userUpdateInfo);
+    await user.updateProfile(displayName: name);
   }
 
   Future registerWithEmail(
@@ -58,21 +59,18 @@ class AuthenticationService extends ChangeNotifier {
       @required String type,
       @required String name}) async {
     try {
-      AuthResult authResult = await _firebaseAuth
+      UserCredential authResult = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       if (authResult != null) {
         print("register successful");
-        UserUpdateInfo userUpdateInfo = UserUpdateInfo();
-        userUpdateInfo.displayName = name;
-        FirebaseUser user = await _firebaseAuth.currentUser();
+        User user = _firebaseAuth.currentUser;
 
         ///add the users name in firebase auth
-        await user.updateProfile(userUpdateInfo);
+        await user.updateProfile(displayName: name);
 
         ///create new user in firestore database
-        final DateTime timestamp = DateTime.now();
-        await _firestoreCRUDModel.addUserByID(User(
+        await _firestoreCRUDModel.addUserByID(GenchiUser(
             id: user.uid,
             email: email,
             name: name,

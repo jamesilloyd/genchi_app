@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _saveDeviceToken() async {
     /// Get the current user
-    User currentUser = Provider.of<AuthenticationService>(context, listen: false)
+    GenchiUser currentUser = Provider.of<AuthenticationService>(context, listen: false)
             .currentUser;
 
     /// Get the token for this device

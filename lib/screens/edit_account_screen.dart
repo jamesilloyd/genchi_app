@@ -51,7 +51,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   void initState() {
     super.initState();
-    User user =
+    GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     bioController.text = user.bio;
@@ -71,7 +71,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     final accountService = Provider.of<AccountService>(context);
 
     return WillPopScope(
@@ -115,7 +115,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       name: 'hirer_top_save_changes_button_pressed');
 
                   await fireStoreAPI.updateUser(
-                      user: User(
+                      user: GenchiUser(
                         name: nameController.text,
                         bio: bioController.text,
                         category: categoryController.text,
@@ -318,7 +318,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                               name: 'hirer_bottom_save_changes_button_pressed');
 
                           await fireStoreAPI.updateUser(
-                              user: User(
+                              user: GenchiUser(
                                 name: nameController.text,
                                 bio: bioController.text,
                                 category: categoryController.text,

@@ -36,8 +36,8 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
   TaskApplication thisTaskApplication;
   bool userIsApplicant;
-  User applicant;
-  User hirer;
+  GenchiUser applicant;
+  GenchiUser hirer;
 
   bool showSpinner = false;
 

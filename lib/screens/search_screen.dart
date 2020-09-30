@@ -25,8 +25,8 @@ class SearchScreen extends StatefulWidget {
 //TODO for some reason keeping the page alive is not working
 class _SearchScreenState extends State<SearchScreen>
     with AutomaticKeepAliveClientMixin {
-  List<User> users;
-  List<User> serviceProviders;
+  List<GenchiUser> users;
+  List<GenchiUser> serviceProviders;
 
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
@@ -59,7 +59,7 @@ class _SearchScreenState extends State<SearchScreen>
         child: SearchServiceTile(
           onPressed: () {
             analytics.logEvent(
-                name: 'search_button_clicked_for_${service.databaseValue}');
+                name: 'search_button_clicked_for_${service.databaseValue.replaceAll(' ', '')}');
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => SearchProviderScreen(service: service)));
           },

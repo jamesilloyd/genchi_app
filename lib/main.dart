@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
@@ -11,7 +14,6 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
-import 'package:genchi_app/screens/search_group_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
@@ -26,7 +28,6 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
-import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
@@ -34,28 +35,41 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:provider/provider.dart';
 
-//TODO go through components and turn them into widgets rather than classes (builder function is heavy)
 void main() {
-  Crashlytics.instance.enableInDevMode = true;
-  FlutterError.onError = Crashlytics.instance.recordFlutterError;
   runApp(Genchi());
 }
 
 class Genchi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        //TODO: add in state provider for bottom sheet.
-        // ChangeNotifierProvider(create: (_) =>),
-        ChangeNotifierProvider(create: (_) => AuthenticationService()),
-        ChangeNotifierProvider(create: (_) => AccountService()),
-        //TODO: implement this
-        // ChangeNotifierProvider(create: (_) => NotificationService()),
-        ChangeNotifierProvider(create: (_) => TaskService()),
+    ///Initialise FlutterFire
+    final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+    return FutureBuilder(
+      future: _initialization,
+      builder: (context,snapshot){
+        if(snapshot.hasError) {
+          //TODO: add an error screen in here
+        }
 
-      ],
-      child: StartUp(),
+        if(snapshot.connectionState == ConnectionState.done){
+          ///Firebase initialised
+          ///Override flutterError for crashlytics collection
+          FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+          return MultiProvider(
+            providers: [
+              // ChangeNotifierProvider(create: (_) =>),
+              ChangeNotifierProvider(create: (_) => AuthenticationService()),
+              ChangeNotifierProvider(create: (_) => AccountService()),
+              //TODO: implement this
+              // ChangeNotifierProvider(create: (_) => NotificationService()),
+              ChangeNotifierProvider(create: (_) => TaskService()),
+
+            ],
+            child: StartUp(),
+          );
+        }
+        return SplashScreen();
+      },
     );
   }
 }
@@ -70,6 +84,7 @@ class StartUp extends StatelessWidget {
       future: Provider.of<AuthenticationService>(context, listen: false)
           .isUserLoggedIn(),
       builder: (context, snapshot) {
+
         if (snapshot.hasData) {
           bool loggedIn = snapshot.data;
           return MaterialApp(

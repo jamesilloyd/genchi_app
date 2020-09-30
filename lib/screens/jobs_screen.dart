@@ -87,7 +87,7 @@ class _JobsScreenState extends State<JobsScreen> {
     });
 
 
-    User currentUser =
+    GenchiUser currentUser =
         Provider
             .of<AuthenticationService>(context, listen: false)
             .currentUser;
@@ -107,7 +107,7 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
 
     if (debugMode) print('Job screen activated');
     buttonHeight = 0.08 *
@@ -568,7 +568,7 @@ class _JobsScreenState extends State<JobsScreen> {
                           for (Map taskAndHirerAndNotification
                           in tasksAndHirersAndNotification) {
                             Task task = taskAndHirerAndNotification['task'];
-                            User hirer = taskAndHirerAndNotification['hirer'];
+                            GenchiUser hirer = taskAndHirerAndNotification['hirer'];
                             bool userHasNotification =
                             taskAndHirerAndNotification['hasNotification'];
 
@@ -785,7 +785,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
                       for (Map taskAndHirer in tasksAndHirers) {
                         Task task = taskAndHirer['task'];
-                        User hirer = taskAndHirer['hirer'];
+                        GenchiUser hirer = taskAndHirer['hirer'];
 
                         if ((task.service == filter) || (filter == 'ALL')) {
                           final widget = TaskCard(

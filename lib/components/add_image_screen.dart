@@ -105,7 +105,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
 
     final accountService = Provider.of<AccountService>(context);
-    User currentUser = accountService.currentAccount;
+    GenchiUser currentUser = accountService.currentAccount;
 
     return ModalProgressHUD(
           inAsyncCall: showSpinner,
@@ -309,12 +309,12 @@ class _UploaderState extends State<Uploader> {
       String oldFileName = authProvider.currentUser.displayPictureFileName;
       print('Updating firestore user');
 
-      await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
+      await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
 
       print('Updating firestore providers');
 
       for(String id in authProvider.currentUser.providerProfiles) {
-        await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: id);
+        await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: id);
       }
 
       print('Updating current user and provider');

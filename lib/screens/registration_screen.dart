@@ -141,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     ),
                                     value: 'Select type')
                               ];
-                              for (String accountType in User().accessibleAccountTypes) {
+                              for (String accountType in GenchiUser().accessibleAccountTypes) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),

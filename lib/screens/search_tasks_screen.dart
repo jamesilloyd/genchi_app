@@ -71,7 +71,7 @@ class _SearchTasksScreenState extends State<SearchTasksScreen> {
 
                     for (Map taskAndHirer in tasksAndHirers) {
                       Task task = taskAndHirer['task'];
-                      User hirer = taskAndHirer['hirer'];
+                      GenchiUser hirer = taskAndHirer['hirer'];
 
                       final widget = TaskCard(
                         hirerType: hirer.accountType,

@@ -6,7 +6,7 @@ import 'package:genchi_app/models/user.dart';
 
 class UserCard extends StatelessWidget {
   final Function onTap;
-  final User user;
+  final GenchiUser user;
 
   UserCard({@required this.user, @required this.onTap});
 
@@ -87,7 +87,7 @@ class UserCard extends StatelessWidget {
 Widget ProviderAccountCard(
     {@required double width,
     @required Function onPressed,
-    @required User serviceProvider,bool isSmallScreen = false}) {
+    @required GenchiUser serviceProvider,bool isSmallScreen = false}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(

@@ -35,8 +35,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Chat thisChat;
   bool userIsUser1;
-  User otherUser;
-  User userAccount;
+  GenchiUser otherUser;
+  GenchiUser userAccount;
   bool isFirstInstance;
   bool showSpinner = false;
 
@@ -158,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               await accountService.updateCurrentAccount(id: otherUser.id);
 
                               thisChat = await firestoreAPI
-                                  .getChatById(result.documentID);
+                                  .getChatById(result.id);
 
                               ///Just check that the chat definitely exists before adding a message to it
                               if (thisChat != null) {

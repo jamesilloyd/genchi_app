@@ -95,7 +95,7 @@ class _TaskScreenState extends State<TaskScreen> {
         for (Map applicationAndProvider in applicationAndProviders) {
           TaskApplication taskApplication =
               applicationAndProvider['application'];
-          User applicant = applicationAndProvider['applicant'];
+          GenchiUser applicant = applicationAndProvider['applicant'];
 
           MessageListItem chatWidget = MessageListItem(
               image: applicant.displayPictureURL == null
@@ -113,7 +113,7 @@ class _TaskScreenState extends State<TaskScreen> {
                         showSpinner = true;
                       });
 
-                      User hirer = await firestoreAPI.getUserById(task.hirerId);
+                      GenchiUser hirer = await firestoreAPI.getUserById(task.hirerId);
 
                       ///Checking that the hirer exists before segue
                       if (hirer != null) {
@@ -168,12 +168,12 @@ class _TaskScreenState extends State<TaskScreen> {
 
         //TODO this is not the most steamline way to do this
         bool applied = false;
-        User appliedAccount;
+        GenchiUser appliedAccount;
         TaskApplication usersApplication;
         final List<Map<String, dynamic>> applicantsAndProviders = snapshot.data;
 
         for (var applicantAndProvider in applicantsAndProviders) {
-          User applicant = applicantAndProvider['applicant'];
+          GenchiUser applicant = applicantAndProvider['applicant'];
           TaskApplication application = applicantAndProvider['application'];
 
           if (userpidsAndId.contains(applicant.id)) {
@@ -223,7 +223,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 setState(() {
                   showSpinner = true;
                 });
-                User hirer = await firestoreAPI.getUserById(task.hirerId);
+                GenchiUser hirer = await firestoreAPI.getUserById(task.hirerId);
 
                 ///Check that the hirer exists before opening chat
                 if (hirer != null) {
@@ -351,7 +351,7 @@ class _TaskScreenState extends State<TaskScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     final taskProvider = Provider.of<TaskService>(context);
     final accountService = Provider.of<AccountService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     Task currentTask = taskProvider.currentTask;
     bool isUsersTask = currentTask.hirerId == currentUser.id;
 
@@ -432,7 +432,7 @@ class _TaskScreenState extends State<TaskScreen> {
                       if (!snapshot.hasData) {
                         return Text('');
                       }
-                      User hirer = snapshot.data;
+                      GenchiUser hirer = snapshot.data;
 
                       return GestureDetector(
                         onTap: () async {
@@ -665,12 +665,12 @@ class _TaskScreenState extends State<TaskScreen> {
                                 if (!snapshot.hasData) {
                                   return CircularProgress();
                                 }
-                                final List<User> serviceProviders =
+                                final List<GenchiUser> serviceProviders =
                                     snapshot.data;
 
                                 List<UserCard> userCards = [];
 
-                                for (User serviceProvider
+                                for (GenchiUser serviceProvider
                                 in serviceProviders) {
                                   UserCard userCard = UserCard(
                                     user: serviceProvider,
@@ -719,7 +719,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
                                   DocumentReference result =
                                   await firestoreAPI.addServiceProvider(
-                                      serviceUser: User(
+                                      serviceUser: GenchiUser(
                                           mainAccountId:
                                           authService.currentUser.id,
                                           accountType: 'Service Provider',
@@ -734,7 +734,7 @@ class _TaskScreenState extends State<TaskScreen> {
                                   await authService.updateCurrentUserData();
 
                                   await accountService.updateCurrentAccount(
-                                      id: result.documentID);
+                                      id: result.id);
 
                                   /*TODO is there a way to reload? rather then closing the modal and having to reopen?
                                  use slide up widget instead!
@@ -776,13 +776,13 @@ class _TaskScreenState extends State<TaskScreen> {
                   TaskApplication taskApplication =
                   await firestoreAPI.getTaskApplicationById(
                     taskId: currentTask.taskId,
-                    applicationId: chatRef.documentID,
+                    applicationId: chatRef.id,
                   );
 
-                  User applicantProfile =
+                  GenchiUser applicantProfile =
                   await firestoreAPI.getUserById(selectedId);
 
-                  User hirer =
+                  GenchiUser hirer =
                   await firestoreAPI.getUserById(currentTask.hirerId);
 
                   setState(() {

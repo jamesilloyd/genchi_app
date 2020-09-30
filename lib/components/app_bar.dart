@@ -45,8 +45,8 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatNavigationBar(
       {@required this.user, @required this.otherUser,});
 
-  final User user;
-  final User otherUser;
+  final GenchiUser user;
+  final GenchiUser otherUser;
 
   @override
   Widget build(BuildContext context) {

@@ -59,7 +59,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   @override
   void initState() {
     super.initState();
-    User currentAccount =
+    GenchiUser currentAccount =
         Provider.of<AccountService>(context, listen: false).currentAccount;
     nameTextController.text = currentAccount.name;
     bioTextController.text = currentAccount.bio;
@@ -79,7 +79,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
 
     final accountService = Provider.of<AccountService>(context);
-    User serviceProvider = accountService.currentAccount;
+    GenchiUser serviceProvider = accountService.currentAccount;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -119,7 +119,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   });
 
                   await firestoreAPI.updateUser(
-                      user: User(
+                      user: GenchiUser(
                           name: nameTextController.text,
                           category: serviceTextController.text,
                           bio: bioTextController.text,
@@ -317,7 +317,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       });
 
                       await firestoreAPI.updateUser(
-                          user: User(
+                          user: GenchiUser(
                             name: nameTextController.text,
                             category: serviceTextController.text,
                             bio: bioTextController.text,

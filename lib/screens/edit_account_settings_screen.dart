@@ -47,7 +47,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    User user =
+    GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     emailController.text = user.email;
@@ -65,7 +65,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     bool hasServiceProfiles = currentUser.providerProfiles.isNotEmpty;
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -123,7 +123,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
                       for (String id in currentUser.providerProfiles) {
-                        User serviceProfile =
+                        GenchiUser serviceProfile =
                             await fireStoreAPI.getUserById(id);
 
                         ///Check service profile exists before deleting it
@@ -139,7 +139,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   }
 
                   await fireStoreAPI.updateUser(
-                      user: User(
+                      user: GenchiUser(
                         name: nameController.text,
                         email: emailController.text,
                         accountType: accountTypeTextController.text,
@@ -209,7 +209,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                               List<PopupMenuItem<String>> items = [
                               ];
                               for (String accountType
-                              in User().accessibleAccountTypes) {
+                              in GenchiUser().accessibleAccountTypes) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),
@@ -290,7 +290,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                   'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
                               for (String id in currentUser.providerProfiles) {
-                                User serviceProfile =
+                                GenchiUser serviceProfile =
                                 await fireStoreAPI.getUserById(id);
 
                                 ///Check provider exists before deleting it
@@ -306,7 +306,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           }
 
                           await fireStoreAPI.updateUser(
-                              user: User(
+                              user: GenchiUser(
                                 name: nameController.text,
                                 email: emailController.text,
                                 accountType: accountTypeTextController.text,

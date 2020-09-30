@@ -25,7 +25,7 @@ class FavouritesScreen extends StatelessWidget {
     final accountService = Provider.of<AccountService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -42,7 +42,7 @@ class FavouritesScreen extends StatelessWidget {
               if (!snapshot.hasData) {
                 return CircularProgress();
               }
-              final List<User> favouriteUsers = snapshot.data;
+              final List<GenchiUser> favouriteUsers = snapshot.data;
 
               if (favouriteUsers.isEmpty) {
                 return Container(
@@ -62,7 +62,7 @@ class FavouritesScreen extends StatelessWidget {
 
               List<UserCard> userCards = [];
 
-              for (User favouriteUser in favouriteUsers) {
+              for (GenchiUser favouriteUser in favouriteUsers) {
                 UserCard userCard = UserCard(
                   user: favouriteUser,
                   onTap: () async {

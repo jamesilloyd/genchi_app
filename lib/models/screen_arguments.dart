@@ -14,8 +14,8 @@ class ChatScreenArguments {
 
   final Chat chat;
   final bool userIsUser1;
-  final User user1;
-  final User user2;
+  final GenchiUser user1;
+  final GenchiUser user2;
   final bool isFirstInstance;
 
   ChatScreenArguments({@required this.chat,@required this.userIsUser1, @required this.user1, @required this.user2, this.isFirstInstance = false});
@@ -26,8 +26,8 @@ class ApplicationChatScreenArguments {
 
   final TaskApplication taskApplication;
   final bool userIsApplicant;
-  final User hirer;
-  final User applicant;
+  final GenchiUser hirer;
+  final GenchiUser applicant;
 
   ApplicationChatScreenArguments({@required this.taskApplication, @required this.userIsApplicant, @required this.hirer, @required this.applicant});
 

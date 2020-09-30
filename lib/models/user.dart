@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
-class User {
+class GenchiUser {
 
   ///For all account types
   String accountType;
@@ -43,7 +43,7 @@ class User {
   ];
 
 
-  User({
+  GenchiUser({
     this.accountType,
     this.id,
     this.email,
@@ -65,7 +65,7 @@ class User {
     this.admin,
   });
   //TODO delete redundancy for 1.0.6
-  User.fromMap(Map snapshot)
+  GenchiUser.fromMap(Map snapshot)
       : accountType =  snapshot['accountType'] ?? 'Individual',
         id = snapshot['id'] ?? snapshot['pid'],
         email = snapshot['email'] ?? '',
@@ -81,7 +81,7 @@ class User {
         posts = snapshot['posts'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
         category = snapshot['category'] ?? snapshot['type'] ?? '',
-        subcategory = snapshot['subcategory'] ?? snapshot['category'] ?? '',
+        subcategory = snapshot['subcategory'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
         admin = snapshot['admin'] ?? false;

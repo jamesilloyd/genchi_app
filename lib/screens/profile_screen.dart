@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -39,7 +40,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName;
-  List<User> serviceProviders;
+  List<GenchiUser> serviceProviders;
   bool showSpinner = false;
 
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
@@ -58,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     final accountService = Provider.of<AccountService>(context);
 
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return Stack(
@@ -133,13 +134,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pushNamed(context, UserScreen.id);
                     },
                   ),
-//                  ProfileOptionTile(
-//                    text: 'Crash',
-//                    onPressed: () {
-////                      Crashlytics.instance.crash();
-////                      throw Exception('ERORRRORR');
-//                    },
-//                  ),
+                 ProfileOptionTile(
+                   text: 'Crash',
+                   onPressed: () {
+                     print(FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled);
+                     FirebaseCrashlytics.instance.log('Testing 17:30 30/9/20');
+                     // FirebaseCrashlytics.instance.crash();
+                     throw Exception('ERORRRORR');
+                   },
+                 ),
 //                  ProfileOptionTile(
 //                    text: 'Test Screen',
 //                    onPressed: ()  {
@@ -163,11 +166,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           if (!snapshot.hasData) {
                             return CircularProgress();
                           }
-                          final List<User> serviceProviders = snapshot.data;
+                          final List<GenchiUser> serviceProviders = snapshot.data;
 
                           List<Widget> providerCards = [];
 
-                          for (User serviceProvider in serviceProviders) {
+                          for (GenchiUser serviceProvider in serviceProviders) {
                             Widget pCard = ProviderAccountCard(
                                 width: (MediaQuery.of(context).size.width -
                                         20 * 3) /
@@ -206,11 +209,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                   DocumentReference result =
                                       await firestoreAPI.addServiceProvider(
-                                          serviceUser: User(
+                                          serviceUser: GenchiUser(
                                             name: currentUser.name,
                                             mainAccountId: currentUser.id,
                                             accountType:
-                                                User().serviceProviderAccount,
+                                            GenchiUser().serviceProviderAccount,
                                             displayPictureURL:
                                                 currentUser.displayPictureURL,
                                             displayPictureFileName: currentUser
@@ -223,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await authProvider.updateCurrentUserData();
 
                                   await accountService.updateCurrentAccount(
-                                      id: result.documentID);
+                                      id: result.id);
                                   setState(() {
                                     showSpinner = false;
                                   });
@@ -281,10 +284,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           DocumentReference result =
                               await firestoreAPI.addServiceProvider(
-                                  serviceUser: User(
+                                  serviceUser: GenchiUser(
                                     name: currentUser.name,
                                     mainAccountId: currentUser.id,
-                                    accountType: User().serviceProviderAccount,
+                                    accountType: GenchiUser().serviceProviderAccount,
                                     displayPictureURL:
                                         currentUser.displayPictureURL,
                                     displayPictureFileName:
@@ -297,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await authProvider.updateCurrentUserData();
 
                           await accountService.updateCurrentAccount(
-                              id: result.documentID);
+                              id: result.id);
                           setState(() {
                             showSpinner = false;
                           });

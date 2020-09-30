@@ -59,7 +59,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                   );
                 }
 
-                final List<User> serviceProviders = snapshot.data;
+                final List<GenchiUser> serviceProviders = snapshot.data;
 
                 if (serviceProviders.isEmpty) {
                   return Container(
@@ -77,7 +77,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
 
                 List<UserCard> userCards = [];
 
-                for (User serviceProvider in serviceProviders) {
+                for (GenchiUser serviceProvider in serviceProviders) {
 
                   UserCard userCard = UserCard(
                     user: serviceProvider,

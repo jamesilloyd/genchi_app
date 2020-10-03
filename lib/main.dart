@@ -41,11 +41,23 @@ void main() {
 }
 
 //TODO: look into hot reload problem (whole app is restarting, maybe use a segue instead?, look at what other large apps do)
-class Genchi extends StatelessWidget {
+class Genchi extends StatefulWidget {
+  @override
+  _GenchiState createState() => _GenchiState();
+}
+
+class _GenchiState extends State<Genchi> {
+  ///Initialise FlutterFire
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+ /* @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }*/
   @override
   Widget build(BuildContext context) {
-    ///Initialise FlutterFire
-    final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
     return FutureBuilder(
       future: _initialization,
       builder: (context, snapshot) {
@@ -66,10 +78,12 @@ class Genchi extends StatelessWidget {
             FirebaseCrashlytics.instance
                 .setCrashlyticsCollectionEnabled(false);
           } else {
+
           }
 
           FlutterError.onError =
               FirebaseCrashlytics.instance.recordFlutterError;
+
 
           return MultiProvider(
             providers: [

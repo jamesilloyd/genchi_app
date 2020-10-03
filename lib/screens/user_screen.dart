@@ -47,142 +47,113 @@ class _UserScreenState extends State<UserScreen> {
       @required GenchiUser currentUser}) {
     bool isFavourite = currentUser.favourites.contains(account.id);
 
-    if (account.accountType != 'Individual') {
-      ///looking at a service provider, charity, or society
-      if (isUsersProfile) {
-        ///Looking at their own account
-        return Center(
-          child: RoundedButton(
+    if (isUsersProfile) {
+      ///Looking at their own account
+      return Center(
+        child: RoundedButton(
+            elevation: false,
+            buttonColor: Color(kGenchiGreen),
+            buttonTitle: 'Edit Profile',
+            fontColor: Colors.white,
+            onPressed: () {
+              Navigator.pushNamed(
+                  context,
+                  account.accountType == 'Service Provider'
+                      ? EditProviderAccountScreen.id
+                      : EditAccountScreen.id);
+            }),
+      );
+    } else {
+      ///looking at someone else's account
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: RoundedButton(
               elevation: false,
-              buttonColor: Color(kGenchiGreen),
-              buttonTitle: 'Edit Profile',
-              fontColor: Colors.white,
-              onPressed: () {
-                Navigator.pushNamed(
-                    context,
-                    account.accountType == 'Service Provider'
-                        ? EditProviderAccountScreen.id
-                        : EditAccountScreen.id);
-              }),
-        );
-      } else {
-        ///looking at someone else's account
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: RoundedButton(
-                elevation: false,
-                buttonColor: Color(kGenchiLightOrange),
-                buttonTitle: 'Message',
-                fontColor: Colors.black,
-                onPressed: () async {
-                  List userChats = currentUser.chats;
-                  List accountChats = account.chats;
-                  List allChats = [userChats, accountChats];
+              buttonColor: Color(kGenchiLightOrange),
+              buttonTitle: 'Message',
+              fontColor: Colors.black,
+              onPressed: () async {
+                List userChats = currentUser.chats;
+                List accountChats = account.chats;
+                List allChats = [userChats, accountChats];
 
-                  final commonChatIds = allChats.fold<Set>(
-                      allChats.first.toSet(),
-                      (a, b) => a.intersection(b.toSet()));
+                final commonChatIds = allChats.fold<Set>(allChats.first.toSet(),
+                    (a, b) => a.intersection(b.toSet()));
 
-                  if (kDebugMode)
-                    print('User Screen: Common Chats = $commonChatIds');
+                if (kDebugMode)
+                  print('User Screen: Common Chats = $commonChatIds');
 
-                  if (commonChatIds.isEmpty) {
-                    ///This is a new chat
+                if (commonChatIds.isEmpty) {
+                  ///This is a new chat
+                  Navigator.pushNamed(context, ChatScreen.id,
+                      arguments: ChatScreenArguments(
+                          chat: Chat(),
+                          user1: currentUser,
+                          user2: account,
+                          userIsUser1: true,
+                          isFirstInstance: true));
+                } else {
+                  ///This is an existing chat
+                  Chat existingChat =
+                      await firestoreAPI.getChatById(commonChatIds.first);
+
+                  ///Check that the chat exists in database
+                  if (existingChat != null) {
+                    ///Work out if the current user is user 1
+
+                    bool currentUserIsUser1 =
+                        existingChat.id1 == currentUser.id;
+
                     Navigator.pushNamed(context, ChatScreen.id,
                         arguments: ChatScreenArguments(
-                            chat: Chat(),
-                            user1: currentUser,
-                            user2: account,
-                            userIsUser1: true,
-                            isFirstInstance: true));
-                  } else {
-                    ///This is an existing chat
-                    Chat existingChat =
-                        await firestoreAPI.getChatById(commonChatIds.first);
-
-                    ///Check that the chat exists in database
-                    if (existingChat != null) {
-                      ///Work out if the current user is user 1
-
-                      bool currentUserIsUser1 =
-                          existingChat.id1 == currentUser.id;
-
-                      Navigator.pushNamed(context, ChatScreen.id,
-                          arguments: ChatScreenArguments(
-                            chat: existingChat,
-                            user1: currentUserIsUser1 ? currentUser : account,
-                            user2: currentUserIsUser1 ? account : currentUser,
-                            userIsUser1: currentUserIsUser1,
-                          ));
-                    }
+                          chat: existingChat,
+                          user1: currentUserIsUser1 ? currentUser : account,
+                          user2: currentUserIsUser1 ? account : currentUser,
+                          userIsUser1: currentUserIsUser1,
+                        ));
                   }
-                },
-              ),
+                }
+              },
             ),
-            SizedBox(
-              width: 10,
-            ),
-            Expanded(
-              flex: 1,
-              child: RoundedButton(
-                elevation: false,
-                buttonColor:
-                    isFavourite ? Color(kGenchiGreen) : Color(kGenchiLightBlue),
-                fontColor: Colors.white,
-                buttonTitle:
-                    isFavourite ? 'Added to Favourites' : 'Add to Favourites',
-                onPressed: () async {
-                  if (isFavourite) {
-                    await analytics.logEvent(
-                      name: 'unfavourited_user',
-                    );
-                    await firestoreAPI.removeUserFavourite(
-                        uid: currentUser.id, favouriteId: account.id);
-                  } else {
-                    await analytics.logEvent(
-                      name: 'favourited_user',
-                    );
-                    await firestoreAPI.addUserFavourite(
-                        uid: currentUser.id, favouriteId: account.id);
-                  }
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            flex: 1,
+            child: RoundedButton(
+              elevation: false,
+              buttonColor:
+                  isFavourite ? Color(kGenchiGreen) : Color(kGenchiLightBlue),
+              fontColor: Colors.white,
+              buttonTitle:
+                  isFavourite ? 'Added to Favourites' : 'Add to Favourites',
+              onPressed: () async {
+                if (isFavourite) {
+                  await analytics.logEvent(
+                    name: 'unfavourited_user',
+                  );
+                  await firestoreAPI.removeUserFavourite(
+                      uid: currentUser.id, favouriteId: account.id);
+                } else {
+                  await analytics.logEvent(
+                    name: 'favourited_user',
+                  );
+                  await firestoreAPI.addUserFavourite(
+                      uid: currentUser.id, favouriteId: account.id);
+                }
 
-                  await Provider.of<AuthenticationService>(context,
-                          listen: false)
-                      .updateCurrentUserData();
-                  setState(() {});
-                },
-              ),
+                await Provider.of<AuthenticationService>(context, listen: false)
+                    .updateCurrentUserData();
+                setState(() {});
+              },
             ),
-          ],
-        );
-      }
-    } else {
-      ///Looking at an individual account
-      if (isUsersProfile) {
-        return Column(
-          children: [
-            Center(
-              child: RoundedButton(
-                elevation: false,
-                buttonColor: Color(kGenchiGreen),
-                buttonTitle: 'Edit Profile',
-                fontColor: Colors.white,
-                onPressed: () async {
-                  Navigator.pushNamed(context, EditAccountScreen.id);
-                },
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-          ],
-        );
-      } else {
-        return SizedBox();
-      }
+          ),
+        ],
+      );
     }
   }
 
@@ -269,156 +240,171 @@ class _UserScreenState extends State<UserScreen> {
           ),
           Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              iconTheme: IconThemeData(
-                color: Colors.black,
-              ),
-              centerTitle: true,
-              title: Text(
-                account.accountType,
-                maxLines: 1,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              backgroundColor: Color(kGenchiGreen),
-              elevation: 0,
-              brightness: Brightness.light,
-            ),
-            body: Stack(
-
-              children: [
-                ListView(
-                  children: <Widget>[
-                    Stack(
-
-                      children: [
-                        Container(
-                          color: Color(kGenchiGreen),
-                          height: MediaQuery.of(context).size.height * 0.09,
-                        ),
-                        Center(
-                          child: GestureDetector(
-                            onTap: (){
-                              expandedDisplayPhoto = !expandedDisplayPhoto;
-                              setState(() {
-
-                              });
-                            },
-
-                            child: AnimatedContainer(
-                              height: expandedDisplayPhoto? MediaQuery.of(context).size.height*0.4 : MediaQuery.of(context).size.height*0.15 ,
-                              duration: Duration(milliseconds: 100),
-                              child: DisplayPicture(
-                                imageUrl: account.displayPictureURL,
-                                height: expandedDisplayPhoto? 0.4 : 0.15 ,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+            // appBar: AppBar(
+            //   iconTheme: IconThemeData(
+            //     color: Colors.black,
+            //   ),
+            //   centerTitle: true,
+            //   title: Text(
+            //     account.accountType,
+            //     maxLines: 1,
+            //     style: TextStyle(
+            //       color: Colors.black,
+            //       fontSize: 30,
+            //       fontWeight: FontWeight.w500,
+            //     ),
+            //   ),
+            //   backgroundColor: Color(kGenchiGreen),
+            //   elevation: 0,
+            //   brightness: Brightness.light,
+            // ),
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  title: Text(
+                    'Individual',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w500,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  centerTitle: true,
+                  backgroundColor: Color(kGenchiGreen),
+                  stretch: true,
+                  pinned: true,
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Stack(
                         children: [
-                          SizedBox(height: 10),
-                          Center(
-                            child: SelectableText(
-                              account.name,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 25.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          buildActionSection(
-                              isUsersProfile: isUsersOwnProfile,
-                              account: account,
-                              currentUser: currentUser),
-                          if (account.accountType != 'Individual')
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  child: Text(
-                                    "Category",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 22.0,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                                Divider(
-                                  thickness: 1,
-                                  height: 5,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      account.category.toUpperCase() ?? "",
-                                      style: TextStyle(
-                                          fontSize: 22.0,
-                                          color: Color(kGenchiOrange),
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    if (account.accountType == 'Group')
-                                      Text(
-                                        account.subcategory.toUpperCase(),
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Color(kGenchiOrange),
-                                            fontWeight: FontWeight.w500),
-                                      )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                )
-                              ],
-                            ),
                           Container(
-                            child: Text(
-                              "About Me",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                fontSize: 22.0,
-                                fontWeight: FontWeight.w400,
+                            color: Color(kGenchiGreen),
+                            height: MediaQuery.of(context).size.height * 0.09,
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                expandedDisplayPhoto = !expandedDisplayPhoto;
+                                setState(() {});
+                              },
+                              child: AnimatedContainer(
+                                height: expandedDisplayPhoto
+                                    ? MediaQuery.of(context).size.height * 0.4
+                                    : MediaQuery.of(context).size.height * 0.15,
+                                duration: Duration(milliseconds: 100),
+                                child: DisplayPicture(
+                                  imageUrl: account.displayPictureURL,
+                                  height: expandedDisplayPhoto ? 0.4 : 0.15,
+                                ),
                               ),
                             ),
                           ),
-                          Divider(
-                            thickness: 1,
-                            height: 5,
-                          ),
-                          SelectableLinkify(
-                            text: account.bio,
-                            onOpen: _onOpenLink,
-                            options: LinkifyOptions(
-                                humanize: false, defaultToHttps: true,),
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          if (currentUser.admin)
-                            buildAdminSection(context: context),
                         ],
                       ),
-                    ),
-                  ],
-                ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10),
+                            Center(
+                              child: SelectableText(
+                                account.name,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 25.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            buildActionSection(
+                                isUsersProfile: isUsersOwnProfile,
+                                account: account,
+                                currentUser: currentUser),
+                            if (account.accountType != 'Individual')
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    child: Text(
+                                      "Category",
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        fontSize: 22.0,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                  Divider(
+                                    thickness: 1,
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        account.category.toUpperCase() ?? "",
+                                        style: TextStyle(
+                                            fontSize: 22.0,
+                                            color: Color(kGenchiOrange),
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      if (account.accountType == 'Group')
+                                        Text(
+                                          account.subcategory.toUpperCase(),
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              color: Color(kGenchiOrange),
+                                              fontWeight: FontWeight.w500),
+                                        )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  )
+                                ],
+                              ),
+                            Container(
+                              child: Text(
+                                "About Me",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              thickness: 1,
+                              height: 5,
+                            ),
+                            SelectableLinkify(
+                              text: account.bio,
+                              onOpen: _onOpenLink,
+                              options: LinkifyOptions(
+                                humanize: false,
+                                defaultToHttps: true,
+                              ),
+                              style: TextStyle(
+                                fontSize: 16.0,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            if (currentUser.admin)
+                              buildAdminSection(context: context),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

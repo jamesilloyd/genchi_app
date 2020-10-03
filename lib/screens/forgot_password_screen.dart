@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/snackbars.dart';
 
 import 'package:genchi_app/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';

@@ -39,6 +39,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
   bool isAdminView;
   GenchiUser applicant;
   GenchiUser hirer;
+  bool emptyChat = false;
 
   bool showSpinner = false;
 
@@ -50,13 +51,11 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final ApplicationChatScreenArguments args =
         ModalRoute.of(context).settings.arguments;
     thisTaskApplication = args.taskApplication;
     userIsApplicant = args.userIsApplicant;
     isAdminView = args.adminView;
-
     applicant = args.applicant;
     hirer = args.hirer;
 
@@ -89,13 +88,12 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                       return CircularProgress();
                     }
 
-
                     var messagesSnapshot = snapshot.data;
-                    List<QueryDocumentSnapshot> messages = messagesSnapshot.docs;
+                    List<QueryDocumentSnapshot> messages =
+                        messagesSnapshot.docs;
 
-                    List<MessageBubble> messageBubbles = [];
+                    List<Widget> messageBubbles = [];
                     for (QueryDocumentSnapshot message in messages) {
-
                       final messageText = message.data()['text'];
                       final messageSender = message.data()['sender'];
                       final messageTime = message.data()['time'];
@@ -110,6 +108,24 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                       );
                       messageBubbles.add(messageWidget);
                     }
+
+                    if (messageBubbles.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: MaterialButton(
+                          enableFeedback: false,
+                          onPressed: (){},
+                          height: 50,
+                          color: Color(kGenchiLightOrange),
+                            child: Center(
+                              child: Text(
+                                  "Send ${hirer.name} a message letting them know why you've applied!",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 16,color: Colors.black),),
+                            )),
+                      );
+                    }
+
                     return Expanded(
                       child: ListView(
                         reverse: true,
@@ -120,64 +136,67 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                     );
                   },
                 ),
-                if(!isAdminView) Container(
-                  decoration: kMessageContainerDecoration,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          minLines: 1,
-                          maxLines: 5,
-                          textCapitalization: TextCapitalization.sentences,
-                          controller: messageTextController,
-                          onChanged: (value) {
-                            messageText = value;
+                if (!isAdminView)
+                  Container(
+                    decoration: kMessageContainerDecoration,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            minLines: 1,
+                            maxLines: 5,
+                            textCapitalization: TextCapitalization.sentences,
+                            controller: messageTextController,
+                            onChanged: (value) {
+                              messageText = value;
+                            },
+                            cursorColor: Color(kGenchiOrange),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                            ),
+                            decoration: kMessageTextFieldDecoration,
+                          ),
+                        ),
+                        FlatButton(
+                          onPressed: () async {
+                            if (messageText != null) {
+
+
+                              setState(() => messageTextController.clear());
+
+                              analytics.logEvent(
+                                  name: 'application_message_sent');
+
+                              await firestoreAPI.addMessageToTaskApplicant(
+                                  applicationId:
+                                      thisTaskApplication.applicationId,
+                                  taskId: thisTaskApplication.taskid,
+                                  chatMessage: ChatMessage(
+                                      sender: userIsApplicant
+                                          ? applicant.id
+                                          : hirer.id,
+                                      text: messageText,
+                                      time: Timestamp.now()),
+                                  applicantIsSender: userIsApplicant);
+                              messageText = null;
+                            } else {
+                              if (debugMode)
+                                print('Chat screen: Message text is null');
+                            }
                           },
-                          cursorColor: Color(kGenchiOrange),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: kMessageTextFieldDecoration,
-                        ),
-                      ),
-                      FlatButton(
-                        onPressed: () async {
-                          if (messageText != null) {
-                            if (debugMode)
-
-                            setState(() => messageTextController.clear());
-
-                            analytics.logEvent(name: 'application_message_sent');
-
-                            await firestoreAPI.addMessageToTaskApplicant(
-                                applicationId: thisTaskApplication.applicationId,
-                                taskId: thisTaskApplication.taskid,
-                                chatMessage: ChatMessage(
-                                    sender: userIsApplicant
-                                        ? applicant.id
-                                        : hirer.id,
-                                    text: messageText,
-                                    time: Timestamp.now()),
-                                applicantIsSender: userIsApplicant);
-                            messageText = null;
-                          } else {
-                            if (debugMode)
-                              print('Chat screen: Message text is null');
-                          }
-                        },
-                        child: Text(
-                          'Send',
-                          style: TextStyle(
-                            color: Color(kGenchiOrange),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18.0,
+                          child: Text(
+                            'Send',
+                            style: TextStyle(
+                              color: Color(kGenchiOrange),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),

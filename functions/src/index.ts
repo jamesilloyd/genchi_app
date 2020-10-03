@@ -57,7 +57,7 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
             notification : {
                 title : 'New Job: ' + taskTitle,
                 body : taskDesc,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 badge : '1'
             },
         };
@@ -116,7 +116,7 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
                 notification : {
                     title : senderName + ' - Private Message',
                     body : message.text,
-                    clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
                     badge : '1'
                 },
             };
@@ -190,7 +190,7 @@ export const sendApplicationMessageNotification = functions.firestore.document('
             notification : {
                 title : senderName + ' - ' + taskTitle,
                 body : message.text,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 badge : '1'
             },
         };
@@ -257,7 +257,7 @@ export const newApplicantNotification = functions.firestore.document('tasks/{tas
             notification : {
                 title : 'New applicant!!!',
                 body : applicantName + ' has applied to: ' + taskTitle,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 badge : '1'
             },
         };

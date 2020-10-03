@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/components/snackbars.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
@@ -108,42 +110,40 @@ class _TaskScreenState extends State<TaskScreen> {
               time: taskApplication.time,
               hasUnreadMessage: taskApplication.hirerHasUnreadMessage,
               onTap: () async {
-                      setState(() {
-                        showSpinner = true;
-                      });
+                setState(() {
+                  showSpinner = true;
+                });
 
-                      GenchiUser hirer = await firestoreAPI.getUserById(task.hirerId);
+                GenchiUser hirer = await firestoreAPI.getUserById(task.hirerId);
 
+                ///Checking that the hirer exists before segue
+                if (hirer != null) {
+                  ///If it isn't an admin entering the conversation, remove the notification
+                  if (!isAdmin) {
+                    taskApplication.hirerHasUnreadMessage = false;
 
-                      ///Checking that the hirer exists before segue
-                      if (hirer != null) {
-                        ///If it isn't an admin entering the conversation, remove the notification
-                        if(!isAdmin){
-                          taskApplication.hirerHasUnreadMessage = false;
+                    ///Update the task application
+                    await firestoreAPI.updateTaskApplication(
+                        taskApplication: taskApplication);
+                  }
 
-                          ///Update the task application
-                          await firestoreAPI.updateTaskApplication(
-                              taskApplication: taskApplication);
-                        }
+                  setState(() {
+                    showSpinner = false;
+                  });
 
-
-                        setState(() {
-                          showSpinner = false;
-                        });
-
-                        ///Segue to application chat screen with user as hirer
-                        Navigator.pushNamed(context, ApplicationChatScreen.id,
-                                arguments: ApplicationChatScreenArguments(
-                                    adminView: isAdmin,
-                                    taskApplication: taskApplication,
-                                    userIsApplicant: false,
-                                    applicant: applicant,
-                                    hirer: hirer))
-                            .then((value) {
-                          setState(() {});
-                        });
-                      }
-                    },
+                  ///Segue to application chat screen with user as hirer
+                  Navigator.pushNamed(context, ApplicationChatScreen.id,
+                          arguments: ApplicationChatScreenArguments(
+                              adminView: isAdmin,
+                              taskApplication: taskApplication,
+                              userIsApplicant: false,
+                              applicant: applicant,
+                              hirer: hirer))
+                      .then((value) {
+                    setState(() {});
+                  });
+                }
+              },
 
               //TODO add ability to delete applicant
               hideChat: () {});
@@ -410,6 +410,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Expanded(
+                        flex: 6,
                         child: SelectableText(
                           currentTask.title,
                           style: TextStyle(
@@ -418,6 +419,36 @@ class _TaskScreenState extends State<TaskScreen> {
                           ),
                         ),
                       ),
+                      Expanded(
+                        flex: 1,
+                        child: Builder(
+                          builder: (context) {
+                            return IconButton(
+                              onPressed: () async {
+                                bool likesFeature = await showYesNoAlert(
+                                    context: context,
+                                    title: 'Share this job with a friend?');
+
+                                if (likesFeature != null) {
+                                  analytics.logEvent(
+                                      name: 'share_job_button_pressed',
+                                      parameters: {'response': likesFeature});
+
+                                  if (likesFeature) {
+                                    Scaffold.of(context)
+                                        .showSnackBar(kDevelopmentFeature);
+                                  }
+                                }
+                              },
+                              icon: Icon(
+                                Platform.isIOS ? Icons.ios_share : Icons.share,
+                                size: 25,
+                              ),
+                            );
+                          },
+                          // child:
+                        ),
+                      )
                     ],
                   ),
                   Divider(
@@ -447,36 +478,37 @@ class _TaskScreenState extends State<TaskScreen> {
                         child: Row(
                           children: [
                             hirer.displayPictureURL == null
-                            ///Show default image
-                                ? CircleAvatar(
-                              radius: 45,
-                              backgroundColor: Color(0xffC4C4C4),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Icon(
-                                  Icons.person,
-                                  color: Color(0xff585858),
-                                  size: 35,
-                                ),
-                              ),
-                            )
 
-                            ///Show provider image
+                                ///Show default image
+                                ? CircleAvatar(
+                                    radius: 45,
+                                    backgroundColor: Color(0xffC4C4C4),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Color(0xff585858),
+                                        size: 35,
+                                      ),
+                                    ),
+                                  )
+
+                                ///Show provider image
                                 : Container(
-                              height: 90,
-                              width: 90,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(kGenchiCream),
-                              ),
-                              clipBehavior: Clip.hardEdge,
-                              child: Image(
-                                image: CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
-                                fit: BoxFit.cover,
-                                gaplessPlayback: true,
-                              ),
-                            ),
+                                    height: 90,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(kGenchiCream),
+                                    ),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Image(
+                                      image: CachedNetworkImageProvider(
+                                          hirer.displayPictureURL),
+                                      fit: BoxFit.cover,
+                                      gaplessPlayback: true,
+                                    ),
+                                  ),
                             SizedBox(width: 15),
                             Expanded(
                               child: Column(
@@ -521,9 +553,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   ),
                   Text(
                     currentTask.service.toUpperCase(),
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Color(kGenchiOrange)),
+                    style: TextStyle(fontSize: 22, color: Color(kGenchiOrange)),
                   ),
                   SizedBox(
                     height: 10,
@@ -541,7 +571,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
                     style:
-                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
@@ -557,15 +587,12 @@ class _TaskScreenState extends State<TaskScreen> {
                     onOpen: _onOpenLink,
                     options: LinkifyOptions(humanize: false),
                     style:
-                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                   Container(
-                    child: Text(
-                        "Incentive",
-                        textAlign: TextAlign.left,
-                        style: titleTextStyle
-                    ),
+                    child: Text("Incentive",
+                        textAlign: TextAlign.left, style: titleTextStyle),
                   ),
                   Divider(
                     thickness: 1,
@@ -574,7 +601,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   SelectableText(
                     currentTask.price ?? "",
                     style:
-                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 10),
                 ],
@@ -585,232 +612,244 @@ class _TaskScreenState extends State<TaskScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                ],
+                children: [],
               ),
             ),
             isUsersTask
                 ? buildHirersTask(task: currentTask)
                 : buildApplicantsTask(
-              task: currentTask,
-              userpidsAndId: userPidsAndId,
-              applyFunction: () async {
-                String selectedId = await showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  shape: modalBottomSheetBorder,
-                  builder: (context) => Container(
-                    height: MediaQuery.of(context).size.height * 0.75,
-                    padding: EdgeInsets.all(15.0),
-                    decoration: modalBottomSheetContainerDecoration,
-                    child: ListView(
-                      children: <Widget>[
-                        Center(
-                            child: Text(
-                              'Apply with which account?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 25,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            )),
-                        SizedBox(
-                          height: 40,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'General Account',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: 1,
-                          thickness: 1,
-                        ),
-
-                        UserCard(
-                          user: currentUser,
-                          onTap: () async {
-                            bool apply = await showYesNoAlert(
-                                context: context,
-                                title: 'Apply with this account?');
-                            if (apply) {
-                              Navigator.pop(context, currentUser.id);
-                            }
-                          },
-                        ),
-                        if(currentUser.accountType == 'Individual') Column(
-                          children: [
-                            SizedBox(
-                              height: 40,
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Service Account(s)',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500),
+                    task: currentTask,
+                    userpidsAndId: userPidsAndId,
+                    applyFunction: () async {
+                      String selectedId = await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: modalBottomSheetBorder,
+                        builder: (context) => Container(
+                          height: MediaQuery.of(context).size.height * 0.75,
+                          padding: EdgeInsets.all(15.0),
+                          decoration: modalBottomSheetContainerDecoration,
+                          child: ListView(
+                            children: <Widget>[
+                              Center(
+                                  child: Text(
+                                'Apply with which account?',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              )),
+                              SizedBox(
+                                height: 40,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'General Account',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Divider(
-                              height: 1,
-                              thickness: 1,
-                            ),
-                            FutureBuilder(
-                              ///This function returns a list of providerUsers
-                              future: firestoreAPI.getServiceProviders(
-                                  ids: currentUser.providerProfiles),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return CircularProgress();
-                                }
-                                final List<GenchiUser> serviceProviders =
-                                    snapshot.data;
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                              ),
+                              UserCard(
+                                user: currentUser,
+                                onTap: () async {
+                                  bool apply = await showYesNoAlert(
+                                      context: context,
+                                      title: 'Apply with this account?');
+                                  if (apply) {
+                                    Navigator.pop(context, currentUser.id);
+                                  }
+                                },
+                              ),
+                              if (currentUser.accountType == 'Individual')
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 40,
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Service Account(s)',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ),
+                                    Divider(
+                                      height: 1,
+                                      thickness: 1,
+                                    ),
+                                    FutureBuilder(
+                                      ///This function returns a list of providerUsers
+                                      future: firestoreAPI.getServiceProviders(
+                                          ids: currentUser.providerProfiles),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return CircularProgress();
+                                        }
+                                        final List<GenchiUser>
+                                            serviceProviders = snapshot.data;
 
-                                List<UserCard> userCards = [];
+                                        List<UserCard> userCards = [];
 
-                                for (GenchiUser serviceProvider
-                                in serviceProviders) {
-                                  UserCard userCard = UserCard(
-                                    user: serviceProvider,
-                                    onTap: () async {
-                                      bool apply = await showYesNoAlert(
-                                          context: context,
-                                          title: 'Apply with this account?');
-                                      if (apply) {
-                                        Navigator.pop(
-                                            context, serviceProvider.id);
-                                      }
-                                    },
-                                  );
+                                        for (GenchiUser serviceProvider
+                                            in serviceProviders) {
+                                          UserCard userCard = UserCard(
+                                            user: serviceProvider,
+                                            onTap: () async {
+                                              bool apply = await showYesNoAlert(
+                                                  context: context,
+                                                  title:
+                                                      'Apply with this account?');
+                                              if (apply) {
+                                                Navigator.pop(context,
+                                                    serviceProvider.id);
+                                              }
+                                            },
+                                          );
 
-                                  userCards.add(userCard);
-                                }
+                                          userCards.add(userCard);
+                                        }
 
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.stretch,
-                                  children: userCards,
-                                );
-                              },
-                            ),
-                            if(currentUser.providerProfiles.isEmpty) RoundedButton(
-                              buttonColor: Color(kGenchiGreen),
-                              buttonTitle: 'Create a service account first?',
-                              onPressed: () async {
-                                bool createAccount = await showYesNoAlert(
-                                    context: context,
-                                    title:
-                                    'Create a service account before applying to this job?');
-                                if (createAccount) {
-                                  ///Log event in firebase
-                                  await analytics.logEvent(
-                                      name: 'provider_account_created');
+                                        return Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: userCards,
+                                        );
+                                      },
+                                    ),
+                                    if (currentUser.providerProfiles.isEmpty)
+                                      RoundedButton(
+                                        buttonColor: Color(kGenchiGreen),
+                                        buttonTitle:
+                                            'Create a service account first?',
+                                        onPressed: () async {
+                                          bool createAccount = await showYesNoAlert(
+                                              context: context,
+                                              title:
+                                                  'Create a service account before applying to this job?');
+                                          if (createAccount) {
+                                            ///Log event in firebase
+                                            await analytics.logEvent(
+                                                name:
+                                                    'provider_account_created');
 
-                                  AuthenticationService authService =
-                                  Provider.of<AuthenticationService>(
-                                      context,
-                                      listen: false);
-                                  AccountService accountService =
-                                  Provider.of<AccountService>(context,
-                                      listen: false);
+                                            AuthenticationService authService =
+                                                Provider.of<
+                                                        AuthenticationService>(
+                                                    context,
+                                                    listen: false);
+                                            AccountService accountService =
+                                                Provider.of<AccountService>(
+                                                    context,
+                                                    listen: false);
 
-                                  DocumentReference result =
-                                  await firestoreAPI.addServiceProvider(
-                                      serviceUser: GenchiUser(
-                                          mainAccountId:
-                                          authService.currentUser.id,
-                                          accountType: 'Service Provider',
-                                          displayPictureURL: authService
-                                              .currentUser
-                                              .displayPictureURL,
-                                          displayPictureFileName:
-                                          authService.currentUser
-                                              .displayPictureFileName),
-                                      uid: authService.currentUser.id);
+                                            DocumentReference result =
+                                                await firestoreAPI.addServiceProvider(
+                                                    serviceUser: GenchiUser(
+                                                        mainAccountId:
+                                                            authService
+                                                                .currentUser.id,
+                                                        accountType:
+                                                            'Service Provider',
+                                                        displayPictureURL:
+                                                            authService
+                                                                .currentUser
+                                                                .displayPictureURL,
+                                                        displayPictureFileName:
+                                                            authService
+                                                                .currentUser
+                                                                .displayPictureFileName),
+                                                    uid: authService
+                                                        .currentUser.id);
 
-                                  await authService.updateCurrentUserData();
+                                            await authService
+                                                .updateCurrentUserData();
 
-                                  await accountService.updateCurrentAccount(
-                                      id: result.id);
+                                            await accountService
+                                                .updateCurrentAccount(
+                                                    id: result.id);
 
-                                  /*TODO is there a way to reload? rather then closing the modal and having to reopen?
-                                 use slide up widget instead!
-                                */
+                                            //TODO is there a way to reload? rather then closing the modal and having to reopen?
 
-                                  Navigator.pushNamed(context, UserScreen.id)
-                                      .then((value) {
-                                    Navigator.pop(context);
-                                  });
-                                  Navigator.pushNamed(
-                                      context, EditProviderAccountScreen.id);
-                                }
-                              },
-                            )
-                          ],
-                        )
+                                            Navigator.pushNamed(
+                                                    context, UserScreen.id)
+                                                .then((value) {
+                                              Navigator.pop(context);
+                                            });
+                                            Navigator.pushNamed(context,
+                                                EditProviderAccountScreen.id);
+                                          }
+                                        },
+                                      )
+                                  ],
+                                )
+                            ],
+                          ),
+                        ),
+                      );
 
-                      ],
-                    ),
+                      if (debugMode)
+                        print('Task Screen: applied with id $selectedId');
+
+                      if (selectedId != null) {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        await analytics.logEvent(name: 'task_application_sent');
+
+                        DocumentReference chatRef =
+                            await firestoreAPI.applyToTask(
+                                taskId: currentTask.taskId,
+                                applicantId: selectedId,
+                                hirerId: currentTask.hirerId);
+
+                        TaskApplication taskApplication =
+                            await firestoreAPI.getTaskApplicationById(
+                          taskId: currentTask.taskId,
+                          applicationId: chatRef.id,
+                        );
+
+                        GenchiUser applicantProfile =
+                            await firestoreAPI.getUserById(selectedId);
+
+                        GenchiUser hirer =
+                            await firestoreAPI.getUserById(currentTask.hirerId);
+
+                        setState(() {
+                          showSpinner = false;
+                        });
+
+                        ///Check all necessary documents exist before entering chat
+                        if (hirer != null &&
+                            applicantProfile != null &&
+                            taskApplication != null) {
+                          Navigator.pushNamed(context, ApplicationChatScreen.id,
+                              arguments: ApplicationChatScreenArguments(
+                                isInitialApplication: true,
+                                taskApplication: taskApplication,
+                                hirer: hirer,
+                                applicant: applicantProfile,
+                                userIsApplicant: true,
+                              )).then((value) {
+                            ///Refresh screen
+                            setState(() {});
+                          });
+                        }
+                      }
+                    },
                   ),
-                );
-
-                if (debugMode)
-                  print('Task Screen: applied with id $selectedId');
-
-                if (selectedId != null) {
-                  setState(() {
-                    showSpinner = true;
-                  });
-
-                  await analytics.logEvent(name: 'task_application_sent');
-
-                  DocumentReference chatRef =
-                  await firestoreAPI.applyToTask(
-                      taskId: currentTask.taskId,
-                      applicantId: selectedId,
-                      hirerId: currentTask.hirerId);
-
-                  TaskApplication taskApplication =
-                  await firestoreAPI.getTaskApplicationById(
-                    taskId: currentTask.taskId,
-                    applicationId: chatRef.id,
-                  );
-
-                  GenchiUser applicantProfile =
-                  await firestoreAPI.getUserById(selectedId);
-
-                  GenchiUser hirer =
-                  await firestoreAPI.getUserById(currentTask.hirerId);
-
-                  setState(() {
-                    showSpinner = false;
-                  });
-
-                  ///Check all necessary documents exist before entering chat
-                  if (hirer != null &&
-                      applicantProfile != null &&
-                      taskApplication != null) {
-                    Navigator.pushNamed(context, ApplicationChatScreen.id,
-                        arguments: ApplicationChatScreenArguments(
-                          taskApplication: taskApplication,
-                          hirer: hirer,
-                          applicant: applicantProfile,
-                          userIsApplicant: true,
-                        )).then((value) {
-                      ///Refresh screen
-                      setState(() {});
-                    });
-                  }
-                }
-              },
-            ),
             if (currentUser.admin)
               buildAdminSection(context: context, currentTask: currentTask),
           ],

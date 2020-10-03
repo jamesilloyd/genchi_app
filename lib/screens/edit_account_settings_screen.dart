@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:genchi_app/components/snackbars.dart';
 
 import 'package:genchi_app/constants.dart';
 

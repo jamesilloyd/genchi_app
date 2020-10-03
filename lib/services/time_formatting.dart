@@ -15,7 +15,7 @@ String getSummaryTime({@required Timestamp time}) {
     String formatted = formatter.format(time.toDate());
     return formatted;
   } else {
-    var formatter = new DateFormat.MMMMd();
+    var formatter = new DateFormat.MMMd();
     String formatted = formatter.format(time.toDate());
     return formatted;
   }
@@ -52,7 +52,7 @@ String getMessageBubbleTime({@required Timestamp time}) {
     String formatted = formatter.format(time.toDate());
     return formatted;
   } else {
-    var formatter = new DateFormat.MMMMd().add_Hm();
+    var formatter = new DateFormat.MMMd().add_Hm();
     String formatted = formatter.format(time.toDate());
     return formatted;
   }

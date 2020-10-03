@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:genchi_app/components/circular_progress.dart';
@@ -39,30 +40,6 @@ class _TestScreenState extends State<TestScreen> {
   @override
   void initState() {
     super.initState();
-
-    _listScrollController.addListener(() {
-      if (_listScrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
-        if (_isVisible == true) {
-          setState(() {
-            panelController.animatePanelToPosition(0,duration: Duration(milliseconds: 150));
-            // initialExtent = minExtent;
-            _isVisible = false;
-          });
-        }
-      } else {
-        if (_listScrollController.position.userScrollDirection ==
-            ScrollDirection.forward) {
-          if (_isVisible == false) {
-            setState(() {
-              panelController.animatePanelToPosition(0.08,duration: Duration(milliseconds: 150));
-              // initialExtent = mediumExtent;
-              _isVisible = true;
-            });
-          }
-        }
-      }
-    });
   }
 
   @override
@@ -72,10 +49,10 @@ class _TestScreenState extends State<TestScreen> {
         body: Center(
           child: RoundedButton(
             buttonColor: Color(kGenchiGreen),
-            buttonTitle: 'Migrate',
-            onPressed: ()async{
+            buttonTitle: 'Crashlytics Enables?',
+            onPressed: (){
 
-              await firestoreApi.migrateSocitiesAndCharitiesToGroups();
+              print(FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled);
 
             },
           ),

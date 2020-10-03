@@ -36,6 +36,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
   TaskApplication thisTaskApplication;
   bool userIsApplicant;
+  bool isAdminView;
   GenchiUser applicant;
   GenchiUser hirer;
 
@@ -54,6 +55,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
         ModalRoute.of(context).settings.arguments;
     thisTaskApplication = args.taskApplication;
     userIsApplicant = args.userIsApplicant;
+    isAdminView = args.adminView;
 
     applicant = args.applicant;
     hirer = args.hirer;
@@ -82,17 +84,21 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                   stream: firestoreAPI.fetchTaskApplicantChatStream(
                       taskid: thisTaskApplication.taskid,
                       applicationId: thisTaskApplication.applicationId),
-                  builder: (context, snapshot) {
+                  builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
                       return CircularProgress();
                     }
 
-                    final messages = snapshot.data.documents;
+
+                    var messagesSnapshot = snapshot.data;
+                    List<QueryDocumentSnapshot> messages = messagesSnapshot.docs;
+
                     List<MessageBubble> messageBubbles = [];
-                    for (var message in messages) {
-                      final messageText = message.data['text'];
-                      final messageSender = message.data['sender'];
-                      final messageTime = message.data['time'];
+                    for (QueryDocumentSnapshot message in messages) {
+
+                      final messageText = message.data()['text'];
+                      final messageSender = message.data()['sender'];
+                      final messageTime = message.data()['time'];
 
                       final messageWidget = MessageBubble(
                         text: messageText,
@@ -114,7 +120,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                     );
                   },
                 ),
-                Container(
+                if(!isAdminView) Container(
                   decoration: kMessageContainerDecoration,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,

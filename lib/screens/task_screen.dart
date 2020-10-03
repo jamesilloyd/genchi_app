@@ -47,7 +47,7 @@ class _TaskScreenState extends State<TaskScreen> {
     fontWeight: FontWeight.w500,
   );
 
-  Widget buildHirersTask({@required Task task, bool enableChatView = true}) {
+  Widget buildHirersTask({@required Task task, bool isAdmin = false}) {
     ///User is looking at their own task
     return FutureBuilder(
       future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
@@ -107,21 +107,25 @@ class _TaskScreenState extends State<TaskScreen> {
               lastMessage: taskApplication.lastMessage,
               time: taskApplication.time,
               hasUnreadMessage: taskApplication.hirerHasUnreadMessage,
-              onTap: enableChatView
-                  ? () async {
+              onTap: () async {
                       setState(() {
                         showSpinner = true;
                       });
 
                       GenchiUser hirer = await firestoreAPI.getUserById(task.hirerId);
 
+
                       ///Checking that the hirer exists before segue
                       if (hirer != null) {
-                        taskApplication.hirerHasUnreadMessage = false;
+                        ///If it isn't an admin entering the conversation, remove the notification
+                        if(!isAdmin){
+                          taskApplication.hirerHasUnreadMessage = false;
 
-                        ///Update the task application
-                        await firestoreAPI.updateTaskApplication(
-                            taskApplication: taskApplication);
+                          ///Update the task application
+                          await firestoreAPI.updateTaskApplication(
+                              taskApplication: taskApplication);
+                        }
+
 
                         setState(() {
                           showSpinner = false;
@@ -130,6 +134,7 @@ class _TaskScreenState extends State<TaskScreen> {
                         ///Segue to application chat screen with user as hirer
                         Navigator.pushNamed(context, ApplicationChatScreen.id,
                                 arguments: ApplicationChatScreenArguments(
+                                    adminView: isAdmin,
                                     taskApplication: taskApplication,
                                     userIsApplicant: false,
                                     applicant: applicant,
@@ -138,8 +143,7 @@ class _TaskScreenState extends State<TaskScreen> {
                           setState(() {});
                         });
                       }
-                    }
-                  : () {},
+                    },
 
               //TODO add ability to delete applicant
               hideChat: () {});
@@ -340,7 +344,7 @@ class _TaskScreenState extends State<TaskScreen> {
             }
           },
         ),
-        buildHirersTask(task: currentTask, enableChatView: false),
+        buildHirersTask(task: currentTask, isAdmin: true),
       ],
     );
   }

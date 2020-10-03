@@ -85,12 +85,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       return CircularProgress();
                     }
 
-                    final messages = snapshot.data.documents;
+                    final messagesSnapshotData = snapshot.data;
+                    List<QueryDocumentSnapshot> messages =
+                        messagesSnapshotData.docs;
                     List<MessageBubble> messageBubbles = [];
-                    for (var message in messages) {
-                      final messageText = message.data['text'];
-                      final messageSender = message.data['sender'];
-                      final messageTime = message.data['time'];
+                    for (QueryDocumentSnapshot message in messages) {
+                      final messageText = message.data()['text'];
+                      final messageSender = message.data()['sender'];
+                      final messageTime = message.data()['time'];
 
                       final messageWidget = MessageBubble(
                         text: messageText,
@@ -155,10 +157,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
                               ///Update users' chats
                               await authProvider.updateCurrentUserData();
-                              await accountService.updateCurrentAccount(id: otherUser.id);
+                              await accountService.updateCurrentAccount(
+                                  id: otherUser.id);
 
-                              thisChat = await firestoreAPI
-                                  .getChatById(result.id);
+                              thisChat =
+                                  await firestoreAPI.getChatById(result.id);
 
                               ///Just check that the chat definitely exists before adding a message to it
                               if (thisChat != null) {

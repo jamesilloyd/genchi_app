@@ -28,7 +28,8 @@ class ApplicationChatScreenArguments {
   final bool userIsApplicant;
   final GenchiUser hirer;
   final GenchiUser applicant;
+  final bool adminView;
 
-  ApplicationChatScreenArguments({@required this.taskApplication, @required this.userIsApplicant, @required this.hirer, @required this.applicant});
+  ApplicationChatScreenArguments({@required this.taskApplication, @required this.userIsApplicant, @required this.hirer, @required this.applicant, this.adminView = false});
 
 }

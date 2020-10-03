@@ -2,7 +2,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -33,6 +32,8 @@ class _UserScreenState extends State<UserScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool isUsersOwnProfile;
+
+  bool expandedDisplayPhoto = false;
 
   ///The profile being viewed
   GenchiUser account;
@@ -299,9 +300,22 @@ class _UserScreenState extends State<UserScreen> {
                           height: MediaQuery.of(context).size.height * 0.09,
                         ),
                         Center(
-                          child: DisplayPicture(
-                            imageUrl: account.displayPictureURL,
-                            height: 0.15,
+                          child: GestureDetector(
+                            onTap: (){
+                              expandedDisplayPhoto = !expandedDisplayPhoto;
+                              setState(() {
+
+                              });
+                            },
+
+                            child: AnimatedContainer(
+                              height: expandedDisplayPhoto? MediaQuery.of(context).size.height*0.4 : MediaQuery.of(context).size.height*0.15 ,
+                              duration: Duration(milliseconds: 100),
+                              child: DisplayPicture(
+                                imageUrl: account.displayPictureURL,
+                                height: expandedDisplayPhoto? 0.4 : 0.15 ,
+                              ),
+                            ),
                           ),
                         ),
                       ],

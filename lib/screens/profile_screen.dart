@@ -134,21 +134,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pushNamed(context, UserScreen.id);
                     },
                   ),
-                 ProfileOptionTile(
-                   text: 'Crash',
-                   onPressed: () {
-                     print(FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled);
-                     FirebaseCrashlytics.instance.log('Testing 17:30 30/9/20');
-                     // FirebaseCrashlytics.instance.crash();
-                     throw Exception('ERORRRORR');
-                   },
-                 ),
-//                  ProfileOptionTile(
-//                    text: 'Test Screen',
-//                    onPressed: ()  {
-//                     Navigator.pushNamed(context, TestScreen.id);
-//                    },
-//                  ),
+                 // ProfileOptionTile(
+                 //   text: 'Test Screen',
+                 //   onPressed: ()  {
+                 //    Navigator.pushNamed(context, TestScreen.id);
+                 //   },
+                 // ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Service Profiles',

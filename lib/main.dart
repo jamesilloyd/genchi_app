@@ -9,6 +9,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
@@ -39,6 +40,7 @@ void main() {
   runApp(Genchi());
 }
 
+//TODO: look into hot reload problem (whole app is restarting, maybe use a segue instead?, look at what other large apps do)
 class Genchi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -46,15 +48,29 @@ class Genchi extends StatelessWidget {
     final Future<FirebaseApp> _initialization = Firebase.initializeApp();
     return FutureBuilder(
       future: _initialization,
-      builder: (context,snapshot){
-        if(snapshot.hasError) {
+      builder: (context, snapshot) {
+
+        print("I'm in here");
+        if (snapshot.hasError) {
           //TODO: add an error screen in here
         }
 
-        if(snapshot.connectionState == ConnectionState.done){
+        if (snapshot.connectionState == ConnectionState.done) {
           ///Firebase initialised
           ///Override flutterError for crashlytics collection
-          FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+
+          if (kDebugMode) {
+            /// Force disable Crashlytics collection while doing every day development.
+            /// Temporarily toggle this to true if you want to test crash reporting in your app.
+            FirebaseCrashlytics.instance
+                .setCrashlyticsCollectionEnabled(false);
+          } else {
+          }
+
+          FlutterError.onError =
+              FirebaseCrashlytics.instance.recordFlutterError;
+
           return MultiProvider(
             providers: [
               // ChangeNotifierProvider(create: (_) =>),
@@ -63,7 +79,6 @@ class Genchi extends StatelessWidget {
               //TODO: implement this
               // ChangeNotifierProvider(create: (_) => NotificationService()),
               ChangeNotifierProvider(create: (_) => TaskService()),
-
             ],
             child: StartUp(),
           );
@@ -92,15 +107,17 @@ class StartUp extends StatelessWidget {
               FirebaseAnalyticsObserver(analytics: analytics),
             ],
             theme: ThemeData(
-                fontFamily: 'FuturaPT',
-                canvasColor: Colors.white,
-                cursorColor: Color(kGenchiOrange),
-                scaffoldBackgroundColor: Colors.white,
-                primaryColor: Color(kGenchiOrange),
-                indicatorColor: Color(kGenchiOrange),
-                textSelectionHandleColor: Color(kGenchiOrange),
-                accentColor: Color(kGenchiOrange),
-                hintColor: Colors.black45),
+              fontFamily: 'FuturaPT',
+              canvasColor: Colors.white,
+              cursorColor: Color(kGenchiOrange),
+              scaffoldBackgroundColor: Colors.white,
+              primaryColor: Color(kGenchiOrange),
+              indicatorColor: Color(kGenchiOrange),
+              textSelectionHandleColor: Color(kGenchiOrange),
+              accentColor: Color(kGenchiOrange),
+              textSelectionColor: Color(kGenchiLightOrange),
+              hintColor: Colors.black45,
+            ),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
             routes: {
               WelcomeScreen.id: (context) => WelcomeScreen(),

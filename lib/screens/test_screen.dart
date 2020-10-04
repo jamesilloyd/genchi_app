@@ -50,9 +50,9 @@ class _TestScreenState extends State<TestScreen> {
           child: RoundedButton(
             buttonColor: Color(kGenchiGreen),
             buttonTitle: 'Crashlytics Enables?',
-            onPressed: (){
+            onPressed: ()async{
 
-              print(FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled);
+              await firestoreApi.migrateTaskApplicationsIntoCollection();
 
             },
           ),

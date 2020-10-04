@@ -189,39 +189,41 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     SizedBox(
                       height: 20,
                     ),
-                    RoundedButton(
-                      buttonTitle: 'POST',
-                      buttonColor: Color(kGenchiBlue),
-                      fontColor: Color(kGenchiCream),
-                      onPressed: () async {
-                        bool post = await showYesNoAlert(
-                            context: context, title: 'Post job?');
+                    Center(
+                      child: RoundedButton(
+                        buttonTitle: 'POST',
+                        buttonColor: Color(kGenchiLightOrange),
+                        fontColor: Colors.black,
+                        onPressed: () async {
+                          bool post = await showYesNoAlert(
+                              context: context, title: 'Post job?');
 
-                        if (post) {
-                          setState(() {
-                            showSpinner = true;
-                          });
+                          if (post) {
+                            setState(() {
+                              showSpinner = true;
+                            });
 
-                          await analytics.logEvent(name: 'job_created');
-                          
-                          await firestoreAPI.addTask(
-                              task: Task(
-                                  title: title,
-                                  date: date,
-                                  details: details,
-                                  service: serviceController.text,
-                                  time: Timestamp.now(),
-                                  price: price,
-                                  hirerId: authProvider.currentUser.id),
-                              hirerId: authProvider.currentUser.id);
+                            await analytics.logEvent(name: 'job_created');
 
-                          await authProvider.updateCurrentUserData();
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          Navigator.of(context).pop();
-                        }
-                      },
+                            await firestoreAPI.addTask(
+                                task: Task(
+                                    title: title,
+                                    date: date,
+                                    details: details,
+                                    service: serviceController.text,
+                                    time: Timestamp.now(),
+                                    price: price,
+                                    hirerId: authProvider.currentUser.id),
+                                hirerId: authProvider.currentUser.id);
+
+                            await authProvider.updateCurrentUserData();
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
                     )
                   ],
                 ),

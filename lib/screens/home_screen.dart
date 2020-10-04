@@ -120,6 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
+        /*TODO: look at wrapping just the following widget in a Provider and
+            hopefully it means the whole app won't be rebuilt, just the subsequent widget
+         */
         child: BottomNavigationBar(
             elevation: 4,
             type: BottomNavigationBarType.fixed,

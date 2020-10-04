@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:genchi_app/constants.dart';
@@ -7,7 +8,7 @@ import 'package:genchi_app/services/time_formatting.dart';
 
 
 class MessageListItem extends StatelessWidget {
-  final ImageProvider image;
+  final String imageURL;
   final String name;
   final String lastMessage;
   final Timestamp time;
@@ -20,7 +21,7 @@ class MessageListItem extends StatelessWidget {
 
   const MessageListItem(
       {Key key,
-      @required this.image,
+      @required this.imageURL,
       @required this.hideChat,
       @required this.name,
       @required this.lastMessage,
@@ -66,7 +67,7 @@ class MessageListItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14),
             ),
-            leading: image == null
+            leading: imageURL == null
                 ? CircleAvatar(
                     radius: 30,
                     backgroundColor: Color(0xffC4C4C4),
@@ -89,7 +90,7 @@ class MessageListItem extends StatelessWidget {
               ),
               clipBehavior: Clip.hardEdge,
               child: Image(
-                image: image,
+                image: CachedNetworkImageProvider(imageURL),
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               ),

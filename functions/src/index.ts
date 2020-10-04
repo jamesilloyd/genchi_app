@@ -31,7 +31,7 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
     if(taskData && usersData) {
         for(const item of usersData){
             ///Filter out service providers
-            if(item.data()['accountType'] != 'Service Provider'){
+            if(item.data()['accountType'] !== 'Service Provider'){
                 const deviceTokens: Array<string> = item.data()['fcmTokens'];
             
                 if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
@@ -121,7 +121,7 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
                 },
             };
 
-            if(tokens != null) {
+            if(tokens !== null) {
                 return fcm.sendToDevice(tokens,payload).then((response) => {
                     console.log('Successfully sent message:', response);
                 })
@@ -195,7 +195,7 @@ export const sendApplicationMessageNotification = functions.firestore.document('
             },
         };
     
-        if(tokens != null) {
+        if(tokens !== null) {
             return fcm.sendToDevice(tokens,payload).then((response) => {
                 console.log('Successfully sent message:', response);
             })
@@ -262,7 +262,7 @@ export const newApplicantNotification = functions.firestore.document('tasks/{tas
             },
         };
     
-        if(tokens != null) {
+        if(tokens !== null) {
             return fcm.sendToDevice(tokens,payload).then((response) => {
                 console.log('Successfully sent message:', response);
             })
@@ -272,9 +272,33 @@ export const newApplicantNotification = functions.firestore.document('tasks/{tas
         } else {
             return 0;
         }
-
+        
     }
 
 })
 
 
+
+// export const testFunction = functions.firestore.document('test/{testId}')
+// .onCreate(async (snapshot, context) => {
+
+
+//     let allTokens: Array<string> = ["duN3SKBxTbI:APA91bFq4DZERaXUiwOv6ZRP35ol9-BspRCSPC15ZdzFoZX0SoElT3spVE7XqVvlDemxSe0PIni6yId6lQhfBgOLwpWcJKcAAutNtcB4rV_kjM5bWV8tpdgXb5TaT3W5tdlo5mROtIvG","fFnSTic0Nsw:APA91bGbN3i3lD9WdKctULt8vo3Xx4u_yCeR0C-JpiRc3XsBECU61CInVpgpAtrOlT6X6XIlWNnV2emEzgOoiK1YIQwG65IlHUbhpU8DNsiegGavEvOZOb7nRBywaugro0ak4kwYfDOC"];
+
+//     const payload : admin.messaging.MessagingPayload = {
+
+//         notification : {
+//             title : 'Test!',
+//             body : "This is a test",
+//             click_action: 'FLUTTER_NOTIFICATION_CLICK',
+//             badge : '1'
+//         },
+//     };
+
+//     return fcm.sendToDevice(allTokens,payload).then((response) => {
+//         console.log('Successfully sent message:', response);
+//     })
+//     .catch((error) => {
+//     console.log('Error sending message:', error);
+//     });
+// })

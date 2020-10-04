@@ -149,7 +149,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   },
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Container(
                       height: 30.0,
@@ -231,66 +231,70 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 ),
                 SizedBox(height: 10),
                 Divider(height: 10),
-                RoundedButton(
-                  buttonTitle: 'Save changes',
-                  buttonColor: Color(kGenchiGreen),
-                  onPressed: () async {
-                    analytics.logEvent(name: 'task_bottom_save_changes_button_pressed');
-                    setState(() {
-                      showSpinner = true;
-                    });
-
-                    await fireStoreAPI.updateTask(
-                        task: Task(
-                            title: titleController.text,
-                            service: serviceController.text,
-                            details: detailsController.text,
-                            price: priceController.text,
-                            date: dateController.text),
-                        taskId: taskService.currentTask.taskId);
-
-                    await taskService.updateCurrentTask(
-                        taskId: taskService.currentTask.taskId);
-
-                    setState(() {
-                      changesMade = false;
-                      showSpinner = false;
-                    });
-                    Navigator.of(context).pop();
-
-                  },
-                ),
-                RoundedButton(
-                  buttonTitle: 'Delete job',
-                  buttonColor: Color(kGenchiBlue),
-                  elevation: false,
-                  onPressed: () async {
-                    ///Ask user if they want to delete task
-                    bool deleteTask = await showYesNoAlert(
-                        context: context,
-                        title: 'Are you sure you want to delete this job?');
-
-                    if (deleteTask) {
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Save changes',
+                    buttonColor: Color(kGenchiGreen),
+                    onPressed: () async {
+                      analytics.logEvent(name: 'task_bottom_save_changes_button_pressed');
                       setState(() {
                         showSpinner = true;
                       });
 
-                      ///Log in firebase analytics
-                      await analytics.logEvent(name: 'job_deleted');
+                      await fireStoreAPI.updateTask(
+                          task: Task(
+                              title: titleController.text,
+                              service: serviceController.text,
+                              details: detailsController.text,
+                              price: priceController.text,
+                              date: dateController.text),
+                          taskId: taskService.currentTask.taskId);
 
-                      await fireStoreAPI.deleteTask(
-                          task: taskService.currentTask);
-                      await authProvider.updateCurrentUserData();
+                      await taskService.updateCurrentTask(
+                          taskId: taskService.currentTask.taskId);
 
                       setState(() {
+                        changesMade = false;
                         showSpinner = false;
                       });
+                      Navigator.of(context).pop();
 
-                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
-                          (Route<dynamic> route) => false,
-                          arguments: HomeScreenArguments(startingIndex: 1));
-                    }
-                  },
+                    },
+                  ),
+                ),
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Delete job',
+                    buttonColor: Color(kGenchiBlue),
+                    elevation: false,
+                    onPressed: () async {
+                      ///Ask user if they want to delete task
+                      bool deleteTask = await showYesNoAlert(
+                          context: context,
+                          title: 'Are you sure you want to delete this job?');
+
+                      if (deleteTask) {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        ///Log in firebase analytics
+                        await analytics.logEvent(name: 'job_deleted');
+
+                        await fireStoreAPI.deleteTask(
+                            task: taskService.currentTask);
+                        await authProvider.updateCurrentUserData();
+
+                        setState(() {
+                          showSpinner = false;
+                        });
+
+                        Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
+                            (Route<dynamic> route) => false,
+                            arguments: HomeScreenArguments(startingIndex: 1));
+                      }
+                    },
+                  ),
                 )
               ],
             ),

@@ -10,6 +10,7 @@ import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
@@ -33,6 +34,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
 
   bool showSpinner = false;
 
+  Stream chatSummaryStream;
+  Future getProvidersFuture;
+
   String filter = 'ALL';
   String filterText = 'ALL';
 
@@ -40,12 +44,18 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
     {'id': 'ALL', 'name': 'ALL'}
   ];
 
+
   @override
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: "/home/chat_summary_screen");
     GenchiUser user = Provider.of<AuthenticationService>(context,listen:false).currentUser;
     accountIdsAndNames.add({'id':user.id,'name':user.name});
+
+    chatSummaryStream = firestoreAPI.streamUserChatsAndApplications(user: user);
+    getProvidersFuture = firestoreAPI.getServiceProviders(
+        ids: user.providerProfiles);
+
   }
 
   @override
@@ -69,8 +79,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
             children: <Widget>[
               if (userIsProvider)
                 FutureBuilder(
-                  future: firestoreAPI.getServiceProviders(
-                      ids: currentUser.providerProfiles),
+                  future: getProvidersFuture,
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return Padding(
@@ -196,7 +205,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   },
                 ),
               StreamBuilder(
-                stream: firestoreAPI.streamUserChats(user: currentUser),
+                stream: chatSummaryStream,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Container(
@@ -206,103 +215,159 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                       ),
                     );
                   } else {
-                    List chatsAndUsers = [];
+
+
                     List<Widget> chatWidgets = [];
+                    List chatsANDApplications = [];
 
-                    if (userIsProvider) {
-                      ///Receiving chats for hiring and providing
-                      List list1 = snapshot.data[0];
-                      List list2 = snapshot.data[1];
-                      chatsAndUsers.addAll(list1);
-                      chatsAndUsers.addAll(list2);
+                    /*TODO: collect streams for:
+                       1. user chats
+                       2. service provider chats
+                       3. user task applications
+                       4. service provider applications
+                    */
 
-                      chatsAndUsers.sort((a, b) {
-                        if (a != null && b != null) {
-                          Chat chatA = a['chat'];
-                          Chat chatB = b['chat'];
-                          return chatB.time.compareTo(chatA.time);
-                        } else
-                          return b.toString().compareTo(a.toString());
+                    // if (userIsProvider) {
+                    //   ///Receiving chats for hiring and providing
+                    //   List list1 = snapshot.data[0];
+                    //   List list2 = snapshot.data[1];
+                    //   chatsAndUsers.addAll(list1);
+                    //   chatsAndUsers.addAll(list2);
+                    //
+                    //   chatsAndUsers.sort((a, b) {
+                    //     if (a != null && b != null) {
+                    //       Chat chatA = a['chat'];
+                    //       Chat chatB = b['chat'];
+                    //       return chatB.time.compareTo(chatA.time);
+                    //     } else
+                    //       return b.toString().compareTo(a.toString());
+                    //   });
+                    // } else {
+                    //   ///Only receiving chats for hiring
+                    //   chatsAndUsers = snapshot.data;
+                    // }
+
+                      List chatsAndUsers = snapshot.data[0];
+                      List tasksApplicationsApplied = snapshot.data[1];
+                      List taskApplicationsPosted = snapshot.data[2];
+
+                      chatsANDApplications.addAll(chatsAndUsers);
+                      chatsANDApplications.addAll(tasksApplicationsApplied);
+                      chatsANDApplications.addAll(taskApplicationsPosted);
+
+                      ///Sorting the entries by time
+                      chatsANDApplications.sort((a,b) {
+                        if(a != null && b != null){
+                          Timestamp timeA = a['time'];
+                          Timestamp timeB = b['time'];
+                          return timeB.compareTo(timeA);
+                        } else return null;
                       });
-                    } else {
-                      ///Only receiving chats for hiring
-                      chatsAndUsers = snapshot.data;
-                    }
 
-                    for (Map chatAndUsers in chatsAndUsers) {
-                      if (chatAndUsers != null) {
-                        Chat chat = chatAndUsers['chat'];
-                        GenchiUser user = chatAndUsers['user'];
-                        GenchiUser otherUser = chatAndUsers['otherUser'];
-                        bool userIsUser1 = chatAndUsers['userIsUser1'];
+                    for (Map chatORApplication in chatsANDApplications) {
+                      if (chatORApplication != null) {
+                        if(chatORApplication['chat'] !=null){
+                          ///We're dealing with a chat
+                          Chat chat = chatORApplication['chat'];
+                          GenchiUser user = chatORApplication['user'];
+                          GenchiUser otherUser = chatORApplication['otherUser'];
+                          bool userIsUser1 = chatORApplication['userIsUser1'];
 
-                        if ((filter == user.id || filter == 'ALL')) {
-                          ///Users main account messages
-                          Widget chatWidget = MessageListItem(
-                            image: otherUser.displayPictureURL == null
-                                ? null
-                                : CachedNetworkImageProvider(
-                                    otherUser.displayPictureURL),
-                            name: otherUser.name,
-                            service: otherUser.category,
-                            lastMessage: chat.lastMessage,
-                            time: chat.time,
-                            hasUnreadMessage: userIsUser1
-                                ? chat.user1HasUnreadMessage
-                                : chat.user2HasUnreadMessage,
-                            type: otherUser.accountType == 'Service Provider' ? 'Individual' : otherUser.accountType,
-                            deleteMessage: 'Archive',
-                            onTap: () async {
-                              setState(() {
-                                showSpinner = true;
-                              });
-                              userIsUser1
-                                  ? chat.user1HasUnreadMessage = false
-                                  : chat.user2HasUnreadMessage = false;
-                              await firestoreAPI.updateChat(chat: chat);
-
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.pushNamed(context, ChatScreen.id,
-                                  arguments: ChatScreenArguments(
-                                    chat: chat,
-                                    user1: userIsUser1 ? user : otherUser,
-                                    userIsUser1: userIsUser1,
-                                    user2: userIsUser1 ? otherUser : user,
-                                  ));
-                            },
-                            hideChat: () async {
-                              bool deleteChat = await showYesNoAlert(
-                                  context: context,
-                                  title: "Are you sure you want delete chat?");
-
-                              if (deleteChat) {
+                          if ((filter == user.id || filter == 'ALL')) {
+                            ///Users main account messages
+                            Widget chatWidget = MessageListItem(
+                              imageURL: otherUser.displayPictureURL,
+                              name: otherUser.name,
+                              service: otherUser.category,
+                              lastMessage: chat.lastMessage,
+                              time: chat.time,
+                              hasUnreadMessage: userIsUser1
+                                  ? chat.user1HasUnreadMessage
+                                  : chat.user2HasUnreadMessage,
+                              type: otherUser.accountType == 'Service Provider' ? 'Individual' : otherUser.accountType,
+                              deleteMessage: 'Archive',
+                              onTap: () async {
                                 setState(() {
                                   showSpinner = true;
                                 });
-                                await analytics.logEvent(
-                                    name: 'provider_hidden_chat');
-                                await firestoreAPI.hideChat(
-                                    chat: chat, hiddenId: user.id);
+                                userIsUser1
+                                    ? chat.user1HasUnreadMessage = false
+                                    : chat.user2HasUnreadMessage = false;
+                                await firestoreAPI.updateChat(chat: chat);
 
                                 setState(() {
                                   showSpinner = false;
                                 });
-                              }
-                            },
-                          );
+                                Navigator.pushNamed(context, ChatScreen.id,
+                                    arguments: ChatScreenArguments(
+                                      chat: chat,
+                                      user1: userIsUser1 ? user : otherUser,
+                                      userIsUser1: userIsUser1,
+                                      user2: userIsUser1 ? otherUser : user,
+                                    ));
+                              },
+                              hideChat: () async {
+                                bool deleteChat = await showYesNoAlert(
+                                    context: context,
+                                    title: "Are you sure you want delete chat?");
 
-                          if (userIsUser1) {
-                            if (!chat.isHiddenFromUser1) {
-                              chatWidgets.add(chatWidget);
-                            }
-                          } else {
-                            if (!chat.isHiddenFromUser2) {
-                              chatWidgets.add(chatWidget);
+                                if (deleteChat) {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+                                  await analytics.logEvent(
+                                      name: 'provider_hidden_chat');
+                                  await firestoreAPI.hideChat(
+                                      chat: chat, hiddenId: user.id);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                }
+                              },
+                            );
+
+                            if (userIsUser1) {
+                              if (!chat.isHiddenFromUser1) {
+                                chatWidgets.add(chatWidget);
+                              }
+                            } else {
+                              if (!chat.isHiddenFromUser2) {
+                                chatWidgets.add(chatWidget);
+                              }
                             }
                           }
+                        } else {
+
+                          ///We're dealing with an application
+                          //TODO: we're going to need the task document as well
+                          TaskApplication application = chatORApplication['application'];
+                          GenchiUser hirer = chatORApplication['hirer'];
+                          GenchiUser applicant = chatORApplication['applicant'];
+                          bool userIsHirer = chatORApplication['userIsHirer'];
+                          Task task = chatORApplication['task'];
+
+                          ///Users task application message
+
+                          Widget taskApplicationWidget = MessageListItem(
+                            imageURL: userIsHirer ? applicant.displayPictureURL:hirer.displayPictureURL,
+                            // name: userIsHirer ? applicant.name : hirer.name,
+                            name: task.title,
+                            service: userIsHirer ? applicant.category : hirer.category,
+                            lastMessage: application.lastMessage,
+                            time: application.time,
+                            type: userIsHirer ? applicant.accountType : hirer.accountType,
+                            hasUnreadMessage: userIsHirer ? application.hirerHasUnreadMessage : application.applicantHasUnreadMessage,
+                            onTap: (){},
+                            deleteMessage: 'Withdraw',
+                            hideChat: (){},
+
+                          );
+
+                          chatWidgets.add(taskApplicationWidget);
                         }
+
+
                       }
                     }
 
@@ -319,6 +384,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                         ),
                       );
                     }
+
+                    //TODO: sort all the widgets by time
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,

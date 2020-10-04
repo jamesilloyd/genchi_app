@@ -100,9 +100,7 @@ class _TaskScreenState extends State<TaskScreen> {
           GenchiUser applicant = applicationAndProvider['applicant'];
 
           MessageListItem chatWidget = MessageListItem(
-              image: applicant.displayPictureURL == null
-                  ? null
-                  : CachedNetworkImageProvider(applicant.displayPictureURL),
+            imageURL: applicant.displayPictureURL,
               name: applicant.name,
               service: applicant.category,
               type: 'JOB',
@@ -213,10 +211,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
           ///Show user's application
           MessageListItem chatWidget = MessageListItem(
-              image: appliedAccount.displayPictureURL == null
-                  ? null
-                  : CachedNetworkImageProvider(
-                      appliedAccount.displayPictureURL),
+            imageURL: appliedAccount.displayPictureURL,
               name: appliedAccount.name,
               service: appliedAccount.category,
               lastMessage: usersApplication.lastMessage,
@@ -871,3 +866,21 @@ class _TaskScreenState extends State<TaskScreen> {
     }
   }
 }
+
+//TODO add in hovering apply button
+// Align(
+//   alignment: Alignment.bottomCenter,
+//   child: Padding(
+//     padding: const EdgeInsets.all(30.0),
+//     child: Container(
+//       height: 70,
+//       child: RoundedButton(
+//         elevation: false,
+//         buttonTitle: 'APPLY',
+//         buttonColor: Color(kGenchiLightOrange),
+//         fontColor: Colors.black,
+//         onPressed: (){},
+//       ),
+//     ),
+//   ),
+// )

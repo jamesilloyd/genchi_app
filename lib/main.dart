@@ -40,7 +40,6 @@ void main() {
   runApp(Genchi());
 }
 
-//TODO: look into hot reload problem (whole app is restarting, maybe use a segue instead?, look at what other large apps do)
 class Genchi extends StatefulWidget {
   @override
   _GenchiState createState() => _GenchiState();
@@ -50,11 +49,7 @@ class _GenchiState extends State<Genchi> {
   ///Initialise FlutterFire
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
- /* @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }*/
+
   @override
   Widget build(BuildContext context) {
 

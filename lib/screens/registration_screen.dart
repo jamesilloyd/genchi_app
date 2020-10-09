@@ -6,6 +6,8 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/home_screen.dart';
+import 'package:genchi_app/screens/post_reg_details_screen.dart';
+import 'package:genchi_app/services/account_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +20,6 @@ class RegistrationScreen extends StatefulWidget {
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
-
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
@@ -40,6 +41,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
+
+    AccountService accountService = Provider.of<AccountService>(context);
 
     return GestureDetector(
       onTap: () {
@@ -114,8 +117,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             child: Container(
                               decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(32.0))),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 12.0, horizontal: 20.0),
@@ -136,12 +139,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 new PopupMenuItem<String>(
                                     child: Text(
                                       'Select type',
-                                      style:
-                                          TextStyle(color: Colors.black45),
+                                      style: TextStyle(color: Colors.black45),
                                     ),
                                     value: 'Select type')
                               ];
-                              for (String accountType in GenchiUser().accessibleAccountTypes) {
+                              for (String accountType
+                                  in GenchiUser().accessibleAccountTypes) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),
@@ -184,6 +187,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       buttonColor: Color(kGenchiBlue),
                       buttonTitle: "Register",
                       onPressed: () async {
+
                         setState(() {
                           showErrorField = false;
                           showSpinner = true;
@@ -204,12 +208,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           await FirebaseAnalytics()
                               .logSignUp(signUpMethod: 'email');
 
-                          //This populates the current user simultaneously
+                          ///This populates the current user simultaneously
                           if (await authProvider.isUserLoggedIn() == true) {
+                            ///Registration complete, so now handing over to the accountService to handle provider
+                            await accountService.updateCurrentAccount(
+                                id: authProvider.currentUser.id);
                             Navigator.pushNamedAndRemoveUntil(
                                 context,
-                                HomeScreen.id,
-                                (Route<dynamic> route) => false);
+                                PostRegDetailsScreen.id,
+                                    (Route<dynamic> route) => false);
                           }
                         } catch (e) {
                           print(e);

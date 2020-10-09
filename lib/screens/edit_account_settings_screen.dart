@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/components/snackbars.dart';
@@ -257,6 +258,17 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                       },
                       textController: emailController,
                     ),
+                    /*TODO: add in the option (and on the post reg screen)
+                        for users to subscribe / unsubscribe to job notification
+                        -also need to update fcm accordingly
+                    */
+
+                    // Center(
+                    //   child: Switch(
+                    //     onChanged: (bool){},
+                    //     value: true,
+                    //   ),
+                    // ),
                     SizedBox(
                       height: 20.0,
                     ),
@@ -329,6 +341,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                         },
                       ),
                     ),
+
                     Center(
                       child: RoundedButton(
                         buttonColor: Color(kGenchiBlue),

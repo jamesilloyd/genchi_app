@@ -206,7 +206,6 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  //TODO: fix profile drag problem
   @override
   Widget build(BuildContext context) {
     AccountService accountService = Provider.of<AccountService>(context);
@@ -356,7 +355,7 @@ class _UserScreenState extends State<UserScreen> {
                                             color: Color(kGenchiOrange),
                                             fontWeight: FontWeight.w500),
                                       ),
-                                      if (account.accountType == 'Group')
+                                      if (account.accountType != 'Individual')
                                         Text(
                                           account.subcategory.toUpperCase(),
                                           style: TextStyle(

@@ -212,6 +212,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                     details: details,
                                     service: serviceController.text,
                                     time: Timestamp.now(),
+                                    status: 'Vacant',
                                     price: price,
                                     hirerId: authProvider.currentUser.id),
                                 hirerId: authProvider.currentUser.id);

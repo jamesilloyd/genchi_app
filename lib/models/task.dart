@@ -8,6 +8,7 @@ class Task {
   String details;
   String date;
   String price;
+  String status;
   List<dynamic> chosenApplicantIds;
   List<dynamic> applicationIds;
   Timestamp time;
@@ -20,11 +21,11 @@ class Task {
     this.details,
     this.date,
     this.price,
+    this.status,
     this.chosenApplicantIds,
     this.applicationIds,
     this.time,
   });
-
 
 
   Task.fromMap(Map snapshot)
@@ -36,6 +37,7 @@ class Task {
         date = snapshot['date'] ?? '',
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
+        status = snapshot['status']?? 'Vacant',
         chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 
@@ -48,12 +50,20 @@ class Task {
       if (details != null) 'details': details,
       if (price != null) 'price': price,
       if (date != null) 'date': date,
+      if (status != null) 'status':status,
       if (chosenApplicantIds != null) 'chosenApplicantIds': chosenApplicantIds,
       if (applicationIds != null) 'applicationIds': applicationIds,
       if (time != null) 'time': time,
     };
   }
 }
+
+
+List<String> taskStatus = [
+  'Vacant',
+  'InProgress',
+  'Completed'
+];
 
 
 

@@ -9,7 +9,6 @@ Widget TaskCard(
     bool orangeBackground = false,
     @required ImageProvider image,
     @required Function onTap,
-    @required String hirerType,
     bool isDisplayTask = true,
     bool hasUnreadMessage = false}) {
   return Column(
@@ -55,7 +54,7 @@ Widget TaskCard(
           ),
         ),
         subtitle: Text(
-          "Posted ${getSummaryTime(time: task.time)}: ${task.details}",
+          task.details,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 14),
@@ -78,7 +77,7 @@ Widget TaskCard(
                   )
                 : SizedBox(height: 15.0),
             Text(
-              hirerType,
+              getSummaryTime(time: task.time),
               textAlign: TextAlign.end,
               style: TextStyle(fontSize: 15),
             ),

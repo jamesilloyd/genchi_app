@@ -81,7 +81,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
               children: <Widget>[
                 StreamBuilder(
                   stream: firestoreAPI.fetchTaskApplicantChatStream(
-                      taskid: thisTaskApplication.taskid,
+                    taskId: thisTaskApplication.taskid,
                       applicationId: thisTaskApplication.applicationId),
                   builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
@@ -169,9 +169,9 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                                   name: 'application_message_sent');
 
                               await firestoreAPI.addMessageToTaskApplicant(
+                                taskId: thisTaskApplication.taskid,
                                   applicationId:
                                       thisTaskApplication.applicationId,
-                                  taskId: thisTaskApplication.taskid,
                                   chatMessage: ChatMessage(
                                       sender: userIsApplicant
                                           ? applicant.id

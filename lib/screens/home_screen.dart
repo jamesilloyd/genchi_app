@@ -163,18 +163,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   // )
                   ]
                 ),
-                title: Text('Jobs'),
+                label: 'Jobs',
               ),
               BottomNavigationBarItem(
                 icon:
                     Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                title: Text('Search'),
+                label: 'Search',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
                     ? CupertinoIcons.conversation_bubble
                     : Icons.message),
-                title: Text('Messages'),
+                label: 'Messages',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
@@ -184,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     : (authProvider.currentUser.providerProfiles.isEmpty
                         ? Icons.account_circle
                         : Icons.group)),
-                title: Text(authProvider.currentUser.providerProfiles.isEmpty
+                label: authProvider.currentUser.providerProfiles.isEmpty
                     ? 'Profile'
-                    : 'Profiles'),
+                    : 'Profiles',
               ),
             ]),
       ),

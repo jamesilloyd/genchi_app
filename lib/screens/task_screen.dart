@@ -52,7 +52,7 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget buildHirersTask({@required Task task, bool isAdmin = false}) {
     ///User is looking at their own task
     return FutureBuilder(
-      future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
+      future: firestoreAPI.getTaskApplicants(task: task),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return CircularProgress();
@@ -89,8 +89,6 @@ class _TaskScreenState extends State<TaskScreen> {
           Divider(
             height: 0,
             thickness: 1,
-            indent: 15,
-            endIndent: 15,
           ),
         ];
 
@@ -102,8 +100,6 @@ class _TaskScreenState extends State<TaskScreen> {
           MessageListItem chatWidget = MessageListItem(
             imageURL: applicant.displayPictureURL,
               name: applicant.name,
-              service: applicant.category,
-              type: 'JOB',
               lastMessage: taskApplication.lastMessage,
               time: taskApplication.time,
               hasUnreadMessage: taskApplication.hirerHasUnreadMessage,
@@ -162,13 +158,13 @@ class _TaskScreenState extends State<TaskScreen> {
       @required Task task}) {
     ///User is looking at someone else's task, provide them with the option to apply
     return FutureBuilder(
-      future: firestoreAPI.getTaskApplicants(taskId: task.taskId),
+      future: firestoreAPI.getTaskApplicants(task: task),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return CircularProgress();
         }
 
-        //TODO this is not the most steamline way to do this
+        //TODO this is not the most streamline way to do this
         bool applied = false;
         GenchiUser appliedAccount;
         TaskApplication usersApplication;
@@ -204,8 +200,6 @@ class _TaskScreenState extends State<TaskScreen> {
             Divider(
               height: 0,
               thickness: 1,
-              indent: 15,
-              endIndent: 15,
             ),
           ];
 
@@ -213,10 +207,8 @@ class _TaskScreenState extends State<TaskScreen> {
           MessageListItem chatWidget = MessageListItem(
             imageURL: appliedAccount.displayPictureURL,
               name: appliedAccount.name,
-              service: appliedAccount.category,
               lastMessage: usersApplication.lastMessage,
               time: usersApplication.time,
-              type: appliedAccount.accountType,
               hasUnreadMessage: usersApplication.applicantHasUnreadMessage,
               onTap: () async {
                 setState(() {
@@ -393,222 +385,211 @@ class _TaskScreenState extends State<TaskScreen> {
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
         child: ListView(
-          padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+          padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        flex: 6,
-                        child: SelectableText(
-                          currentTask.title,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w500,
-                          ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 6,
+                      child: SelectableText(
+                        currentTask.title,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Builder(
-                          builder: (context) {
-                            return IconButton(
-                              onPressed: () async {
-                                bool likesFeature = await showYesNoAlert(
-                                    context: context,
-                                    title: 'Share this job with a friend?');
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Builder(
+                        builder: (context) {
+                          return IconButton(
+                            onPressed: () async {
+                              bool likesFeature = await showYesNoAlert(
+                                  context: context,
+                                  title: 'Share this job with a friend?');
 
-                                if (likesFeature != null) {
-                                  analytics.logEvent(
-                                      name: 'share_job_button_pressed',
-                                      parameters: {'response': likesFeature});
+                              if (likesFeature != null) {
+                                analytics.logEvent(
+                                    name: 'share_job_button_pressed',
+                                    parameters: {'response': likesFeature});
 
-                                  if (likesFeature) {
-                                    Scaffold.of(context)
-                                        .showSnackBar(kDevelopmentFeature);
-                                  }
+                                if (likesFeature) {
+                                  Scaffold.of(context)
+                                      .showSnackBar(kDevelopmentFeature);
                                 }
-                              },
-                              icon: Icon(
-                                Platform.isIOS ? Icons.ios_share : Icons.share,
-                                size: 25,
-                              ),
-                            );
-                          },
-                          // child:
-                        ),
-                      )
-                    ],
-                  ),
-                  Divider(
-                    thickness: 1,
-                    height: 10,
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  FutureBuilder(
-                    ///We probably don't need to check that the user exists here as the
-                    ///task would have been deleted if the hirer doesn't exist.
-                    ///Worst case scenario the infite scoller appears
-                    future: firestoreAPI.getUserById(currentTask.hirerId),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Text('');
-                      }
-                      GenchiUser hirer = snapshot.data;
-
-                      return GestureDetector(
-                        onTap: () async {
-                          await accountService.updateCurrentAccount(
-                              id: currentTask.hirerId);
-                          Navigator.pushNamed(context, UserScreen.id);
+                              }
+                            },
+                            icon: Icon(
+                              Platform.isIOS ? Icons.ios_share : Icons.share,
+                              size: 25,
+                            ),
+                          );
                         },
-                        child: Row(
-                          children: [
-                            hirer.displayPictureURL == null
+                        // child:
+                      ),
+                    )
+                  ],
+                ),
+                Divider(
+                  thickness: 1,
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                FutureBuilder(
+                  ///We probably don't need to check that the user exists here as the
+                  ///task would have been deleted if the hirer doesn't exist.
+                  ///Worst case scenario the infite scoller appears
+                  future: firestoreAPI.getUserById(currentTask.hirerId),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text('');
+                    }
+                    GenchiUser hirer = snapshot.data;
 
-                                ///Show default image
-                                ? CircleAvatar(
-                                    radius: 45,
-                                    backgroundColor: Color(0xffC4C4C4),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Icon(
-                                        Icons.person,
-                                        color: Color(0xff585858),
-                                        size: 35,
-                                      ),
-                                    ),
-                                  )
+                    return GestureDetector(
+                      onTap: () async {
+                        await accountService.updateCurrentAccount(
+                            id: currentTask.hirerId);
+                        Navigator.pushNamed(context, UserScreen.id);
+                      },
+                      child: Row(
+                        children: [
+                          hirer.displayPictureURL == null
 
-                                ///Show provider image
-                                : Container(
-                                    height: 90,
-                                    width: 90,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(kGenchiCream),
-                                    ),
-                                    clipBehavior: Clip.hardEdge,
-                                    child: Image(
-                                      image: CachedNetworkImageProvider(
-                                          hirer.displayPictureURL),
-                                      fit: BoxFit.cover,
-                                      gaplessPlayback: true,
+                              ///Show default image
+                              ? CircleAvatar(
+                                  radius: 45,
+                                  backgroundColor: Color(0xffC4C4C4),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Icon(
+                                      Icons.person,
+                                      color: Color(0xff585858),
+                                      size: 35,
                                     ),
                                   ),
-                            SizedBox(width: 15),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    hirer.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
+                                )
+
+                              ///Show provider image
+                              : Container(
+                                  height: 90,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(kGenchiCream),
                                   ),
-                                  Text(
-                                    hirer.bio,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Image(
+                                    image: CachedNetworkImageProvider(
+                                        hirer.displayPictureURL),
+                                    fit: BoxFit.cover,
+                                    gaplessPlayback: true,
                                   ),
-                                  Text(
-                                    "Posted ${getTaskPostedTime(time: currentTask.time)}",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(kGenchiOrange)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  Text('Category', style: titleTextStyle),
-                  Divider(
-                    thickness: 1,
-                    height: 8,
-                  ),
-                  Text(
-                    currentTask.service.toUpperCase(),
-                    style: TextStyle(fontSize: 22, color: Color(kGenchiOrange)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    child: Text("Details",
-                        textAlign: TextAlign.left, style: titleTextStyle),
-                  ),
-                  Divider(
-                    thickness: 1,
-                    height: 8,
-                  ),
-                  SelectableLinkify(
-                    text: currentTask.details ?? "",
-                    onOpen: _onOpenLink,
-                    options: LinkifyOptions(humanize: false),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Text("Job Timings",
-                        textAlign: TextAlign.left, style: titleTextStyle),
-                  ),
-                  Divider(
-                    thickness: 1,
-                    height: 8,
-                  ),
-                  SelectableLinkify(
-                    text: currentTask.date ?? "",
-                    onOpen: _onOpenLink,
-                    options: LinkifyOptions(humanize: false),
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Text("Incentive",
-                        textAlign: TextAlign.left, style: titleTextStyle),
-                  ),
-                  Divider(
-                    thickness: 1,
-                    height: 8,
-                  ),
-                  SelectableText(
-                    currentTask.price ?? "",
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [],
-              ),
+                                ),
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  hirer.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  hirer.bio,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                Text(
+                                  "Posted ${getTaskPostedTime(time: currentTask.time)}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(kGenchiOrange)),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                Text('Category', style: titleTextStyle),
+                Divider(
+                  thickness: 1,
+                  height: 8,
+                ),
+                Text(
+                  currentTask.service.toUpperCase(),
+                  style: TextStyle(fontSize: 22, color: Color(kGenchiOrange)),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  child: Text("Details",
+                      textAlign: TextAlign.left, style: titleTextStyle),
+                ),
+                Divider(
+                  thickness: 1,
+                  height: 8,
+                ),
+                SelectableLinkify(
+                  text: currentTask.details ?? "",
+                  onOpen: _onOpenLink,
+                  options: LinkifyOptions(humanize: false),
+                  style:
+                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Text("Job Timings",
+                      textAlign: TextAlign.left, style: titleTextStyle),
+                ),
+                Divider(
+                  thickness: 1,
+                  height: 8,
+                ),
+                SelectableLinkify(
+                  text: currentTask.date ?? "",
+                  onOpen: _onOpenLink,
+                  options: LinkifyOptions(humanize: false),
+                  style:
+                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Text("Incentive",
+                      textAlign: TextAlign.left, style: titleTextStyle),
+                ),
+                Divider(
+                  thickness: 1,
+                  height: 8,
+                ),
+                SelectableText(
+                  currentTask.price ?? "",
+                  style:
+                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 10),
+              ],
             ),
             isUsersTask
                 ? buildHirersTask(task: currentTask)
@@ -812,7 +793,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
                         TaskApplication taskApplication =
                             await firestoreAPI.getTaskApplicationById(
-                          taskId: currentTask.taskId,
+                              taskId: currentTask.taskId,
                           applicationId: chatRef.id,
                         );
 

@@ -11,6 +11,7 @@ class GenchiUser {
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
+  bool subscribedToJobs;
   Timestamp timeStamp;
   List<dynamic> tasksApplied;
   List<dynamic> chats;
@@ -47,6 +48,7 @@ class GenchiUser {
     this.accountType,
     this.id,
     this.email,
+    this.subscribedToJobs,
     this.name,
     this.bio,
     this.displayPictureFileName,
@@ -64,10 +66,10 @@ class GenchiUser {
     this.providerProfiles,
     this.admin,
   });
-  //TODO delete redundancy for 1.0.6
+
   GenchiUser.fromMap(Map snapshot)
       : accountType =  snapshot['accountType'] ?? 'Individual',
-        id = snapshot['id'] ?? snapshot['pid'],
+        id = snapshot['id'] ?? '',
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
         bio = snapshot['bio'] ?? '',
@@ -84,6 +86,7 @@ class GenchiUser {
         subcategory = snapshot['subcategory'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
+        subscribedToJobs = snapshot['subscribedToJobs'] ?? true,
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -93,6 +96,7 @@ class GenchiUser {
       if (email != null) "email": email,
       if (name != null) "name": name,
       if (bio != null) "bio": bio,
+      if (subscribedToJobs != null) "subscribedToJobs":subscribedToJobs,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,

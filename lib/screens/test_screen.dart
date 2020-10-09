@@ -52,7 +52,6 @@ class _TestScreenState extends State<TestScreen> {
             buttonTitle: 'Crashlytics Enables?',
             onPressed: ()async{
 
-              await firestoreApi.migrateTaskApplicationsIntoCollection();
 
             },
           ),

@@ -15,6 +15,7 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
+import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
@@ -150,6 +151,7 @@ class StartUp extends StatelessWidget {
               EditAccountSettingsScreen.id: (context) =>
                   EditAccountSettingsScreen(),
               UserScreen.id: (context) => UserScreen(),
+              PostRegDetailsScreen.id: (context) => PostRegDetailsScreen(),
             },
           );
         }

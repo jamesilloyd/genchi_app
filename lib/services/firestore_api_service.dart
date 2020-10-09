@@ -10,25 +10,24 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  // static CollectionReference _usersCollectionRef =
-  // FirebaseFirestore.instance.collection('users');
-  //
-  // static CollectionReference _chatCollectionRef =
-  // FirebaseFirestore.instance.collection('chats');
-  //
-  // static CollectionReference _taskCollectionRef =
-  // FirebaseFirestore.instance.collection('tasks');
+  static CollectionReference _usersCollectionRef =
+  FirebaseFirestore.instance.collection('users');
+
+  static CollectionReference _chatCollectionRef =
+  FirebaseFirestore.instance.collection('chats');
+
+  static CollectionReference _taskCollectionRef =
+  FirebaseFirestore.instance.collection('tasks');
 
   ///DEVELOP MODE
-  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/users');
-
-  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
-
-  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
-
+  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/users');
+  //
+  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+  //
+  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
@@ -276,6 +275,20 @@ class FirestoreAPIService {
     usersProfileIds.add(user.id);
     usersProfileIds.addAll(user.providerProfiles);
 
+    ///Get the tasks the provider profile has applied to!
+    List tasksApplied = [];
+    List providerProfiles = [];
+    providerProfiles.add(user);
+    tasksApplied.addAll(user.tasksApplied);
+
+    for (String pid in user.providerProfiles) {
+      GenchiUser provider = await getUserById(pid);
+      if (provider != null) {
+        providerProfiles.add(provider);
+        tasksApplied.addAll(provider.tasksApplied);
+      }
+    }
+
     ///Getting all the private chats
     Stream stream1 = _chatCollectionRef
         .where('ids', arrayContainsAny: usersProfileIds)
@@ -291,14 +304,14 @@ class FirestoreAPIService {
         GenchiUser otherUser = await getUserById(isUser1 ? chat.id2 : chat.id1);
 
         ///Get the current user's profile (either main or a specific provider profile)
-        //TODO: now that we have collected the provider profiles there is no need to recollect them
         GenchiUser currentUser;
-        if (isUser1) {
-          currentUser =
-              (chat.id1 == user.id ? user : await getUserById(chat.id1));
-        } else {
-          currentUser =
-              (chat.id2 == user.id ? user : await getUserById(chat.id2));
+
+        for (GenchiUser account in providerProfiles) {
+          if (isUser1) {
+            if (chat.id1 == account.id) currentUser = account;
+          } else {
+            if (chat.id2 == account.id) currentUser = account;
+          }
         }
 
         if (otherUser != null && currentUser != null) {
@@ -321,29 +334,13 @@ class FirestoreAPIService {
       return await Future.wait(futures);
     });
 
-    //TODO: having a problem here where the ANDROID is not receiving the documents.SEE BELOW
-    //TODO -----------------------------------COME BACK TO THIS-------------------------------------------------
-    ///Background concurrent copying GC freed 62671(2MB) AllocSpace objects, 19(380KB) LOS objects, 49% free, 3MB/6MB, paused 15us total 100.960ms
     ///Getting the tasks the user has applied to
-
-    ///Get the tasks the provider profile has applied to!
-    List tasksApplied = [];
-    //TODO collect the prover profiles to save additional reads later.
-    List providerProfiles = [];
-    tasksApplied.addAll(user.tasksApplied);
-
-
-    for(String pid in user.providerProfiles){
-      GenchiUser provider = await getUserById(pid);
-      if(provider != null) tasksApplied.addAll(provider.tasksApplied);
-    }
-
     Stream stream2 = _taskCollectionRef
-        .where('taskId', whereIn: tasksApplied)
+        //TODO: is this risky using [' '] as a null entry?
+        .where('taskId', whereIn: tasksApplied.isNotEmpty ? tasksApplied : [' '])
         .snapshots()
         .asyncMap((event) async {
       var futures = event.docs.map((doc) async {
-
         Task appliedTask = Task.fromMap(doc.data());
 
         QuerySnapshot taskApplicationData = await _taskCollectionRef
@@ -358,12 +355,10 @@ class FirestoreAPIService {
               TaskApplication.fromMap(taskApplicationData.docs[0].data());
           GenchiUser currentUser;
 
-          //TODO: there may be a smoother way to do this
           ///Need to check which user account it is and get the account if it's a provider
-          if (taskApplication.applicantId == user.id) {
-            currentUser = user;
-          } else {
-            currentUser = await getUserById(taskApplication.applicantId);
+          for (GenchiUser account in providerProfiles) {
+            if (taskApplication.applicantId == account.id)
+              currentUser = account;
           }
 
           ///Need to get the hirer's account
@@ -389,13 +384,15 @@ class FirestoreAPIService {
           }
         }
       });
+
       return await Future.wait(futures);
     });
 
     ///Getting the tasks the user has posted (service providers can't post tasks so
     ///this is a little more simple)
     Stream stream3 = _taskCollectionRef
-        .where('taskId', whereIn: user.posts)
+    //TODO: is this risky using [' '] as a null entry?
+        .where('taskId', whereIn: user.posts.isNotEmpty ? user.posts : [' '])
         .snapshots()
         .asyncMap((event) async {
       var futures = event.docs.map((doc) async {
@@ -412,7 +409,6 @@ class FirestoreAPIService {
               taskApplicationsData.first['application'];
 
           Timestamp latestTime = latestApplication.time;
-
 
           ///Return results as a map
           return {
@@ -557,7 +553,6 @@ class FirestoreAPIService {
   }
 
   Future updateTaskApplication({TaskApplication taskApplication}) async {
-
     await _taskCollectionRef
         .doc(taskApplication.taskid)
         .collection(applicantCollectionName)
@@ -626,7 +621,6 @@ class FirestoreAPIService {
 
   Stream<QuerySnapshot> fetchTaskApplicantChatStream(
       {@required String applicationId, @required String taskId}) {
-
     return _taskCollectionRef
         .doc(taskId)
         .collection(applicantCollectionName)
@@ -761,7 +755,9 @@ class FirestoreAPIService {
         .update(taskApplication.toJson());
 
     ///This ensures that the stream view updates
-    await _taskCollectionRef.doc(taskId).update({'latestEvent':Timestamp.now()});
+    await _taskCollectionRef
+        .doc(taskId)
+        .update({'latestEvent': Timestamp.now()});
 
     ///Add the message to the task applicant collection
     var result = await _taskCollectionRef

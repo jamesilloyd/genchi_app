@@ -111,7 +111,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
 
                     if (messageBubbles.isEmpty) {
                       return Padding(
-                        padding: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(20.0),
                         child: MaterialButton(
                           enableFeedback: false,
                           onPressed: (){},
@@ -121,7 +121,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                               child: Text(
                                   "Send ${hirer.name} a message letting them know why you've applied!",
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16,color: Colors.black),),
+                              style: TextStyle(fontSize: 16,color: Colors.black, fontWeight: FontWeight.w400),),
                             )),
                       );
                     }

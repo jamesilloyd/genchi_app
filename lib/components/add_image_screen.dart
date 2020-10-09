@@ -125,15 +125,15 @@ class _AddImageScreenState extends State<AddImageScreen> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 40,
-                      child: Center(
+              child: SizedBox(
+                height: 35,
+                child: FittedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
                         child: Text(
-                          'Change All Display Pictures',
+                          'Change Display Picture',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 30.0,
@@ -142,13 +142,13 @@ class _AddImageScreenState extends State<AddImageScreen> {
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 20,),
-                    GestureDetector(
-                      onTap: (){Navigator.pop(context);},
-                      child: Icon(Icons.close, color: Color(kGenchiCream),),
-                    )
-                  ],
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){Navigator.pop(context);},
+                        child: Icon(Icons.close, color: Color(kGenchiCream),),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

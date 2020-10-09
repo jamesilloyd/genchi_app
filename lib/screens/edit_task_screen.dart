@@ -87,6 +87,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             iconTheme: IconThemeData(
               color: Colors.black,
             ),
+            centerTitle: true,
             title: Text(
               'Edit Job',
               style: TextStyle(

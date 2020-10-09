@@ -39,13 +39,14 @@ class _JobsScreenState extends State<JobsScreen> {
   bool _isVisible = true;
   bool _isExpanded = false;
   String appliedPosted = 'Posted';
+
   // int postedNotifications = 0;
   // int appliedNotifications = 0;
 
   double buttonHeight;
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
-  GlobalKey<LiquidPullToRefreshState>();
+      GlobalKey<LiquidPullToRefreshState>();
 
   void openBottomSection() async {
     await Duration(milliseconds: 500);
@@ -82,11 +83,8 @@ class _JobsScreenState extends State<JobsScreen> {
       }
     });
 
-
     GenchiUser currentUser =
-        Provider
-            .of<AuthenticationService>(context, listen: false)
-            .currentUser;
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
     analytics.setCurrentScreen(screenName: 'home/jobs_screen');
 
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
@@ -109,10 +107,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
     if (debugMode) print('Job screen activated');
     buttonHeight = 0.08 *
-        (MediaQuery
-            .of(context)
-            .size
-            .height -
+        (MediaQuery.of(context).size.height -
             kToolbarHeight -
             AppBar().preferredSize.height -
             25);
@@ -137,22 +132,15 @@ class _JobsScreenState extends State<JobsScreen> {
         boxShadow: [BoxShadow(color: Colors.transparent)],
         color: Colors.transparent,
         minHeight: 25,
-        maxHeight: MediaQuery
-            .of(context)
-            .size
-            .height -
+        maxHeight: MediaQuery.of(context).size.height -
             kToolbarHeight -
             AppBar().preferredSize.height,
         controller: _panelController,
         panel: Column(
           children: [
             Container(
-              height: 25 +
-                  buttonHeight,
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              height: 25 + buttonHeight,
+              width: MediaQuery.of(context).size.width,
               child: Column(
                 children: [
                   Row(
@@ -169,11 +157,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             setState(() {});
                           },
                           child: Container(
-                            width:
-                            MediaQuery
-                                .of(context)
-                                .size
-                                .width / 8,
+                            width: MediaQuery.of(context).size.width / 8,
                             height: 25,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.vertical(
@@ -271,11 +255,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             setState(() {});
                           },
                           child: Container(
-                            width:
-                            MediaQuery
-                                .of(context)
-                                .size
-                                .width / 8,
+                            width: MediaQuery.of(context).size.width / 8,
                             height: 25,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.vertical(
@@ -462,10 +442,7 @@ class _JobsScreenState extends State<JobsScreen> {
               color: appliedPosted == 'Posted'
                   ? Color(kGenchiLightOrange)
                   : Color(kGenchiLightGreen),
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height -
+              height: MediaQuery.of(context).size.height -
                   kToolbarHeight -
                   AppBar().preferredSize.height -
                   25 -
@@ -492,9 +469,9 @@ class _JobsScreenState extends State<JobsScreen> {
                       future: getUserTasksPostedAndNotificationsFuture,
                       builder: (context, snapshot) {
                         final List<Map<String, dynamic>>
-                        userTasksAndNotifications = snapshot.data;
+                            userTasksAndNotifications = snapshot.data;
 
-                        List<List<Widget>> taskWidgets = [[],[],[]];
+                        List<List<Widget>> taskWidgets = [[], [], []];
 
                         if (snapshot.hasData) {
                           if (userTasksAndNotifications.isEmpty) {
@@ -512,17 +489,17 @@ class _JobsScreenState extends State<JobsScreen> {
                           }
 
                           for (Map taskAndNotification
-                          in userTasksAndNotifications) {
+                              in userTasksAndNotifications) {
                             Task task = taskAndNotification['task'];
                             bool userHasNotification =
-                            taskAndNotification['hasNotification'];
+                                taskAndNotification['hasNotification'];
 
                             Widget tCard = TaskCard(
                                 orangeBackground: true,
                                 image: currentUser.displayPictureURL == null
                                     ? null
                                     : CachedNetworkImageProvider(
-                                    currentUser.displayPictureURL),
+                                        currentUser.displayPictureURL),
                                 task: task,
                                 hasUnreadMessage: userHasNotification,
                                 isDisplayTask: false,
@@ -543,17 +520,17 @@ class _JobsScreenState extends State<JobsScreen> {
                                     getUserTasksPostedAndNotificationsFuture =
                                         firestoreAPI
                                             .getUserTasksPostedAndNotifications(
-                                            postIds: currentUser.posts);
+                                                postIds: currentUser.posts);
 
                                     setState(() {});
                                   });
                                 });
 
-                            if(task.status == 'Vacant') {
+                            if (task.status == 'Vacant') {
                               taskWidgets[0].add(tCard);
-                            } else if(task.status == 'InProgress') {
+                            } else if (task.status == 'InProgress') {
                               taskWidgets[1].add(tCard);
-                            } else if(task.status == 'Completed') {
+                            } else if (task.status == 'Completed') {
                               taskWidgets[2].add(tCard);
                             }
                           }
@@ -566,12 +543,13 @@ class _JobsScreenState extends State<JobsScreen> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                appliedPosted == 'Posted' ? 'RECEIVING APPLICATIONS':'APPLIED',
+                                appliedPosted == 'Posted'
+                                    ? 'RECEIVING APPLICATIONS'
+                                    : 'APPLIED',
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xff5415BA)
-                                ),
+                                    color: Color(0xff5415BA)),
                               ),
                             ),
                             Divider(
@@ -581,6 +559,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             Column(
                               children: taskWidgets[0],
                             ),
+                            SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -588,17 +567,25 @@ class _JobsScreenState extends State<JobsScreen> {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xff41820E)
-                                ),
+                                    color: Color(0xff41820E)),
                               ),
                             ),
                             Divider(
                               height: 0,
                               thickness: 1,
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                  child: Text(
+                                    'Coming Soon',
+                                    style: TextStyle(fontSize: 16),
+                                  )),
+                            ),
                             Column(
                               children: taskWidgets[1],
                             ),
+                            SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -606,13 +593,20 @@ class _JobsScreenState extends State<JobsScreen> {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xffDA2222)
-                                ),
+                                    color: Color(0xffDA2222)),
                               ),
                             ),
                             Divider(
                               height: 0,
                               thickness: 1,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                  child: Text(
+                                    'Coming Soon',
+                                    style: TextStyle(fontSize: 16),
+                                  )),
                             ),
                             Column(
                               children: taskWidgets[2],
@@ -628,9 +622,9 @@ class _JobsScreenState extends State<JobsScreen> {
                       future: getUserTasksAppliedFuture,
                       builder: (context, snapshot) {
                         final List<Map<String, dynamic>>
-                        tasksAndHirersAndNotification = snapshot.data;
+                            tasksAndHirersAndNotification = snapshot.data;
 
-                        List<List<Widget>> taskWidgets = [[],[],[]];
+                        List<List<Widget>> taskWidgets = [[], [], []];
 
                         if (snapshot.hasData) {
                           if (tasksAndHirersAndNotification.isEmpty) {
@@ -647,19 +641,19 @@ class _JobsScreenState extends State<JobsScreen> {
                             );
                           }
 
-
                           for (Map taskAndHirerAndNotification
-                          in tasksAndHirersAndNotification) {
+                              in tasksAndHirersAndNotification) {
                             Task task = taskAndHirerAndNotification['task'];
-                            GenchiUser hirer = taskAndHirerAndNotification['hirer'];
+                            GenchiUser hirer =
+                                taskAndHirerAndNotification['hirer'];
                             bool userHasNotification =
-                            taskAndHirerAndNotification['hasNotification'];
+                                taskAndHirerAndNotification['hasNotification'];
 
                             Widget tCard = TaskCard(
                                 image: hirer.displayPictureURL == null
                                     ? null
                                     : CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
+                                        hirer.displayPictureURL),
                                 task: task,
                                 hasUnreadMessage: userHasNotification,
                                 isDisplayTask: false,
@@ -679,19 +673,17 @@ class _JobsScreenState extends State<JobsScreen> {
                                       .then((value) {
                                     getUserTasksAppliedFuture = firestoreAPI
                                         .getUserTasksAppliedAndNotifications(
-                                        providerIds:
-                                        currentUser.providerProfiles,
-                                        mainId: currentUser.id);
-                                    setState(() {
-
-                                    });
+                                            providerIds:
+                                                currentUser.providerProfiles,
+                                            mainId: currentUser.id);
+                                    setState(() {});
                                   });
                                 });
-                            if(task.status == 'Vacant') {
+                            if (task.status == 'Vacant') {
                               taskWidgets[0].add(tCard);
-                            } else if(task.status == 'InProgress') {
+                            } else if (task.status == 'InProgress') {
                               taskWidgets[1].add(tCard);
-                            } else if(task.status == 'Completed') {
+                            } else if (task.status == 'Completed') {
                               taskWidgets[2].add(tCard);
                             }
                           }
@@ -704,12 +696,13 @@ class _JobsScreenState extends State<JobsScreen> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                appliedPosted == 'Posted' ? 'RECEIVING APPLICATIONS':'APPLIED',
+                                appliedPosted == 'Posted'
+                                    ? 'RECEIVING APPLICATIONS'
+                                    : 'APPLIED TO',
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xff5415BA)
-                                ),
+                                    color: Color(0xff5415BA)),
                               ),
                             ),
                             Divider(
@@ -719,6 +712,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             Column(
                               children: taskWidgets[0],
                             ),
+                            SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -726,17 +720,25 @@ class _JobsScreenState extends State<JobsScreen> {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xff41820E)
-                                ),
+                                    color: Color(0xff41820E)),
                               ),
                             ),
                             Divider(
                               height: 0,
                               thickness: 1,
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                  child: Text(
+                                'Coming Soon',
+                                style: TextStyle(fontSize: 16),
+                              )),
+                            ),
                             Column(
                               children: taskWidgets[1],
                             ),
+                            SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
@@ -744,13 +746,20 @@ class _JobsScreenState extends State<JobsScreen> {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xffDA2222)
-                                ),
+                                    color: Color(0xffDA2222)),
                               ),
                             ),
                             Divider(
                               height: 0,
                               thickness: 1,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                  child: Text(
+                                    'Coming Soon',
+                                    style: TextStyle(fontSize: 16),
+                                  )),
                             ),
                             Column(
                               children: taskWidgets[2],
@@ -861,48 +870,47 @@ class _JobsScreenState extends State<JobsScreen> {
                       ),
                       SizedBox(
                           child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: PopupMenuButton(
-                                elevation: 1,
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Text(
-                                        filter.toUpperCase(),
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      SizedBox(width: 5),
-                                      ImageIcon(
-                                        AssetImage('images/filter.png'),
-                                        color: Colors.black,
-                                        size: 30,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      )
-                                    ]),
-                                itemBuilder: (_) {
-                                  List<PopupMenuItem<String>> items = [
-                                    const PopupMenuItem<String>(
-                                        child: const Text('ALL'), value: 'ALL'),
-                                  ];
-                                  for (Service service in servicesList) {
-                                    items.add(
-                                      new PopupMenuItem<String>(
-                                          child: Text(
-                                              service.databaseValue
-                                                  .toUpperCase()),
-                                          value: service.databaseValue),
-                                    );
-                                  }
-                                  return items;
-                                },
-                                onSelected: (value) {
-                                  setState(() {
-                                    filter = value;
-                                  });
-                                }),
-                          )),
+                        alignment: Alignment.bottomCenter,
+                        child: PopupMenuButton(
+                            elevation: 1,
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  Text(
+                                    filter.toUpperCase(),
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  SizedBox(width: 5),
+                                  ImageIcon(
+                                    AssetImage('images/filter.png'),
+                                    color: Colors.black,
+                                    size: 30,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  )
+                                ]),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                                const PopupMenuItem<String>(
+                                    child: const Text('ALL'), value: 'ALL'),
+                              ];
+                              for (Service service in servicesList) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(
+                                          service.databaseValue.toUpperCase()),
+                                      value: service.databaseValue),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) {
+                              setState(() {
+                                filter = value;
+                              });
+                            }),
+                      )),
                     ],
                   ),
                   Divider(
@@ -934,7 +942,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             image: hirer.displayPictureURL == null
                                 ? null
                                 : CachedNetworkImageProvider(
-                                hirer.displayPictureURL),
+                                    hirer.displayPictureURL),
                             task: task,
                             onTap: () async {
                               setState(() {

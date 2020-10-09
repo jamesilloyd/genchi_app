@@ -256,6 +256,8 @@ class _TaskScreenState extends State<TaskScreen> {
                       applicationId: usersApplication.applicationId,
                       taskId: usersApplication.taskid);
 
+                  await Provider.of<AuthenticationService>(context, listen: false).updateCurrentUserData();
+
                   setState(() {
                     showSpinner = false;
                   });
@@ -819,8 +821,12 @@ class _TaskScreenState extends State<TaskScreen> {
                                 applicant: applicantProfile,
                                 userIsApplicant: true,
                               )).then((value) {
-                            ///Refresh screen
-                            setState(() {});
+
+                                authProvider.updateCurrentUserData();
+                                ///Refresh screen
+                                setState(() {});
+
+
                           });
                         }
                       }

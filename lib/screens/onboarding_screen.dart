@@ -357,12 +357,12 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Genchi.png',
       sliderHeading: 'WELCOME TO',
       sliderSubHeading:
-          'Genchi is the Cambridge Student Services Marketplace that connects people in need of services with those looking for opportunities.'),
+          'Genchi is as platform for students to find and share opportunities within Cambridge.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Hire.png',
       sliderHeading: 'HIRE',
       sliderSubHeading:
-          'We give you the freedom to easily select between service providers or post a job and choose from those that apply.'),
+          'We give you the freedom to easily select between skilled students or post a job and choose from those that apply.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Provide.png',
       sliderHeading: 'PROVIDE',

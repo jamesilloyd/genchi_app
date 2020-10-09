@@ -6,6 +6,7 @@ import 'package:genchi_app/constants.dart';
 ///
 Widget TaskCard(
     {@required Task task,
+    bool orangeBackground = false,
     @required ImageProvider image,
     @required Function onTap,
     bool isDisplayTask = true,
@@ -18,7 +19,7 @@ Widget TaskCard(
         onTap: onTap,
         leading: image == null
             ? CircleAvatar(
-                radius: 30,
+                radius: 28,
                 backgroundColor: Color(0xffC4C4C4),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -30,8 +31,8 @@ Widget TaskCard(
                 ),
               )
             : Container(
-                height: 60,
-                width: 60,
+                height: 56,
+                width: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(kGenchiCream),
@@ -49,6 +50,7 @@ Widget TaskCard(
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 20,
+            fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400
           ),
         ),
         subtitle: Text(
@@ -58,33 +60,35 @@ Widget TaskCard(
           style: TextStyle(fontSize: 14),
         ),
         trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            if (!isDisplayTask)
-              hasUnreadMessage
-                  ? Container(
-                      height: 15,
-                      width: 15,
-                      decoration: BoxDecoration(
-                        color: Color(kGenchiOrange),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
+            hasUnreadMessage
+                ? Container(
+                    height: 15,
+                    width: 15,
+                    decoration: BoxDecoration(
+                      color: Color(
+                          orangeBackground ? kGenchiGreen : kGenchiOrange),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10.0),
                       ),
-                    )
-                  : SizedBox(height: 15.0),
+                    ),
+                  )
+                : SizedBox(height: 15.0),
+            Text(
+              getSummaryTime(time: task.time),
+              textAlign: TextAlign.end,
+              style: TextStyle(fontSize: 15),
+            ),
             Text(
               task.service,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 16, color: Color(kGenchiOrange)),
-            ),
-            Text(
-              'Posted ${getSummaryTime(time: task.time)}',
-              textAlign: TextAlign.end,
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(
+                  fontSize: 15,
+                  color:
+                      Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
+              fontWeight: FontWeight.w500),
             ),
           ],
         ),

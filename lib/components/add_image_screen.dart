@@ -6,14 +6,13 @@ import 'dart:io';
 import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,9 +21,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-/* TODO: things left to do here:
-    -handle timeout/failure errors
- */
 
 Color _iconColor = Color(kGenchiCream);
 
@@ -107,9 +103,9 @@ class _AddImageScreenState extends State<AddImageScreen> {
   Widget build(BuildContext context) {
     if(debugMode) print('Add Image Screen: Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
-    final providerService = Provider.of<ProviderService>(context);
-    ProviderUser currentProvider = providerService.currentProvider;
+
+    final accountService = Provider.of<AccountService>(context);
+    GenchiUser currentUser = accountService.currentAccount;
 
     return ModalProgressHUD(
           inAsyncCall: showSpinner,
@@ -129,15 +125,15 @@ class _AddImageScreenState extends State<AddImageScreen> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 40,
-                      child: Center(
+              child: SizedBox(
+                height: 35,
+                child: FittedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
                         child: Text(
-                          'Change All Display Pictures',
+                          'Change Display Picture',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 30.0,
@@ -146,13 +142,13 @@ class _AddImageScreenState extends State<AddImageScreen> {
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 20,),
-                    GestureDetector(
-                      onTap: (){Navigator.pop(context);},
-                      child: Icon(Icons.close, color: Color(kGenchiCream),),
-                    )
-                  ],
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){Navigator.pop(context);},
+                        child: Icon(Icons.close, color: Color(kGenchiCream),),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -239,7 +235,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                                 });
                                 await firestoreAPI.deleteDisplayPicture(user: currentUser);
                                 await authProvider.updateCurrentUserData();
-                                if(!widget.isUser) await providerService.updateCurrentProvider(currentProvider.pid);
+                                await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
                                 setState(() {
                                   showSpinner = false;
                                 });
@@ -297,7 +293,7 @@ class _UploaderState extends State<Uploader> {
 
   Future<bool> updateDisplayPicture() async {
     final authProvider = Provider.of<AuthenticationService>(context,listen: false);
-    final providerService = Provider.of<ProviderService>(context, listen: false);
+    final accountService = Provider.of<AccountService>(context, listen: false);
 
     try {
       filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
@@ -310,24 +306,21 @@ class _UploaderState extends State<Uploader> {
       print(downloadUrl);
 
 
-      String oldFileName = widget.isUser ? authProvider.currentUser.displayPictureFileName : providerService.currentProvider.displayPictureFileName;
+      String oldFileName = authProvider.currentUser.displayPictureFileName;
       print('Updating firestore user');
 
-      await firestoreAPI.updateUser(user: User(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
+      await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
 
       print('Updating firestore providers');
 
-      for(String pid in authProvider.currentUser.providerProfiles) {
-        await firestoreAPI.updateProvider(provider: ProviderUser(displayPictureFileName: filePath,displayPictureURL: downloadUrl), pid: pid);
+      for(String id in authProvider.currentUser.providerProfiles) {
+        await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: id);
       }
 
       print('Updating current user and provider');
-      if(widget.isUser) {
         await authProvider.updateCurrentUserData();
-      } else {
-        await authProvider.updateCurrentUserData();
-        await providerService.updateCurrentProvider(providerService.currentProvider.pid);
-      }
+        await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
+
       print('Deleting old file');
       if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();
 

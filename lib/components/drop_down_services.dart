@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/user.dart';
 
 List<DropdownMenuItem> dropDownServiceItems() {
@@ -19,10 +18,9 @@ List<DropdownMenuItem> dropDownServiceItems() {
   return dropdownItems;
 }
 
-
 List<DropdownMenuItem> dropDownAccountTypeItems() {
   List<DropdownMenuItem<String>> dropdownItems = [];
-  for (String accountType in AccountTypeList) {
+  for (String accountType in GenchiUser().accessibleAccountTypes) {
     var newItem = DropdownMenuItem(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10,0,0,0),

@@ -77,7 +77,7 @@ Future<bool> showYesNoAlert(
         ? CupertinoAlertDialog(
             title: Text(
               title,
-              style: TextStyle(fontFamily: 'FuturaPT'),
+              style: TextStyle(fontFamily: 'FuturaPT',fontWeight: FontWeight.w500),
             ),
              content: body!=null ? Text(
                 body,

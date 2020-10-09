@@ -51,7 +51,7 @@ class MessageBubble extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16,
-                            color: Color(kGenchiCream),
+                            color: Colors.white,
                           ),
                         ),
 

@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/screens/search_manual_screen.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 
+//TODO: NOT FINISHED
 class SearchBar extends StatelessWidget {
   const SearchBar({
     Key key,
@@ -55,7 +53,6 @@ class SearchBarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       onTap: (){
-        Navigator.pushNamed(context, SearchManualScreen.id);
       },
       autocorrect: false,
       textCapitalization: TextCapitalization.sentences,

@@ -357,15 +357,15 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Genchi.png',
       sliderHeading: 'WELCOME TO',
       sliderSubHeading:
-          'Genchi is a Cambridge Student Services Marketplace that connects people in need of services (Hirers) with the people that can offer those services (Providers).'),
+          'Genchi is as platform for students to find and share opportunities within Cambridge.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Hire.png',
       sliderHeading: 'HIRE',
       sliderSubHeading:
-          'We give you the freedom to easily select between service providers you need or post a job and choose from those that apply. \n \n All users are created with a hiring profile where you can add basic details about yourself and start hiring.'),
+          'We give you the freedom to easily select between skilled students or post a job and choose from those that apply.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Provide.png',
       sliderHeading: 'PROVIDE',
       sliderSubHeading:
-          'We also allow you to effortlessly set up a provider profile alongside your hiring profile. You can create multiple provider profiles for each service you offer. \n\n Start applying to opportunities and begin gaining valuable experience.'),
+          'We also allow you to create provider profiles for each service you offer. \n\n Start applying to opportunities and begin gaining valuable experience.'),
 ];

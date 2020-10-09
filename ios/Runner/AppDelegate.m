@@ -5,7 +5,6 @@
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  [FIRApp configure];
   [GeneratedPluginRegistrant registerWithRegistry:self];
   // Override point for customization after application launch.
     if (@available(iOS 10.0, *)) {

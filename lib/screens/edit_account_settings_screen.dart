@@ -1,12 +1,12 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
+import 'package:genchi_app/components/snackbars.dart';
 
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -15,9 +15,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/edit_account_text_field.dart';
-import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/components/display_picture.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +49,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    User user =
+    GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     emailController.text = user.email;
@@ -69,7 +67,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     bool hasServiceProfiles = currentUser.providerProfiles.isNotEmpty;
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -126,13 +124,13 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           name:
                           'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
 
-                      for (String pid in currentUser.providerProfiles) {
-                        ProviderUser provider =
-                            await fireStoreAPI.getProviderById(pid);
+                      for (String id in currentUser.providerProfiles) {
+                        GenchiUser serviceProfile =
+                            await fireStoreAPI.getUserById(id);
 
-                        ///Check provider exists before deleting it
-                        if (provider != null) {
-                          await fireStoreAPI.deleteProvider(provider: provider);
+                        ///Check service profile exists before deleting it
+                        if (serviceProfile != null) {
+                          await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
                         }
                       }
                     }
@@ -143,7 +141,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   }
 
                   await fireStoreAPI.updateUser(
-                      user: User(
+                      user: GenchiUser(
                         name: nameController.text,
                         email: emailController.text,
                         accountType: accountTypeTextController.text,
@@ -175,7 +173,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   padding: EdgeInsets.all(15.0),
                   children: <Widget>[
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -188,20 +186,48 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        Container(
-                          height: 50.0,
-                          color: Color(kGenchiCream),
-                          child: DropdownButton<String>(
-                            value: accountTypeTextController.text,
-                            items: dropDownAccountTypeItems(),
-                            onChanged: (value) async {
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  accountTypeTextController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (String accountType
+                              in GenchiUser().accessibleAccountTypes) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
                               if (value != accountTypeTextController.text && hasServiceProfiles) {
                                 bool change = await showYesNoAlert(
                                     context: context,
                                     title:
-                                        'Are you sure you want to change account type?',
+                                    'Are you sure you want to change account type?',
                                     body:
-                                        'Doing this will remove any other service accounts associated with this account.');
+                                    'Doing this will remove any other service accounts associated with this account.');
 
                                 if (change) {
                                   changesMade = true;
@@ -213,9 +239,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 accountTypeTextController.text = value;
                                 setState(() {});
                               }
-                            },
-                          ),
-                        ),
+                            }),
                       ],
                     ),
                     EditAccountField(
@@ -234,96 +258,112 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                       },
                       textController: emailController,
                     ),
+                    /*TODO: add in the option (and on the post reg screen)
+                        for users to subscribe / unsubscribe to job notification
+                        -also need to update fcm accordingly
+                    */
+
+                    // Center(
+                    //   child: Switch(
+                    //     onChanged: (bool){},
+                    //     value: true,
+                    //   ),
+                    // ),
                     SizedBox(
                       height: 20.0,
                     ),
                     Divider(
                       height: 10,
                     ),
-                    RoundedButton(
-                      buttonTitle: 'Save changes',
-                      buttonColor: Color(kGenchiGreen),
-                      onPressed: () async {
-                        await analytics.logEvent(
-                            name: 'hirer_top_save_changes_button_pressed');
+                    Center(
+                      child: RoundedButton(
+                        buttonTitle: 'Save changes',
+                        buttonColor: Color(kGenchiGreen),
+                        onPressed: () async {
+                          await analytics.logEvent(
+                              name: 'hirer_top_save_changes_button_pressed');
 
-                        ///Check if the user has changed their account type and
-                        /// if they have we need to delete their service profiles (if they exist).
-                        if (currentUser.accountType !=
-                            accountTypeTextController.text && hasServiceProfiles) {
-                          bool deleteProviders = await showYesNoAlert(
-                              context: context,
-                              title: 'You have changed your account type',
-                              body:
-                              'We are going to delete your additional service accounts. Do you want to proceed?');
+                          ///Check if the user has changed their account type and
+                          /// if they have we need to delete their service profiles (if they exist).
+                          if (currentUser.accountType !=
+                              accountTypeTextController.text && hasServiceProfiles) {
+                            bool deleteProviders = await showYesNoAlert(
+                                context: context,
+                                title: 'You have changed your account type',
+                                body:
+                                'We are going to delete your additional service accounts. Do you want to proceed?');
 
-                          if (deleteProviders) {
+                            if (deleteProviders) {
+                              setState(() {
+                                showSpinner = true;
+                              });
+
+                              await analytics.logEvent(
+                                  name:
+                                  'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
+
+                              for (String id in currentUser.providerProfiles) {
+                                GenchiUser serviceProfile =
+                                await fireStoreAPI.getUserById(id);
+
+                                ///Check provider exists before deleting it
+                                if (serviceProfile != null) {
+                                  await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
+                                }
+                              }
+                            }
+                          } else {
                             setState(() {
                               showSpinner = true;
                             });
-
-                            await analytics.logEvent(
-                                name:
-                                'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
-
-                            for (String pid in currentUser.providerProfiles) {
-                              ProviderUser provider =
-                              await fireStoreAPI.getProviderById(pid);
-
-                              ///Check provider exists before deleting it
-                              if (provider != null) {
-                                await fireStoreAPI.deleteProvider(provider: provider);
-                              }
-                            }
                           }
-                        } else {
+
+                          await fireStoreAPI.updateUser(
+                              user: GenchiUser(
+                                name: nameController.text,
+                                email: emailController.text,
+                                accountType: accountTypeTextController.text,
+                              ),
+                              uid: currentUser.id);
+
+                          ///If the user has changed their name just update it in the auth section
+                          if (nameController.text != currentUser.name) {
+                            await authProvider.updateCurrentUserName(
+                                name: nameController.text);
+                          }
+                          await authProvider.updateCurrentUserData();
+
                           setState(() {
-                            showSpinner = true;
+                            changesMade = false;
+                            showSpinner = false;
                           });
-                        }
-
-                        await fireStoreAPI.updateUser(
-                            user: User(
-                              name: nameController.text,
-                              email: emailController.text,
-                              accountType: accountTypeTextController.text,
-                            ),
-                            uid: currentUser.id);
-
-                        ///If the user has changed their name just update it in the auth section
-                        if (nameController.text != currentUser.name) {
-                          await authProvider.updateCurrentUserName(
-                              name: nameController.text);
-                        }
-                        await authProvider.updateCurrentUserData();
-
-                        setState(() {
-                          changesMade = false;
-                          showSpinner = false;
-                        });
-                        Navigator.pop(context);
-                      },
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
-                    RoundedButton(
-                      buttonColor: Color(kGenchiBlue),
-                      buttonTitle: "Change Password",
-                      elevation: false,
-                      onPressed: () async {
-                        bool forgotPassword = await showYesNoAlert(
-                            context: context,
-                            title: 'Send reset password email?');
 
-                        if (forgotPassword) {
-                          setState(() => showSpinner = true);
+                    Center(
+                      child: RoundedButton(
+                        buttonColor: Color(kGenchiBlue),
+                        buttonTitle: "Change Password",
+                        elevation: false,
+                        onPressed: () async {
+                          bool forgotPassword = await showYesNoAlert(
+                              context: context,
+                              title: 'Send reset password email?');
 
-                          await authProvider.sendResetEmail(
-                              email: currentUser.email);
-                          Scaffold.of(context)
-                              .showSnackBar(kForgotPasswordSnackbar);
+                          if (forgotPassword) {
+                            setState(() => showSpinner = true);
 
-                          setState(() => showSpinner = false);
-                        }
-                      },
+                            await authProvider.sendResetEmail(
+                                email: currentUser.email);
+                            Scaffold.of(context)
+                                .showSnackBar(kForgotPasswordSnackbar);
+
+                            setState(() => showSpinner = false);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),

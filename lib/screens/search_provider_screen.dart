@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/circular_progress.dart';
-import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/components/profile_cards.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/user_screen.dart';
+import 'package:genchi_app/services/account_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:shimmer/shimmer.dart';
-
-import 'provider_screen.dart';
-
-import 'package:genchi_app/models/screen_arguments.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
-import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
-
 
 class SearchProviderScreen extends StatefulWidget {
 
@@ -50,7 +40,7 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final providerService = Provider.of<ProviderService>(context);
+    final accountService = Provider.of<AccountService>(context);
 
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
@@ -69,14 +59,14 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                   );
                 }
 
-                final List<ProviderUser> providers = snapshot.data;
+                final List<GenchiUser> serviceProviders = snapshot.data;
 
-                if (providers.isEmpty) {
+                if (serviceProviders.isEmpty) {
                   return Container(
                     height: 30,
                     child: Center(
                       child: Text(
-                        'No Providers Yet',
+                        'No Providers to display',
                         style: TextStyle(
                           fontSize: 20,
                         ),
@@ -85,31 +75,31 @@ class _SearchProviderScreenState extends State<SearchProviderScreen> {
                   );
                 }
 
-                List<ProviderCard> providerCards = [];
+                List<UserCard> userCards = [];
 
-                for (ProviderUser provider in providers) {
+                for (GenchiUser serviceProvider in serviceProviders) {
 
-                  ProviderCard pCard = ProviderCard(
-                    provider: provider,
+                  UserCard userCard = UserCard(
+                    user: serviceProvider,
                     onTap: () async {
                       setState(() {
                         showSpinner = true;
                       });
-                      await providerService.updateCurrentProvider(provider.pid);
+                      await accountService.updateCurrentAccount(id: serviceProvider.id);
 
                       setState(() {
                         showSpinner = false;
                       });
 
-                      Navigator.pushNamed(context, ProviderScreen.id);
+                      Navigator.pushNamed(context, UserScreen.id);
                     },
                   );
 
-                  providerCards.add(pCard);
+                  userCards.add(userCard);
                 }
 
                 return ListView(
-                  children: providerCards,
+                  children: userCards,
                 );
               },
             )

@@ -14,20 +14,22 @@ class SignInTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(field,
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Color(kGenchiCream)
+              color: Colors.white,
           ),
         ),
+        SizedBox(height: 5,),
         SizedBox(
           width: 250,
           child: TextField(
-              keyboardType: isPasswordField ? TextInputType.text: TextInputType.emailAddress,
+              keyboardType: isNameField ? TextInputType.text: TextInputType.emailAddress,
               obscureText: isPasswordField,
               textCapitalization: isNameField ? TextCapitalization.words : TextCapitalization.none,
               style: TextStyle(
@@ -37,7 +39,7 @@ class SignInTextField extends StatelessWidget {
               textAlign: TextAlign.left,
               cursorColor: Color(kGenchiOrange),
               onChanged: onChanged,
-              decoration: kTextFieldDecoration.copyWith(hintText: hintText)),
+              decoration: kSignInTextFieldDecoration.copyWith(hintText: hintText)),
         ),
       ],
     );

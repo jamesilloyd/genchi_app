@@ -1,16 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
-import 'package:genchi_app/components/rounded_button.dart';
-
-import 'package:genchi_app/constants.dart';
 
 import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
@@ -19,7 +17,6 @@ import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/models/chat.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/authentication_service.dart';
-import 'package:genchi_app/models/provider.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 
 import 'package:provider/provider.dart';
@@ -29,47 +26,41 @@ class ChatSummaryScreen extends StatefulWidget {
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();
 }
 
-class _ChatSummaryScreenState extends State<ChatSummaryScreen>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
 
-  Future<List<Map<String, dynamic>>> buildUserChatSummary(
-      {QuerySnapshot chats}) async {
-    List<Map<String, dynamic>> chatsAndProviders = [];
-
-    for (DocumentSnapshot doc in chats.documents) {
-      Chat chat = Chat.fromMap(doc.data);
-      ProviderUser provider = await firestoreAPI.getProviderById(chat.pid);
-
-      if (provider != null) {
-        chatsAndProviders.add({'chat': chat, 'provider': provider});
-      }
-    }
-
-    return chatsAndProviders;
-  }
+  Stream chatSummaryStream;
+  Future getProvidersFuture;
 
   String filter = 'ALL';
+  String filterText = 'ALL';
+
+  List<Map> accountIdsAndNames = [
+    {'id': 'ALL', 'name': 'ALL'}
+  ];
 
   @override
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: "/home/chat_summary_screen");
+    GenchiUser user =
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
+    accountIdsAndNames.add({'id': user.id, 'name': user.name});
+
+    chatSummaryStream = firestoreAPI.streamUserChatsAndApplications(user: user);
+    getProvidersFuture =
+        firestoreAPI.getServiceProviders(ids: user.providerProfiles);
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     print('Chat summary screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return ModalProgressHUD(
@@ -78,64 +69,153 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: BasicAppNavigationBar(
-          barTitle: 'Private Messages',
+          barTitle: 'Messages',
         ),
         body: SafeArea(
           child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
             children: <Widget>[
-              if (userIsProvider)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      SizedBox(
-                          height: 50,
-                          child: PopupMenuButton(
-                              elevation: 1,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text(
-                                      filter,
-                                      style: TextStyle(fontSize: 20),
+              userIsProvider
+                  ? FutureBuilder(
+                      future: getProvidersFuture,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  SizedBox(
+                                    height: 50,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Text(
+                                          filter,
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(width: 5),
+                                        ImageIcon(
+                                          AssetImage('images/filter.png'),
+                                          color: Colors.black,
+                                          size: 30,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        )
+                                      ],
                                     ),
-                                    SizedBox(width: 5),
-                                    ImageIcon(
-                                      AssetImage('images/filter.png'),
-                                      color: Colors.black,
-                                      size: 30,
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                height: 0,
+                                thickness: 1,
+                              ),
+                            ],
+                          );
+                        } else {
+                          List serviceAccounts = snapshot.data;
+
+                          ///Refresh the list (so it doesn't keep growing)
+                          accountIdsAndNames.clear();
+                          accountIdsAndNames.add({'id': 'ALL', 'name': 'ALL'});
+                          accountIdsAndNames.add({
+                            'id': currentUser.id,
+                            'name': '${currentUser.name} (Main)'
+                          });
+
+                          for (GenchiUser account in serviceAccounts) {
+                            accountIdsAndNames.add({
+                              'id': account.id,
+                              'name': '${account.name} - ${account.category}'
+                            });
+                          }
+
+                          return Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  SizedBox(
+                                    height: 50,
+                                    child: PopupMenuButton(
+                                      elevation: 1,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: <Widget>[
+                                            Text(
+                                              filterText,
+                                              style: TextStyle(fontSize: 20),
+                                            ),
+                                            SizedBox(width: 5),
+                                            ImageIcon(
+                                              AssetImage('images/filter.png'),
+                                              color: Colors.black,
+                                              size: 30,
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            )
+                                          ]),
+                                      itemBuilder: (_) {
+                                        List<PopupMenuItem<String>> items = [
+                                          new PopupMenuItem<String>(
+                                            child: Text('ALL'),
+                                            value: 'ALL',
+                                          ),
+                                          new PopupMenuItem<String>(
+                                            child: Text(
+                                                '${currentUser.name} (Main)'),
+                                            value: currentUser.id,
+                                          ),
+                                        ];
+                                        for (GenchiUser account
+                                            in serviceAccounts) {
+                                          items.add(new PopupMenuItem<String>(
+                                            child: Text(
+                                                '${account.name} - ${account.category}'),
+                                            value: account.id,
+                                          ));
+                                        }
+                                        return items;
+                                      },
+                                      onSelected: (value) {
+                                        for (Map map in accountIdsAndNames) {
+                                          if (map['id'] == value) {
+                                            filter = map['id'];
+                                            filterText = map['name'];
+                                          }
+                                        }
+                                        setState(() {});
+                                      },
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    )
-                                  ]),
-                              itemBuilder: (_) => <PopupMenuItem<String>>[
-                                    const PopupMenuItem<String>(
-                                        child: const Text('ALL'), value: 'ALL'),
-                                    const PopupMenuItem<String>(
-                                        child: const Text('HIRING'),
-                                        value: 'HIRING'),
-                                    const PopupMenuItem<String>(
-                                        child: const Text('PROVIDING'),
-                                        value: 'PROVIDING'),
-                                  ],
-                              onSelected: (value) {
-                                setState(() {
-                                  filter = value;
-                                });
-                              })),
-                    ],
-                  ),
-                ),
-              Divider(
-                height: 0,
-                thickness: 1,
-                indent: 15,
-                endIndent: 15,
-              ),
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                height: 0,
+                                thickness: 1,
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    )
+                  : Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          thickness: 1,
+                          height: 0,
+                        ),
+                      ],
+                    ),
               StreamBuilder(
-                stream: firestoreAPI.streamUserChats(user: currentUser),
+                stream: chatSummaryStream,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Container(
@@ -145,151 +225,229 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                       ),
                     );
                   } else {
-                    List chatsHirersAndProviders = [];
                     List<Widget> chatWidgets = [];
+                    List chatsANDApplications = [];
 
-                    if (userIsProvider) {
-                      ///Receiving chats for hiring and providing
-                      List list1 = snapshot.data[0];
-                      List list2 = snapshot.data[1];
-                      chatsHirersAndProviders.addAll(list1);
-                      chatsHirersAndProviders.addAll(list2);
+                    List chatsAndUsers = snapshot.data[0];
+                    List tasksApplicationsApplied = snapshot.data[1];
+                    List taskApplicationsPosted = snapshot.data[2];
 
-                      chatsHirersAndProviders.sort((a, b) {
-                        if (a != null && b != null) {
-                          Chat chatA = a['chat'];
-                          Chat chatB = b['chat'];
-                          return chatB.time.compareTo(chatA.time);
-                        } else
-                          return b.toString().compareTo(a.toString());
-                      });
-                    } else {
-                      ///Only receiving chats for hiring
-                      chatsHirersAndProviders = snapshot.data;
-                    }
+                    chatsANDApplications.addAll(chatsAndUsers);
+                    chatsANDApplications.addAll(tasksApplicationsApplied);
+                    chatsANDApplications.addAll(taskApplicationsPosted);
 
-                    for (Map chatHirerAndProvider in chatsHirersAndProviders) {
-                      if (chatHirerAndProvider != null) {
-                        Chat chat = chatHirerAndProvider['chat'];
-                        ProviderUser provider =
-                            chatHirerAndProvider['provider'];
-                        User hirer = chatHirerAndProvider['hirer'];
-                        bool userChatIsProvider =
-                            chatHirerAndProvider['userIsProvider'];
+                    ///Sorting the entries by time
+                    chatsANDApplications.sort((a, b) {
+                      if (a != null && b != null) {
+                        Timestamp timeA = a['data']['time'];
+                        Timestamp timeB = b['data']['time'];
 
-                        if (userChatIsProvider &&
-                            (filter == 'ALL' || filter == 'PROVIDING')) {
-                          ///Users providing messages
-                          Widget chatWidget = MessageListItem(
-                            image: hirer.displayPictureURL == null
-                                ? null
-                                : CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
-                            name: hirer.name,
-                            service: provider.type,
-                            lastMessage: chat.lastMessage,
-                            time: chat.time,
-                            hasUnreadMessage: chat.providerHasUnreadMessage,
-                            type: 'PROVIDING',
-                            deleteMessage: 'Archive',
-                            onTap: () async {
-                              setState(() {
-                                showSpinner = true;
-                              });
-                              chat.providerHasUnreadMessage = false;
-                              await firestoreAPI.updateChat(chat: chat);
+                        return timeB.compareTo(timeA);
+                      } else
+                        return null;
+                    });
 
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.pushNamed(context, ChatScreen.id,
-                                  arguments: ChatScreenArguments(
-                                      chat: chat,
-                                      userIsProvider: true,
-                                      provider: provider,
-                                      user: hirer));
-                            },
-                            hideChat: () async {
-                              bool deleteChat = await showYesNoAlert(
-                                  context: context,
-                                  title: "Are you sure you want delete chat?");
+                    for (Map chatORApplication in chatsANDApplications) {
+                      if (chatORApplication != null) {
+                        if (chatORApplication['type'] == 'chat') {
+                          ///We're dealing with a chat
+                          Chat chat = chatORApplication['data']['chat'];
+                          GenchiUser user = chatORApplication['data']['user'];
+                          GenchiUser otherUser =
+                              chatORApplication['data']['otherUser'];
+                          bool userIsUser1 =
+                              chatORApplication['data']['userIsUser1'];
 
-                              if (deleteChat) {
+                          if ((filter == user.id || filter == 'ALL')) {
+                            ///Users main account messages
+                            Widget chatWidget = MessageListItem(
+                              imageURL: otherUser.displayPictureURL,
+                              name: otherUser.name,
+                              lastMessage: chat.lastMessage,
+                              time: chat.time,
+                              hasUnreadMessage: userIsUser1
+                                  ? chat.user1HasUnreadMessage
+                                  : chat.user2HasUnreadMessage,
+                              deleteMessage: 'Archive',
+                              onTap: () async {
                                 setState(() {
                                   showSpinner = true;
                                 });
-                                await analytics.logEvent(
-                                    name: 'provider_hidden_chat');
-                                await firestoreAPI.hideChat(
-                                    chat: chat, forProvider: true);
+                                userIsUser1
+                                    ? chat.user1HasUnreadMessage = false
+                                    : chat.user2HasUnreadMessage = false;
+                                await firestoreAPI.updateChat(chat: chat);
 
                                 setState(() {
                                   showSpinner = false;
                                 });
-                              }
-                            },
-                          );
+                                Navigator.pushNamed(context, ChatScreen.id,
+                                    arguments: ChatScreenArguments(
+                                      chat: chat,
+                                      user1: userIsUser1 ? user : otherUser,
+                                      userIsUser1: userIsUser1,
+                                      user2: userIsUser1 ? otherUser : user,
+                                    ));
+                              },
+                              hideChat: () async {
+                                bool deleteChat = await showYesNoAlert(
+                                    context: context,
+                                    title:
+                                        "Are you sure you want delete chat?");
 
-                          if (!chat.isHiddenFromProvider)
-                            chatWidgets.add(chatWidget);
-                        } else if (!userChatIsProvider &&
-                            (filter == 'ALL' || filter == 'HIRING')) {
-                          ///Users hiring messages
-                          Widget chatWidget = MessageListItem(
-                            image: provider.displayPictureURL == null
-                                ? null
-                                : CachedNetworkImageProvider(
-                                    provider.displayPictureURL),
-                            name: provider.name,
-                            service: provider.type,
-                            lastMessage: chat.lastMessage,
-                            time: chat.time,
-                            type: 'HIRING',
-                            hasUnreadMessage: chat.userHasUnreadMessage,
+                                if (deleteChat) {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+                                  await analytics.logEvent(
+                                      name: 'provider_hidden_chat');
+                                  await firestoreAPI.hideChat(
+                                      chat: chat, hiddenId: user.id);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                }
+                              },
+                            );
+
+                            if (userIsUser1) {
+                              if (!chat.isHiddenFromUser1) {
+                                chatWidgets.add(chatWidget);
+                              }
+                            } else {
+                              if (!chat.isHiddenFromUser2) {
+                                chatWidgets.add(chatWidget);
+                              }
+                            }
+                          }
+                        } else if (chatORApplication['type'] == 'taskApplied') {
+                          ///We're dealing with an task applied
+                          TaskApplication application =
+                              chatORApplication['data']['application'];
+                          GenchiUser hirer = chatORApplication['data']['hirer'];
+                          GenchiUser applicant =
+                              chatORApplication['data']['applicant'];
+                          Task task = chatORApplication['data']['task'];
+
+                          ///Users task application message
+
+                          Widget taskApplicationWidget = AppliedTaskChat(
+                            imageURL: hirer.displayPictureURL,
+                            title: task.title,
+                            lastMessage: application.lastMessage,
+                            time: application.time,
+                            hasUnreadMessage:
+                                application.applicantHasUnreadMessage,
                             onTap: () async {
                               setState(() {
                                 showSpinner = true;
                               });
-                              chat.userHasUnreadMessage = false;
-                              await firestoreAPI.updateChat(chat: chat);
+
+                              ///Check that the hirer exists before opening chat
+
+                              application.applicantHasUnreadMessage = false;
+                              await firestoreAPI.updateTaskApplication(
+                                  taskApplication: application);
 
                               setState(() {
                                 showSpinner = false;
                               });
-                              Navigator.pushNamed(context, ChatScreen.id,
-                                  arguments: ChatScreenArguments(
-                                      chat: chat,
-                                      userIsProvider: false,
-                                      provider: provider,
-                                      user: currentUser,
-                                      isFirstInstance: false));
+
+                              ///Segue to application chat screen with user as the applicant
+                              Navigator.pushNamed(
+                                  context, ApplicationChatScreen.id,
+                                  arguments: ApplicationChatScreenArguments(
+                                    hirer: hirer,
+                                    userIsApplicant: true,
+                                    taskApplication: application,
+                                    applicant: applicant,
+                                  ));
                             },
-                            hideChat: () async {
-                              bool deleteChat = await showYesNoAlert(
-                                  context: context,
-                                  title: "Are you sure you want delete chat?");
-                              if (deleteChat) {
-                                setState(() {
-                                  showSpinner = true;
-                                });
-                                await analytics.logEvent(
-                                    name: 'hirer_hidden_chat');
-                                await firestoreAPI.hideChat(
-                                    chat: chat, forProvider: false);
-                                setState(() {
-                                  showSpinner = false;
-                                });
-                              }
-                            },
+                            deleteMessage: 'Withdraw',
+                            hideChat: () {},
                           );
 
-                          if (!chat.isHiddenFromUser)
-                            chatWidgets.add(chatWidget);
+                          chatWidgets.add(taskApplicationWidget);
+                        } else if (chatORApplication['type'] == 'taskPosted') {
+                          bool hirerHasUnreadNotification = false;
+
+                          ///We're dealing with an task posted
+                          Task task = chatORApplication['data']['task'];
+                          List<Map<String, dynamic>> applicationsAndApplicants =
+                              chatORApplication['data']['list'];
+
+                          ///First create messageListItems for each chat
+                          List<Widget> applicationChatWidgets = [];
+                          for (Map<String, dynamic> applicationAndApplicant
+                              in applicationsAndApplicants) {
+                            TaskApplication taskApplication =
+                                applicationAndApplicant['application'];
+                            GenchiUser applicant =
+                                applicationAndApplicant['applicant'];
+
+                            if (taskApplication.hirerHasUnreadMessage)
+                              hirerHasUnreadNotification = true;
+
+                            MessageListItem chatWidget = MessageListItem(
+                                imageURL: applicant.displayPictureURL,
+                                name: applicant.name,
+                                lastMessage: taskApplication.lastMessage,
+                                time: taskApplication.time,
+                                hasUnreadMessage:
+                                    taskApplication.hirerHasUnreadMessage,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+
+                                  GenchiUser hirer = currentUser;
+
+                                  taskApplication.hirerHasUnreadMessage = false;
+
+                                  ///Update the task application
+                                  await firestoreAPI.updateTaskApplication(
+                                      taskApplication: taskApplication);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+
+                                  ///Segue to application chat screen with user as hirer
+                                  Navigator.pushNamed(
+                                      context, ApplicationChatScreen.id,
+                                      arguments: ApplicationChatScreenArguments(
+                                          adminView: false,
+                                          taskApplication: taskApplication,
+                                          userIsApplicant: false,
+                                          applicant: applicant,
+                                          hirer: hirer));
+                                },
+
+                                //TODO add ability to delete applicant
+                                hideChat: () {});
+
+                            applicationChatWidgets.add(chatWidget);
+                          }
+
+                          Widget taskPostedApplications = PostedTaskChats(
+                            title: task.title,
+                            hasUnreadMessage: hirerHasUnreadNotification,
+                            messages: applicationChatWidgets,
+                            hirer: currentUser,
+                            time: chatORApplication['data']['time'],
+                            applicationsAndApplicants:
+                                applicationsAndApplicants,
+                            onTap: () {},
+                            hideChat: () {},
+                          );
+
+                          chatWidgets.add(taskPostedApplications);
                         }
                       }
                     }
 
-                    if (chatsHirersAndProviders.isEmpty | chatWidgets.isEmpty) {
+                    if (chatWidgets.isEmpty) {
                       return Container(
                         height: 30,
                         child: Center(
@@ -303,7 +461,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                       );
                     }
 
-                    print('REBUILDING');
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,

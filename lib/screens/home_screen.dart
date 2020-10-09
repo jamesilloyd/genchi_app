@@ -1,18 +1,16 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/screens/task_summary_screen.dart';
+import 'package:genchi_app/screens/jobs_screen.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
 import 'dart:io' show Platform;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:flutter/material.dart';
@@ -39,35 +37,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static List<Widget> screens = [
+    JobsScreen(),
     SearchScreen(),
-    TaskSummaryScreen(),
     ChatSummaryScreen(),
     ProfileScreen(),
   ];
 
-  final Firestore _db = Firestore.instance;
   final FirebaseMessaging _fcm = FirebaseMessaging();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   StreamSubscription iosSubscription;
 
   _saveDeviceToken() async {
-    /// Get the current user id
-    String uid =
-        await Provider.of<AuthenticationService>(context, listen: false)
-            .currentUser
-            .id;
+    /// Get the current user
+    GenchiUser currentUser = Provider.of<AuthenticationService>(context, listen: false)
+            .currentUser;
 
     /// Get the token for this device
     String fcmToken = await _fcm.getToken();
 
     /// Save it to Firestore
-    if (fcmToken != null && uid != null) {
-      var tokens = _db.collection('users').document(uid).setData({
-        'fcmTokens': FieldValue.arrayUnion([fcmToken])
-      }, merge: true);
+    if (fcmToken != null) {
+      firestoreAPI.addFCMToken(token: fcmToken, user: currentUser);
     }
   }
 
+
+  //TODO move fcm token to login/registration
   @override
   void initState() {
     super.initState();
@@ -78,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
         print(data);
         _saveDeviceToken();
       });
-
       _fcm.requestNotificationPermissions(IosNotificationSettings());
     } else {
       _saveDeviceToken();
@@ -125,64 +120,61 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
+        /*TODO: look at wrapping just the following widget in a Provider and
+            hopefully it means the whole app won't be rebuilt, just the subsequent widget
+         */
         child: BottomNavigationBar(
             elevation: 4,
+            type: BottomNavigationBarType.fixed,
             currentIndex: _page ?? startingIndex,
             showUnselectedLabels: true,
+            selectedFontSize: 14,
+            unselectedFontSize: 14,
             selectedItemColor: Color(kGenchiOrange),
             unselectedItemColor: Colors.black,
             onTap: onPageChanged,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon:
-                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                title: Text('Search'),
+                icon: Stack(
+                  alignment: Alignment.center,
+                  children: [Icon(Platform.isIOS
+                      ? CupertinoIcons.folder
+                      : Icons.folder_open),
+                  // if(notificationService.jobNotifications != null && notificationService.jobNotifications !=0 ) Align(
+                  //   alignment: Alignment(.4,0),
+                  //   child: Container(
+                  //     height: 20,
+                  //     width: 20,
+                  //     decoration: BoxDecoration(
+                  //         color: Colors.red,
+                  //         shape: BoxShape.circle,
+                  //         border: Border.all(
+                  //             color: Colors.white, width: 2)),
+                  //     child: Center(
+                  //       child: Text(
+                  //         notificationService.jobNotifications.toString(),
+                  //         style: TextStyle(
+                  //             fontSize: 11,
+                  //             color: Colors.white,
+                  //             fontWeight: FontWeight.w400),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // )
+                  ]
+                ),
+                label: 'Jobs',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Platform.isIOS
-                    ? CupertinoIcons.folder
-                    : Icons.folder_open),
-
-                //TODO WORK OUT HOW TO DO NOTIFICATIONS - problem is in how to get the numbers - would have to stream the user
-//                Stack(
-//                  children: <Widget>[
-//                    Icon(Platform.isIOS
-//                        ? CupertinoIcons.folder
-//                        : Icons.folder_open),
-//                    Positioned(
-//                      right: -5,
-////                      top: -3,
-//                      child: new Container(
-//                        padding: EdgeInsets.all(1),
-//                        decoration: new BoxDecoration(
-//                          color: Colors.red,
-//                          borderRadius: BorderRadius.circular(10),
-//                        ),
-//                        constraints: BoxConstraints(
-//                          minWidth: 20,
-//                          minHeight: 20,
-//                        ),
-//                        child: Center(
-//                          child: new Text(
-//                            '10',
-//                            style: new TextStyle(
-//                              color: Colors.white,
-//                              fontSize: 8,
-//                            ),
-//                            textAlign: TextAlign.center,
-//                          ),
-//                        ),
-//                      ),
-//                    )
-//                  ],
-//                ),
-                title: Text('My Jobs'),
+                icon:
+                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+                label: 'Search',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
                     ? CupertinoIcons.conversation_bubble
                     : Icons.message),
-                title: Text('Messages'),
+                label: 'Messages',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
@@ -192,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     : (authProvider.currentUser.providerProfiles.isEmpty
                         ? Icons.account_circle
                         : Icons.group)),
-                title: Text(authProvider.currentUser.providerProfiles.isEmpty
+                label: authProvider.currentUser.providerProfiles.isEmpty
                     ? 'Profile'
-                    : 'Profiles'),
+                    : 'Profiles',
               ),
             ]),
       ),

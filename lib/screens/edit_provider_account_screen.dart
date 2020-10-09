@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:genchi_app/components/drop_down_services.dart';
 
 import 'package:genchi_app/constants.dart';
 
@@ -13,21 +12,18 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
-import 'package:genchi_app/models/services.dart';
+import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
-import 'package:genchi_app/services/provider_service.dart';
 
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'package:genchi_app/models/provider.dart';
 
 import 'home_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-
-//TODO: change these to just use text editing controllers
 
 class EditProviderAccountScreen extends StatefulWidget {
   static const id = "edit_provider_account_screen";
@@ -43,23 +39,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
 
   TextEditingController nameTextController = TextEditingController();
   TextEditingController bioTextController = TextEditingController();
-  TextEditingController experienceTextController = TextEditingController();
-  TextEditingController priceTextController = TextEditingController();
   TextEditingController serviceTextController = TextEditingController();
+  TextEditingController subCategoryTextController = TextEditingController();
 
-  //TODO is the following necessary? or can textControllers handle this?
-  String name;
-  String bio;
-  String experience;
   bool showSpinner = false;
-  String service;
-  String pricing;
   bool changesMade = false;
 
-
   Future<bool> _onWillPop() async {
-    print('in here');
-
     if (changesMade) {
       bool discard = await showYesNoAlert(
           context: context, title: 'Are you sure you want to discard changes?');
@@ -71,13 +57,12 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
   @override
   void initState() {
     super.initState();
-    ProviderUser provider =
-        Provider.of<ProviderService>(context, listen: false).currentProvider;
-    nameTextController.text = provider.name;
-    bioTextController.text = provider.bio;
-    experienceTextController.text = provider.experience;
-    priceTextController.text = provider.pricing;
-    serviceTextController.text = provider.type;
+    GenchiUser currentAccount =
+        Provider.of<AccountService>(context, listen: false).currentAccount;
+    nameTextController.text = currentAccount.name;
+    bioTextController.text = currentAccount.bio;
+    serviceTextController.text = currentAccount.category;
+    subCategoryTextController.text = currentAccount.subcategory;
   }
 
   @override
@@ -85,17 +70,16 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
     super.dispose();
     nameTextController.dispose();
     bioTextController.dispose();
-    experienceTextController.dispose();
-    priceTextController.dispose();
     serviceTextController.dispose();
+    subCategoryTextController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
 
-    final providerService = Provider.of<ProviderService>(context);
-    ProviderUser providerUser = providerService.currentProvider;
+    final accountService = Provider.of<AccountService>(context);
+    GenchiUser serviceProvider = accountService.currentAccount;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -129,22 +113,25 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () async {
-                  analytics.logEvent(name: 'provider_top_save_changes_button_pressed');
+                  analytics.logEvent(
+                      name: 'provider_top_save_changes_button_pressed');
                   setState(() {
                     showSpinner = true;
                   });
 
-                  await firestoreAPI.updateProvider(
-                      provider: ProviderUser(
-                          name: name,
-                          type: serviceTextController.text,
-                          bio: bio,
-                          experience: experience,
-                          pricing: pricing),
-                      pid: providerUser.pid);
+                  await firestoreAPI.updateUser(
+                      user: GenchiUser(
+                        name: nameTextController.text,
+                        category: serviceTextController.text,
+                        bio: bioTextController.text,
+                        subcategory: subCategoryTextController.text,
+                        fcmTokens: authProvider.currentUser.fcmTokens,
+                      ),
+                      uid: serviceProvider.id);
 
                   await authProvider.updateCurrentUserData();
-                  await providerService.updateCurrentProvider(providerUser.pid);
+                  await accountService.updateCurrentAccount(
+                      id: serviceProvider.id);
 
                   setState(() {
                     changesMade = false;
@@ -196,9 +183,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     alignment: Alignment.center,
                     children: <Widget>[
                       DisplayPicture(
-                        imageUrl: providerUser.displayPictureURL,
+                        imageUrl: serviceProvider.displayPictureURL,
                         height: 0.25,
-                        border: true,
                       ),
                       Positioned(
                         right: (MediaQuery.of(context).size.width -
@@ -233,12 +219,11 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   textController: nameTextController,
                   hintText: "Either your name or your brand's name",
                   onChanged: (value) {
-                    name = value;
                     changesMade = true;
                   },
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Container(
                       height: 30.0,
@@ -251,134 +236,143 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                       ),
                     ),
                     SizedBox(height: 5.0),
-                    SizedBox(
-                      height: 50.0,
-                      child: Container(
-                        color: Color(kGenchiCream),
-                        child: DropdownButton<String>(
-                            value: initialDropDownValue(currentType: serviceTextController.text),
-                            items: dropDownServiceItems(),
-                            onChanged: (value) {
-                              setState(() {
-                                changesMade = true;
-                                serviceTextController.text = value;
-                              });
-                            },
+                    PopupMenuButton(
+                        elevation: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(32.0)),
+                              border: Border.all(color: Colors.black)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 20.0),
+                            child: Text(
+                              serviceTextController.text,
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
                           ),
-                      ),
-                    ),
+                        ),
+                        itemBuilder: (_) {
+                          List<PopupMenuItem<String>> items = [];
+                          for (Service serviceType in servicesList) {
+                            var newItem = new PopupMenuItem(
+                              child: Text(
+                                serviceType.databaseValue,
+                              ),
+                              value: serviceType.databaseValue,
+                            );
+                            items.add(newItem);
+                          }
+                          return items;
+                        },
+                        onSelected: (value) async {
+                          setState(() {
+                            changesMade = true;
+                            serviceTextController.text = value;
+                          });
+                        }),
                   ],
+                ),
+                EditAccountField(
+                  field: 'Subcategory',
+                  hintText:
+                      'What type of ${serviceTextController.text == "" ? serviceProvider.accountType.toLowerCase() : serviceTextController.text.toLowerCase()} skills do you offer?',
+                  onChanged: (value) {
+                    changesMade = true;
+                  },
+                  textController: subCategoryTextController,
                 ),
                 EditAccountField(
                   field: 'About me',
                   textController: bioTextController,
                   hintText: 'What your service/offering is',
                   onChanged: (value) {
-                    bio = value;
                     changesMade = true;
                   },
                 ),
-                EditAccountField(
-                  field: 'Experience',
-                  textController: experienceTextController,
-                  hintText: 'How you developed your skills, any urls etc.',
-                  onChanged: (value) {
-                    experience = value;
-                    changesMade = true;
-                  },
-                ),
-                //TODO Implement the following fields
-                EditAccountField(
-                  hintText: 'Coming soon',
-                  field: "Portfolio Pictures",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
-                ),
-                EditAccountField(
-                  hintText: 'Coming soon',
-                  field: "Tags",
-                  isEditable: false,
-                  onChanged: (value) {},
-                  textController: TextEditingController(),
-                ),
-
                 SizedBox(
                   height: 10.0,
                 ),
                 Divider(
                   height: 30,
                 ),
-                RoundedButton(
-                  buttonTitle: 'Save changes',
-                  buttonColor: Color(kGenchiGreen),
-                  onPressed: ()async{
-                    analytics.logEvent(name: 'provider_bottom_save_changes_button_pressed');
-                    setState(() {
-                      showSpinner = true;
-                    });
-
-                    await firestoreAPI.updateProvider(
-                        provider: ProviderUser(
-                            name: name,
-                            type: serviceTextController.text,
-                            bio: bio,
-                            experience: experience,
-                            pricing: pricing),
-                        pid: providerUser.pid);
-
-                    await authProvider.updateCurrentUserData();
-                    await providerService.updateCurrentProvider(providerUser.pid);
-
-                    setState(() {
-                      changesMade = false;
-                      showSpinner = false;
-                    });
-
-                    Navigator.of(context).pop();
-                  },
-                ),
-                RoundedButton(
-                  buttonTitle: "Delete provider account",
-                  buttonColor: Color(kGenchiBlue),
-                  elevation: false,
-                  onPressed: () async {
-
-                    ///Update the provider before deleting
-
-                    await providerService
-                        .updateCurrentProvider(providerUser.pid);
-
-                    ///Get most up to data provider
-                    providerUser =
-                        Provider.of<ProviderService>(context, listen: false)
-                            .currentProvider;
-
-                    bool delete = await showYesNoAlert(context: context, title: "Delete Provider Account?");
-
-                    if(delete) {
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Save changes',
+                    buttonColor: Color(kGenchiGreen),
+                    onPressed: () async {
+                      analytics.logEvent(
+                          name: 'provider_top_save_changes_button_pressed');
                       setState(() {
                         showSpinner = true;
                       });
 
-                      ///Log event in firebase
-                      await analytics.logEvent(name: 'provider_account_deleted');
+                      await firestoreAPI.updateUser(
+                          user: GenchiUser(
+                            name: nameTextController.text,
+                            category: serviceTextController.text,
+                            bio: bioTextController.text,
+                            subcategory: subCategoryTextController.text,
+                            fcmTokens: authProvider.currentUser.fcmTokens,
+                          ),
+                          uid: serviceProvider.id);
 
-                      await firestoreAPI.deleteProvider(
-                          provider: providerUser);
                       await authProvider.updateCurrentUserData();
-                      changesMade = false;
-                      setState(() => showSpinner = false);
+                      await accountService.updateCurrentAccount(
+                          id: serviceProvider.id);
 
-                      Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          HomeScreen.id,
-                              (Route<dynamic> route) => false,
-                          arguments:
-                          HomeScreenArguments(startingIndex: 3));
+                      setState(() {
+                        changesMade = false;
+                        showSpinner = false;
+                      });
 
-                    }
-                  },
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: "Delete provider account",
+                    buttonColor: Color(kGenchiBlue),
+                    elevation: false,
+                    onPressed: () async {
+                      ///Update the provider before deleting
+
+                      await accountService.updateCurrentAccount(
+                          id: serviceProvider.id);
+
+                      ///Get most up to data provider
+                      serviceProvider =
+                          Provider.of<AccountService>(context, listen: false)
+                              .currentAccount;
+
+                      bool delete = await showYesNoAlert(
+                          context: context, title: "Delete Service Account?");
+
+                      if (delete) {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        ///Log event in firebase
+                        await analytics.logEvent(
+                            name: 'provider_account_deleted');
+
+                        await firestoreAPI.deleteServiceProvider(
+                            serviceProvider: serviceProvider);
+                        await authProvider.updateCurrentUserData();
+                        changesMade = false;
+                        setState(() => showSpinner = false);
+
+                        Navigator.pushNamedAndRemoveUntil(context,
+                            HomeScreen.id, (Route<dynamic> route) => false,
+                            arguments: HomeScreenArguments(startingIndex: 3));
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

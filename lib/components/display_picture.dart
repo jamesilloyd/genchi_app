@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/constants.dart';
 
 
 class DisplayPicture extends StatelessWidget {
@@ -9,13 +10,11 @@ class DisplayPicture extends StatelessWidget {
   const DisplayPicture({
     @required this.imageUrl,
     @required this.height,
-    this.border = false,
     this.isEdit = false,
   });
 
   final String imageUrl;
   final double height;
-  final bool border;
   final bool isEdit;
 
 
@@ -28,7 +27,6 @@ class DisplayPicture extends StatelessWidget {
         child: Container(
           child: Center(
             child: imageUrl != null ? CachedNetworkImage(
-//              fit: BoxFit.contain,
               imageUrl: imageUrl,
               placeholder: (context, url) => Container(height: 50, width:50,
                   child: Container(child: Center(child: CircularProgress()))),
@@ -36,8 +34,8 @@ class DisplayPicture extends StatelessWidget {
                 width: 50.0,
                 height: 50.0,
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   shape: BoxShape.circle,
-                  border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
                   image: DecorationImage(
                       image: imageProvider, fit: BoxFit.cover),
                 ),
@@ -48,7 +46,6 @@ class DisplayPicture extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Color(0xffC4C4C4),
-                border: border ? Border.all(color: Color(0xff585858),width: 0.75):null,
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,

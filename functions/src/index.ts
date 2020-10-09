@@ -30,15 +30,17 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
 
     if(taskData && usersData) {
         for(const item of usersData){
-            const deviceTokens: Array<string> = item.data()['fcmTokens'];
+            ///Filter out service providers
+            if(item.data()['accountType'] !== 'Service Provider'){
+                const deviceTokens: Array<string> = item.data()['fcmTokens'];
             
-            if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
-                for(const token of deviceTokens) {
-                    if(token !== "") {
+                if((deviceTokens !== undefined) && (deviceTokens.length !== 0)){
+                    for(const token of deviceTokens) {
+                        if(token !== "") {
                         allTokens.push(token);
+                        }
                     }
                 }
-                
             }
         }
 
@@ -55,7 +57,7 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
             notification : {
                 title : 'New Job: ' + taskTitle,
                 body : taskDesc,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 badge : '1'
             },
         };
@@ -75,35 +77,6 @@ export const sendNewJobNotification = functions.firestore.document('tasks/{taskI
 
 })
 
-export const sendToDevice = functions.firestore.document('test/{testId}').onCreate(async snapshot => {
-
-    // const test = snapshot.data();
-    // const querySnapshot = await db.collection('users').doc(test.id).get();
-    // const tokens = querySnapshot.data['fcmTokens'];
-
-    const fcmToken = 'fR7jC-UMKk6kpaxXEgDGp8:APA91bGnOih8eHcnYciNIsFJYYmlJUM3Pk6i7ymvOsx6VHa_0tGyMKuOlIHCgEP75ONKCYza_-KHBMzHiHE9j3VR7P93CGeMiagERI4pWpUDzVC4arsgwlQWlP-hVCwdDllN-9o071zj';
-
-    const payload : admin.messaging.MessagingPayload = {
-
-        notification : {
-            title : 'Test1',
-            body : 'Test body is here',
-            clickAction: 'FLUTTER_NOTIFICATION_CLICK'
-        },
-    };
-
-    
-
-
-    return fcm.sendToDevice(fcmToken,payload).then((response) => {
-        console.log('Successfully sent message:', response);
-    })
-    .catch((error) => {
-      console.log('Error sending message:', error);
-    });
-    
-})
-
 
 export const sendPrivateMessageNotification = functions.firestore.document('chats/{chatId}/messages/{messageId}')
     .onCreate( async (snapshot, context) => {
@@ -118,31 +91,23 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
 
         if (chatData) {
 
-            //The user in the chat
-            const user = await db.collection('users').doc(chatData['uid']).get();
-            const userData = user.data();
+            ///Get both users in the chat
+            const user1 = await db.collection('users').doc(chatData['id1']).get();
+            const user1Data = user1.data();
+            const user2 = await db.collection('users').doc(chatData['id2']).get();
+            const user2Data = user2.data();
 
-            // Ther provider in the chat
-            const pid = chatData['pid'];
-            const provider = await db.collection('providers').doc(pid).get();
-            const providerData = provider.data();
+            if(user1Data && user2Data) {
 
-            if(userData && providerData) {
-
-                if(pid == message.sender) {
-                // If sender is the provider retrieve the providers name and the user token
-                    senderName = providerData['name'];
-                    tokens = userData['fcmTokens'];
+                if(user1Data['id'] == message.sender) {
+                // If sender is user1 retrieve the user1's name and user2's tokens
+                    senderName = user1Data['name'];
+                    tokens = user2Data['fcmTokens'];
 
                 } else {
-                //Otherwise the user sent the message so we need to find the tokens of the providers uid and the sender name
-                    const providersUser = await db.collection('users').doc(providerData['uid']).get();
-                    const providersUserData = providersUser.data();
-
-                    if(providersUserData){
-                        senderName = userData['name'];
-                        tokens = providersUserData['fcmTokens'];
-                    }
+                //Otherwise user2 sent the message so we need user2's name and user1's tokens
+                    senderName = user2Data['name'];
+                    tokens = user1Data['fcmTokens'];
                 }
             }
 
@@ -151,12 +116,12 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
                 notification : {
                     title : senderName + ' - Private Message',
                     body : message.text,
-                    clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
                     badge : '1'
                 },
             };
 
-            if(tokens != null) {
+            if(tokens !== null) {
                 return fcm.sendToDevice(tokens,payload).then((response) => {
                     console.log('Successfully sent message:', response);
                 })
@@ -172,12 +137,13 @@ export const sendPrivateMessageNotification = functions.firestore.document('chat
 })
 
 
-export const sendApplicationMessageNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicantId}/messages/{messageId}')
+
+export const sendApplicationMessageNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicationId}/messages/{messageId}')
 .onCreate(async (snapshot, context) => {
 
     const message = snapshot.data();
 
-    const application = await db.collection('tasks').doc(context.params.taskId).collection('applicants').doc(context.params.applicantId).get();
+    const application = await db.collection('tasks').doc(context.params.taskId).collection('applicants').doc(context.params.applicationId).get();
     const applicationData = application.data();
 
     const task = await db.collection('tasks').doc(context.params.taskId).get();
@@ -187,37 +153,30 @@ export const sendApplicationMessageNotification = functions.firestore.document('
     let senderName;
     let taskTitle;
 
-    ///How are we going to get tokens, senderName and taskTitle?
-
     ///taskTitle -> application -> task -> task.title
 
     if(applicationData && taskData) {
 
-        //The user in the application
-        const user = await db.collection('users').doc(applicationData['hirerid']).get();
-        const userData = user.data();
+        //The hirer in the application
+        const hirer = await db.collection('users').doc(applicationData['hirerid']).get();
+        const hirerData = hirer.data();
 
-        // Ther provider in the application
-        const pid = applicationData['pid'];
-        const provider = await db.collection('providers').doc(pid).get();
-        const providerData = provider.data();
+        // Ther applicant in the application
+        const applicantId = applicationData['applicantId'];
+        const applicant = await db.collection('users').doc(applicantId).get();
+        const applicantData = applicant.data();
 
-        if(userData && providerData) {
+        if(hirerData && applicantData) {
 
-            if(pid == message.sender) {
-                // If sender is the provider retrieve the providers name and the user token
-                    senderName = providerData['name'];
-                    tokens = userData['fcmTokens'];
+            if(applicantId == message.sender) {
+                // If sender is the applicant retrieve the applicant's name and the hirer's token
+                    senderName = applicantData['name'];
+                    tokens = hirerData['fcmTokens'];
 
                 } else {
-                //Otherwise the user sent the message so we need to find the tokens of the providers uid and the sender name
-                    const providersUser = await db.collection('users').doc(providerData['uid']).get();
-                    const providersUserData = providersUser.data();
-
-                    if(providersUserData){
-                        senderName = userData['name'];
-                        tokens = providersUserData['fcmTokens'];
-                    }
+                //Otherwise the hirer sent the message so we need to find the tokens of the applicant and the hirer's name
+                    senderName = hirerData['name'];
+                    tokens = applicantData['fcmTokens'];
                 }
         }
 
@@ -231,12 +190,12 @@ export const sendApplicationMessageNotification = functions.firestore.document('
             notification : {
                 title : senderName + ' - ' + taskTitle,
                 body : message.text,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 badge : '1'
             },
         };
     
-        if(tokens != null) {
+        if(tokens !== null) {
             return fcm.sendToDevice(tokens,payload).then((response) => {
                 console.log('Successfully sent message:', response);
             })
@@ -250,3 +209,96 @@ export const sendApplicationMessageNotification = functions.firestore.document('
     }
 
 })
+
+
+
+
+
+export const newApplicantNotification = functions.firestore.document('tasks/{taskId}/applicants/{applicationId}')
+.onCreate(async (snapshot, context) => {
+
+    const applicationData = snapshot.data();
+
+    const task = await db.collection('tasks').doc(context.params.taskId).get();
+    const taskData = task.data();
+
+    let tokens;
+    let applicantName;
+    let taskTitle;
+
+    ///taskTitle -> application -> task -> task.title
+
+    if(applicationData && taskData) {
+
+        //The hirer in the application
+        const hirer = await db.collection('users').doc(applicationData['hirerid']).get();
+        const hirerData = hirer.data();
+
+        // Ther applicant in the application
+        const applicantId = applicationData['applicantId'];
+        const applicant = await db.collection('users').doc(applicantId).get();
+        const applicantData = applicant.data();
+
+        
+
+        if(hirerData && applicantData) {
+
+            applicantName = applicantData['name'];
+            tokens = hirerData['fcmTokens'];
+
+        }
+
+        //Now need to find taskTitle
+        taskTitle = taskData['title'];
+
+
+        const payload : admin.messaging.MessagingPayload = {
+
+            notification : {
+                title : 'New applicant!!!',
+                body : applicantName + ' has applied to: ' + taskTitle,
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                badge : '1'
+            },
+        };
+    
+        if(tokens !== null) {
+            return fcm.sendToDevice(tokens,payload).then((response) => {
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+            console.log('Error sending message:', error);
+            });
+        } else {
+            return 0;
+        }
+        
+    }
+
+})
+
+
+
+// export const testFunction = functions.firestore.document('test/{testId}')
+// .onCreate(async (snapshot, context) => {
+
+
+//     let allTokens: Array<string> = ["duN3SKBxTbI:APA91bFq4DZERaXUiwOv6ZRP35ol9-BspRCSPC15ZdzFoZX0SoElT3spVE7XqVvlDemxSe0PIni6yId6lQhfBgOLwpWcJKcAAutNtcB4rV_kjM5bWV8tpdgXb5TaT3W5tdlo5mROtIvG","fFnSTic0Nsw:APA91bGbN3i3lD9WdKctULt8vo3Xx4u_yCeR0C-JpiRc3XsBECU61CInVpgpAtrOlT6X6XIlWNnV2emEzgOoiK1YIQwG65IlHUbhpU8DNsiegGavEvOZOb7nRBywaugro0ak4kwYfDOC"];
+
+//     const payload : admin.messaging.MessagingPayload = {
+
+//         notification : {
+//             title : 'Test!',
+//             body : "This is a test",
+//             click_action: 'FLUTTER_NOTIFICATION_CLICK',
+//             badge : '1'
+//         },
+//     };
+
+//     return fcm.sendToDevice(allTokens,payload).then((response) => {
+//         console.log('Successfully sent message:', response);
+//     })
+//     .catch((error) => {
+//     console.log('Error sending message:', error);
+//     });
+// })

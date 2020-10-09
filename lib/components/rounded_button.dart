@@ -20,7 +20,7 @@ class RoundedButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(7.0),
         color: buttonColor,
         boxShadow: elevation ? [BoxShadow(color: Colors.black12,blurRadius: 5,spreadRadius: 1, offset: Offset(0,2))] : [BoxShadow(color: Colors.transparent)],
-      ),
+    ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(7.0),
         child: FlatButton(
@@ -33,6 +33,7 @@ class RoundedButton extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: fontColor,
+                fontWeight: FontWeight.w400,
                 fontSize: 18.0
               ),
             ),

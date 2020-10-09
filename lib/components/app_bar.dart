@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/screens/hirer_screen.dart';
+import 'package:genchi_app/screens/user_screen.dart';
 
-import 'package:genchi_app/screens/provider_screen.dart';
-
-import 'package:genchi_app/models/provider.dart';
-import 'package:genchi_app/services/hirer_service.dart';
-
-import 'package:genchi_app/services/provider_service.dart';
-import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -46,78 +40,31 @@ class BasicAppNavigationBar extends StatelessWidget
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
+
 class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatNavigationBar(
-      {@required this.hirer, this.imageURL, @required this.provider, this.userIsProvider = false});
+      {@required this.user, @required this.otherUser,});
 
-  final User hirer;
-  final String imageURL;
-  final ProviderUser provider;
-  final bool userIsProvider;
+  final GenchiUser user;
+  final GenchiUser otherUser;
 
   @override
   Widget build(BuildContext context) {
-    final providerService = Provider.of<ProviderService>(context);
-    final hirerService = Provider.of<HirerService>(context);
+    final accountService = Provider.of<AccountService>(context);
     return AppBar(
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(60.0),
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.white),
-          child: Container(
-            height: 60.0,
-            color: Color(kGenchiCream),
-            alignment: Alignment.center,
-            child: GestureDetector(
-              onTap: () async {
-                await providerService.updateCurrentProvider(provider.pid);
-                Navigator.pushNamed(context, ProviderScreen.id);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      if(userIsProvider) Text(
-                        provider.name,
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(width: 10,),
-                      Text(
-                        provider.type,
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(kGenchiOrange)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
       iconTheme: IconThemeData(
         color: Colors.black,
       ),
       title: GestureDetector(
         onTap: () async {
-          if(!userIsProvider) {
-            ///User is Hiring
-            await providerService.updateCurrentProvider(provider.pid);
-            Navigator.pushNamed(context, ProviderScreen.id);
-          } else {
-            ///User is providing
-            await hirerService.updateCurrentHirer(id: hirer.id);
-            Navigator.pushNamed(context, HirerScreen.id);
-          }
+          await accountService.updateCurrentAccount(id: otherUser.id);
+          Navigator.pushNamed(context, UserScreen.id);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            imageURL != null
+            otherUser.displayPictureURL != null
                 ?  Container(
               height: 50,
               width: 50,
@@ -127,7 +74,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               clipBehavior: Clip.hardEdge,
               child: Image(
-                image: CachedNetworkImageProvider(imageURL),
+                image: CachedNetworkImageProvider(otherUser.displayPictureURL),
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               ),
@@ -146,7 +93,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                userIsProvider ? hirer.name : provider.name,
+                otherUser.name,
                 maxLines: 1,
                 style: TextStyle(
                   color: Colors.black,
@@ -156,6 +103,39 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ],
+        ),
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: Theme(
+          data: Theme.of(context).copyWith(accentColor: Colors.white),
+          child: Container(
+            height: 60.0,
+            color: Color(kGenchiCream),
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onTap: () async {
+                await accountService.updateCurrentAccount(id: user.id);
+                Navigator.pushNamed(context, UserScreen.id);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        user.accountType == 'Service Provider' ? '${user.name} - ${user.category}' : user.name,
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
       backgroundColor: Color(kGenchiGreen),

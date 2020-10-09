@@ -1,87 +1,220 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
-class User extends ChangeNotifier {
+class GenchiUser {
+
+  ///For all account types
+  String accountType;
   String id;
   String email;
   String name;
-  String accountType;
-  String category;
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
-  DateTime timeStamp;
-  List<dynamic> providerProfiles;
+  bool subscribedToJobs;
+  Timestamp timeStamp;
+  List<dynamic> tasksApplied;
   List<dynamic> chats;
   List<dynamic> favourites;
+  List<dynamic> isFavouritedBy;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
+
+  ///For groups and service providers
+  String category;
+
+  ///For groups
+  String subcategory;
+
+  ///For service Providers
+  String mainAccountId;
+
+  ///For individuals
+  List<dynamic> providerProfiles;
+
   bool admin;
 
-  User(
-      {this.id,
-      this.email,
-      this.name,
-      this.displayPictureFileName,
-      this.displayPictureURL,
-      this.timeStamp,
-      this.providerProfiles,
-      this.favourites,
-      this.posts,
-      this.fcmTokens,
-      this.accountType,
-      this.category,
-      this.bio,
-      this.admin,
-      this.chats});
+  static String groupAccount = 'Group';
+  static String individualAccount = 'Individual';
+  String serviceProviderAccount = 'Service Provider';
 
-  User.fromMap(Map snapshot)
-      : email = snapshot['email'] ?? '',
+  List<String> accessibleAccountTypes = [
+    groupAccount,
+    individualAccount,
+  ];
+
+
+  GenchiUser({
+    this.accountType,
+    this.id,
+    this.email,
+    this.subscribedToJobs,
+    this.name,
+    this.bio,
+    this.displayPictureFileName,
+    this.displayPictureURL,
+    this.timeStamp,
+    this.tasksApplied,
+    this.chats,
+    this.favourites,
+    this.isFavouritedBy,
+    this.posts,
+    this.fcmTokens,
+    this.category,
+    this.subcategory,
+    this.mainAccountId,
+    this.providerProfiles,
+    this.admin,
+  });
+
+  GenchiUser.fromMap(Map snapshot)
+      : accountType =  snapshot['accountType'] ?? 'Individual',
+        id = snapshot['id'] ?? '',
+        email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
-        accountType = snapshot['accountType'] ?? 'Individual',
-        category = snapshot['category'] ?? '',
         bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
         displayPictureURL = snapshot['displayPictureURL'],
-        id = snapshot['id'] ?? '',
-        providerProfiles = snapshot['providerProfiles'] ?? [],
+        timeStamp = snapshot['timeStamp'],
+        tasksApplied = snapshot['tasksApplied'] ?? [],
+        chats = snapshot['chats'] ?? [],
         favourites = snapshot['favourites'] ?? [],
-        fcmTokens = snapshot['fcmTokens'] ?? [],
+        isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         posts = snapshot['posts'] ?? [],
-        admin = snapshot['admin'] ?? false,
-        chats = snapshot['chats'] ?? [];
+        fcmTokens = snapshot['fcmTokens'] ?? [],
+        category = snapshot['category'] ?? snapshot['type'] ?? '',
+        subcategory = snapshot['subcategory'] ?? '',
+        mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
+        providerProfiles = snapshot['providerProfiles'] ?? [],
+        subscribedToJobs = snapshot['subscribedToJobs'] ?? true,
+        admin = snapshot['admin'] ?? false;
 
   toJson() {
     return {
+      if (accountType != null) "accountType": accountType,
+      if (id != null) 'id': id,
       if (email != null) "email": email,
       if (name != null) "name": name,
-      if (admin != null) 'admin': admin,
-      if (accountType != null) "accountType": accountType,
-      if (category != null) "category": category,
       if (bio != null) "bio": bio,
+      if (subscribedToJobs != null) "subscribedToJobs":subscribedToJobs,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
-      if (id != null) 'id': id,
-      if (timeStamp != null) 'timeStamp': timeStamp,
-      if (providerProfiles != null) 'providerProfiles': providerProfiles,
+      if (timeStamp != null) 'timeStamp' : timeStamp,
+      if (tasksApplied != null) 'tasksApplied': tasksApplied,
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
+      if (isFavouritedBy != null) 'isFavouritedBy' : isFavouritedBy,
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
+      if (category != null) "category": category,
+      if (subcategory != null) 'subcategory' : subcategory,
+      if (mainAccountId != null) 'mainAccountId' : mainAccountId,
+      if (providerProfiles != null) 'providerProfiles': providerProfiles,
+      if (admin != null) 'admin': admin,
     };
   }
 }
 
-List<String> AccountTypeList = [
-  'Individual',
-  'Society',
-  'Charity'
+
+///FOR Service Provider Accounts (Individual on the app)
+class Service {
+
+  String nameSingular;
+  String namePlural;
+  String imageAddress;
+  ///Don't change this value
+  String databaseValue;
+
+  Service({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+}
+
+
+List<Service> servicesList = [
+  Service(nameSingular: 'Designer',
+      namePlural: 'Designers',
+      imageAddress: 'images/service_icons/designers.png',
+      databaseValue: 'Design'
+  ),
+  Service(nameSingular: 'Entertainment',
+      namePlural: 'Entertainment',
+      imageAddress: 'images/service_icons/entertainment.png',
+      databaseValue: 'Entertainment'
+  ),
+  Service(
+      nameSingular: 'Journalist',
+      namePlural: 'Journalists',
+      imageAddress: 'images/service_icons/tutors.png',
+      databaseValue: 'Journalism'
+  ),
+  Service(
+      nameSingular: 'Photographer',
+      namePlural: 'Photographers',
+      imageAddress: 'images/service_icons/photographers.png',
+      databaseValue: 'Photography'
+  ),
+  Service(
+      nameSingular: 'Researcher',
+      namePlural: 'Researchers',
+      imageAddress: 'images/service_icons/research.png',
+      databaseValue: 'Research'
+  ),
+  Service(
+      nameSingular: 'Software',
+      namePlural: 'Software',
+      imageAddress: 'images/service_icons/software.png',
+      databaseValue: 'Software'
+  ),
+  Service(
+      nameSingular: 'Other',
+      namePlural: 'Other',
+      imageAddress: 'images/service_icons/other.png',
+      databaseValue: 'Other'
+  ),
 ];
 
-List<String> SocietyCategoryList = [
-  'Sports'
-];
 
-List<String> CharityCategoryList = [
-  '???'
+class GroupType {
+
+  String nameSingular;
+  String namePlural;
+  String imageAddress;
+  ///Don't change this value
+  String databaseValue;
+
+  GroupType({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+}
+
+
+List<GroupType> groupsList = [
+  GroupType(
+    nameSingular: 'Charity',
+    namePlural: 'Charities',
+    imageAddress: 'images/group_icons/charity.png',
+    databaseValue: 'Charity',
+  ),
+  GroupType(
+    nameSingular: 'Entertainment',
+    namePlural: 'Entertainment',
+    imageAddress: 'images/group_icons/entertainment.png',
+    databaseValue: 'Entertainment',
+  ),
+  GroupType(
+    nameSingular: 'Project Group',
+    namePlural: 'Project Groups',
+    imageAddress: 'images/group_icons/project.png',
+    databaseValue: 'Project Group',
+  ),
+  GroupType(
+    nameSingular: 'Society',
+    namePlural: 'Societies',
+    imageAddress: 'images/group_icons/society.png',
+    databaseValue: 'Society',
+  ),
+  GroupType(
+    nameSingular: 'Other',
+    namePlural: 'Others',
+    imageAddress: 'images/group_icons/other.png',
+    databaseValue: 'Other',
+  ),
 ];

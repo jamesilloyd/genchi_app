@@ -11,8 +11,8 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
-import 'package:genchi_app/models/services.dart';
 import 'package:genchi_app/models/task.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -30,11 +30,7 @@ class EditTaskScreen extends StatefulWidget {
 class _EditTaskScreenState extends State<EditTaskScreen> {
   bool changesMade = false;
   bool showSpinner = false;
-  String title;
-  String details;
-  String date;
-  String price;
-  String service;
+
 
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -91,6 +87,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             iconTheme: IconThemeData(
               color: Colors.black,
             ),
+            centerTitle: true,
             title: Text(
               'Edit Job',
               style: TextStyle(
@@ -119,11 +116,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   await fireStoreAPI.updateTask(
                       task: Task(
-                          title: title,
+                          title: titleController.text,
                           service: serviceController.text,
-                          details: details,
-                          price: price,
-                          date: date),
+                          details: detailsController.text,
+                          price: priceController.text,
+                          date: dateController.text),
                       taskId: taskService.currentTask.taskId);
 
                   await taskService.updateCurrentTask(
@@ -149,12 +146,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: titleController,
                   hintText: 'Summary of the job',
                   onChanged: (value) {
-                    title = value;
                     changesMade = true;
                   },
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Container(
                       height: 30.0,
@@ -167,23 +163,47 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       ),
                     ),
                     SizedBox(height: 5.0),
-                    SizedBox(
-                      height: 50.0,
-                      child: Container(
-                        color: Color(kGenchiCream),
-                        child: DropdownButton<String>(
-                          value: initialDropDownValue(
-                              currentType: serviceController.text),
-                          items: dropDownServiceItems(),
-                          onChanged: (value) {
-                            setState(() {
-                              serviceController.text = value;
-                              changesMade = true;
-                            });
-                          },
+                    PopupMenuButton(
+                        elevation: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(32.0)),
+                              border: Border.all(color: Colors.black)
+
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 20.0),
+                            child: Text(
+                              serviceController.text,
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                        itemBuilder: (_) {
+                          List<PopupMenuItem<String>> items = [
+                          ];
+                          for (Service serviceType in servicesList) {
+                            var newItem = new PopupMenuItem(
+                              child: Text(
+                                serviceType.databaseValue,
+                              ),
+                              value: serviceType.databaseValue,
+                            );
+                            items.add(newItem);
+                          }
+                          return items;
+                        },
+                        onSelected: (value) async {
+                          setState(() {
+                            changesMade = true;
+                            serviceController.text = value;
+                          });
+                        }),
                   ],
                 ),
                 EditAccountField(
@@ -191,7 +211,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: dateController,
                   hintText: 'The timeframe of the job',
                   onChanged: (value) {
-                    date = value;
                     changesMade = true;
                   },
                 ),
@@ -200,7 +219,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: detailsController,
                   hintText: 'Provide further details of the job, urls etc.',
                   onChanged: (value) {
-                    details = value;
                     changesMade = true;
                   },
                 ),
@@ -209,72 +227,75 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   textController: priceController,
                   hintText: 'Payment, experience, volunteering etc.',
                   onChanged: (value) {
-                    price = value;
                     changesMade = true;
                   },
                 ),
                 SizedBox(height: 10),
                 Divider(height: 10),
-                RoundedButton(
-                  buttonTitle: 'Save changes',
-                  buttonColor: Color(kGenchiGreen),
-                  onPressed: () async {
-                    analytics.logEvent(name: 'task_bottom_save_changes_button_pressed');
-                    setState(() {
-                      showSpinner = true;
-                    });
-
-                    await fireStoreAPI.updateTask(
-                        task: Task(
-                            title: title,
-                            service: serviceController.text,
-                            details: details,
-                            price: price,
-                            date: date),
-                        taskId: taskService.currentTask.taskId);
-
-                    await taskService.updateCurrentTask(
-                        taskId: taskService.currentTask.taskId);
-
-                    setState(() {
-                      changesMade = false;
-                      showSpinner = false;
-                    });
-                    Navigator.of(context).pop();
-
-                  },
-                ),
-                RoundedButton(
-                  buttonTitle: 'Delete job',
-                  buttonColor: Color(kGenchiBlue),
-                  elevation: false,
-                  onPressed: () async {
-                    ///Ask user if they want to delete task
-                    bool deleteTask = await showYesNoAlert(
-                        context: context,
-                        title: 'Are you sure you want to delete this job?');
-
-                    if (deleteTask) {
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Save changes',
+                    buttonColor: Color(kGenchiGreen),
+                    onPressed: () async {
+                      analytics.logEvent(name: 'task_bottom_save_changes_button_pressed');
                       setState(() {
                         showSpinner = true;
                       });
 
-                      ///Log in firebase analytics
-                      await analytics.logEvent(name: 'job_deleted');
+                      await fireStoreAPI.updateTask(
+                          task: Task(
+                              title: titleController.text,
+                              service: serviceController.text,
+                              details: detailsController.text,
+                              price: priceController.text,
+                              date: dateController.text),
+                          taskId: taskService.currentTask.taskId);
 
-                      await fireStoreAPI.deleteTask(
-                          task: taskService.currentTask);
-                      await authProvider.updateCurrentUserData();
+                      await taskService.updateCurrentTask(
+                          taskId: taskService.currentTask.taskId);
 
                       setState(() {
+                        changesMade = false;
                         showSpinner = false;
                       });
+                      Navigator.of(context).pop();
 
-                      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
-                          (Route<dynamic> route) => false,
-                          arguments: HomeScreenArguments(startingIndex: 1));
-                    }
-                  },
+                    },
+                  ),
+                ),
+                Center(
+                  child: RoundedButton(
+                    buttonTitle: 'Delete job',
+                    buttonColor: Color(kGenchiBlue),
+                    elevation: false,
+                    onPressed: () async {
+                      ///Ask user if they want to delete task
+                      bool deleteTask = await showYesNoAlert(
+                          context: context,
+                          title: 'Are you sure you want to delete this job?');
+
+                      if (deleteTask) {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        ///Log in firebase analytics
+                        await analytics.logEvent(name: 'job_deleted');
+
+                        await fireStoreAPI.deleteTask(
+                            task: taskService.currentTask);
+                        await authProvider.updateCurrentUserData();
+
+                        setState(() {
+                          showSpinner = false;
+                        });
+
+                        Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id,
+                            (Route<dynamic> route) => false,
+                            arguments: HomeScreenArguments(startingIndex: 1));
+                      }
+                    },
+                  ),
                 )
               ],
             ),

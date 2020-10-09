@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class Task {
   String taskId;
   String hirerId;
@@ -9,7 +8,9 @@ class Task {
   String details;
   String date;
   String price;
+  String status;
   List<dynamic> chosenApplicantIds;
+  List<dynamic> applicationIds;
   Timestamp time;
 
   Task({
@@ -20,14 +21,15 @@ class Task {
     this.details,
     this.date,
     this.price,
+    this.status,
     this.chosenApplicantIds,
+    this.applicationIds,
     this.time,
   });
 
 
-
   Task.fromMap(Map snapshot)
-      : taskId = snapshot['taskId'] ?? '',
+      : taskId = snapshot['taskId'],
         hirerId = snapshot['hirerId'] ?? '',
         service = snapshot['service'] ?? '',
         title = snapshot['title'] ?? '',
@@ -35,7 +37,9 @@ class Task {
         date = snapshot['date'] ?? '',
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
-        chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [];
+        status = snapshot['status']?? 'Vacant',
+        chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [],
+        applicationIds = snapshot['applicationIds'] ?? [];
 
   Map<String, dynamic> toJson() {
     return {
@@ -46,59 +50,69 @@ class Task {
       if (details != null) 'details': details,
       if (price != null) 'price': price,
       if (date != null) 'date': date,
+      if (status != null) 'status':status,
       if (chosenApplicantIds != null) 'chosenApplicantIds': chosenApplicantIds,
+      if (applicationIds != null) 'applicationIds': applicationIds,
       if (time != null) 'time': time,
     };
   }
 }
 
 
+List<String> taskStatus = [
+  'Vacant',
+  'InProgress',
+  'Completed'
+];
 
-class TaskApplicant {
-  String pid;
-  String hirerid;
-  String applicationId;
+
+
+class TaskApplication {
+
   String taskid;
+  String applicationId;
+  String applicantId;
+  String hirerid;
   bool hirerHasUnreadMessage;
-  bool providerHasUnreadMessage;
+  bool applicantHasUnreadMessage;
   bool isHiddenFromHirer;
-  bool isHiddenFromProvider;
+  bool isHiddenFromApplicant;
   String lastMessage;
   Timestamp time;
 
-  TaskApplicant(
-      {this.pid,
+  TaskApplication(
+      { this.applicantId,
         this.hirerid,
         this.applicationId,
         this.taskid,
         this.hirerHasUnreadMessage,
-        this.providerHasUnreadMessage,
+        this.applicantHasUnreadMessage,
         this.lastMessage,
-        this.isHiddenFromProvider,
+        this.isHiddenFromApplicant,
         this.isHiddenFromHirer,
         this.time});
 
-  TaskApplicant.fromMap(Map snapshot)
-      : pid = snapshot['pid'] ?? '',
+  TaskApplication.fromMap(Map snapshot)
+      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? snapshot['applicantid']??'',
         hirerid = snapshot['hirerid'] ?? '',
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
-        providerHasUnreadMessage = snapshot['providerHasUnreadMessage'] ?? false,
+        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
         lastMessage = snapshot['lastMessage'] ?? '',
-        applicationId = snapshot['applicationId'] ?? '',
-        isHiddenFromProvider = snapshot['isHiddenFromProvider'] ?? false,
+        applicationId = snapshot['applicationId'],
+        isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,
         isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
         taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
 
   toJson() {
     return {
-      if (pid != null) "pid": pid,
+      if (applicantId != null) "applicantId": applicantId,
       if (hirerid != null) "hirerid": hirerid,
       if (applicationId != null) 'applicationId': applicationId,
-      if (providerHasUnreadMessage != null)'providerHasUnreadMessage': providerHasUnreadMessage,
+      if (applicantHasUnreadMessage != null)'applicantHasUnreadMessage': applicantHasUnreadMessage,
       if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,
-      if (isHiddenFromProvider != null)"isHiddenFromProvider": isHiddenFromProvider,
+      if (isHiddenFromApplicant != null)"isHiddenFromApplicant": isHiddenFromApplicant,
       if (isHiddenFromHirer != null) "isHiddenFromHirer": isHiddenFromHirer,
       if (time != null) "time" : time,
       if (taskid != null) 'taskid': taskid

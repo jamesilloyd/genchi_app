@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -27,7 +28,6 @@ class EditAccountScreen extends StatefulWidget {
   _EditAccountScreenState createState() => _EditAccountScreenState();
 }
 
-//TODO: need to add how category if account is society / charity
 class _EditAccountScreenState extends State<EditAccountScreen> {
   bool changesMade = false;
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
@@ -37,6 +37,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+  TextEditingController subCategoryController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -50,11 +51,12 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   void initState() {
     super.initState();
-    User user =
+    GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     nameController.text = user.name;
     bioController.text = user.bio;
     categoryController.text = user.category;
+    subCategoryController.text = user.subcategory;
   }
 
   @override
@@ -63,12 +65,15 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     nameController.dispose();
     bioController.dispose();
     categoryController.dispose();
+    subCategoryController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
-    User currentUser = authProvider.currentUser;
+    GenchiUser currentUser = authProvider.currentUser;
+    final accountService = Provider.of<AccountService>(context);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -110,9 +115,11 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       name: 'hirer_top_save_changes_button_pressed');
 
                   await fireStoreAPI.updateUser(
-                      user: User(
+                      user: GenchiUser(
                         name: nameController.text,
                         bio: bioController.text,
+                        category: categoryController.text,
+                        subcategory: subCategoryController.text,
                       ),
                       uid: currentUser.id);
 
@@ -121,6 +128,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     await authProvider.updateCurrentUserName(
                         name: nameController.text);
                   }
+
+                  await accountService.updateCurrentAccount(id: currentUser.id);
                   await authProvider.updateCurrentUserData();
 
                   setState(() {
@@ -178,7 +187,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           DisplayPicture(
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
-                            border: true,
                             isEdit: true,
                           ),
                           Positioned(
@@ -218,7 +226,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       textController: nameController,
                     ),
                     if(currentUser.accountType != 'Individual') Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
                           height: 30.0,
@@ -231,32 +239,56 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                           ),
                         ),
                         SizedBox(height: 5.0),
-                        Container(
-                          height: 50.0,
-                          color: Color(kGenchiCream),
-                          //TODO: need to add some lists here for users to choose between
-//                          child: DropdownButton<String>(
-//                            value: categoryController.text,
-//                            items: dropDownAccountTypeItems(),
-//                            onChanged: (value) async {
-//                              if (value != accountTypeTextController.text) {
-//                                bool change = await showYesNoAlert(
-//                                    context: context,
-//                                    title:
-//                                    'Are you sure you want to change account type?',
-//                                    body:
-//                                    'Doing this will remove any other service accounts associated with this account.');
-//
-//                                if (change) {
-//                                  changesMade = true;
-//                                  accountTypeTextController.text = value;
-//                                  setState(() {});
-//                                }
-//                              }
-//                            },
-//                          ),
-                        ),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  categoryController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (GroupType groupType in groupsList) {
+                                var newItem = new PopupMenuItem(
+                                  child: Text(
+                                    groupType.databaseValue,
+                                  ),
+                                  value: groupType.databaseValue,
+                                );
+                                items.add(newItem);
+                              }
+                              return items;
+                            },
+                            onSelected: (value) async {
+                              setState(() {
+                                changesMade = true;
+                                categoryController.text = value;
+                              });
+                            }),
                       ],
+                    ),
+                    if(currentUser.accountType != 'Individual') EditAccountField(
+                      field: 'Subcategory',
+                      hintText: 'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
+                      onChanged: (value) {
+                        changesMade = true;
+                      },
+                      textController: subCategoryController,
                     ),
                     EditAccountField(
                       field: "About",
@@ -265,7 +297,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         changesMade = true;
                       },
                       textController: bioController,
-                      hintText: 'College, Interests, Societies, etc.',
+                      hintText: currentUser.accountType == 'Individual'?'College, Interests, Societies, etc.':'Describe what you do you.',
                     ),
                     SizedBox(
                       height: 20.0,
@@ -273,38 +305,43 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     Divider(
                       height: 10,
                     ),
-                    RoundedButton(
-                      buttonTitle: 'Save changes',
-                      buttonColor: Color(kGenchiGreen),
-                      onPressed: () async {
-                        setState(() {
-                          showSpinner = true;
-                        });
+                    Center(
+                      child: RoundedButton(
+                        buttonTitle: 'Save changes',
+                        buttonColor: Color(kGenchiGreen),
+                        onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
 
-                        await analytics.logEvent(
-                            name: 'hirer_bottom_save_changes_button_pressed');
+                          await analytics.logEvent(
+                              name: 'hirer_bottom_save_changes_button_pressed');
 
-                        await fireStoreAPI.updateUser(
-                            user: User(
-                              name: nameController.text,
-                              bio: bioController.text,
-                            ),
-                            uid: currentUser.id);
+                          await fireStoreAPI.updateUser(
+                              user: GenchiUser(
+                                name: nameController.text,
+                                bio: bioController.text,
+                                category: categoryController.text,
+                                subcategory: subCategoryController.text
+                              ),
+                              uid: currentUser.id);
 
-                        ///If name has changed update in the auth section
-                        if(nameController.text != currentUser.name) {
-                          await authProvider.updateCurrentUserName(
-                              name: nameController.text);
-                        }
+                          ///If name has changed update in the auth section
+                          if(nameController.text != currentUser.name) {
+                            await authProvider.updateCurrentUserName(
+                                name: nameController.text);
+                          }
 
-                        await authProvider.updateCurrentUserData();
+                          await accountService.updateCurrentAccount(id: currentUser.id);
+                          await authProvider.updateCurrentUserData();
 
-                        setState(() {
-                          changesMade = false;
-                          showSpinner = false;
-                        });
-                        Navigator.pop(context);
-                      },
+                          setState(() {
+                            changesMade = false;
+                            showSpinner = false;
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                   ],
                 ),

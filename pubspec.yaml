@@ -11,7 +11,7 @@ description: A new Flutter application.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.7+46
+version: 1.0.8+50
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
@@ -20,25 +20,25 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^0.1.2
+  cupertino_icons: ^1.0.0
   firebase_core: ^0.5.0
   firebase_auth: ^0.18.0+1
   cloud_firestore: ^0.14.0+2
   firebase_storage: ^4.0.0
   firebase_crashlytics: ^0.2.0
-  firebase_messaging: ^6.0.0
+  firebase_messaging: ^7.0.03
   firebase_performance: ^0.4.0
+  firebase_analytics: ^6.0.2
   modal_progress_hud: ^0.1.3
-  image_picker: ^0.6.7+4
+  image_picker: ^0.6.7+11
   image_cropper: ^1.2.2
   provider: ^4.0.4
   get_it: ^5.0.1
   flutter_slidable: ^0.5.4
   url_launcher: ^5.7.2
-  firebase_analytics: ^5.0.11
   intl: ^0.16.1
-  cached_network_image: ^2.2.0+1
-  flutter_cache_manager: ^1.2.2
+  cached_network_image: ^2.3.2+1
+  flutter_cache_manager: ^1.4.2
   rxdart: ^0.24.1
   liquid_pull_to_refresh: ^2.0.0
   shimmer: ^1.1.1
@@ -64,32 +64,32 @@ flutter:
     - images/group_icons/
 
   fonts:
-    - family : FuturaPT
+    - family: FuturaPT
       fonts:
-        - asset: fonts/FuturaPT-Bold.ttf
-          style: normal
-          weight: 700
-
-        - asset: fonts/FuturaPT-Book.ttf
-          style: normal
-          weight: 400
-
-        - asset: fonts/FuturaPT-Demi.ttf
-          style: normal
-          weight: 600
-
-        - asset: fonts/FuturaPT-ExtraBold.ttf
-          style: normal
-          weight: 800
-
-        - asset: fonts/FuturaPT-Heavy.ttf
-          style: normal
-          weight: 900
-
-        - asset: fonts/FuturaPT-Light.ttf
+        - asset: fonts/FuturaPTLight.otf
           style: normal
           weight: 300
 
-        - asset: fonts/FuturaPT-Medium.ttf
+        - asset: fonts/FuturaPTBook.otf
+          style: normal
+          weight: 400
+
+        - asset: fonts/FuturaPTMedium.otf
           style: normal
           weight: 500
+
+        - asset: fonts/FuturaPTDemi.otf
+          style: normal
+          weight: 600
+
+        - asset: fonts/FuturaPTHeavy.otf
+          style: normal
+          weight: 700
+
+        - asset: fonts/FuturaPTBold.otf
+          style: normal
+          weight: 800
+
+        - asset: fonts/FuturaPTExtraBold.otf
+          style: normal
+          weight: 900

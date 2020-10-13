@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:genchi_app/constants.dart';
@@ -7,7 +9,7 @@ import 'package:genchi_app/constants.dart';
 Widget TaskCard(
     {@required Task task,
     bool orangeBackground = false,
-    @required ImageProvider image,
+    @required String imageURL,
     @required Function onTap,
     bool isDisplayTask = true,
     bool hasUnreadMessage = false}) {
@@ -17,41 +19,17 @@ Widget TaskCard(
       ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 0),
         onTap: onTap,
-        leading: image == null
-            ? CircleAvatar(
-                radius: 28,
-                backgroundColor: Color(0xffC4C4C4),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(
-                    Icons.person,
-                    color: Color(0xff585858),
-                    size: 35,
-                  ),
-                ),
-              )
-            : Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(kGenchiCream),
-                ),
-                clipBehavior: Clip.hardEdge,
-                child: Image(
-                  image: image,
-                  fit: BoxFit.cover,
-                  gaplessPlayback: true,
-                ),
-              ),
+        leading: ListDisplayPicture(
+          imageUrl: imageURL,
+          height: 56,
+        ),
         title: Text(
           task.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400
-          ),
+              fontSize: 20,
+              fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
         ),
         subtitle: Text(
           task.details,
@@ -86,9 +64,8 @@ Widget TaskCard(
               textAlign: TextAlign.end,
               style: TextStyle(
                   fontSize: 15,
-                  color:
-                      Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
-              fontWeight: FontWeight.w500),
+                  color: Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
+                  fontWeight: FontWeight.w500),
             ),
           ],
         ),

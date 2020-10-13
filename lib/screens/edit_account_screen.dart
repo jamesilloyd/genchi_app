@@ -73,7 +73,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     GenchiUser currentUser = authProvider.currentUser;
     final accountService = Provider.of<AccountService>(context);
-
+    print('Edit account screen activated');
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -176,7 +176,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                               child: Container(
                                   height:
                                       MediaQuery.of(context).size.height * 0.75,
-                                  child: AddImageScreen(isUser: true)),
+                                  child: AddImageScreen(isUser: true),
+                              ),
                             ),
                           ),
                         );
@@ -184,7 +185,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: <Widget>[
-                          DisplayPicture(
+                          LargeDisplayPicture(
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
                             isEdit: true,

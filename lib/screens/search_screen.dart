@@ -205,6 +205,7 @@ class _SearchScreenState extends State<SearchScreen>
                   'CATEGORIES',
                   style: TextStyle(
                     fontSize: 20,
+                    fontWeight: FontWeight.w400
                   ),
                 ),
                 Divider(

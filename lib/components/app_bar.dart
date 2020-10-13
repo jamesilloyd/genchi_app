@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/user_screen.dart';
@@ -40,10 +41,11 @@ class BasicAppNavigationBar extends StatelessWidget
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
-
 class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
-  const ChatNavigationBar(
-      {@required this.user, @required this.otherUser,});
+  const ChatNavigationBar({
+    @required this.user,
+    @required this.otherUser,
+  });
 
   final GenchiUser user;
   final GenchiUser otherUser;
@@ -64,32 +66,7 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            otherUser.displayPictureURL != null
-                ?  Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(kGenchiCream),
-              ),
-              clipBehavior: Clip.hardEdge,
-              child: Image(
-                image: CachedNetworkImageProvider(otherUser.displayPictureURL),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              ),
-            )
-                : CircleAvatar(
-                    backgroundColor: Color(0xffC4C4C4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(
-                        Icons.person,
-                        color: Color(0xff585858),
-                        size: 25,
-                      ),
-                    ),
-                  ),
+            ListDisplayPicture(imageUrl: otherUser.displayPictureURL, height: 50),
             SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -127,8 +104,11 @@ class ChatNavigationBar extends StatelessWidget implements PreferredSizeWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        user.accountType == 'Service Provider' ? '${user.name} - ${user.category}' : user.name,
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                        user.accountType == 'Service Provider'
+                            ? '${user.name} - ${user.category}'
+                            : user.name,
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),

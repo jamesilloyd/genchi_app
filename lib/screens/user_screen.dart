@@ -197,8 +197,7 @@ class _UserScreenState extends State<UserScreen> {
                 await authService.updateCurrentUserData();
 
                 Navigator.pushNamedAndRemoveUntil(
-                    context, HomeScreen.id, (Route<dynamic> route) => false,
-                    arguments: HomeScreenArguments(startingIndex: 0));
+                    context, HomeScreen.id, (Route<dynamic> route) => false,);
               }
             },
           ),
@@ -293,7 +292,7 @@ class _UserScreenState extends State<UserScreen> {
                                     ? MediaQuery.of(context).size.height * 0.4
                                     : MediaQuery.of(context).size.height * 0.15,
                                 duration: Duration(milliseconds: 100),
-                                child: DisplayPicture(
+                                child: LargeDisplayPicture(
                                   imageUrl: account.displayPictureURL,
                                   height: expandedDisplayPhoto ? 0.4 : 0.15,
                                 ),

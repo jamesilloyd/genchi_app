@@ -44,6 +44,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
   File _imageFile;
   bool noChangesMade = true;
 
+
   Future<void> _pickImage(ImageSource source) async {
 
     final _picker = ImagePicker();
@@ -157,6 +158,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  //TODO can we removed cached network image provider?
                   _imageFile == null
                       ? CircleAvatar(
                           radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,

@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/components/message_list_item.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/profile_cards.dart';
@@ -98,7 +99,7 @@ class _TaskScreenState extends State<TaskScreen> {
           GenchiUser applicant = applicationAndProvider['applicant'];
 
           MessageListItem chatWidget = MessageListItem(
-            imageURL: applicant.displayPictureURL,
+              imageURL: applicant.displayPictureURL,
               name: applicant.name,
               lastMessage: taskApplication.lastMessage,
               time: taskApplication.time,
@@ -205,7 +206,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
           ///Show user's application
           MessageListItem chatWidget = MessageListItem(
-            imageURL: appliedAccount.displayPictureURL,
+              imageURL: appliedAccount.displayPictureURL,
               name: appliedAccount.name,
               lastMessage: usersApplication.lastMessage,
               time: usersApplication.time,
@@ -256,7 +257,9 @@ class _TaskScreenState extends State<TaskScreen> {
                       applicationId: usersApplication.applicationId,
                       taskId: usersApplication.taskid);
 
-                  await Provider.of<AuthenticationService>(context, listen: false).updateCurrentUserData();
+                  await Provider.of<AuthenticationService>(context,
+                          listen: false)
+                      .updateCurrentUserData();
 
                   setState(() {
                     showSpinner = false;
@@ -328,8 +331,7 @@ class _TaskScreenState extends State<TaskScreen> {
               });
 
               Navigator.pushNamedAndRemoveUntil(
-                  context, HomeScreen.id, (Route<dynamic> route) => false,
-                  arguments: HomeScreenArguments(startingIndex: 0));
+                  context, HomeScreen.id, (Route<dynamic> route) => false);
             }
           },
         ),
@@ -464,38 +466,7 @@ class _TaskScreenState extends State<TaskScreen> {
                       },
                       child: Row(
                         children: [
-                          hirer.displayPictureURL == null
-
-                              ///Show default image
-                              ? CircleAvatar(
-                                  radius: 45,
-                                  backgroundColor: Color(0xffC4C4C4),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Icon(
-                                      Icons.person,
-                                      color: Color(0xff585858),
-                                      size: 35,
-                                    ),
-                                  ),
-                                )
-
-                              ///Show provider image
-                              : Container(
-                                  height: 90,
-                                  width: 90,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(kGenchiCream),
-                                  ),
-                                  clipBehavior: Clip.hardEdge,
-                                  child: Image(
-                                    image: CachedNetworkImageProvider(
-                                        hirer.displayPictureURL),
-                                    fit: BoxFit.cover,
-                                    gaplessPlayback: true,
-                                  ),
-                                ),
+                          ListDisplayPicture(imageUrl: hirer.displayPictureURL, height: 90),
                           SizedBox(width: 15),
                           Expanded(
                             child: Column(
@@ -557,8 +528,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   text: currentTask.details ?? "",
                   onOpen: _onOpenLink,
                   options: LinkifyOptions(humanize: false),
-                  style:
-                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                 ),
                 SizedBox(height: 10),
                 Container(
@@ -573,8 +543,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   text: currentTask.date ?? "",
                   onOpen: _onOpenLink,
                   options: LinkifyOptions(humanize: false),
-                  style:
-                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                 ),
                 SizedBox(height: 10),
                 Container(
@@ -587,8 +556,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
                 SelectableText(
                   currentTask.price ?? "",
-                  style:
-                      TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
                 ),
                 SizedBox(height: 10),
               ],
@@ -610,15 +578,16 @@ class _TaskScreenState extends State<TaskScreen> {
                           child: ListView(
                             children: <Widget>[
                               Center(
-                                  child: Text(
-                                'Apply with which account?',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
+                                child: Text(
+                                  'Apply with which account?',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              )),
+                              ),
                               SizedBox(
                                 height: 40,
                                 child: Align(
@@ -795,7 +764,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
                         TaskApplication taskApplication =
                             await firestoreAPI.getTaskApplicationById(
-                              taskId: currentTask.taskId,
+                          taskId: currentTask.taskId,
                           applicationId: chatRef.id,
                         );
 
@@ -821,12 +790,10 @@ class _TaskScreenState extends State<TaskScreen> {
                                 applicant: applicantProfile,
                                 userIsApplicant: true,
                               )).then((value) {
+                            authProvider.updateCurrentUserData();
 
-                                authProvider.updateCurrentUserData();
-                                ///Refresh screen
-                                setState(() {});
-
-
+                            ///Refresh screen
+                            setState(() {});
                           });
                         }
                       }

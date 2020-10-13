@@ -132,7 +132,7 @@ class _PostRegDetailsScreenState extends State<PostRegDetailsScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: <Widget>[
-                          DisplayPicture(
+                          LargeDisplayPicture(
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
                             isEdit: true,

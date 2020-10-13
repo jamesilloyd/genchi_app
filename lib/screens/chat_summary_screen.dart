@@ -55,6 +55,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
         firestoreAPI.getServiceProviders(ids: user.providerProfiles);
   }
 
+  //TOOD: ADD IN A PULL TO REFRESH HERE
+
   @override
   Widget build(BuildContext context) {
     print('Chat summary screen activated');
@@ -365,7 +367,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                   ));
                             },
                             deleteMessage: 'Withdraw',
-                            hideChat: () {},
+                            hideChat: () {
+                              //TODO implement this
+                            },
                           );
 
                           chatWidgets.add(taskApplicationWidget);

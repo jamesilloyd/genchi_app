@@ -54,6 +54,8 @@ class _GenchiState extends State<Genchi> {
   @override
   Widget build(BuildContext context) {
 
+    print('Genchi main activated');
+
     return FutureBuilder(
       future: _initialization,
       builder: (context, snapshot) {

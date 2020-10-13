@@ -14,6 +14,7 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('About screen activated');
     return Scaffold(
       appBar: BasicAppNavigationBar(
         barTitle: 'About Genchi',

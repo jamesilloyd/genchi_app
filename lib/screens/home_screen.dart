@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/jobs_screen.dart';
@@ -45,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final FirebaseMessaging _fcm = FirebaseMessaging();
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
-
   StreamSubscription iosSubscription;
 
   _saveDeviceToken() async {
@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final HomeScreenArguments args =
         ModalRoute.of(context).settings.arguments ?? HomeScreenArguments();
+
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
@@ -115,8 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print('IN PRODUCTION MODE');
     }
 
+
     return Scaffold(
-      body: screens.elementAt(_page ?? startingIndex),
+      //TODO: look into using a page view instead
+      body: IndexedStack(
+        index: _page ?? startingIndex,
+        children: screens,
+      ),
+      // body: screens.elementAt(_page ?? startingIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),

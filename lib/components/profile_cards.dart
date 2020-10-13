@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
-
 
 class UserCard extends StatelessWidget {
   final Function onTap;
@@ -28,34 +28,9 @@ class UserCard extends StatelessWidget {
                 fontSize: 20,
               ),
             ),
-            leading: user.displayPictureURL == null
-            ///Show default image
-                ? CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Color(0xffC4C4C4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(
-                        Icons.person,
-                        color: Color(0xff585858),
-                        size: 35,
-                      ),
-                    ),
-                  )
-            ///Show provider image
-                : Container(
+            leading: ListDisplayPicture(
+              imageUrl: user.displayPictureURL,
               height: 56,
-              width: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(kGenchiCream),
-              ),
-              clipBehavior: Clip.hardEdge,
-              child: Image(
-                image: CachedNetworkImageProvider(user.displayPictureURL),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              ),
             ),
 
             subtitle: Container(
@@ -67,11 +42,15 @@ class UserCard extends StatelessWidget {
               ),
             ),
             onTap: onTap,
-            trailing: user.accountType != 'Individual' ? Text(
-              user.accountType == 'Group' ? user.subcategory : user.category,
-              textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 16,color: Color(kGenchiOrange)),
-            ) : Text(''),
+            trailing: user.accountType != 'Individual'
+                ? Text(
+                    user.accountType == 'Group'
+                        ? user.subcategory
+                        : user.category,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 16, color: Color(kGenchiOrange)),
+                  )
+                : Text(''),
           ),
         ),
         Divider(
@@ -87,7 +66,8 @@ class UserCard extends StatelessWidget {
 Widget ProviderAccountCard(
     {@required double width,
     @required Function onPressed,
-    @required GenchiUser serviceProvider,bool isSmallScreen = false}) {
+    @required GenchiUser serviceProvider,
+    bool isSmallScreen = false}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     child: Center(
@@ -120,13 +100,15 @@ Widget ProviderAccountCard(
                     serviceProvider.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: isSmallScreen ?  16:20 , color: Colors.black),
+                    style: TextStyle(
+                        fontSize: isSmallScreen ? 16 : 20, color: Colors.black),
                   ),
                 ),
                 Expanded(
                   child: Text(
                     serviceProvider.category,
-                    style: TextStyle(fontSize: isSmallScreen?14:18, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 18, color: Colors.black),
                   ),
                 ),
                 Expanded(
@@ -134,7 +116,9 @@ Widget ProviderAccountCard(
                     serviceProvider.bio,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: isSmallScreen?11:14, color: Color(0xff7D7D7D)),
+                    style: TextStyle(
+                        fontSize: isSmallScreen ? 11 : 14,
+                        color: Color(0xff7D7D7D)),
                   ),
                 ),
                 Container(

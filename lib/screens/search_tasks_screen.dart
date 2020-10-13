@@ -74,10 +74,7 @@ class _SearchTasksScreenState extends State<SearchTasksScreen> {
                       GenchiUser hirer = taskAndHirer['hirer'];
 
                       final widget = TaskCard(
-                        image: hirer.displayPictureURL == null
-                            ? null
-                            : CachedNetworkImageProvider(
-                            hirer.displayPictureURL),
+                        imageURL: hirer.displayPictureURL,
                         task: task,
                         onTap: () async {
                           setState(() {

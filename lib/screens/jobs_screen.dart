@@ -496,10 +496,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
                             Widget tCard = TaskCard(
                                 orangeBackground: true,
-                                image: currentUser.displayPictureURL == null
-                                    ? null
-                                    : CachedNetworkImageProvider(
-                                        currentUser.displayPictureURL),
+                                imageURL: currentUser.displayPictureURL,
                                 task: task,
                                 hasUnreadMessage: userHasNotification,
                                 isDisplayTask: false,
@@ -522,7 +519,6 @@ class _JobsScreenState extends State<JobsScreen> {
                                             .getUserTasksPostedAndNotifications(
                                                 postIds: currentUser.posts);
 
-                                    setState(() {});
                                   });
                                 });
 
@@ -641,6 +637,8 @@ class _JobsScreenState extends State<JobsScreen> {
                             );
                           }
 
+
+
                           for (Map taskAndHirerAndNotification
                               in tasksAndHirersAndNotification) {
                             Task task = taskAndHirerAndNotification['task'];
@@ -650,10 +648,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                 taskAndHirerAndNotification['hasNotification'];
 
                             Widget tCard = TaskCard(
-                                image: hirer.displayPictureURL == null
-                                    ? null
-                                    : CachedNetworkImageProvider(
-                                        hirer.displayPictureURL),
+                                imageURL: hirer.displayPictureURL,
                                 task: task,
                                 hasUnreadMessage: userHasNotification,
                                 isDisplayTask: false,
@@ -676,7 +671,6 @@ class _JobsScreenState extends State<JobsScreen> {
                                             providerIds:
                                                 currentUser.providerProfiles,
                                             mainId: currentUser.id);
-                                    setState(() {});
                                   });
                                 });
                             if (task.status == 'Vacant') {
@@ -799,7 +793,6 @@ class _JobsScreenState extends State<JobsScreen> {
                         providerIds: currentUser.providerProfiles,
                         mainId: currentUser.id);
 
-                setState(() {});
               },
               child: ListView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -931,39 +924,9 @@ class _JobsScreenState extends State<JobsScreen> {
                       final List<Map<String, dynamic>> tasksAndHirers =
                           snapshot.data;
 
-                      final List<Widget> widgets = [];
+                      // final List<Widget> widgets = [];
 
-                      for (Map taskAndHirer in tasksAndHirers) {
-                        Task task = taskAndHirer['task'];
-                        GenchiUser hirer = taskAndHirer['hirer'];
-
-                        if ((task.service == filter) || (filter == 'ALL')) {
-                          final widget = TaskCard(
-                            image: hirer.displayPictureURL == null
-                                ? null
-                                : CachedNetworkImageProvider(
-                                    hirer.displayPictureURL),
-                            task: task,
-                            onTap: () async {
-                              setState(() {
-                                showSpinner = true;
-                              });
-
-                              await taskProvider.updateCurrentTask(
-                                  taskId: task.taskId);
-
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.pushNamed(context, TaskScreen.id);
-                            },
-                          );
-
-                          widgets.add(widget);
-                        }
-                      }
-
-                      if (widgets.isEmpty) {
+                      if (tasksAndHirers.isEmpty) {
                         return Container(
                           height: 40,
                           child: Center(
@@ -974,11 +937,92 @@ class _JobsScreenState extends State<JobsScreen> {
                           ),
                         );
                       } else {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: widgets,
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: tasksAndHirers.length,
+                          itemBuilder: (context, index){
+
+                            Map taskAndHirer = tasksAndHirers[index];
+                            Task task = taskAndHirer['task'];
+                            GenchiUser hirer = taskAndHirer['hirer'];
+
+                            if ((task.service == filter) || (filter == 'ALL')) {
+                              return TaskCard(
+                                imageURL: hirer.displayPictureURL,
+                                task: task,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
+
+                                  await taskProvider.updateCurrentTask(
+                                      taskId: task.taskId);
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                  Navigator.pushNamed(context, TaskScreen.id);
+                                },
+                              );
+                            } else {
+                              return SizedBox();
+                            }
+                          },
+
                         );
                       }
+
+
+
+                      // for (Map taskAndHirer in tasksAndHirers) {
+                      //   Task task = taskAndHirer['task'];
+                      //   GenchiUser hirer = taskAndHirer['hirer'];
+                      //
+                      //   if ((task.service == filter) || (filter == 'ALL')) {
+                      //     final widget = TaskCard(
+                      //       image: null,
+                      //       //TODO CHANGE
+                      //       // hirer.displayPictureURL == null
+                      //       //     ? null
+                      //       //     : CachedNetworkImageProvider(
+                      //       //         hirer.displayPictureURL),
+                      //       task: task,
+                      //       onTap: () async {
+                      //         setState(() {
+                      //           showSpinner = true;
+                      //         });
+                      //
+                      //         await taskProvider.updateCurrentTask(
+                      //             taskId: task.taskId);
+                      //
+                      //         setState(() {
+                      //           showSpinner = false;
+                      //         });
+                      //         Navigator.pushNamed(context, TaskScreen.id);
+                      //       },
+                      //     );
+                      //
+                      //     widgets.add(widget);
+                      //   }
+                      // }
+                      //
+                      // if (widgets.isEmpty) {
+                      //   return Container(
+                      //     height: 40,
+                      //     child: Center(
+                      //       child: Text(
+                      //         'No jobs yet. Check again later',
+                      //         style: TextStyle(fontSize: 20),
+                      //       ),
+                      //     ),
+                      //   );
+                      // } else {
+                      //   return Column(
+                      //     mainAxisAlignment: MainAxisAlignment.start,
+                      //     children: widgets,
+                      //   );
+                      // }
                     },
                   ),
                   SizedBox(

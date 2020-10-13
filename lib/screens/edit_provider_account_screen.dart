@@ -174,7 +174,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                               bottom: MediaQuery.of(context).viewInsets.bottom),
                           child: Container(
                               height: MediaQuery.of(context).size.height * 0.75,
-                              child: AddImageScreen(isUser: false)),
+                              child: AddImageScreen(isUser: false),
+                          ),
                         ),
                       ),
                     );
@@ -182,7 +183,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: <Widget>[
-                      DisplayPicture(
+                      LargeDisplayPicture(
                         imageUrl: serviceProvider.displayPictureURL,
                         height: 0.25,
                       ),

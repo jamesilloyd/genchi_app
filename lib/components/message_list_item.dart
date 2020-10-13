@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,33 +63,11 @@ class MessageListItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14),
             ),
-            leading: imageURL == null
-                ? CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Color(0xffC4C4C4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(
-                        Icons.person,
-                        color: Color(0xff585858),
-                        size: 35,
-                      ),
-                    ),
-                  )
-                : Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(kGenchiCream),
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image(
-                      image: CachedNetworkImageProvider(imageURL),
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    ),
-                  ),
+            leading: ListDisplayPicture(
+              imageUrl: imageURL,
+              height: 56,
+            ) ,
+
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -190,33 +169,11 @@ class AppliedTaskChat extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14),
             ),
-            leading: imageURL == null
-                ? CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Color(0xffC4C4C4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(
-                        Icons.person,
-                        color: Color(0xff585858),
-                        size: 35,
-                      ),
-                    ),
-                  )
-                : Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(kGenchiCream),
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image(
-                      image: CachedNetworkImageProvider(imageURL),
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    ),
-                  ),
+            leading: ListDisplayPicture(
+              imageUrl: imageURL,
+              height: 56,
+            ),
+
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -299,16 +256,15 @@ class PostedTaskChats extends StatefulWidget {
   _PostedTaskChatsState createState() => _PostedTaskChatsState();
 }
 
-class _PostedTaskChatsState extends State<PostedTaskChats> with SingleTickerProviderStateMixin {
+class _PostedTaskChatsState extends State<PostedTaskChats>
+    with SingleTickerProviderStateMixin {
   AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 200)
-    );
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200));
   }
 
   @override
@@ -316,7 +272,6 @@ class _PostedTaskChatsState extends State<PostedTaskChats> with SingleTickerProv
     _animationController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -331,41 +286,18 @@ class _PostedTaskChatsState extends State<PostedTaskChats> with SingleTickerProv
             child: Container(
               color: Color(kGenchiCream),
               child: ExpansionTile(
-                onExpansionChanged: (bool changed){
-                  changed ? _animationController.forward() : _animationController.reverse();
+                onExpansionChanged: (bool changed) {
+                  changed
+                      ? _animationController.forward()
+                      : _animationController.reverse();
                 },
                 backgroundColor: Color(kGenchiCream),
                 childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
-                tilePadding:
-                    const EdgeInsets.symmetric(horizontal: 5),
-                leading: widget.hirer.displayPictureURL == null
-                    ? CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Color(0xffC4C4C4),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Icon(
-                            Icons.person,
-                            color: Color(0xff585858),
-                            size: 35,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        height: 56,
-                        width: 56,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(kGenchiCream),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: Image(
-                          image: CachedNetworkImageProvider(
-                              widget.hirer.displayPictureURL),
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                        ),
-                      ),
+                tilePadding: const EdgeInsets.symmetric(horizontal: 5),
+                leading: ListDisplayPicture(
+                  imageUrl: widget.hirer.displayPictureURL,
+                  height: 56,
+                ),
                 title: Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
@@ -386,37 +318,37 @@ class _PostedTaskChatsState extends State<PostedTaskChats> with SingleTickerProv
                   ),
                 ),
                 subtitle: Text(
-                    '${widget.messages.length} applicant${widget.messages.length == 1 ? '' : 's'}',
-                style: TextStyle(
-                  color: Color(kGenchiOrange),
-                  fontSize: 16,
-                  fontWeight:  widget.hasUnreadMessage
-                      ? FontWeight.w500
-                      : FontWeight.w400,
-                ),),
+                  '${widget.messages.length} applicant${widget.messages.length == 1 ? '' : 's'}',
+                  style: TextStyle(
+                    color: Color(kGenchiOrange),
+                    fontSize: 16,
+                    fontWeight: widget.hasUnreadMessage
+                        ? FontWeight.w500
+                        : FontWeight.w400,
+                  ),
+                ),
                 trailing: Padding(
-                  padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       widget.hasUnreadMessage
                           ? Container(
-                        height: 15,
-                        width: 15,
-                        decoration: BoxDecoration(
-                          color: Color(kGenchiOrange),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
-                          ),
-                        ),
-                      )
+                              height: 15,
+                              width: 15,
+                              decoration: BoxDecoration(
+                                color: Color(kGenchiOrange),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10.0),
+                                ),
+                              ),
+                            )
                           : SizedBox(height: 15.0),
                       AnimatedIcon(
                         icon: AnimatedIcons.menu_close,
                         progress: _animationController,
                         size: 20,
-
                       ),
                       Text(
                         getSummaryTime(time: widget.time),

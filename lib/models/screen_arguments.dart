@@ -5,7 +5,6 @@ import 'package:genchi_app/models/user.dart';
 
 class HomeScreenArguments {
   final int startingIndex;
-
   HomeScreenArguments({this.startingIndex = 0});
 }
 

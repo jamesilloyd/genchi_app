@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          DisplayPicture(
+                          LargeDisplayPicture(
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
                           ),

@@ -124,11 +124,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       //TODO: look into using a page view instead
-      body: IndexedStack(
-        index: _page ?? startingIndex,
-        children: screens,
-      ),
-      // body: screens.elementAt(_page ?? startingIndex),
+      // body: IndexedStack(
+      //   index: _page ?? startingIndex,
+      //   children: screens,
+      // ),
+      body: screens.elementAt(_page ?? startingIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),

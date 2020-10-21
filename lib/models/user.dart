@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 
 class GenchiUser {
-
   ///For all account types
   String accountType;
   String id;
@@ -43,7 +42,6 @@ class GenchiUser {
     individualAccount,
   ];
 
-
   GenchiUser({
     this.accountType,
     this.id,
@@ -68,12 +66,14 @@ class GenchiUser {
   });
 
   GenchiUser.fromMap(Map snapshot)
-      : accountType =  snapshot['accountType'] ?? 'Individual',
+      : accountType = snapshot['accountType'] ?? 'Individual',
         id = snapshot['id'] ?? '',
         email = snapshot['email'] ?? '',
         name = snapshot['name'] ?? '',
         bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
+        // displayPictureURL = 'https://firebasestorage.googleapis.com/v0/b/genchi-c96c1.appspot.com/o/images%2Fusers%2FuS1se30jxrfLO0uJNB12ns0Hr8r22020-10-21%2016%3A37%3A40.270658.png?alt=media&token=6ee7b906-7e45-44c1-85ff-2811b4989f8f',
+        // displayPictureURL = 'https://firebasestorage.googleapis.com/v0/b/genchi-c96c1.appspot.com/o/images%2Fusers%2FuS1se30jxrfLO0uJNB12ns0Hr8r22020-10-21%2016%3A37%3A40.270658_100x100.png?alt=media&token=5236c2c7-6047-49bb-bf26-a8eb21a559e0',
         displayPictureURL = snapshot['displayPictureURL'],
         timeStamp = snapshot['timeStamp'],
         tasksApplied = snapshot['tasksApplied'] ?? [],
@@ -96,95 +96,94 @@ class GenchiUser {
       if (email != null) "email": email,
       if (name != null) "name": name,
       if (bio != null) "bio": bio,
-      if (subscribedToJobs != null) "subscribedToJobs":subscribedToJobs,
+      if (subscribedToJobs != null) "subscribedToJobs": subscribedToJobs,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
-      if (timeStamp != null) 'timeStamp' : timeStamp,
+      if (timeStamp != null) 'timeStamp': timeStamp,
       if (tasksApplied != null) 'tasksApplied': tasksApplied,
       if (chats != null) 'chats': chats,
       if (favourites != null) 'favourites': favourites,
-      if (isFavouritedBy != null) 'isFavouritedBy' : isFavouritedBy,
+      if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
       if (category != null) "category": category,
-      if (subcategory != null) 'subcategory' : subcategory,
-      if (mainAccountId != null) 'mainAccountId' : mainAccountId,
+      if (subcategory != null) 'subcategory': subcategory,
+      if (mainAccountId != null) 'mainAccountId': mainAccountId,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
       if (admin != null) 'admin': admin,
     };
   }
 }
 
-
 ///FOR Service Provider Accounts (Individual on the app)
 class Service {
-
   String nameSingular;
   String namePlural;
   String imageAddress;
+
   ///Don't change this value
   String databaseValue;
 
-  Service({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+  Service(
+      {this.nameSingular,
+      this.namePlural,
+      this.imageAddress,
+      this.databaseValue});
 }
 
-
 List<Service> servicesList = [
-  Service(nameSingular: 'Designer',
+  Service(
+      nameSingular: 'Designer',
       namePlural: 'Designers',
       imageAddress: 'images/service_icons/designers.png',
-      databaseValue: 'Design'
-  ),
-  Service(nameSingular: 'Entertainment',
+      databaseValue: 'Design'),
+  Service(
+      nameSingular: 'Entertainment',
       namePlural: 'Entertainment',
       imageAddress: 'images/service_icons/entertainment.png',
-      databaseValue: 'Entertainment'
-  ),
+      databaseValue: 'Entertainment'),
   Service(
       nameSingular: 'Journalist',
       namePlural: 'Journalists',
       imageAddress: 'images/service_icons/tutors.png',
-      databaseValue: 'Journalism'
-  ),
+      databaseValue: 'Journalism'),
   Service(
       nameSingular: 'Photographer',
       namePlural: 'Photographers',
       imageAddress: 'images/service_icons/photographers.png',
-      databaseValue: 'Photography'
-  ),
+      databaseValue: 'Photography'),
   Service(
       nameSingular: 'Researcher',
       namePlural: 'Researchers',
       imageAddress: 'images/service_icons/research.png',
-      databaseValue: 'Research'
-  ),
+      databaseValue: 'Research'),
   Service(
       nameSingular: 'Software',
       namePlural: 'Software',
       imageAddress: 'images/service_icons/software.png',
-      databaseValue: 'Software'
-  ),
+      databaseValue: 'Software'),
   Service(
       nameSingular: 'Other',
       namePlural: 'Other',
       imageAddress: 'images/service_icons/other.png',
-      databaseValue: 'Other'
-  ),
+      databaseValue: 'Other'),
 ];
 
-
 class GroupType {
-
   String nameSingular;
   String namePlural;
   String imageAddress;
+
   ///Don't change this value
   String databaseValue;
 
-  GroupType({this.nameSingular, this.namePlural, this.imageAddress, this.databaseValue});
+  GroupType(
+      {this.nameSingular,
+      this.namePlural,
+      this.imageAddress,
+      this.databaseValue});
 }
-
 
 List<GroupType> groupsList = [
   GroupType(

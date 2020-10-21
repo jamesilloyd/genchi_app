@@ -44,6 +44,7 @@ class _JobsScreenState extends State<JobsScreen> {
   // int appliedNotifications = 0;
 
   double buttonHeight;
+  //TODO: "no jobs" not appearing under filter
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();

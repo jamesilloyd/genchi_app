@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final FirebaseMessaging _fcm = FirebaseMessaging();
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  DefaultCacheManager cacheManager = DefaultCacheManager();
   StreamSubscription iosSubscription;
 
   _saveDeviceToken() async {
@@ -116,6 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
       print('IN PRODUCTION MODE');
     }
 
+    // TODO is this ok?
+    // cacheManager.emptyCache();
+
+    // imageCache.clear();
 
     return Scaffold(
       //TODO: look into using a page view instead

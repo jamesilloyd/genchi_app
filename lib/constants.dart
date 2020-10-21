@@ -92,8 +92,11 @@ const kSignInTextFieldDecoration = InputDecoration(
 );
 
 const modalBottomSheetBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)));
+  borderRadius: BorderRadius.only(
+    topLeft: Radius.circular(20.0),
+    topRight: Radius.circular(20.0),
+  ),
+);
 
 const modalBottomSheetContainerDecoration = BoxDecoration(
   color: Color(kGenchiCream),
@@ -124,4 +127,4 @@ const GenchiPPURL = 'https://www.genchi.app/privacy-policy';
 const GenchiHirerURL = 'https://www.genchi.app/hirer';
 const GenchiProviderURL = 'https://www.genchi.app/provider';
 const GenchiFacebookURL = 'https://www.facebook.com/genchiapp/';
-const GenchiFeedbackURL = 'https://forms.gle/2Fjdu7uQ4AzcbW8y5';
+const GenchiFeedbackURL = 'https://forms.gle/nhKiAq1DUo8TbsFX6';

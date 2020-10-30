@@ -23,15 +23,13 @@ class SearchScreen extends StatefulWidget {
 }
 
 //TODO for some reason keeping the page alive is not working
-class _SearchScreenState extends State<SearchScreen>
-    with AutomaticKeepAliveClientMixin {
+class _SearchScreenState extends State<SearchScreen> {
   List<GenchiUser> users;
   List<GenchiUser> serviceProviders;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics();
+  static final FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
-  Future searchTasksFuture;
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool showSpinner = false;
   bool showServiceProviders = false;
@@ -40,43 +38,13 @@ class _SearchScreenState extends State<SearchScreen>
   Map<String, Future> serviceFutures = {};
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   void initState() {
     super.initState();
-
     analytics.setCurrentScreen(screenName: 'home/search_screen');
-    searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-  }
-
-  List<Widget> buildServiceTiles() {
-    List<Widget> searchServiceTiles = [];
-
-    for (Service service in servicesList) {
-      Widget tile = Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-        child: SearchServiceTile(
-          onPressed: () {
-            analytics.logEvent(
-                name: 'search_button_clicked_for_${service.databaseValue.replaceAll(' ', '')}');
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => SearchProviderScreen(service: service)));
-          },
-          buttonTitle: service.namePlural,
-          imageAddress: service.imageAddress,
-          width: (MediaQuery.of(context).size.width - 40) / 2.5,
-        ),
-      );
-      searchServiceTiles.add(tile);
-    }
-    return searchServiceTiles;
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     if (debugMode) print('Search screen activated');
 
     return GestureDetector(
@@ -238,8 +206,7 @@ class _SearchScreenState extends State<SearchScreen>
                         return SearchServiceTile(
                           onPressed: () {
                             FirebaseAnalytics().logEvent(
-                                name:
-                                    'search_button_clicked_for_${groupType.databaseValue}');
+                                name: 'search_button_clicked_for_${groupType.databaseValue.replaceAll(' ', '')}');
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>
@@ -269,8 +236,7 @@ class _SearchScreenState extends State<SearchScreen>
                         return SearchServiceTile(
                           onPressed: () {
                             FirebaseAnalytics().logEvent(
-                                name:
-                                    'search_button_clicked_for_${service.databaseValue}');
+                                name: 'search_button_clicked_for_${service.databaseValue.replaceAll(' ', '')}');
 
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>

@@ -59,8 +59,6 @@ class _GenchiState extends State<Genchi> {
     return FutureBuilder(
       future: _initialization,
       builder: (context, snapshot) {
-
-        print("I'm in here");
         if (snapshot.hasError) {
           //TODO: add an error screen in here
         }

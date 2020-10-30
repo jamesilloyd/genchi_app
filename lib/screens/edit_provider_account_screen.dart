@@ -306,7 +306,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                     buttonColor: Color(kGenchiGreen),
                     onPressed: () async {
                       analytics.logEvent(
-                          name: 'provider_top_save_changes_button_pressed');
+                          name: 'provider_bottom_save_changes_button_pressed');
                       setState(() {
                         showSpinner = true;
                       });

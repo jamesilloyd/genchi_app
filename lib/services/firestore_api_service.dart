@@ -9,6 +9,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
+
   ///PRODUCTION MODE
   static CollectionReference _usersCollectionRef =
   FirebaseFirestore.instance.collection('users');
@@ -28,7 +29,7 @@ class FirestoreAPIService {
   //
   // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
   //     .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
-
+  //
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
 

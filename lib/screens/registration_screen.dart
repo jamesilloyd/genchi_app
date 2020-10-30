@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -13,6 +14,7 @@ import 'package:genchi_app/components/password_error_text.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -28,6 +30,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
+  bool agreed = false;
 
   TextEditingController accountTypeController = TextEditingController();
 
@@ -180,6 +183,36 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       hintText: "Enter password",
                       isPasswordField: true,
                     ),
+                    Row(
+                      children: [
+                        Checkbox(value: agreed, onChanged: (value){
+                          setState(() {
+                            agreed = value;
+                          });
+                        }),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'I have read and accept the ',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: TextStyle(color: Colors.blue),
+                                recognizer: new TapGestureRecognizer()
+                                  ..onTap = () { launch('https://www.genchi.app/privacy-policy');
+                                  },
+                              ),
+                              TextSpan(
+                                text: '.',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     showErrorField
                         ? PasswordErrorText(errorMessage: errorMessage)
                         : SizedBox(height: 30.0),
@@ -193,11 +226,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           showSpinner = true;
                         });
                         try {
+
                           if (name == null ||
                               email == null ||
                               accountTypeController.text == 'Select type')
                             throw (Exception(
                                 'Enter name, email and account type'));
+
+                          if(agreed == false) throw (Exception('Please accept the Privacy Policy'));
+
 
                           await authProvider.registerWithEmail(
                               email: email,

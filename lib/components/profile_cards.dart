@@ -63,105 +63,125 @@ class UserCard extends StatelessWidget {
 }
 
 ///These are the cards that will appear on a user's profile tab
-Widget ProviderAccountCard(
-    {@required double width,
-    @required Function onPressed,
-    @required GenchiUser serviceProvider,
-    bool isSmallScreen = false}) {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-    child: Center(
-      child: Container(
-        width: width,
-        height: width / 1.77,
-        decoration: BoxDecoration(
+class ProviderAccountCard extends StatelessWidget {
+
+  final double width;
+  final Function onPressed;
+  final GenchiUser serviceProvider;
+  final bool isSmallScreen;
+
+  ProviderAccountCard({@required this.width, @required this.onPressed, @required this.serviceProvider,this.isSmallScreen = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+      child: Center(
+        child: Container(
+          width: width,
+          height: width / 1.77,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.0),
+              color: Color(kGenchiLightOrange),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0.0, 2.0), //(x,y)
+                  blurRadius: 5.0,
+                  spreadRadius: 1.0,
+                ),
+              ]),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
-            color: Color(kGenchiLightOrange),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0.0, 2.0), //(x,y)
-                blurRadius: 5.0,
-                spreadRadius: 1.0,
-              ),
-            ]),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.0),
-          child: FlatButton(
-            onPressed: onPressed,
-            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
+            child: FlatButton(
+              onPressed: onPressed,
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
 //                  fit: BoxFit.fitWidth,
-                  child: Text(
-                    serviceProvider.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: isSmallScreen ? 16 : 20, color: Colors.black),
+                    child: Text(
+                      serviceProvider.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: isSmallScreen ? 16 : 20, color: Colors.black),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    serviceProvider.category,
-                    style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18, color: Colors.black),
+                  Expanded(
+                    child: Text(
+                      serviceProvider.category,
+                      style: TextStyle(
+                          fontSize: isSmallScreen ? 14 : 18, color: Colors.black),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    serviceProvider.bio,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: isSmallScreen ? 11 : 14,
-                        color: Color(0xff7D7D7D)),
+                  Expanded(
+                    child: Text(
+                      serviceProvider.bio,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: isSmallScreen ? 11 : 14,
+                          color: Color(0xff7D7D7D)),
+                    ),
                   ),
-                ),
-                Container(
-                  height: 5,
-                )
-              ],
+                  Container(
+                    height: 5,
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-Widget AddProviderCard({@required double width, @required Function onPressed}) {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-    child: Center(
-      child: Container(
-        width: width,
-        height: width / 1.77,
-        decoration: BoxDecoration(
+
+class AddProviderCard extends StatelessWidget {
+
+  final double width;
+
+  final Function onPressed;
+
+  AddProviderCard({@required this.width, @required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+      child: Center(
+        child: Container(
+          width: width,
+          height: width / 1.77,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.0),
+              color: Color(kGenchiLightOrange),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0.0, 2.0), //(x,y)
+                  blurRadius: 5.0,
+                  spreadRadius: 1.0,
+                ),
+              ]),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
-            color: Color(kGenchiLightOrange),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0.0, 2.0), //(x,y)
-                blurRadius: 5.0,
-                spreadRadius: 1.0,
+            child: FlatButton(
+              onPressed: onPressed,
+              child: Icon(
+                Icons.add,
+                color: Colors.black,
               ),
-            ]),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.0),
-          child: FlatButton(
-            onPressed: onPressed,
-            child: Icon(
-              Icons.add,
-              color: Colors.black,
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
+
+

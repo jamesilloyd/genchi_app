@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -25,8 +24,8 @@ class JobsScreen extends StatefulWidget {
 }
 
 class _JobsScreenState extends State<JobsScreen> {
-  FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  static final FirebaseAnalytics analytics = FirebaseAnalytics();
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool showSpinner = false;
 
@@ -44,6 +43,7 @@ class _JobsScreenState extends State<JobsScreen> {
   // int appliedNotifications = 0;
 
   double buttonHeight;
+
   //TODO: "no jobs" not appearing under filter
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
@@ -172,79 +172,6 @@ class _JobsScreenState extends State<JobsScreen> {
                               size: 30,
                             ),
                           ),
-
-                          //TODO: notifications?
-                          // FutureBuilder(
-                          //   future: getUserTasksPostedAndNotificationsFuture,
-                          //   builder: (context, snapshot) {
-                          //     final List<Map<String, dynamic>>
-                          //     userTasksAndNotifications = snapshot.data;
-                          //
-                          //     postedNotifications = 0;
-                          //
-                          //     ///Check how many notifications the user has
-                          //     if (snapshot.hasData) {
-                          //       for (Map taskAndNotification
-                          //       in userTasksAndNotifications) {
-                          //         bool userHasNotification =
-                          //         taskAndNotification['hasNotification'];
-                          //         if (userHasNotification) postedNotifications++;
-                          //       }
-                          //
-                          //     }
-                          //
-                          //
-                          //     return Stack(
-                          //       alignment: Alignment.centerRight,
-                          //       overflow: Overflow.visible,
-                          //       clipBehavior: Clip.none,
-                          //       children: [
-                          //         Container(
-                          //           width:
-                          //           MediaQuery
-                          //               .of(context)
-                          //               .size
-                          //               .width / 8,
-                          //           height: 25,
-                          //           decoration: BoxDecoration(
-                          //             borderRadius: BorderRadius.vertical(
-                          //                 top: Radius.circular(10)),
-                          //             color: Color(kGenchiLightOrange),
-                          //           ),
-                          //           child: Icon(
-                          //             _isExpanded
-                          //                 ? Icons.keyboard_arrow_down
-                          //                 : Icons.keyboard_arrow_up,
-                          //             size: 30,
-                          //           ),
-                          //         ),
-                          //         if (postedNotifications != 0)
-                          //           Positioned(
-                          //             right: -10,
-                          //             child: Container(
-                          //               alignment: Alignment(100, 100),
-                          //               height: 20,
-                          //               width: 20,
-                          //               decoration: BoxDecoration(
-                          //                   color: Colors.red,
-                          //                   shape: BoxShape.circle,
-                          //                   border: Border.all(
-                          //                       color: Colors.white, width: 2)),
-                          //               child: Center(
-                          //                 child: Text(
-                          //                   postedNotifications.toString(),
-                          //                   style: TextStyle(
-                          //                       fontSize: 11,
-                          //                       color: Colors.white,
-                          //                       fontWeight: FontWeight.w400),
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //           ),
-                          //       ],
-                          //     );
-                          //   },
-                          // ),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -270,82 +197,6 @@ class _JobsScreenState extends State<JobsScreen> {
                               size: 30,
                             ),
                           ),
-
-                          //TODO notifications?
-                          // FutureBuilder(
-                          //   future: getUserTasksAppliedFuture,
-                          //   builder: (context, snapshot) {
-                          //     appliedNotifications = 0;
-                          //
-                          //     final List<Map<String, dynamic>>
-                          //     tasksAndHirersAndNotification = snapshot.data;
-                          //
-                          //     ///Check how many notifications the user has
-                          //     if (snapshot.hasData) {
-                          //       for (Map taskAndHirerAndNotification
-                          //       in tasksAndHirersAndNotification) {
-                          //         bool userHasNotification =
-                          //         taskAndHirerAndNotification[
-                          //         'hasNotification'];
-                          //         if (userHasNotification) appliedNotifications++;
-                          //       }
-                          //     }
-                          //
-                          //       // notificationService.updateJobNotifications(
-                          //       //     notifications: postedNotifications +
-                          //       //         appliedNotifications);
-                          //
-                          //     return Stack(
-                          //       alignment: Alignment.centerLeft,
-                          //       overflow: Overflow.visible,
-                          //       clipBehavior: Clip.none,
-                          //       children: [
-                          //         Container(
-                          //           width:
-                          //           MediaQuery
-                          //               .of(context)
-                          //               .size
-                          //               .width / 8,
-                          //           height: 25,
-                          //           decoration: BoxDecoration(
-                          //             borderRadius: BorderRadius.vertical(
-                          //                 top: Radius.circular(10)),
-                          //             color: Color(kGenchiLightGreen),
-                          //           ),
-                          //           child: Icon(
-                          //             _isExpanded
-                          //                 ? Icons.keyboard_arrow_down
-                          //                 : Icons.keyboard_arrow_up,
-                          //             size: 30,
-                          //           ),
-                          //         ),
-                          //         if (appliedNotifications != 0)
-                          //           Positioned(
-                          //             left: -10,
-                          //             child: Container(
-                          //               alignment: Alignment(100, 100),
-                          //               height: 20,
-                          //               width: 20,
-                          //               decoration: BoxDecoration(
-                          //                   color: Colors.red,
-                          //                   shape: BoxShape.circle,
-                          //                   border: Border.all(
-                          //                       color: Colors.white, width: 2)),
-                          //               child: Center(
-                          //                 child: Text(
-                          //                   appliedNotifications.toString(),
-                          //                   style: TextStyle(
-                          //                       fontSize: 11,
-                          //                       color: Colors.white,
-                          //                       fontWeight: FontWeight.w400),
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //           ),
-                          //       ],
-                          //     );
-                          //   },
-                          // ),
                         ),
                       ]),
                   SizedBox(
@@ -462,8 +313,6 @@ class _JobsScreenState extends State<JobsScreen> {
                       ),
                     ),
                   ),
-
-                  //TODO: the following two visibility widgets can be heavily refactored
                   Visibility(
                     visible: appliedPosted == 'Posted',
                     child: FutureBuilder(
@@ -519,7 +368,6 @@ class _JobsScreenState extends State<JobsScreen> {
                                         firestoreAPI
                                             .getUserTasksPostedAndNotifications(
                                                 postIds: currentUser.posts);
-
                                   });
                                 });
 
@@ -533,83 +381,8 @@ class _JobsScreenState extends State<JobsScreen> {
                           }
                         }
 
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                appliedPosted == 'Posted'
-                                    ? 'RECEIVING APPLICATIONS'
-                                    : 'APPLIED',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xff5415BA)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Column(
-                              children: taskWidgets[0],
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'IN PROGRESS',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xff41820E)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                  child: Text(
-                                    'Coming Soon',
-                                    style: TextStyle(fontSize: 16),
-                                  )),
-                            ),
-                            Column(
-                              children: taskWidgets[1],
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'COMPLETED',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xffDA2222)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                  child: Text(
-                                    'Coming Soon',
-                                    style: TextStyle(fontSize: 16),
-                                  )),
-                            ),
-                            Column(
-                              children: taskWidgets[2],
-                            ),
-                          ],
-                        );
+                        return PostedAppliedList(
+                            taskWidgets: taskWidgets, isPosted: true);
                       },
                     ),
                   ),
@@ -637,8 +410,6 @@ class _JobsScreenState extends State<JobsScreen> {
                               ),
                             );
                           }
-
-
 
                           for (Map taskAndHirerAndNotification
                               in tasksAndHirersAndNotification) {
@@ -684,83 +455,8 @@ class _JobsScreenState extends State<JobsScreen> {
                           }
                         }
 
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                appliedPosted == 'Posted'
-                                    ? 'RECEIVING APPLICATIONS'
-                                    : 'APPLIED TO',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xff5415BA)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Column(
-                              children: taskWidgets[0],
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'IN PROGRESS',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xff41820E)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                  child: Text(
-                                'Coming Soon',
-                                style: TextStyle(fontSize: 16),
-                              )),
-                            ),
-                            Column(
-                              children: taskWidgets[1],
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'COMPLETED',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xffDA2222)),
-                              ),
-                            ),
-                            Divider(
-                              height: 0,
-                              thickness: 1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                  child: Text(
-                                    'Coming Soon',
-                                    style: TextStyle(fontSize: 16),
-                                  )),
-                            ),
-                            Column(
-                              children: taskWidgets[2],
-                            ),
-                          ],
-                        );
+                        return PostedAppliedList(
+                            taskWidgets: taskWidgets, isPosted: false);
                       },
                     ),
                   ),
@@ -793,7 +489,7 @@ class _JobsScreenState extends State<JobsScreen> {
                     firestoreAPI.getUserTasksAppliedAndNotifications(
                         providerIds: currentUser.providerProfiles,
                         mainId: currentUser.id);
-
+                setState(() {});
               },
               child: ListView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -801,56 +497,7 @@ class _JobsScreenState extends State<JobsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: [
                   SizedBox(height: 25),
-                  Center(
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 10.0),
-                      height: 42.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7.0),
-                        color: Color(kGenchiLightOrange),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                            spreadRadius: 1,
-                            offset: Offset(0, 2),
-                          )
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(7.0),
-                        child: FlatButton(
-                          onPressed: () async {
-                            bool postTask = await showYesNoAlert(
-                                context: context, title: 'Post Job?');
-                            if (postTask)
-                              Navigator.pushNamed(context, PostTaskScreen.id);
-                          },
-                          child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  size: 22,
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Post New Job',
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 18.0),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  PostJobSection(),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -942,8 +589,7 @@ class _JobsScreenState extends State<JobsScreen> {
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: tasksAndHirers.length,
-                          itemBuilder: (context, index){
-
+                          itemBuilder: (context, index) {
                             Map taskAndHirer = tasksAndHirers[index];
                             Task task = taskAndHirer['task'];
                             GenchiUser hirer = taskAndHirer['hirer'];
@@ -967,67 +613,159 @@ class _JobsScreenState extends State<JobsScreen> {
                                 },
                               );
                             } else {
-                              return SizedBox();
+                              return SizedBox.shrink();
                             }
                           },
-
                         );
                       }
-
-
-
-                      // for (Map taskAndHirer in tasksAndHirers) {
-                      //   Task task = taskAndHirer['task'];
-                      //   GenchiUser hirer = taskAndHirer['hirer'];
-                      //
-                      //   if ((task.service == filter) || (filter == 'ALL')) {
-                      //     final widget = TaskCard(
-                      //       image: null,
-                      //       //TODO CHANGE
-                      //       // hirer.displayPictureURL == null
-                      //       //     ? null
-                      //       //     : CachedNetworkImageProvider(
-                      //       //         hirer.displayPictureURL),
-                      //       task: task,
-                      //       onTap: () async {
-                      //         setState(() {
-                      //           showSpinner = true;
-                      //         });
-                      //
-                      //         await taskProvider.updateCurrentTask(
-                      //             taskId: task.taskId);
-                      //
-                      //         setState(() {
-                      //           showSpinner = false;
-                      //         });
-                      //         Navigator.pushNamed(context, TaskScreen.id);
-                      //       },
-                      //     );
-                      //
-                      //     widgets.add(widget);
-                      //   }
-                      // }
-                      //
-                      // if (widgets.isEmpty) {
-                      //   return Container(
-                      //     height: 40,
-                      //     child: Center(
-                      //       child: Text(
-                      //         'No jobs yet. Check again later',
-                      //         style: TextStyle(fontSize: 20),
-                      //       ),
-                      //     ),
-                      //   );
-                      // } else {
-                      //   return Column(
-                      //     mainAxisAlignment: MainAxisAlignment.start,
-                      //     children: widgets,
-                      //   );
-                      // }
                     },
                   ),
                   SizedBox(
                     height: 200,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PostedAppliedList extends StatelessWidget {
+  List taskWidgets;
+  bool isPosted;
+
+  PostedAppliedList({@required this.taskWidgets, @required this.isPosted});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            isPosted ? 'RECEIVING APPLICATIONS' : 'APPLIED',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xff5415BA)),
+          ),
+        ),
+        Divider(
+          height: 0,
+          thickness: 1,
+        ),
+        Column(
+          children: taskWidgets[0],
+        ),
+        SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'IN PROGRESS',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xff41820E)),
+          ),
+        ),
+        Divider(
+          height: 0,
+          thickness: 1,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+              child: Text(
+            'Coming Soon',
+            style: TextStyle(fontSize: 16),
+          )),
+        ),
+        Column(
+          children: taskWidgets[1],
+        ),
+        SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'COMPLETED',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xffDA2222)),
+          ),
+        ),
+        Divider(
+          height: 0,
+          thickness: 1,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+              child: Text(
+            'Coming Soon',
+            style: TextStyle(fontSize: 16),
+          )),
+        ),
+        Column(
+          children: taskWidgets[2],
+        ),
+      ],
+    );
+  }
+}
+
+
+class PostJobSection extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10.0),
+        height: 42.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(7.0),
+          color: Color(kGenchiLightOrange),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 5,
+              spreadRadius: 1,
+              offset: Offset(0, 2),
+            )
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7.0),
+          child: FlatButton(
+            onPressed: () async {
+              bool postTask = await showYesNoAlert(
+                  context: context, title: 'Post Job?');
+              if (postTask)
+                Navigator.pushNamed(context, PostTaskScreen.id);
+            },
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.add,
+                    size: 22,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Post New Job',
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18.0),
                   ),
                 ],
               ),

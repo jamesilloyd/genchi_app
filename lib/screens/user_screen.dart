@@ -291,7 +291,9 @@ class _UserScreenState extends State<UserScreen> {
                                 height: expandedDisplayPhoto
                                     ? MediaQuery.of(context).size.height * 0.4
                                     : MediaQuery.of(context).size.height * 0.15,
-                                duration: Duration(milliseconds: 100),
+                                duration: Duration(milliseconds: 150),
+                                //TODO: play around with this
+                                curve: Curves.fastOutSlowIn,
                                 child: LargeDisplayPicture(
                                   imageUrl: account.displayPictureURL,
                                   height: expandedDisplayPhoto ? 0.4 : 0.15,

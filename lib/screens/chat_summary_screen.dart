@@ -27,8 +27,8 @@ class ChatSummaryScreen extends StatefulWidget {
 }
 
 class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
-  FirestoreAPIService firestoreAPI = FirestoreAPIService();
-  FirebaseAnalytics analytics = FirebaseAnalytics();
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  static final FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
 
@@ -81,6 +81,8 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                   ? FutureBuilder(
                       future: getProvidersFuture,
                       builder: (context, snapshot) {
+
+
                         if (!snapshot.hasData) {
                           return Column(
                             children: [
@@ -93,7 +95,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: <Widget>[
                                         Text(
-                                          filter,
+                                          filterText,
                                           style: TextStyle(fontSize: 20),
                                         ),
                                         SizedBox(width: 5),

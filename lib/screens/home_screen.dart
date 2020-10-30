@@ -29,7 +29,6 @@ PageController pageController;
 class _HomeScreenState extends State<HomeScreen> {
 
   int _page;
-  //TODO: MUST DO THIS look into why the screens are being called (leading to extra firestore reads)
 
   void onPageChanged(int page) {
     setState(() {
@@ -45,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final FirebaseMessaging _fcm = FirebaseMessaging();
-  FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   DefaultCacheManager cacheManager = DefaultCacheManager();
   StreamSubscription iosSubscription;
 
@@ -111,11 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
-    if(devMode) {
-      print('IN DEVELOP MODE');
-    } else {
-      print('IN PRODUCTION MODE');
-    }
 
     // TODO is this ok?
     // cacheManager.emptyCache();
@@ -152,27 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [Icon(Platform.isIOS
                       ? CupertinoIcons.folder
                       : Icons.folder_open),
-                  // if(notificationService.jobNotifications != null && notificationService.jobNotifications !=0 ) Align(
-                  //   alignment: Alignment(.4,0),
-                  //   child: Container(
-                  //     height: 20,
-                  //     width: 20,
-                  //     decoration: BoxDecoration(
-                  //         color: Colors.red,
-                  //         shape: BoxShape.circle,
-                  //         border: Border.all(
-                  //             color: Colors.white, width: 2)),
-                  //     child: Center(
-                  //       child: Text(
-                  //         notificationService.jobNotifications.toString(),
-                  //         style: TextStyle(
-                  //             fontSize: 11,
-                  //             color: Colors.white,
-                  //             fontWeight: FontWeight.w400),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // )
                   ]
                 ),
                 label: 'Jobs',

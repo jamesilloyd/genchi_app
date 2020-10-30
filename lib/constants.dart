@@ -117,7 +117,6 @@ const kGenchiBrown = 0xffD3CCAF;
 const kGenchiLightBlue = 0xff534F8E;
 
 const debugMode = true;
-const bool devMode = true;
 
 const GenchiURL = 'https://www.genchi.app';
 const GenchiAboutURL = 'https://www.genchi.app/about-us';

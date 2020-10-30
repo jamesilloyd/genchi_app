@@ -1,15 +1,12 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
-import 'package:genchi_app/screens/post_reg_details_screen.dart';
-import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -44,13 +41,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<GenchiUser> serviceProviders;
   bool showSpinner = false;
 
-  final FirestoreAPIService firestoreAPI = FirestoreAPIService();
-  FirebaseAnalytics analytics = FirebaseAnalytics();
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  static final FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  Future providerFuture ;
 
   @override
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: "/home/profile");
+
+    providerFuture = firestoreAPI.getServiceProviders(
+        ids: Provider.of<AuthenticationService>(context, listen: false).currentUser.providerProfiles);
   }
 
   @override
@@ -152,8 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: FutureBuilder(
                         ///This function returns a list of providerUsers
-                        future: firestoreAPI.getServiceProviders(
-                            ids: currentUser.providerProfiles),
+                        future: providerFuture,
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return CircularProgress();
@@ -254,7 +255,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.black,
                       ),
                     ),
-                  //TODO there must be a better way of doing this than using a string
                   if (!userIsProvider &&
                       currentUser.accountType == 'Individual')
                     ProfileOptionTile(

@@ -109,7 +109,7 @@ class _ApplicationChatScreenState extends State<ApplicationChatScreen> {
                       messageBubbles.add(messageWidget);
                     }
 
-                    if (messageBubbles.isEmpty) {
+                    if (messageBubbles.isEmpty && userIsApplicant) {
                       return Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: MaterialButton(

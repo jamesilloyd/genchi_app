@@ -442,10 +442,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                             messages: applicationChatWidgets,
                             hirer: currentUser,
                             time: chatORApplication['data']['time'],
-                            applicationsAndApplicants:
-                                applicationsAndApplicants,
-                            onTap: () {},
-                            hideChat: () {},
                           );
 
                           chatWidgets.add(taskPostedApplications);

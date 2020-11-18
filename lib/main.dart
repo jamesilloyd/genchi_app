@@ -19,6 +19,8 @@ import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
+import 'package:genchi_app/screens/task_screen_applicant.dart';
+import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -50,10 +52,10 @@ class _GenchiState extends State<Genchi> {
   ///Initialise FlutterFire
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
-
   @override
   Widget build(BuildContext context) {
 
+    // return Container(color: Colors.red);
     print('Genchi main activated');
 
     return FutureBuilder(
@@ -99,6 +101,8 @@ class _GenchiState extends State<Genchi> {
   }
 }
 
+
+
 class StartUp extends StatelessWidget {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
 
@@ -143,6 +147,8 @@ class StartUp extends StatelessWidget {
               AboutScreen.id: (context) => AboutScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
               TaskScreen.id: (context) => TaskScreen(),
+              TaskScreenHirer.id: (context) => TaskScreenHirer(),
+              TaskScreenApplicant.id: (context) => TaskScreenApplicant(),
               EditTaskScreen.id: (context) => EditTaskScreen(),
               TestScreen.id: (context) => TestScreen(),
               ApplicationChatScreen.id: (context) => ApplicationChatScreen(),

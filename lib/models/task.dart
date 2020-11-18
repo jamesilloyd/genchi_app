@@ -37,7 +37,7 @@ class Task {
         date = snapshot['date'] ?? '',
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
-        status = snapshot['status']?? 'Vacant',
+        status = snapshot['status'] ?? 'Vacant',
         chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 

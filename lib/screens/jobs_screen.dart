@@ -10,6 +10,8 @@ import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/task_screen.dart';
+import 'package:genchi_app/screens/task_screen_applicant.dart';
+import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
@@ -361,7 +363,11 @@ class _JobsScreenState extends State<JobsScreen> {
                                   setState(() {
                                     showSpinner = false;
                                   });
-                                  Navigator.pushNamed(context, TaskScreen.id)
+
+
+                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
+
+                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id)
                                       .then((value) {
                                     ///Refresh the tasks to remove notifications.
                                     getUserTasksPostedAndNotificationsFuture =
@@ -436,7 +442,9 @@ class _JobsScreenState extends State<JobsScreen> {
                                     showSpinner = false;
                                   });
 
-                                  Navigator.pushNamed(context, TaskScreen.id)
+                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
+
+                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id)
                                       .then((value) {
                                     getUserTasksAppliedFuture = firestoreAPI
                                         .getUserTasksAppliedAndNotifications(
@@ -609,7 +617,9 @@ class _JobsScreenState extends State<JobsScreen> {
                                   setState(() {
                                     showSpinner = false;
                                   });
-                                  Navigator.pushNamed(context, TaskScreen.id);
+                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
+
+                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id);
                                 },
                               );
                             } else {

@@ -110,7 +110,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.w500,
-                            color: Color(kGenchiBlue),
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 5.0),

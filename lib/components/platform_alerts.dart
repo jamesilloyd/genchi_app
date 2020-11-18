@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:io' show Platform;
 import 'package:genchi_app/constants.dart';
 
@@ -73,79 +76,60 @@ Future<bool> showYesNoAlert(
     {@required BuildContext context, @required String title, String body}) {
   return showDialog(
     context: context,
-    child: Platform.isIOS
-        ? CupertinoAlertDialog(
+    child: SimpleDialog(
+            backgroundColor: Color(kGenchiCream),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(9))),
             title: Text(
               title,
-              style: TextStyle(fontFamily: 'FuturaPT',fontWeight: FontWeight.w500),
-            ),
-             content: body!=null ? Text(
-                body,
-                style: TextStyle(fontFamily: 'FuturaPT', fontSize: 18)):null,
-            actions: <Widget>[
-              CupertinoDialogAction(
-                child: Text("No",
-                    style: TextStyle(
-                        fontFamily: 'FuturaPT',
-                        color: Color(kGenchiOrange),
-                        fontWeight: FontWeight.w600)),
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop(false);
-                },
-              ),
-              CupertinoDialogAction(
-                child: Text(
-                  "Yes",
-                  style: TextStyle(
-                      fontFamily: 'FuturaPT',
-                      color: Color(kGenchiGreen),
-                      fontWeight: FontWeight.w600),
-                ),
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop(true);
-                },
-              ),
-            ],
-          )
-        : SimpleDialog(
-            title: Text(
-              title,
-              style: TextStyle(fontFamily: 'FuturaPT'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: 'FuturaPT',
+              fontSize: 16),
             ),
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     if (body != null)
                       Text(body,
+                          textAlign: TextAlign.center,
                           style:
-                              TextStyle(fontFamily: 'FuturaPT', fontSize: 18)),
+                              TextStyle(fontFamily: 'FuturaPT', fontSize: 16)),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        SimpleDialogOption(
-                          child: Text("No",
-                              style: TextStyle(
-                                  fontFamily: 'FuturaPT',
-                                  color: Color(kGenchiOrange),
-                                  fontWeight: FontWeight.w600)),
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(false);
-                          },
+                        Expanded(
+                          flex: 1,
+                          child: SimpleDialogOption(
+                            child: Text("No",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontFamily: 'FuturaPT',
+                                    color: Color(kGenchiOrange),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500)),
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .pop(false);
+                            },
+                          ),
                         ),
-                        SimpleDialogOption(
-                          child: Text("Yes",
-                              style: TextStyle(
-                                  fontFamily: 'FuturaPT',
-                                  color: Color(kGenchiGreen),
-                                  fontWeight: FontWeight.w600)),
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(true);
-                          },
+                        Expanded(
+                          flex: 1,
+                          child: SimpleDialogOption(
+                            child: Text("Yes",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontFamily: 'FuturaPT',
+                                    fontSize: 18,
+                                    color: Color(kGenchiGreen),
+                                    fontWeight: FontWeight.w500)),
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .pop(true);
+                            },
+                          ),
                         ),
                       ],
                     ),

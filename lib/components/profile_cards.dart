@@ -7,8 +7,9 @@ import 'package:genchi_app/models/user.dart';
 class UserCard extends StatelessWidget {
   final Function onTap;
   final GenchiUser user;
+  final bool enabled;
 
-  UserCard({@required this.user, @required this.onTap});
+  UserCard({@required this.user, @required this.onTap, this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class UserCard extends StatelessWidget {
       children: <Widget>[
         Center(
           child: ListTile(
+            enabled: enabled,
             // dense: true,
             shape: Border.all(color: Colors.black, width: 2),
             contentPadding: EdgeInsets.symmetric(horizontal: 0),
@@ -26,6 +28,7 @@ class UserCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 20,
+                color: Colors.black
               ),
             ),
             leading: ListDisplayPicture(
@@ -38,19 +41,11 @@ class UserCard extends StatelessWidget {
                 user.bio,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400,
+                color: Colors.black54),
               ),
             ),
             onTap: onTap,
-            trailing: user.accountType != 'Individual'
-                ? Text(
-                    user.accountType == 'Group'
-                        ? user.subcategory
-                        : user.category,
-                    textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: 16, color: Color(kGenchiOrange)),
-                  )
-                : Text(''),
           ),
         ),
         Divider(

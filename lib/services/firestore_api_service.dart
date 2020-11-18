@@ -11,24 +11,24 @@ import 'package:rxdart/rxdart.dart';
 class FirestoreAPIService {
 
   ///PRODUCTION MODE
-  static CollectionReference _usersCollectionRef =
-  FirebaseFirestore.instance.collection('users');
-
-  static CollectionReference _chatCollectionRef =
-  FirebaseFirestore.instance.collection('chats');
-
-  static CollectionReference _taskCollectionRef =
-  FirebaseFirestore.instance.collection('tasks');
+  // static CollectionReference _usersCollectionRef =
+  // FirebaseFirestore.instance.collection('users');
+  //
+  // static CollectionReference _chatCollectionRef =
+  // FirebaseFirestore.instance.collection('chats');
+  //
+  // static CollectionReference _taskCollectionRef =
+  // FirebaseFirestore.instance.collection('tasks');
 
   ///DEVELOP MODE
-  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/users');
-  //
-  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
-  //
-  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+      .collection('development/sSqkhUUghSa8kFVLE05Z/users');
+
+  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+      .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+
+  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+      .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
   //
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
@@ -568,9 +568,11 @@ class FirestoreAPIService {
 
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
+
     var result = await _taskCollectionRef.get();
 
     ///Map all the docs into Task objects
+
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
 
     ///Sort by time posted
@@ -581,7 +583,7 @@ class FirestoreAPIService {
       var hirer = await getUserById(task.hirerId);
 
       ///If hirer exists add them to the task list
-      if (hirer != null) {
+      if (hirer != null && task.status == 'Vacant') {
         taskAndHirer['hirer'] = hirer;
         tasksAndHirers.add(taskAndHirer);
       }

@@ -39,7 +39,6 @@ class SignInTextField extends StatelessWidget {
               keyboardType:
                   isNameField ? TextInputType.text : TextInputType.emailAddress,
               obscureText: isPasswordField,
-              obscuringCharacter: Platform.isIOS ? "" : '■',
               textCapitalization: isNameField
                   ? TextCapitalization.words
                   : TextCapitalization.none,

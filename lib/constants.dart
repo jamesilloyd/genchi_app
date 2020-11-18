@@ -116,6 +116,10 @@ const kGenchiLightOrange = 0xffF7BE66;
 const kGenchiBrown = 0xffD3CCAF;
 const kGenchiLightBlue = 0xff534F8E;
 
+const kRed = 0xffDA2222;
+const kGreen = 0xff41820E;
+const kPurple = 0xff5415BA;
+
 const debugMode = true;
 
 const GenchiURL = 'https://www.genchi.app';

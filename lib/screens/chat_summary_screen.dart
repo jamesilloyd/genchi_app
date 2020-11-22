@@ -33,14 +33,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
   bool showSpinner = false;
 
   Stream chatSummaryStream;
-  Future getProvidersFuture;
 
-  String filter = 'ALL';
-  String filterText = 'ALL';
-
-  List<Map> accountIdsAndNames = [
-    {'id': 'ALL', 'name': 'ALL'}
-  ];
 
   @override
   void initState() {
@@ -48,14 +41,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
     analytics.setCurrentScreen(screenName: "/home/chat_summary_screen");
     GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
-    accountIdsAndNames.add({'id': user.id, 'name': user.name});
 
     chatSummaryStream = firestoreAPI.streamUserChatsAndApplications(user: user);
-    getProvidersFuture =
-        firestoreAPI.getServiceProviders(ids: user.providerProfiles);
+
   }
 
-  //TOOD: ADD IN A PULL TO REFRESH HERE
+  //TODO: ADD IN A PULL TO REFRESH HERE
 
   @override
   Widget build(BuildContext context) {
@@ -77,137 +68,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             children: <Widget>[
-              userIsProvider
-                  ? FutureBuilder(
-                      future: getProvidersFuture,
-                      builder: (context, snapshot) {
-
-
-                        if (!snapshot.hasData) {
-                          return Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 50,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text(
-                                          filterText,
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        SizedBox(width: 5),
-                                        ImageIcon(
-                                          AssetImage('images/filter.png'),
-                                          color: Colors.black,
-                                          size: 30,
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Divider(
-                                height: 0,
-                                thickness: 1,
-                              ),
-                            ],
-                          );
-                        } else {
-                          List serviceAccounts = snapshot.data;
-
-                          ///Refresh the list (so it doesn't keep growing)
-                          accountIdsAndNames.clear();
-                          accountIdsAndNames.add({'id': 'ALL', 'name': 'ALL'});
-                          accountIdsAndNames.add({
-                            'id': currentUser.id,
-                            'name': '${currentUser.name} (Main)'
-                          });
-
-                          for (GenchiUser account in serviceAccounts) {
-                            accountIdsAndNames.add({
-                              'id': account.id,
-                              'name': '${account.name} - ${account.category}'
-                            });
-                          }
-
-                          return Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 50,
-                                    child: PopupMenuButton(
-                                      elevation: 1,
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: <Widget>[
-                                            Text(
-                                              filterText,
-                                              style: TextStyle(fontSize: 20),
-                                            ),
-                                            SizedBox(width: 5),
-                                            ImageIcon(
-                                              AssetImage('images/filter.png'),
-                                              color: Colors.black,
-                                              size: 30,
-                                            ),
-                                            SizedBox(
-                                              width: 5,
-                                            )
-                                          ]),
-                                      itemBuilder: (_) {
-                                        List<PopupMenuItem<String>> items = [
-                                          new PopupMenuItem<String>(
-                                            child: Text('ALL'),
-                                            value: 'ALL',
-                                          ),
-                                          new PopupMenuItem<String>(
-                                            child: Text(
-                                                '${currentUser.name} (Main)'),
-                                            value: currentUser.id,
-                                          ),
-                                        ];
-                                        for (GenchiUser account
-                                            in serviceAccounts) {
-                                          items.add(new PopupMenuItem<String>(
-                                            child: Text(
-                                                '${account.name} - ${account.category}'),
-                                            value: account.id,
-                                          ));
-                                        }
-                                        return items;
-                                      },
-                                      onSelected: (value) {
-                                        for (Map map in accountIdsAndNames) {
-                                          if (map['id'] == value) {
-                                            filter = map['id'];
-                                            filterText = map['name'];
-                                          }
-                                        }
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Divider(
-                                height: 0,
-                                thickness: 1,
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    )
-                  : Column(
+              Column(
                       children: [
                         SizedBox(
                           height: 20,
@@ -262,7 +123,6 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                           bool userIsUser1 =
                               chatORApplication['data']['userIsUser1'];
 
-                          if ((filter == user.id || filter == 'ALL')) {
                             ///Users main account messages
                             Widget chatWidget = MessageListItem(
                               imageURL: otherUser.displayPictureURL,
@@ -324,7 +184,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                                 chatWidgets.add(chatWidget);
                               }
                             }
-                          }
+
                         } else if (chatORApplication['type'] == 'taskApplied') {
                           ///We're dealing with an task applied
                           TaskApplication application =

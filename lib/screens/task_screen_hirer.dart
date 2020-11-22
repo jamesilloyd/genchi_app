@@ -121,6 +121,8 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                         ),
                       );
 
+                      print(response);
+
                       if (response != null ||
                           response['status'] != currentTask.status) {
                         if (response['status'] == 'Vacant') {
@@ -358,56 +360,61 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
               height: 10,
             ),
 
+            ///Show "pay applicant" button
             if (currentTask.status != 'Vacant')
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  height: (MediaQuery.of(context).size.width * 0.6 - 15) * 0.2,
-                  decoration: BoxDecoration(
-                    color: Color(kGenchiLightOrange),
-                    borderRadius: BorderRadius.circular(50.0),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50.0),
-                    child: FlatButton(
-                      onPressed: () async {
-                        bool payApplicants = await showYesNoAlert(
-                            context: context, title: 'Pay Applicants?');
+              Builder(
+                builder: (context) {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      height:
+                          (MediaQuery.of(context).size.width * 0.6 - 15) * 0.2,
+                      decoration: BoxDecoration(
+                        color: Color(kGenchiLightOrange),
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50.0),
+                        child: FlatButton(
+                          onPressed: () async {
+                            bool payApplicants = await showYesNoAlert(
+                                context: context, title: 'Pay Applicants?');
 
-                        Scaffold.of(context).showSnackBar(kDevelopmentFeature);
-
-                        if (payApplicants != null) {
-                          await analytics.logEvent(
-                              name: 'pay_button_pressed',
-                              parameters: {'response': payApplicants});
-                        }
-                      },
-                      child: FittedBox(
-                        fit: BoxFit.fill,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.attach_money,
-                              color: Colors.white,
-                              size: 30,
+                            if (payApplicants != null) {
+                              Scaffold.of(context)
+                                  .showSnackBar(kDevelopmentFeature);
+                              await analytics.logEvent(
+                                  name: 'pay_button_pressed',
+                                  parameters: {'response': payApplicants});
+                            }
+                          },
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.attach_money,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  'Pay Applicant(s)',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                )
+                              ],
                             ),
-                            SizedBox(width: 5),
-                            Text(
-                              'Pay Applicant(s)',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            )
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-
             SizedBox(
               height: 10,
             ),

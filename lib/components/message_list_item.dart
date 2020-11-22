@@ -587,12 +587,12 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
               Column(
                 children: widget.successfulMessages,
               ),
-              if(widget.task.status != 'Vacant') Text(
+              if(widget.task.status != 'Vacant' && widget.unSuccessfulMessages.isNotEmpty) Text(
                 'Unsuccessful Applicants',
                 style: TextStyle(fontSize: 20),
               ),
-              if(widget.task.status != 'Vacant') Divider(thickness: 1,height: 1,color: Colors.black12),
-              if(widget.task.status != 'Vacant') Column(
+              if(widget.task.status != 'Vacant' && widget.unSuccessfulMessages.isNotEmpty) Divider(thickness: 1,height: 1,color: Colors.black12),
+              if(widget.task.status != 'Vacant' && widget.unSuccessfulMessages.isNotEmpty) Column(
                 children: widget.unSuccessfulMessages,
               ),
             ],

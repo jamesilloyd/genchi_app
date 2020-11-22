@@ -284,6 +284,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                         await fireStoreAPI.deleteTask(
                             task: taskService.currentTask);
+
                         await authProvider.updateCurrentUserData();
 
                         setState(() {

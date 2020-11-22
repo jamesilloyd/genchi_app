@@ -9,7 +9,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
-import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/services/authentication_service.dart';

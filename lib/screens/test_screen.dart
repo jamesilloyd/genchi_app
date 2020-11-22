@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:package_info/package_info.dart';
@@ -37,6 +38,7 @@ class _TestScreenState extends State<TestScreen> {
   BuildContext draggableSheetContext;
   bool _isVisible = true;
 
+
   @override
   void initState() {
     super.initState();
@@ -49,12 +51,8 @@ class _TestScreenState extends State<TestScreen> {
         body: Center(
           child: RoundedButton(
             buttonColor: Color(kGenchiGreen),
-            buttonTitle: 'Update task status',
-            onPressed: ()async{
-
-              firestoreApi.addTaskStatus();
-
-
+            buttonTitle: 'Delete photo',
+            onPressed: () async {
             },
           ),
         ),

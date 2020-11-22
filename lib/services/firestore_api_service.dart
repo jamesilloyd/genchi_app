@@ -10,24 +10,24 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  // static CollectionReference _usersCollectionRef =
-  // FirebaseFirestore.instance.collection('users');
-  //
-  // static CollectionReference _chatCollectionRef =
-  // FirebaseFirestore.instance.collection('chats');
-  //
-  // static CollectionReference _taskCollectionRef =
-  // FirebaseFirestore.instance.collection('tasks');
+  static CollectionReference _usersCollectionRef =
+  FirebaseFirestore.instance.collection('users');
+
+  static CollectionReference _chatCollectionRef =
+  FirebaseFirestore.instance.collection('chats');
+
+  static CollectionReference _taskCollectionRef =
+  FirebaseFirestore.instance.collection('tasks');
 
   ///DEVELOP MODE
-  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/users');
-
-  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
-
-  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-      .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/users');
+  //
+  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
+  //
+  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
 
   //
   static CollectionReference _developmentCollectionRef =
@@ -1156,16 +1156,29 @@ class FirestoreAPIService {
   }
 
 
-  Future addTaskStatus() async {
+  Future addTaskApplications() async {
     await _taskCollectionRef.get().then(
           (value1) async {
         for (DocumentSnapshot doc in value1.docs) {
-          ///Add to firebase dev collection
+
           Task task = doc.exists ? Task.fromMap(doc.data()) : null;
+
           if (task != null) {
+            List<String> applicationIds = [];
+
+            await _taskCollectionRef.doc(task.taskId).collection('applicants').get().then(
+                (value2) async {
+                  for (DocumentSnapshot doc2 in value2.docs){
+                    applicationIds.add(doc2.id);
+                  }
+                }
+            );
+
             task.status = 'Vacant';
+            task.applicationIds = applicationIds;
             await updateTask(task: task, taskId: task.taskId);
           }
+
         }
       },
     );

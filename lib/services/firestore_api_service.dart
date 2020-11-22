@@ -9,7 +9,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
-
   ///PRODUCTION MODE
   // static CollectionReference _usersCollectionRef =
   // FirebaseFirestore.instance.collection('users');
@@ -29,9 +28,10 @@ class FirestoreAPIService {
 
   static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
       .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+
   //
   static CollectionReference _developmentCollectionRef =
-      FirebaseFirestore.instance.collection('development');
+  FirebaseFirestore.instance.collection('development');
 
   ///***------------------ SERVICE SEARCH FUNCTIONS ------------------***
 
@@ -68,7 +68,7 @@ class FirestoreAPIService {
         .where('category', isEqualTo: serviceType)
         .get();
     List<GenchiUser> allServiceProviders =
-        result.docs.map((doc) => GenchiUser.fromMap(doc.data())).toList();
+    result.docs.map((doc) => GenchiUser.fromMap(doc.data())).toList();
     return allServiceProviders;
   }
 
@@ -110,7 +110,8 @@ class FirestoreAPIService {
   Future<void> deleteServiceProvider({GenchiUser serviceProvider}) async {
     if (debugMode)
       print(
-          'FirestoreAPI: deleteSerivceProvider called on ${serviceProvider.id}');
+          'FirestoreAPI: deleteSerivceProvider called on ${serviceProvider
+              .id}');
 
     ///Delete chats
     if (serviceProvider.chats.isNotEmpty)
@@ -269,7 +270,8 @@ class FirestoreAPIService {
     ///This function is used to stream all the private chats and applications a user has (and their provider chats)
     if (debugMode)
       print(
-          'firestoreApi: streamUserChatsAndApplications called on ${user.id} and ${user.providerProfiles}');
+          'firestoreApi: streamUserChatsAndApplications called on ${user
+              .id} and ${user.providerProfiles}');
 
     ///Collating all ids into one list for querying
     List usersProfileIds = [];
@@ -337,8 +339,9 @@ class FirestoreAPIService {
 
     ///Getting the tasks the user has applied to
     Stream stream2 = _taskCollectionRef
-        //TODO: is this risky using [' '] as a null entry?
-        .where('taskId', whereIn: tasksApplied.isNotEmpty ? tasksApplied : [' '])
+    //TODO: is this risky using [' '] as a null entry?
+        .where('taskId',
+        whereIn: tasksApplied.isNotEmpty ? tasksApplied : [' '])
         .snapshots()
         .asyncMap((event) async {
       var futures = event.docs.map((doc) async {
@@ -353,7 +356,7 @@ class FirestoreAPIService {
         ///Check that the application has been found (*there should only be one*)
         if (taskApplicationData.docs[0] != null) {
           TaskApplication taskApplication =
-              TaskApplication.fromMap(taskApplicationData.docs[0].data());
+          TaskApplication.fromMap(taskApplicationData.docs[0].data());
           GenchiUser currentUser;
 
           ///Need to check which user account it is and get the account if it's a provider
@@ -400,14 +403,14 @@ class FirestoreAPIService {
         Task postedTask = Task.fromMap(doc.data());
 
         List<Map<String, dynamic>> taskApplicationsData =
-            await getTaskApplicants(task: postedTask);
+        await getTaskApplicants(task: postedTask);
 
         ///Filter out any posts that don't have any applicants
 
         if (taskApplicationsData.isNotEmpty) {
           ///They are ordered by time so the first one will have the latest time
           TaskApplication latestApplication =
-              taskApplicationsData.first['application'];
+          taskApplicationsData.first['application'];
 
           Timestamp latestTime = latestApplication.time;
 
@@ -464,7 +467,7 @@ class FirestoreAPIService {
         isHiddenFromUser1: false);
 
     DocumentReference result =
-        await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
+    await _chatCollectionRef.add(chat.toJson()).then((docRef) async {
       await updateChat(chat: Chat(chatid: docRef.id));
 
       ///Add to senders array
@@ -539,7 +542,7 @@ class FirestoreAPIService {
   Future<DocumentReference> addTask(
       {@required Task task, @required String hirerId}) async {
     DocumentReference result =
-        await _taskCollectionRef.add(task.toJson()).then((docRef) async {
+    await _taskCollectionRef.add(task.toJson()).then((docRef) async {
       await updateTask(
         task: Task(taskId: docRef.id),
         taskId: docRef.id,
@@ -569,10 +572,10 @@ class FirestoreAPIService {
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
 
-    var result = await _taskCollectionRef.get();
+    var result =
+    await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
 
     ///Map all the docs into Task objects
-
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
 
     ///Sort by time posted
@@ -600,7 +603,7 @@ class FirestoreAPIService {
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
     var result =
-        await _taskCollectionRef.where('service', isEqualTo: service).get();
+    await _taskCollectionRef.where('service', isEqualTo: service).get();
 
     ///Map all the docs into Task objects
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
@@ -712,7 +715,8 @@ class FirestoreAPIService {
 
         if (debugMode)
           print(
-              'FirestoreAPI: getTaskChatsAndProviders found application ${application.applicationId} and applicant ${application.applicantId}');
+              'FirestoreAPI: getTaskChatsAndProviders found application ${application
+                  .applicationId} and applicant ${application.applicantId}');
 
         ///Grab the applicant associated with the application
         GenchiUser applicant = await getUserById(application.applicantId);
@@ -735,11 +739,10 @@ class FirestoreAPIService {
     return applicationAndProviders;
   }
 
-  Future addMessageToTaskApplicant(
-      {@required String applicationId,
-      @required String taskId,
-      @required ChatMessage chatMessage,
-      @required bool applicantIsSender}) async {
+  Future addMessageToTaskApplicant({@required String applicationId,
+    @required String taskId,
+    @required ChatMessage chatMessage,
+    @required bool applicantIsSender}) async {
     TaskApplication taskApplication = TaskApplication(
         lastMessage: chatMessage.text,
         time: chatMessage.time,
@@ -773,10 +776,9 @@ class FirestoreAPIService {
     return result;
   }
 
-  Future<DocumentReference> applyToTask(
-      {@required String taskId,
-      @required String applicantId,
-      @required String hirerId}) async {
+  Future<DocumentReference> applyToTask({@required String taskId,
+    @required String applicantId,
+    @required String hirerId}) async {
     if (debugMode)
       print(
           'FirestoreAPI: applyToTask called for task $taskId by applicant $applicantId');
@@ -788,7 +790,7 @@ class FirestoreAPIService {
         isHiddenFromHirer: false,
         isHiddenFromApplicant: false);
 
-    ///Add applicant to taskApplication collection
+    ///Add application to taskApplication collection
     DocumentReference taskApplicationResult = await _taskCollectionRef
         .doc(taskId)
         .collection(applicantCollectionName)
@@ -796,11 +798,11 @@ class FirestoreAPIService {
         .then((docRef) async {
       await updateTaskApplication(
           taskApplication:
-              TaskApplication(applicationId: docRef.id, taskid: taskId));
+          TaskApplication(applicationId: docRef.id, taskid: taskId));
       return docRef;
     });
 
-    ///Add application to user's tasksApplied
+    ///Add taskId to user's tasksApplied
     await _usersCollectionRef.doc(applicantId).update({
       'tasksApplied': FieldValue.arrayUnion([taskId])
     });
@@ -921,7 +923,7 @@ class FirestoreAPIService {
       taskAndNotification['task'] = task;
 
       bool hasNotification =
-          await hirerTaskHasNotification(taskId: task.taskId);
+      await hirerTaskHasNotification(taskId: task.taskId);
 
       taskAndNotification['hasNotification'] = hasNotification;
 
@@ -988,6 +990,45 @@ class FirestoreAPIService {
     return tasksAndHirersAndNotifications;
   }
 
+
+  Future<bool> applicantWasSuccessful({@required Task task, @required String applicantId}) async {
+
+    ///This task is used for checking whether an applicant was successful in an application
+    ///It returns true for successful, false for unsuccessful or if they haven't applied
+    if (debugMode)
+      print(
+          'FirestoreAPI: applicantWasSuccessful called for ${task.taskId} and $applicantId');
+
+    List<Map<String, dynamic>> applicationAndProviders = [];
+
+    QuerySnapshot applications = await _taskCollectionRef
+        .doc(task.taskId)
+        .collection(applicantCollectionName)
+        .get();
+
+    if(applications.docs.isNotEmpty) {
+      List<TaskApplication> taskApplicants = applications.docs.map((doc) => TaskApplication.fromMap(doc.data())).toList();
+
+      for(TaskApplication application in taskApplicants) {
+
+        ///Need to check if the use has applied to the task or not
+        if(application.applicantId == applicantId){
+          ///User has applied to task
+          if(task.successfulApplications.contains(application.applicationId)){
+            ///User has a successful application
+            return true;
+          }
+
+        }
+
+
+      }
+    }
+
+    return false;
+
+  }
+
   ///***------------------ OTHER FUNCTIONS ------------------***
 
   Future addFCMToken(
@@ -1004,7 +1045,7 @@ class FirestoreAPIService {
     ///send under the development collection
 
     DocumentReference devDoc =
-        await _developmentCollectionRef.add({'timeStamp': Timestamp.now()});
+    await _developmentCollectionRef.add({'timeStamp': Timestamp.now()});
 
     ///chats
     await FirebaseFirestore.instance
@@ -1113,4 +1154,23 @@ class FirestoreAPIService {
     });
     print('Done');
   }
+
+
+  Future addTaskStatus() async {
+    await _taskCollectionRef.get().then(
+          (value1) async {
+        for (DocumentSnapshot doc in value1.docs) {
+          ///Add to firebase dev collection
+          Task task = doc.exists ? Task.fromMap(doc.data()) : null;
+          if (task != null) {
+            task.status = 'Vacant';
+            await updateTask(task: task, taskId: task.taskId);
+          }
+        }
+      },
+    );
+
+    print('done');
+  }
+
 }

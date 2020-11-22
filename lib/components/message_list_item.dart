@@ -5,6 +5,7 @@ import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/constants.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 
@@ -66,8 +67,7 @@ class MessageListItem extends StatelessWidget {
             leading: ListDisplayPicture(
               imageUrl: imageURL,
               height: 56,
-            ) ,
-
+            ),
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -122,17 +122,15 @@ class ApplicantListItem extends StatelessWidget {
   final bool hasUnreadMessage;
   final Function onTap;
 
-
-  const ApplicantListItem(
-      {Key key,
-        @required this.imageURL,
-
-        @required this.name,
-        @required this.lastMessage,
-        @required this.time,
-        @required this.hasUnreadMessage,
-        @required this.onTap,})
-      : super(key: key);
+  const ApplicantListItem({
+    Key key,
+    @required this.imageURL,
+    @required this.name,
+    @required this.lastMessage,
+    @required this.time,
+    @required this.hasUnreadMessage,
+    @required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +151,7 @@ class ApplicantListItem extends StatelessWidget {
                   color: Colors.black,
                   fontFamily: 'FuturaPT',
                   fontWeight:
-                  hasUnreadMessage ? FontWeight.w500 : FontWeight.w400,
+                      hasUnreadMessage ? FontWeight.w500 : FontWeight.w400,
                 ),
               ),
             ),
@@ -167,23 +165,22 @@ class ApplicantListItem extends StatelessWidget {
           leading: ListDisplayPicture(
             imageUrl: imageURL,
             height: 56,
-          ) ,
-
+          ),
           trailing: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               hasUnreadMessage
                   ? Container(
-                height: 15,
-                width: 15,
-                decoration: BoxDecoration(
-                  color: Color(kGenchiOrange),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                ),
-              )
+                      height: 15,
+                      width: 15,
+                      decoration: BoxDecoration(
+                        color: Color(kGenchiOrange),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                    )
                   : SizedBox(height: 15.0),
               Text(
                 getSummaryTime(time: time),
@@ -265,7 +262,6 @@ class AppliedTaskChat extends StatelessWidget {
               imageUrl: imageURL,
               height: 56,
             ),
-
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -463,32 +459,30 @@ class _PostedTaskChats extends State<PostedTaskChats>
   }
 }
 
-
 class HirerTaskApplicants extends StatefulWidget {
-  final String title;
   final GenchiUser hirer;
-  final Timestamp time;
+  final Task task;
 
   final String deleteMessage;
-  final List<Widget> messages;
+  final List<Widget> successfulMessages;
+  final List<Widget> unSuccessfulMessages;
   final bool hasUnreadMessage;
   final String subtitleText;
 
   const HirerTaskApplicants(
       {Key key,
-        @required this.title,
-        @required this.hirer,
-        @required this.time,
-        @required this.messages,
-        @required this.hasUnreadMessage,
-        @required this.subtitleText,
-        this.deleteMessage = 'Remove'})
+      @required this.hirer,
+      @required this.task,
+      @required this.successfulMessages,
+      @required this.unSuccessfulMessages,
+      @required this.hasUnreadMessage,
+      @required this.subtitleText,
+      this.deleteMessage = 'Remove'})
       : super(key: key);
 
   @override
   _HirerTaskApplicants createState() => _HirerTaskApplicants();
 }
-
 
 class _HirerTaskApplicants extends State<HirerTaskApplicants>
     with SingleTickerProviderStateMixin {
@@ -510,7 +504,7 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme =
-    Theme.of(context).copyWith(dividerColor: Colors.transparent);
+        Theme.of(context).copyWith(dividerColor: Colors.transparent);
     return Theme(
       data: theme,
       child: Padding(
@@ -535,8 +529,8 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
               child: Container(
                 height: 30,
                 child: Text(
-                  '${widget.messages.length} applicant${widget.messages.length == 1 ? '' : 's'}',
-                maxLines: 1,
+                  widget.subtitleText,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 20,
@@ -550,13 +544,12 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
               ),
             ),
             subtitle: Text(
-              "Posted ${getTaskPostedTime(time: widget.time)}",
+              "Posted ${getTaskPostedTime(time: widget.task.time)}",
               style: TextStyle(
                 color: Color(kGenchiOrange),
                 fontSize: 16,
-                fontWeight: widget.hasUnreadMessage
-                    ? FontWeight.w500
-                    : FontWeight.w400,
+                fontWeight:
+                    widget.hasUnreadMessage ? FontWeight.w500 : FontWeight.w400,
               ),
             ),
             trailing: Padding(
@@ -567,15 +560,15 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
                 children: <Widget>[
                   widget.hasUnreadMessage
                       ? Container(
-                    height: 15,
-                    width: 15,
-                    decoration: BoxDecoration(
-                      color: Color(kGenchiOrange),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
-                      ),
-                    ),
-                  )
+                          height: 15,
+                          width: 15,
+                          decoration: BoxDecoration(
+                            color: Color(kGenchiOrange),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                          ),
+                        )
                       : SizedBox(height: 15.0),
                   AnimatedIcon(
                     icon: AnimatedIcons.menu_close,
@@ -585,7 +578,24 @@ class _HirerTaskApplicants extends State<HirerTaskApplicants>
                 ],
               ),
             ),
-            children: widget.messages,
+            children: [
+              if(widget.task.status != 'Vacant') Text(
+                'Successful Applicants',
+                style: TextStyle(fontSize: 20),
+              ),
+              if(widget.task.status != 'Vacant') Divider(thickness: 1,height: 1,color: Colors.black12,),
+              Column(
+                children: widget.successfulMessages,
+              ),
+              if(widget.task.status != 'Vacant') Text(
+                'Unsuccessful Applicants',
+                style: TextStyle(fontSize: 20),
+              ),
+              if(widget.task.status != 'Vacant') Divider(thickness: 1,height: 1,color: Colors.black12),
+              if(widget.task.status != 'Vacant') Column(
+                children: widget.unSuccessfulMessages,
+              ),
+            ],
           ),
         ),
       ),

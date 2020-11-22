@@ -54,13 +54,18 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
 
   Future hirerFuture;
   Future applicantsFuture;
+  Future applicantWasSuccessfulFuture;
 
   @override
   void initState() {
     super.initState();
     Task task = Provider.of<TaskService>(context, listen: false).currentTask;
+    GenchiUser user =
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
     hirerFuture = firestoreAPI.getUserById(task.hirerId);
     applicantsFuture = firestoreAPI.getTaskApplicants(task: task);
+    applicantWasSuccessfulFuture =
+        firestoreAPI.applicantWasSuccessful(task: task, applicantId: user.id);
   }
 
   @override
@@ -94,71 +99,74 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
         elevation: 2.0,
         brightness: Brightness.light,
       ),
-      bottomNavigationBar: showSpinner ? SizedBox.shrink(): ActionButton(
-        userpidsAndId: userPidsAndId,
-        applicantsFuture: applicantsFuture,
-        applyFunction: () async {
-          String selectedId = await showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: modalBottomSheetBorder,
-            builder: (context) => ApplyToJob(currentUser: currentUser),
-          );
+      bottomNavigationBar: showSpinner
+          ? SizedBox.shrink()
+          : ActionButton(
+              userpidsAndId: userPidsAndId,
+              applicantsFuture: applicantsFuture,
+              applyFunction: () async {
+                String selectedId = await showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: modalBottomSheetBorder,
+                  builder: (context) => ApplyToJob(currentUser: currentUser),
+                );
 
-          if (debugMode) print('Task Screen: applied with id $selectedId');
+                if (debugMode)
+                  print('Task Screen: applied with id $selectedId');
 
-          if (selectedId != null) {
-            setState(() {
-              showSpinner = true;
-            });
+                if (selectedId != null) {
+                  setState(() {
+                    showSpinner = true;
+                  });
 
-            await analytics.logEvent(name: 'task_application_sent');
+                  await analytics.logEvent(name: 'task_application_sent');
 
-            DocumentReference chatRef = await firestoreAPI.applyToTask(
-                taskId: currentTask.taskId,
-                applicantId: selectedId,
-                hirerId: currentTask.hirerId);
+                  DocumentReference chatRef = await firestoreAPI.applyToTask(
+                      taskId: currentTask.taskId,
+                      applicantId: selectedId,
+                      hirerId: currentTask.hirerId);
 
-            TaskApplication taskApplication =
-                await firestoreAPI.getTaskApplicationById(
-              taskId: currentTask.taskId,
-              applicationId: chatRef.id,
-            );
+                  TaskApplication taskApplication =
+                      await firestoreAPI.getTaskApplicationById(
+                    taskId: currentTask.taskId,
+                    applicationId: chatRef.id,
+                  );
 
-            GenchiUser applicantProfile =
-                await firestoreAPI.getUserById(selectedId);
+                  GenchiUser applicantProfile =
+                      await firestoreAPI.getUserById(selectedId);
 
-            GenchiUser hirer =
-                await firestoreAPI.getUserById(currentTask.hirerId);
+                  GenchiUser hirer =
+                      await firestoreAPI.getUserById(currentTask.hirerId);
 
-            setState(() {
-              showSpinner = false;
-            });
+                  setState(() {
+                    showSpinner = false;
+                  });
 
-            ///Check all necessary documents exist before entering chat
-            if (hirer != null &&
-                applicantProfile != null &&
-                taskApplication != null) {
-              Navigator.pushNamed(context, ApplicationChatScreen.id,
-                  arguments: ApplicationChatScreenArguments(
-                    isInitialApplication: true,
-                    taskApplication: taskApplication,
-                    hirer: hirer,
-                    applicant: applicantProfile,
-                    userIsApplicant: true,
-                  )).then((value) {
-                authProvider.updateCurrentUserData();
+                  ///Check all necessary documents exist before entering chat
+                  if (hirer != null &&
+                      applicantProfile != null &&
+                      taskApplication != null) {
+                    Navigator.pushNamed(context, ApplicationChatScreen.id,
+                        arguments: ApplicationChatScreenArguments(
+                          isInitialApplication: true,
+                          taskApplication: taskApplication,
+                          hirer: hirer,
+                          applicant: applicantProfile,
+                          userIsApplicant: true,
+                        )).then((value) {
+                      authProvider.updateCurrentUserData();
 
-                applicantsFuture =
-                    firestoreAPI.getTaskApplicants(task: currentTask);
+                      applicantsFuture =
+                          firestoreAPI.getTaskApplicants(task: currentTask);
 
-                ///Refresh screen
-                setState(() {});
-              });
-            }
-          }
-        },
-      ),
+                      ///Refresh screen
+                      setState(() {});
+                    });
+                  }
+                }
+              },
+            ),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
@@ -274,8 +282,58 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                 );
               },
             ),
+            SizedBox(height: 10),
+            Text('Job Status',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                )),
+            Divider(
+              thickness: 1,
+              height: 8,
+            ),
+            /* TODO:
+                if applicant is successful just show them the usual
+                If they aren't successful just show them "not receiving applications"
+             */
 
-            ///KEEP
+            FutureBuilder(
+                future: applicantWasSuccessfulFuture,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return SizedBox.shrink();
+                  }
+
+                  final bool success = snapshot.data;
+
+                  if (currentTask.status == 'Vacant') {
+                    return Text(
+                      'ACCEPTING APPLICATIONS',
+                      style: TextStyle(fontSize: 22, color: Color(kPurple)),
+                    );
+                  } else {
+                    return Text(
+                      success
+                          ? (currentTask.status == 'InProgress'
+                              ? 'IN PROGRESS'
+                              : 'COMPLETED')
+                          : "NOT RECEIVING APPLICATIONS",
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: success
+                            ? (currentTask.status == 'InProgress'
+                                ? Color(kGreen)
+                                : Color(kRed))
+                            : Color(kRed),
+                      ),
+                    );
+                  }
+                }),
+            SizedBox(
+              height: 10,
+            ),
+
+            ///Show the generic job details
             TaskDetailsSection(
               task: currentTask,
               linkOpen: _onOpenLink,
@@ -363,8 +421,8 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                               applicant: appliedAccount,
                             )).then((value) {
                           setState(() {
-                            applicantsFuture = firestoreAPI.getTaskApplicants(task: currentTask);
-
+                            applicantsFuture = firestoreAPI.getTaskApplicants(
+                                task: currentTask);
                           });
                         });
                       }
@@ -373,47 +431,52 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
 
                   widgets.add(chatWidget);
 
-                  Widget withdraw = Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: RoundedButton(
-                        buttonTitle: 'Withdraw',
-                        buttonColor: Color(kGenchiLightGreen),
-                        onPressed: () async {
-                          bool withdraw = await showYesNoAlert(
-                              context: context,
-                              title: 'Are you sure you want to withdraw your application?');
+                  ///Withdraw only available when task is still receiving applications
+                  if (currentTask.status == 'Vacant') {
+                    Widget withdraw = Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: RoundedButton(
+                          buttonTitle: 'Withdraw',
+                          buttonColor: Color(kGenchiLightGreen),
+                          onPressed: () async {
+                            bool withdraw = await showYesNoAlert(
+                                context: context,
+                                title:
+                                    'Are you sure you want to withdraw your application?');
 
-                          if (withdraw) {
-                            setState(() {
-                              showSpinner = true;
-                            });
+                            if (withdraw) {
+                              setState(() {
+                                showSpinner = true;
+                              });
 
-                            await analytics.logEvent(
-                                name: 'applicant_removed_application');
+                              await analytics.logEvent(
+                                  name: 'applicant_removed_application');
 
-                            await firestoreAPI.removeTaskApplicant(
-                                applicantId: appliedAccount.id,
-                                applicationId: usersApplication.applicationId,
-                                taskId: usersApplication.taskid);
+                              await firestoreAPI.removeTaskApplicant(
+                                  applicantId: appliedAccount.id,
+                                  applicationId: usersApplication.applicationId,
+                                  taskId: usersApplication.taskid);
 
-                            await Provider.of<AuthenticationService>(context,
-                                    listen: false)
-                                .updateCurrentUserData();
+                              await Provider.of<AuthenticationService>(context,
+                                      listen: false)
+                                  .updateCurrentUserData();
 
-                            setState(() {
-                              showSpinner = false;
-                              applicantsFuture = firestoreAPI.getTaskApplicants(task: currentTask);
-                            });
-                          }
-                        },
-                        fontColor: Colors.black,
-                        elevation: false,
+                              setState(() {
+                                showSpinner = false;
+                                applicantsFuture = firestoreAPI
+                                    .getTaskApplicants(task: currentTask);
+                              });
+                            }
+                          },
+                          fontColor: Colors.black,
+                          elevation: false,
+                        ),
                       ),
-                    ),
-                  );
+                    );
 
-                  widgets.add(withdraw);
+                    widgets.add(withdraw);
+                  }
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -650,6 +713,7 @@ class ApplyToJob extends StatelessWidget {
                             id: result.id);
 
                         //TODO is there a way to reload? rather then closing the modal and having to reopen?
+                        //TODO: YES, turn this into a stateless widget
 
                         Navigator.pushNamed(context, UserScreen.id)
                             .then((value) {

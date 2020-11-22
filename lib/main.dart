@@ -16,9 +16,7 @@ import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
-import 'package:genchi_app/screens/search_tasks_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
-import 'package:genchi_app/screens/task_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/screens/test_screen.dart';
@@ -146,13 +144,11 @@ class StartUp extends StatelessWidget {
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
-              TaskScreen.id: (context) => TaskScreen(),
               TaskScreenHirer.id: (context) => TaskScreenHirer(),
               TaskScreenApplicant.id: (context) => TaskScreenApplicant(),
               EditTaskScreen.id: (context) => EditTaskScreen(),
               TestScreen.id: (context) => TestScreen(),
               ApplicationChatScreen.id: (context) => ApplicationChatScreen(),
-              SearchTasksScreen.id: (context) => SearchTasksScreen(),
               OnboardingScreen.id: (context) => OnboardingScreen(),
               EditAccountSettingsScreen.id: (context) =>
                   EditAccountSettingsScreen(),

@@ -1,5 +1,4 @@
 import 'dart:io' show Platform;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,19 +17,16 @@ import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
-import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
 
-import 'package:genchi_app/services/time_formatting.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-//TODO: do front end then add in the back end
 class TaskScreenHirer extends StatefulWidget {
   static const id = 'task_screen_hirer';
 
@@ -115,17 +111,64 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                     buttonColor: Color(kGenchiLightGreen),
                     fontColor: Colors.black,
                     onPressed: () async {
-                      String status = await showModalBottomSheet(
+                      Map response = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: modalBottomSheetBorder,
                         builder: (context) => ChangeJobStatus(
                           applicantsFuture: applicantsFuture,
+                          currentTask: currentTask,
                         ),
                       );
 
-                      print("Status is: $status");
-                      //TODO: need any more code here?
+                      if (response != null ||
+                          response['status'] != currentTask.status) {
+                        if (response['status'] == 'Vacant') {
+                          ///Set applicant lists to empty
+                          currentTask.unsuccessfulApplications = [];
+                          currentTask.successfulApplications = [];
+
+                          ///Update the task status
+                          currentTask.status = 'Vacant';
+
+                          ///Update in firestore
+                          await firestoreAPI.updateTask(
+                              task: currentTask, taskId: currentTask.taskId);
+                        } else if (response['status'] == 'InProgress') {
+                          ///Check if the status is moving from vacant to inProgress
+                          ///if it is add the selected and unselected applicants the task before updating
+                          if (currentTask.status == 'Vacant') {
+                            ///Add successful applicants to the current Task list
+                            currentTask.successfulApplications =
+                                response['selectedApplicationIds'];
+
+                            ///filter our the unsuccessful applicants and add to the Task list
+                            List unsuccessfulApplications = [];
+                            for (String id in currentTask.applicationIds) {
+                              if (!response['selectedApplicationIds']
+                                  .contains(id))
+                                unsuccessfulApplications.add(id);
+                            }
+                            currentTask.unsuccessfulApplications =
+                                unsuccessfulApplications;
+                          }
+
+                          ///Update changes
+                          currentTask.status = 'InProgress';
+
+                          ///Update in firestore
+                          await firestoreAPI.updateTask(
+                              task: currentTask, taskId: currentTask.taskId);
+                        } else if (response['status'] == 'Completed') {
+                          ///Update the task status
+                          currentTask.status = 'Completed';
+
+                          ///Update in firestore
+                          await firestoreAPI.updateTask(
+                              task: currentTask, taskId: currentTask.taskId);
+                        }
+                        setState(() {});
+                      }
                     },
                   )),
             ),
@@ -184,9 +227,6 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
               thickness: 1,
               height: 10,
             ),
-            SizedBox(
-              height: 5,
-            ),
 
             ///HIRER VIEW
             FutureBuilder(
@@ -207,6 +247,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       child: ListTile(
+                        enabled: false,
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 5),
                         tileColor: Color(kGenchiCream),
@@ -222,16 +263,15 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        onTap: () {
-                          //TODO: route through to hirer's profile
-                        },
+                        onTap: () {},
                       ),
                     ),
                   );
                 }
 
                 ///First create messageListItems for each chat
-                List<Widget> applicationChatWidgets = [];
+                List<Widget> successfullChatWidgets = [];
+                List<Widget> unSuccessfullChatWidgets = [];
 
                 for (Map<String, dynamic> applicationAndApplicant
                     in applicationAndApplicants) {
@@ -273,16 +313,20 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                     hideChat: () {},
                   );
 
-                  applicationChatWidgets.add(chatWidget);
+                  ///Add into the correct section depending on whether the applicant is successful or not.
+                  currentTask.unsuccessfulApplications
+                          .contains(taskApplication.applicationId)
+                      ? unSuccessfullChatWidgets.add(chatWidget)
+                      : successfullChatWidgets.add(chatWidget);
                 }
 
                 return HirerTaskApplicants(
-                  title: currentTask.title,
-                  time: currentTask.time,
+                  task: currentTask,
                   subtitleText:
-                      '${applicationChatWidgets.length} applicant${applicationChatWidgets.length == 1 ? '' : 's'}',
+                      '${currentTask.applicationIds.length} applicant${currentTask.applicationIds.length == 1 ? '' : 's'}',
                   hasUnreadMessage: hirerHasUnreadNotification,
-                  messages: applicationChatWidgets,
+                  successfulMessages: successfullChatWidgets,
+                  unSuccessfulMessages: unSuccessfullChatWidgets,
                   hirer: currentUser,
                 );
               },
@@ -302,43 +346,62 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                   : (currentTask.status == 'InProgress'
                       ? 'IN PROGRESS'
                       : 'COMPLETED'),
-              style: TextStyle(fontSize: 22, color: Color(0xff5415BA)),
+              style: TextStyle(
+                  fontSize: 22,
+                  color: currentTask.status == 'Vacant'
+                      ? Color(kPurple)
+                      : (currentTask.status == 'InProgress'
+                          ? Color(kGreen)
+                          : Color(kRed))),
             ),
             SizedBox(
               height: 10,
             ),
 
-            //TODO: turn this into a button like the share button.
             if (currentTask.status != 'Vacant')
-              Container(
-                width: MediaQuery.of(context).size.width * 0.6 - 15,
-                height: (MediaQuery.of(context).size.width * 0.6 - 15) * 0.2,
-                decoration: BoxDecoration(
-                  color: Color(kGenchiLightOrange),
-                  borderRadius: BorderRadius.circular(50.0),
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.attach_money,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 5),
-                          Text(
-                            'Pay Applicant(s)',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  height: (MediaQuery.of(context).size.width * 0.6 - 15) * 0.2,
+                  decoration: BoxDecoration(
+                    color: Color(kGenchiLightOrange),
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: FlatButton(
+                      onPressed: () async {
+                        bool payApplicants = await showYesNoAlert(
+                            context: context, title: 'Pay Applicants?');
+
+                        Scaffold.of(context).showSnackBar(kDevelopmentFeature);
+
+                        if (payApplicants != null) {
+                          await analytics.logEvent(
+                              name: 'pay_button_pressed',
+                              parameters: {'response': payApplicants});
+                        }
+                      },
+                      child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.attach_money,
+                              color: Colors.white,
+                              size: 30,
                             ),
-                          )
-                        ],
+                            SizedBox(width: 5),
+                            Text(
+                              'Pay Applicant(s)',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -376,8 +439,10 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
 
 class ChangeJobStatus extends StatefulWidget {
   Future applicantsFuture;
+  Task currentTask;
 
-  ChangeJobStatus({@required this.applicantsFuture});
+  ChangeJobStatus(
+      {@required this.applicantsFuture, @required this.currentTask});
 
   @override
   _ChangeJobStatusState createState() => _ChangeJobStatusState();
@@ -387,251 +452,339 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
   bool firstPage = true;
 
   Map<String, bool> isSelected = {};
+  Map response = {"status": "", "selectedApplicationIds": []};
+
+  bool hasApplicants = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
         height: MediaQuery.of(context).size.height * 0.75,
         decoration: modalBottomSheetContainerDecoration,
-        child: AnimatedCrossFade(
-          crossFadeState:
-              firstPage ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          duration: Duration(milliseconds: 300),
-          firstChild: Padding(
-            padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Center(
-                          child: Text(
-                            'What would you like to change the job status to?',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        child: Icon(Icons.close),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Divider(
-                  thickness: 1,
-                  height: 1,
-                ),
-                FlatButton(
-                    height: MediaQuery.of(context).size.height * 0.12,
-                    onPressed: () {
-                      firstPage = false;
-                      setState(() {});
-                    },
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'IN PROGRESS',
-                        style: TextStyle(
-                          color: Color(kGreen),
-                          fontSize: 25,
-                        ),
-                      ),
-                    )),
-                Divider(
-                  thickness: 1,
-                  height: 1,
-                ),
-                FlatButton(
-                    height: MediaQuery.of(context).size.height * 0.12,
-                    onPressed: () {},
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'COMPLETE',
-                        style: TextStyle(
-                          color: Color(kRed),
-                          fontSize: 25,
-                        ),
-                      ),
-                    )),
-                Divider(
-                  thickness: 1,
-                  height: 1,
-                ),
-              ],
-            ),
-          ),
-          secondChild: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      child: Icon(Icons.arrow_back_ios),
-                      onTap: () {
-                        setState(() {
-                          firstPage = true;
-                        });
-                      },
-                    ),
-                    SizedBox(width: 10),
-                    Flexible(
-                      child: Center(
-                        child: Text(
-                          'Which applicant(s) have you selected?',
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Divider(
-                height: 1,
-                thickness: 1,
-              ),
-
-              //TODO: display applicants
-              //TODO: allow selectability
-
-              FutureBuilder(
-                future: widget.applicantsFuture,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircularProgress();
-                  }
-
-                  final List<Map<String, dynamic>> applicationAndApplicants =
-                      snapshot.data;
-
-                  if (applicationAndApplicants.isEmpty) {
-                    return Text('There are no applicants yet');
-                    //TODO: add something for if there are no applicants
-                    // return Container(
-                    //   color: Color(kGenchiCream),
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.symmetric(vertical: 15),
-                    //     child: ListTile(
-                    //       contentPadding:
-                    //       const EdgeInsets.symmetric(horizontal: 5),
-                    //       tileColor: Color(kGenchiCream),
-                    //       leading: ListDisplayPicture(
-                    //         imageUrl: currentUser.displayPictureURL,
-                    //         height: 56,
-                    //       ),
-                    //       title: Text(
-                    //         'No Applicants Yet',
-                    //         style: TextStyle(
-                    //           color: Colors.black,
-                    //           fontSize: 18,
-                    //           fontWeight: FontWeight.w500,
-                    //         ),
-                    //       ),
-                    //       onTap: () {
-                    //         //TODO: route through to hirer's profile
-                    //       },
-                    //     ),
-                    //   ),
-                    // );
-                  }
-
-                  //TODO: maybe make a function for this?
-
-                  ///First create messageListItems for each chat
-                  List<Widget> applicantWidgets = [];
-
-                  for (Map<String, dynamic> applicationAndApplicant
-                      in applicationAndApplicants) {
-                    TaskApplication taskApplication =
-                        applicationAndApplicant['application'];
-                    GenchiUser applicant = applicationAndApplicant['applicant'];
-
-                    Widget userWidget = GestureDetector(
-                      onTap: () {
-                        if (isSelected[applicant.id] != null) {
-                          isSelected[applicant.id] = !isSelected[applicant.id];
-                        } else {
-                          isSelected[applicant.id] = true;
-                        }
-
-                        setState(() {});
-                      },
-                      child: Container(
-                        color: isSelected[applicant.id] == null
-                            ? Colors.transparent
-                            : isSelected[applicant.id]
-                                ? Colors.black12
-                                : Colors.transparent,
-                        child: Stack(
-                          alignment: AlignmentDirectional.centerEnd,
-                          children: [
-                            UserCard(
-                                user: applicant, enabled: false, onTap: () {}),
-                            if(isSelected[applicant.id] != null && isSelected[applicant.id] != false) Align(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                child: Icon(
-                                  Icons.check,
-                                  size: 30,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Builder(builder: (context) {
+            return Container(
+                height: MediaQuery.of(context).size.height * 0.75,
+                decoration: modalBottomSheetContainerDecoration,
+                child: AnimatedCrossFade(
+                  crossFadeState: firstPage
+                      ? CrossFadeState.showFirst
+                      : CrossFadeState.showSecond,
+                  duration: Duration(milliseconds: 300),
+                  firstChild: Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Center(
+                                  child: Text(
+                                    'What would you like to change the job status to?',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            )
+                              GestureDetector(
+                                child: Icon(Icons.close),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          thickness: 1,
+                          height: 1,
+                        ),
+
+                        ///Only choose the options status that the current status is not
+                        if (widget.currentTask.status != 'Vacant')
+                          FlatButton(
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              onPressed: () async {
+                                bool changeStatus = await showYesNoAlert(
+                                    context: context,
+                                    title:
+                                        'Open the job for more applications?');
+
+                                if (changeStatus) {
+                                  response['status'] = 'Vacant';
+                                  Navigator.pop(context, response);
+                                }
+                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'RECEIVING APPLICATIONS',
+                                  style: TextStyle(
+                                    color: Color(kPurple),
+                                    fontSize: 25,
+                                  ),
+                                ),
+                              )),
+                        if (widget.currentTask.status != 'Vacant')
+                          Divider(
+                            thickness: 1,
+                            height: 1,
+                          ),
+                        if (widget.currentTask.status != 'InProgress')
+                          FlatButton(
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              onPressed: () async {
+                                ///If the task is completed, we don't need to choose applicants
+                                if (widget.currentTask.status == 'Completed') {
+                                  bool changeStatus = await showYesNoAlert(
+                                      context: context,
+                                      title: "Move job back to in progress?");
+
+                                  if (changeStatus) {
+                                    response['status'] = 'InProgress';
+
+                                    response['selectedApplicationIds'] = widget
+                                        .currentTask.successfulApplications;
+                                    Navigator.pop(context, response);
+                                  }
+                                } else {
+                                  ///Choose applications
+                                  firstPage = false;
+                                  setState(() {});
+                                }
+                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'IN PROGRESS',
+                                  style: TextStyle(
+                                    color: Color(kGreen),
+                                    fontSize: 25,
+                                  ),
+                                ),
+                              )),
+                        if (widget.currentTask.status != 'InProgress')
+                          Divider(
+                            thickness: 1,
+                            height: 1,
+                          ),
+                        if (widget.currentTask.status != 'Completed')
+                          FlatButton(
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              onPressed: () async {
+                                bool completed = await showYesNoAlert(
+                                    context: context,
+                                    title: 'Mark job as completed?');
+
+                                if (completed) {
+                                  response['status'] = 'Completed';
+                                  Navigator.pop(context, response);
+                                }
+                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'COMPLETED',
+                                  style: TextStyle(
+                                    color: Color(kRed),
+                                    fontSize: 25,
+                                  ),
+                                ),
+                              )),
+                        if (widget.currentTask.status != 'Completed')
+                          Divider(
+                            thickness: 1,
+                            height: 1,
+                          ),
+                      ],
+                    ),
+                  ),
+                  secondChild: ListView(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              child: Icon(Icons.arrow_back_ios),
+                              onTap: () {
+                                setState(() {
+                                  firstPage = true;
+                                });
+                              },
+                            ),
+                            SizedBox(width: 10),
+                            Flexible(
+                              child: Center(
+                                child: Text(
+                                  'Which applicant(s) do you want to select?',
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    );
-                    //TODO: create new type of user
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                      ),
+                      FutureBuilder(
+                        future: widget.applicantsFuture,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgress();
+                          }
 
-                    applicantWidgets.add(userWidget);
-                  }
+                          final List<Map<String, dynamic>>
+                              applicationAndApplicants = snapshot.data;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: applicantWidgets,
-                  );
-                },
-              ),
+                          if (applicationAndApplicants.isEmpty) {
+                            ///Response if there are no applicants
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 30),
+                              child: Center(
+                                child: Text(
+                                  'No Applicants Yet',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
 
-              Center(
-                child: RoundedButton(
-                    buttonTitle: 'Choose Applicant(s)',
-                    buttonColor: Color(kGenchiLightGreen),
-                    fontColor: Colors.black,
-                    elevation: false,
+                          ///First create messageListItems for each chat
+                          List<Widget> applicantWidgets = [];
 
-                    //TODO: add in functionality here
-                    onPressed: () {}),
-              ),
-            ],
-          ),
+                          for (Map<String, dynamic> applicationAndApplicant
+                              in applicationAndApplicants) {
+                            hasApplicants = true;
+                            TaskApplication taskApplication =
+                                applicationAndApplicant['application'];
+                            GenchiUser applicant =
+                                applicationAndApplicant['applicant'];
+
+                            Widget userWidget = GestureDetector(
+                              onTap: () {
+                                if (isSelected[taskApplication.applicationId] !=
+                                    null) {
+                                  isSelected[taskApplication.applicationId] =
+                                      !isSelected[
+                                          taskApplication.applicationId];
+                                } else {
+                                  isSelected[taskApplication.applicationId] =
+                                      true;
+                                }
+
+                                setState(() {});
+                              },
+                              child: Container(
+                                color: isSelected[
+                                            taskApplication.applicationId] ==
+                                        null
+                                    ? Colors.transparent
+                                    : isSelected[taskApplication.applicationId]
+                                        ? Colors.black12
+                                        : Colors.transparent,
+                                child: Stack(
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  children: [
+                                    UserCard(
+                                        user: applicant,
+                                        enabled: false,
+                                        onTap: () {}),
+                                    if (isSelected[taskApplication
+                                                .applicationId] !=
+                                            null &&
+                                        isSelected[taskApplication
+                                                .applicationId] !=
+                                            false)
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 0, 10, 0),
+                                          child: Icon(
+                                            Icons.check,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      )
+                                  ],
+                                ),
+                              ),
+                            );
+
+                            applicantWidgets.add(userWidget);
+                          }
+
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: applicantWidgets,
+                          );
+                        },
+                      ),
+                      if (hasApplicants)
+                        Center(
+                          child: RoundedButton(
+                              buttonTitle: 'Choose Applicant(s)',
+                              buttonColor: Color(kGenchiLightGreen),
+                              fontColor: Colors.black,
+                              elevation: false,
+                              onPressed: () async {
+                                print(isSelected);
+
+                                if (isSelected.containsValue(true)) {
+                                  bool chosen = await showYesNoAlert(
+                                      context: context,
+                                      title: 'Select applicant(s)?');
+
+                                  if (chosen) {
+                                    for (String value in isSelected.keys) {
+                                      if (isSelected[value]) {
+                                        response['selectedApplicationIds']
+                                            .add(value);
+                                      }
+                                    }
+                                    response['status'] = 'InProgress';
+                                    Navigator.pop(context, response);
+                                  }
+                                } else {
+                                  Scaffold.of(context)
+                                      .showSnackBar(kNoApplicantsSelected);
+                                }
+                              }),
+                        ),
+                    ],
+                  ),
+                ));
+          }),
         ));
   }
 }

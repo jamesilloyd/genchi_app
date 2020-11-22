@@ -49,3 +49,17 @@ const kDevelopmentFeature = SnackBar(
     textAlign: TextAlign.center,
   ),
 );
+
+const kNoApplicantsSelected = SnackBar(
+  backgroundColor: Color(kGenchiOrange),
+  duration: Duration(seconds: 5),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'You have not selected any applicants!',
+    style: TextStyle(
+        color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+    textAlign: TextAlign.center,
+  ),
+);

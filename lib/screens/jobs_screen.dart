@@ -46,7 +46,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
   double buttonHeight;
 
-  //TODO: "no jobs" not appearing under filter
+  //TODO: "no jobs" not appearing under filter (remove "coming soon")
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
@@ -374,6 +374,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                         firestoreAPI
                                             .getUserTasksPostedAndNotifications(
                                                 postIds: currentUser.posts);
+                                    setState(() {});
                                   });
                                 });
 
@@ -451,6 +452,9 @@ class _JobsScreenState extends State<JobsScreen> {
                                             providerIds:
                                                 currentUser.providerProfiles,
                                             mainId: currentUser.id);
+                                    setState(() {
+
+                                    });
                                   });
                                 });
                             if (task.status == 'Vacant') {
@@ -669,6 +673,15 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
+        if(taskWidgets[0].isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text(
+                  'Nothing to show',
+                  style: TextStyle(fontSize: 16),
+                )),
+          ),
         Column(
           children: taskWidgets[0],
         ),
@@ -687,11 +700,12 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
+        if(taskWidgets[1].isEmpty)
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
               child: Text(
-            'Coming Soon',
+            'Nothing to show',
             style: TextStyle(fontSize: 16),
           )),
         ),
@@ -713,11 +727,12 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
+    if(taskWidgets[2].isEmpty)
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
               child: Text(
-            'Coming Soon',
+            'Nothing to show',
             style: TextStyle(fontSize: 16),
           )),
         ),

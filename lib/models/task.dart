@@ -9,7 +9,8 @@ class Task {
   String date;
   String price;
   String status;
-  List<dynamic> chosenApplicantIds;
+  List<dynamic> successfulApplications;
+  List<dynamic> unsuccessfulApplications;
   List<dynamic> applicationIds;
   Timestamp time;
 
@@ -22,7 +23,8 @@ class Task {
     this.date,
     this.price,
     this.status,
-    this.chosenApplicantIds,
+    this.successfulApplications,
+    this.unsuccessfulApplications,
     this.applicationIds,
     this.time,
   });
@@ -38,7 +40,8 @@ class Task {
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
         status = snapshot['status'] ?? 'Vacant',
-        chosenApplicantIds = snapshot['chosenApplicantIds'] ?? [],
+        successfulApplications = snapshot['successfulApplications'] ?? [],
+        unsuccessfulApplications = snapshot['unsuccessfulApplications'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 
   Map<String, dynamic> toJson() {
@@ -51,7 +54,8 @@ class Task {
       if (price != null) 'price': price,
       if (date != null) 'date': date,
       if (status != null) 'status':status,
-      if (chosenApplicantIds != null) 'chosenApplicantIds': chosenApplicantIds,
+      if (successfulApplications != null) 'successfulApplications' : successfulApplications,
+      if (unsuccessfulApplications != null) 'unsuccessfulApplications' : unsuccessfulApplications,
       if (applicationIds != null) 'applicationIds': applicationIds,
       if (time != null) 'time': time,
     };

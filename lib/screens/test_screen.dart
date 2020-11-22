@@ -49,8 +49,10 @@ class _TestScreenState extends State<TestScreen> {
         body: Center(
           child: RoundedButton(
             buttonColor: Color(kGenchiGreen),
-            buttonTitle: 'Crashlytics Enables?',
+            buttonTitle: 'Update task status',
             onPressed: ()async{
+
+              firestoreApi.addTaskStatus();
 
 
             },

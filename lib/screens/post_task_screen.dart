@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,14 +27,11 @@ class PostTaskScreen extends StatefulWidget {
 }
 
 class _PostTaskScreenState extends State<PostTaskScreen> {
-  
+
   FirebaseAnalytics analytics = FirebaseAnalytics();
   bool changesMade = false;
   bool showSpinner = false;
-  String title;
-  String date;
-  String details;
-  String price;
+
 
   TextEditingController titleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -47,7 +45,25 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
   @override
   void initState() {
     super.initState();
-    serviceController.text = 'Other';
+
+    //  TODO: also initiliase text controllers in case there is a draft to pick up from
+    GenchiUser currentUser = Provider.of<AuthenticationService>(context,listen: false).currentUser;
+    if(currentUser.draftJob.isNotEmpty){
+
+      Task draftJob = Task.fromMap(currentUser.draftJob);
+      titleController.text = draftJob.title;
+      priceController.text = draftJob.price;
+      detailsController.text = draftJob.details;
+      dateController.text = draftJob.date;
+      serviceController.text = draftJob.service;
+
+    } else {
+
+      serviceController.text = 'Other';
+
+    }
+
+
   }
 
   @override
@@ -61,17 +77,41 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
   }
 
   Future<bool> _onWillPop() async {
+    ///Default to close the draft if no changes have been made
+    bool finishLater = true;
     if (changesMade) {
-      bool discard = await showYesNoAlert(
-          context: context, title: 'Are you sure you want to discard changes?');
-      if (!discard) return false;
+      finishLater = await showYesNoAlert(
+          context: context,
+          title: 'Finish later?',
+      body: 'The post you started will be here when you return.');
+      if (finishLater) {
+
+
+
+        ///Get the current user
+        final authProvider = Provider.of<AuthenticationService>(context,listen:false);
+        GenchiUser currentUser = authProvider.currentUser;
+        ///Save the text controller values as a draft to the current user
+        currentUser.draftJob = Task(title: titleController.text,
+            details: detailsController.text,
+            date: dateController.text,
+            service: serviceController.text,
+            price: priceController.text).toJson();
+
+        ///Update the current user in firestore
+        await firestoreAPI.updateUser(user: currentUser,uid: currentUser.id);
+
+        ///Update the user so the new details are stored in the session
+        await authProvider.updateCurrentUserData();
+      }
     }
-    return true;
+    return finishLater;
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -93,7 +133,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     EditAccountField(
                       field: 'Title',
                       onChanged: (value) {
-                        title = value;
                         changesMade = true;
                       },
                       textController: titleController,
@@ -160,7 +199,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     EditAccountField(
                       field: 'Job Timings',
                       onChanged: (value) {
-                        date = value;
                         changesMade = true;
                       },
                       textController: dateController,
@@ -169,7 +207,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     EditAccountField(
                       field: 'Details',
                       onChanged: (value) {
-                        details = value;
                         changesMade = true;
                       },
                       textController: detailsController,
@@ -179,7 +216,6 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     EditAccountField(
                       field: 'Incentive',
                       onChanged: (value) {
-                        price = value;
                         changesMade = true;
                       },
                       textController: priceController,
@@ -195,6 +231,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         buttonColor: Color(kGenchiLightOrange),
                         fontColor: Colors.black,
                         onPressed: () async {
+                          ///Ask the user is they want to post
                           bool post = await showYesNoAlert(
                               context: context, title: 'Post job?');
 
@@ -207,16 +244,25 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
                             await firestoreAPI.addTask(
                                 task: Task(
-                                    title: title,
-                                    date: date,
-                                    details: details,
+                                    title: titleController.text,
+                                    date: dateController.text,
+                                    details: detailsController.text,
                                     service: serviceController.text,
                                     time: Timestamp.now(),
                                     status: 'Vacant',
-                                    price: price,
+                                    price: priceController.text,
                                     hirerId: authProvider.currentUser.id),
                                 hirerId: authProvider.currentUser.id);
 
+                            ///If there is a draft saved in the user, delete it
+                            if(authProvider.currentUser.draftJob.isNotEmpty) {
+                              authProvider.currentUser.draftJob = {};
+                              await firestoreAPI.updateUser(
+                                  user: authProvider.currentUser,
+                                  uid: authProvider.currentUser.id);
+                            }
+
+                            ///update the user
                             await authProvider.updateCurrentUserData();
                             setState(() {
                               showSpinner = false;

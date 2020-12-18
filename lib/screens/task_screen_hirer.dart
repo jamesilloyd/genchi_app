@@ -333,6 +333,20 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                 );
               },
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(currentTask.viewedIds.length.toString() + ' views',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey
+                    )),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
             Text('Job Status',
                 style: TextStyle(
                   fontSize: 20.0,
@@ -535,7 +549,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  'RECEIVING APPLICATIONS',
+                                  'ACCEPTING APPLICATIONS',
                                   style: TextStyle(
                                     color: Color(kPurple),
                                     fontSize: 25,

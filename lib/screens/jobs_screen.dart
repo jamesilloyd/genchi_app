@@ -508,7 +508,20 @@ class _JobsScreenState extends State<JobsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: [
                   SizedBox(height: 25),
-                  PostJobSection(),
+                  PostJobSection(onPressed: () async {
+                    bool postTask = await showYesNoAlert(
+                        context: context, title: 'Post Job?');
+                    if (postTask)
+                      Navigator.pushNamed(context, PostTaskScreen.id).then((value) {
+                        ///Update futures
+                        searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+                        getUserTasksPostedAndNotificationsFuture =
+                            firestoreAPI.getUserTasksPostedAndNotifications(
+                                postIds: currentUser.posts);
+                        setState(() {
+                        });
+                      });
+                  },),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -620,9 +633,23 @@ class _JobsScreenState extends State<JobsScreen> {
                                   setState(() {
                                     showSpinner = false;
                                   });
+
+                                  ///Check whether it is the users task or not
                                   bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
 
-                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id);
+                                  if(isUsersTask){
+
+                                    Navigator.pushNamed(context, TaskScreenHirer.id);
+
+                                  } else {
+
+                                    ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
+                                    if(!taskProvider.currentTask.viewedIds.contains(currentUser.id)) firestoreAPI.addViewedIdToTask(viewedId: currentUser.id, taskId: task.taskId);
+                                    Navigator.pushNamed(context, TaskScreenApplicant.id);
+
+                                  }
+
+
                                 },
                               );
                             } else {
@@ -645,6 +672,7 @@ class _JobsScreenState extends State<JobsScreen> {
     );
   }
 }
+
 
 class PostedAppliedList extends StatelessWidget {
   List taskWidgets;
@@ -746,6 +774,10 @@ class PostedAppliedList extends StatelessWidget {
 
 class PostJobSection extends StatelessWidget {
 
+  Function onPressed;
+
+  PostJobSection({@required this.onPressed});
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -767,12 +799,7 @@ class PostJobSection extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7.0),
           child: FlatButton(
-            onPressed: () async {
-              bool postTask = await showYesNoAlert(
-                  context: context, title: 'Post Job?');
-              if (postTask)
-                Navigator.pushNamed(context, PostTaskScreen.id);
-            },
+            onPressed: onPressed,
             child: FittedBox(
               fit: BoxFit.contain,
               child: Row(

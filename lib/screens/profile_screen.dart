@@ -138,12 +138,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pushNamed(context, UserScreen.id);
                     },
                   ),
-                 ProfileOptionTile(
-                   text: 'Test Screen',
-                   onPressed: ()  {
-                    Navigator.pushNamed(context, TestScreen.id);
-                   },
-                 ),
+                 // ProfileOptionTile(
+                 //   text: 'Test Screen',
+                 //   onPressed: ()  {
+                 //    Navigator.pushNamed(context, TestScreen.id);
+                 //   },
+                 // ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Service Profiles',

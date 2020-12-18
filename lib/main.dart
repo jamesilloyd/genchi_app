@@ -30,12 +30,14 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:provider/provider.dart';
+
 
 void main() {
   runApp(Genchi());
@@ -46,9 +48,41 @@ class Genchi extends StatefulWidget {
   _GenchiState createState() => _GenchiState();
 }
 
+//TODO: need to add code to hand dynamic links
+//TODO: not quite ready for this
+// class _GenchiState extends State<Genchi> with WidgetsBindingObserver {
 class _GenchiState extends State<Genchi> {
   ///Initialise FlutterFire
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+  // final DynamicLinkService _dynamicLinkService = DynamicLinkService();
+  //
+  // Timer _timerLink;
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addObserver(this);
+  // }
+  //
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if(state == AppLifecycleState.resumed){
+  //     _timerLink = new Timer(const Duration(milliseconds: 1000), (){
+  //       _dynamicLinkService.retrieveDynamicLink(context);
+  //     },);
+  //   }
+  //
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   WidgetsBinding.instance.removeObserver(this);
+  //   if (_timerLink != null){
+  //     _timerLink.cancel();
+  //   }
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +109,8 @@ class _GenchiState extends State<Genchi> {
                 .setCrashlyticsCollectionEnabled(false);
           } else {
 
-          }
 
+          }
           FlutterError.onError =
               FirebaseCrashlytics.instance.recordFlutterError;
 
@@ -101,11 +135,12 @@ class _GenchiState extends State<Genchi> {
 
 
 
-class StartUp extends StatelessWidget {
+class StartUp extends StatelessWidget{
   final FirebaseAnalytics analytics = FirebaseAnalytics();
 
   @override
   Widget build(BuildContext context) {
+
     print('StartUp screen activated');
     return FutureBuilder(
       future: Provider.of<AuthenticationService>(context, listen: false)

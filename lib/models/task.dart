@@ -12,6 +12,7 @@ class Task {
   List<dynamic> successfulApplications;
   List<dynamic> unsuccessfulApplications;
   List<dynamic> applicationIds;
+  List<dynamic> viewedIds;
   Timestamp time;
 
   Task({
@@ -26,9 +27,9 @@ class Task {
     this.successfulApplications,
     this.unsuccessfulApplications,
     this.applicationIds,
+    this.viewedIds,
     this.time,
   });
-
 
   Task.fromMap(Map snapshot)
       : taskId = snapshot['taskId'],
@@ -42,6 +43,7 @@ class Task {
         status = snapshot['status'] ?? 'Vacant',
         successfulApplications = snapshot['successfulApplications'] ?? [],
         unsuccessfulApplications = snapshot['unsuccessfulApplications'] ?? [],
+        viewedIds = snapshot['viewedIds'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 
   Map<String, dynamic> toJson() {
@@ -53,26 +55,21 @@ class Task {
       if (details != null) 'details': details,
       if (price != null) 'price': price,
       if (date != null) 'date': date,
-      if (status != null) 'status':status,
-      if (successfulApplications != null) 'successfulApplications' : successfulApplications,
-      if (unsuccessfulApplications != null) 'unsuccessfulApplications' : unsuccessfulApplications,
+      if (status != null) 'status': status,
+      if (successfulApplications != null)
+        'successfulApplications': successfulApplications,
+      if (unsuccessfulApplications != null)
+        'unsuccessfulApplications': unsuccessfulApplications,
       if (applicationIds != null) 'applicationIds': applicationIds,
+      if (viewedIds != null) 'viewedIds': viewedIds,
       if (time != null) 'time': time,
     };
   }
 }
 
-
-List<String> taskStatus = [
-  'Vacant',
-  'InProgress',
-  'Completed'
-];
-
-
+List<String> taskStatus = ['Vacant', 'InProgress', 'Completed'];
 
 class TaskApplication {
-
   String taskid;
   String applicationId;
   String applicantId;
@@ -85,25 +82,32 @@ class TaskApplication {
   Timestamp time;
 
   TaskApplication(
-      { this.applicantId,
-        this.hirerid,
-        this.applicationId,
-        this.taskid,
-        this.hirerHasUnreadMessage,
-        this.applicantHasUnreadMessage,
-        this.lastMessage,
-        this.isHiddenFromApplicant,
-        this.isHiddenFromHirer,
-        this.time});
+      {this.applicantId,
+      this.hirerid,
+      this.applicationId,
+      this.taskid,
+      this.hirerHasUnreadMessage,
+      this.applicantHasUnreadMessage,
+      this.lastMessage,
+      this.isHiddenFromApplicant,
+      this.isHiddenFromHirer,
+      this.time});
 
   TaskApplication.fromMap(Map snapshot)
-      : applicantId = snapshot['applicantId'] ?? snapshot['pid'] ?? snapshot['applicantid']??'',
+      : applicantId = snapshot['applicantId'] ??
+            snapshot['pid'] ??
+            snapshot['applicantid'] ??
+            '',
         hirerid = snapshot['hirerid'] ?? '',
         hirerHasUnreadMessage = snapshot['hirerHasUnreadMessage'] ?? false,
-        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ?? snapshot['providerHasUnreadMessage'] ?? false,
+        applicantHasUnreadMessage = snapshot['applicantHasUnreadMessage'] ??
+            snapshot['providerHasUnreadMessage'] ??
+            false,
         lastMessage = snapshot['lastMessage'] ?? '',
         applicationId = snapshot['applicationId'],
-        isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ?? snapshot['isHiddenFromProvider'] ?? false,
+        isHiddenFromApplicant = snapshot['isHiddenFromApplicant'] ??
+            snapshot['isHiddenFromProvider'] ??
+            false,
         isHiddenFromHirer = snapshot['isHiddenFromHirer'] ?? false,
         taskid = snapshot['taskid'] ?? '',
         time = snapshot['time'] ?? Timestamp.now();
@@ -113,14 +117,16 @@ class TaskApplication {
       if (applicantId != null) "applicantId": applicantId,
       if (hirerid != null) "hirerid": hirerid,
       if (applicationId != null) 'applicationId': applicationId,
-      if (applicantHasUnreadMessage != null)'applicantHasUnreadMessage': applicantHasUnreadMessage,
-      if (hirerHasUnreadMessage != null)'hirerHasUnreadMessage': hirerHasUnreadMessage,
+      if (applicantHasUnreadMessage != null)
+        'applicantHasUnreadMessage': applicantHasUnreadMessage,
+      if (hirerHasUnreadMessage != null)
+        'hirerHasUnreadMessage': hirerHasUnreadMessage,
       if (lastMessage != null) 'lastMessage': lastMessage,
-      if (isHiddenFromApplicant != null)"isHiddenFromApplicant": isHiddenFromApplicant,
+      if (isHiddenFromApplicant != null)
+        "isHiddenFromApplicant": isHiddenFromApplicant,
       if (isHiddenFromHirer != null) "isHiddenFromHirer": isHiddenFromHirer,
-      if (time != null) "time" : time,
+      if (time != null) "time": time,
       if (taskid != null) 'taskid': taskid
     };
   }
 }
-

@@ -18,6 +18,7 @@ class GenchiUser {
   List<dynamic> isFavouritedBy;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
+  Map draftJob;
 
   ///For groups and service providers
   String category;
@@ -58,6 +59,7 @@ class GenchiUser {
     this.isFavouritedBy,
     this.posts,
     this.fcmTokens,
+    this.draftJob,
     this.category,
     this.subcategory,
     this.mainAccountId,
@@ -82,6 +84,7 @@ class GenchiUser {
         isFavouritedBy = snapshot['isFavouritedBy'] ?? [],
         posts = snapshot['posts'] ?? [],
         fcmTokens = snapshot['fcmTokens'] ?? [],
+        draftJob = snapshot['draftJob'] ?? {},
         category = snapshot['category'] ?? snapshot['type'] ?? '',
         subcategory = snapshot['subcategory'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
@@ -107,6 +110,7 @@ class GenchiUser {
       if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
+      if (draftJob != null) 'draftJob' : draftJob,
       if (category != null) "category": category,
       if (subcategory != null) 'subcategory': subcategory,
       if (mainAccountId != null) 'mainAccountId': mainAccountId,

@@ -144,11 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Stack(
                   alignment: Alignment.center,
                   children: [Icon(Platform.isIOS
-                      ? CupertinoIcons.folder
-                      : Icons.folder_open),
+                      ? CupertinoIcons.home
+                      : Icons.home_outlined),
                   ]
                 ),
-                label: 'Jobs',
+                label: 'Home',
               ),
               BottomNavigationBarItem(
                 icon:

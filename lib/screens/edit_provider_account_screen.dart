@@ -122,6 +122,8 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                   await firestoreAPI.updateUser(
                       user: GenchiUser(
                         name: nameTextController.text,
+                        ///Add in the email
+                        email: authProvider.currentUser.email,
                         category: serviceTextController.text,
                         bio: bioTextController.text,
                         subcategory: subCategoryTextController.text,
@@ -174,7 +176,7 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                               bottom: MediaQuery.of(context).viewInsets.bottom),
                           child: Container(
                               height: MediaQuery.of(context).size.height * 0.75,
-                              child: AddImageScreen(isUser: false),
+                              child: AddImageScreen(),
                           ),
                         ),
                       ),
@@ -311,9 +313,13 @@ class _EditProviderAccountScreenState extends State<EditProviderAccountScreen> {
                         showSpinner = true;
                       });
 
+                      //TODO: should we instead set all the variables to the provider object then submit that?
+
                       await firestoreAPI.updateUser(
                           user: GenchiUser(
                             name: nameTextController.text,
+                            ///Add in the email
+                            email: authProvider.currentUser.email,
                             category: serviceTextController.text,
                             bio: bioTextController.text,
                             subcategory: subCategoryTextController.text,

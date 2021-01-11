@@ -50,6 +50,20 @@ const kDevelopmentFeature = SnackBar(
   ),
 );
 
+const kApplicationLinkNotWorking = SnackBar(
+  backgroundColor: Color(kGenchiOrange),
+  duration: Duration(seconds: 5),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'Sorry, it appears this link is not working. We will fix ASAP',
+    style: TextStyle(
+        color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+    textAlign: TextAlign.center,
+  ),
+);
+
 const kNoApplicantsSelected = SnackBar(
   backgroundColor: Color(kGenchiOrange),
   duration: Duration(seconds: 5),

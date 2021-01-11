@@ -124,7 +124,7 @@ class _PostRegDetailsScreenState extends State<PostRegDetailsScreen> {
                               child: Container(
                                   height:
                                       MediaQuery.of(context).size.height * 0.75,
-                                  child: AddImageScreen(isUser: true)),
+                                  child: AddImageScreen()),
                             ),
                           ),
                         );

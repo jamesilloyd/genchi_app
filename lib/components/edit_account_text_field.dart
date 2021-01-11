@@ -21,8 +21,8 @@ class EditAccountField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Container(
-          height: 30.0,
+        SizedBox(
+          height: 20.0,
         ),
         Text(
           field,

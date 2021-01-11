@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:io' show Platform;
 import 'package:genchi_app/constants.dart';
 
 Future<void> showAlertIOS(
@@ -72,71 +71,100 @@ Future<void> showAlertAndroid(
   );
 }
 
+Future showDialogBox(
+    {@required BuildContext context, @required String title, String body}) {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+            backgroundColor: Color(kGenchiCream),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(9))),
+            title: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: 'FuturaPT', fontSize: 16),
+            ),
+            children: <Widget>[
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        if (body != null)
+                          Text(body,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontFamily: 'FuturaPT', fontSize: 16)),
+                      ]))
+            ]);
+      });
+}
+
 Future<bool> showYesNoAlert(
     {@required BuildContext context, @required String title, String body}) {
   return showDialog(
     context: context,
-    child: SimpleDialog(
-            backgroundColor: Color(kGenchiCream),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(9))),
-            title: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'FuturaPT',
-              fontSize: 16),
-            ),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    builder: (context) {
+      return SimpleDialog(
+        backgroundColor: Color(kGenchiCream),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(9))),
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontFamily: 'FuturaPT', fontSize: 16),
+        ),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                if (body != null)
+                  Text(body,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: 'FuturaPT', fontSize: 16)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    if (body != null)
-                      Text(body,
-                          textAlign: TextAlign.center,
-                          style:
-                              TextStyle(fontFamily: 'FuturaPT', fontSize: 16)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Expanded(
-                          flex: 1,
-                          child: SimpleDialogOption(
-                            child: Text("No",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontFamily: 'FuturaPT',
-                                    color: Color(kGenchiOrange),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500)),
-                            onPressed: () {
-                              Navigator.of(context, rootNavigator: true)
-                                  .pop(false);
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: SimpleDialogOption(
-                            child: Text("Yes",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontFamily: 'FuturaPT',
-                                    fontSize: 18,
-                                    color: Color(kGenchiGreen),
-                                    fontWeight: FontWeight.w500)),
-                            onPressed: () {
-                              Navigator.of(context, rootNavigator: true)
-                                  .pop(true);
-                            },
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      flex: 1,
+                      child: SimpleDialogOption(
+                        child: Text("No",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontFamily: 'FuturaPT',
+                                color: Color(kGenchiOrange),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500)),
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(false);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: SimpleDialogOption(
+                        child: Text("Yes",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontFamily: 'FuturaPT',
+                                fontSize: 18,
+                                color: Color(kGenchiGreen),
+                                fontWeight: FontWeight.w500)),
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(true);
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ],
+      );
+    },
   );
 }

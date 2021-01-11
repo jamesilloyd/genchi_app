@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
@@ -362,7 +360,7 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Hire.png',
       sliderHeading: 'HIRE',
       sliderSubHeading:
-          'We give you the freedom to easily select between skilled students or post a job and choose from those that apply.'),
+          'We give you the freedom to easily select between skilled students or post an opportunity and choose from those that apply.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Provide.png',
       sliderHeading: 'PROVIDE',

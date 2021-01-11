@@ -69,7 +69,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
         ),
         centerTitle: true,
         title: Text(
-          'Job',
+          'Opportunity',
           style: TextStyle(
             color: Colors.black,
             fontSize: 30,
@@ -103,7 +103,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                       vertical: MediaQuery.of(context).size.height * 0.012),
                   child: RoundedButton(
                     elevation: false,
-                    buttonTitle: 'Change Job Status',
+                    buttonTitle: 'Change Status',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -201,12 +201,12 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                         onPressed: () async {
                           bool likesFeature = await showYesNoAlert(
                               context: context,
-                              title: 'Share this job with a friend?');
+                              title: 'Share this opportunity with a friend?');
 
                           if (likesFeature != null) {
                             analytics.logEvent(
                                 name: 'share_job_button_pressed',
-                                parameters: {'response': likesFeature});
+                                parameters: {'response': likesFeature.toString()});
 
                             if (likesFeature) {
                               Scaffold.of(context)
@@ -333,21 +333,16 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                 );
               },
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(currentTask.viewedIds.length.toString() + ' views',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey
-                    )),
-              ],
-            ),
+            Text(currentTask.viewedIds.length.toString() + ' views',
+                style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey
+                )),
             SizedBox(
               height: 10,
             ),
-            Text('Job Status',
+            Text('Opportunity Status',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
@@ -363,7 +358,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                       ? 'IN PROGRESS'
                       : 'COMPLETED'),
               style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   color: currentTask.status == 'Vacant'
                       ? Color(kPurple)
                       : (currentTask.status == 'InProgress'
@@ -399,7 +394,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                                   .showSnackBar(kDevelopmentFeature);
                               await analytics.logEvent(
                                   name: 'pay_button_pressed',
-                                  parameters: {'response': payApplicants});
+                                  parameters: {'response': payApplicants.toString()});
                             }
                           },
                           child: FittedBox(
@@ -504,7 +499,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                               Flexible(
                                 child: Center(
                                   child: Text(
-                                    'What would you like to change the job status to?',
+                                    'What would you like to change the opportunity status to?',
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
                                       color: Colors.black,
@@ -539,7 +534,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                                 bool changeStatus = await showYesNoAlert(
                                     context: context,
                                     title:
-                                        'Open the job for more applications?');
+                                        'Open the opportunity for more applications?');
 
                                 if (changeStatus) {
                                   response['status'] = 'Vacant';
@@ -569,7 +564,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                                 if (widget.currentTask.status == 'Completed') {
                                   bool changeStatus = await showYesNoAlert(
                                       context: context,
-                                      title: "Move job back to in progress?");
+                                      title: "Move opportunity back to in progress?");
 
                                   if (changeStatus) {
                                     response['status'] = 'InProgress';
@@ -605,7 +600,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                               onPressed: () async {
                                 bool completed = await showYesNoAlert(
                                     context: context,
-                                    title: 'Mark job as completed?');
+                                    title: 'Mark opportunity as completed?');
 
                                 if (completed) {
                                   response['status'] = 'Completed';

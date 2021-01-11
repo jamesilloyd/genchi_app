@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/display_picture.dart';
 import 'package:genchi_app/constants.dart';

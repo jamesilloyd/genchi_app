@@ -4,30 +4,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 import '../models/chat.dart';
 import 'package:genchi_app/models/task.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' hide Task;
 import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  static CollectionReference _usersCollectionRef =
-  FirebaseFirestore.instance.collection('users');
-
-  static CollectionReference _chatCollectionRef =
-  FirebaseFirestore.instance.collection('chats');
-
-  static CollectionReference _taskCollectionRef =
-  FirebaseFirestore.instance.collection('tasks');
+  // static CollectionReference _usersCollectionRef =
+  // FirebaseFirestore.instance.collection('users');
+  //
+  // static CollectionReference _chatCollectionRef =
+  // FirebaseFirestore.instance.collection('chats');
+  //
+  // static CollectionReference _taskCollectionRef =
+  // FirebaseFirestore.instance.collection('tasks');
 
   ///DEVELOP MODE
-  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/users');
-  //
-  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/chats');
-  //
-  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/sSqkhUUghSa8kFVLE05Z/tasks');
+  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/users');
+
+  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
+
+  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
@@ -180,7 +180,7 @@ class FirestoreAPIService {
   }
 
   Future addUser(GenchiUser user) async {
-    var result = await _usersCollectionRef.add(user.toJson());
+    DocumentReference result = await _usersCollectionRef.add(user.toJson());
     return result;
   }
 
@@ -784,6 +784,7 @@ class FirestoreAPIService {
     TaskApplication taskApplication = TaskApplication(
         taskid: taskId,
         hirerid: hirerId,
+        time: Timestamp.now(),
         applicantId: applicantId,
         isHiddenFromHirer: false,
         isHiddenFromApplicant: false);
@@ -1031,6 +1032,12 @@ class FirestoreAPIService {
     });
   }
 
+  Future addLinkApplicantId(
+      {@required String taskId, @required String applicantId}) async {
+    await _taskCollectionRef.doc(taskId).update({
+      'linkApplicationIds': FieldValue.arrayUnion([applicantId])
+    });
+  }
 
   ///***------------------ OTHER FUNCTIONS ------------------***
 
@@ -1039,6 +1046,33 @@ class FirestoreAPIService {
     ///Update in the main user's account
     await _usersCollectionRef.doc(user.id).update({
       'fcmTokens': FieldValue.arrayUnion([token])
+    });
+  }
+
+  Future findTaskViewers() async {
+    ///Get all tasks
+    await _taskCollectionRef.get().then((value1) async {
+      for (DocumentSnapshot doc1 in value1.docs) {
+        ///Get all the users associated with a task
+        Task task = Task.fromMap(doc1.data());
+
+        List viewerIds = task.viewedIds;
+        print('');
+        print(task.title);
+
+        ///Cycle through viewerIds to get their details
+        for (String viewerId in viewerIds) {
+          GenchiUser viewerUser = await getUserById(viewerId);
+
+          if (viewerUser != null) {
+            print(
+                "${viewerUser.id} - ${viewerUser.name} - ${viewerUser.email}");
+            print('');
+          }
+        }
+
+        print('------------------------------------------------');
+      }
     });
   }
 

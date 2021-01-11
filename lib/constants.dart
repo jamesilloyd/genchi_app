@@ -133,6 +133,17 @@ const kPurple = 0xff5415BA;
 
 const debugMode = true;
 
+TextStyle kTitleTextStyle = TextStyle(
+  fontSize: 20.0,
+  fontWeight: FontWeight.w500,
+);
+
+TextStyle kBodyTextStyle = TextStyle(
+
+    fontSize: 18,
+    fontWeight: FontWeight.w400
+);
+
 const GenchiURL = 'https://www.genchi.app';
 const GenchiAboutURL = 'https://www.genchi.app/about-us';
 const GenchiFAQsURL = 'https://www.genchi.app/faqs';

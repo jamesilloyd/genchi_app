@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 
 class GenchiUser {
   ///For all account types
@@ -10,7 +9,6 @@ class GenchiUser {
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
-  bool subscribedToJobs;
   Timestamp timeStamp;
   List<dynamic> tasksApplied;
   List<dynamic> chats;
@@ -47,7 +45,6 @@ class GenchiUser {
     this.accountType,
     this.id,
     this.email,
-    this.subscribedToJobs,
     this.name,
     this.bio,
     this.displayPictureFileName,
@@ -89,7 +86,6 @@ class GenchiUser {
         subcategory = snapshot['subcategory'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
-        subscribedToJobs = snapshot['subscribedToJobs'] ?? true,
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -99,7 +95,6 @@ class GenchiUser {
       if (email != null) "email": email,
       if (name != null) "name": name,
       if (bio != null) "bio": bio,
-      if (subscribedToJobs != null) "subscribedToJobs": subscribedToJobs,
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
@@ -173,6 +168,51 @@ List<Service> servicesList = [
       imageAddress: 'images/service_icons/other.png',
       databaseValue: 'Other'),
 ];
+
+//TODO: this is a temporary measure CHANGE
+List<Service> opportunityTypeList = [
+  Service(
+      nameSingular: 'Designer',
+      namePlural: 'Designers',
+      databaseValue: 'Design'),
+  Service(
+      nameSingular: 'Entertainment',
+      namePlural: 'Entertainment',
+      databaseValue: 'Entertainment'),
+  Service(
+      nameSingular: 'Journalist',
+      namePlural: 'Journalists',
+      databaseValue: 'Journalism'),
+  Service(
+      nameSingular: 'Photographer',
+      namePlural: 'Photographers',
+      databaseValue: 'Photography'),
+  Service(
+      nameSingular: 'Project',
+      namePlural: 'Projects',
+      databaseValue: 'Project'),
+  Service(
+      nameSingular: 'Recruitment',
+      namePlural: 'Recruitment',
+      databaseValue: 'Recruitment'),
+  Service(
+      nameSingular: 'Researcher',
+      namePlural: 'Researchers',
+      databaseValue: 'Research'),
+  Service(
+      nameSingular: 'Software',
+      namePlural: 'Software',
+      databaseValue: 'Software'),
+  Service(
+      nameSingular: 'Training',
+      namePlural: 'Training',
+      databaseValue: 'Training'),
+  Service(
+      nameSingular: 'Other',
+      namePlural: 'Other',
+      databaseValue: 'Other'),
+];
+
 
 class GroupType {
   String nameSingular;

@@ -164,6 +164,8 @@ class _UserScreenState extends State<UserScreen> {
     AccountService accountService =
         Provider.of<AccountService>(context, listen: false);
 
+    GenchiUser user = accountService.currentAccount;
+
     return Column(
       children: <Widget>[
         Divider(
@@ -176,9 +178,17 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
         Center(
-          child: Text('id: ${accountService.currentAccount.id}'),
+          child: Text(
+              'Main Account id: ${user.accountType == "Service Provider" ? user.mainAccountId : user.id}'),
         ),
-        if (accountService.currentAccount.accountType == 'Service Provider')
+        Center(
+          child: Text('Email: ${user.email}'),
+        ),
+        if (user.accountType == "Service Provider")
+          Center(
+            child: Text('Service Provider id: ${user.id}'),
+          ),
+        if (user.accountType == 'Service Provider')
           RoundedButton(
             buttonTitle: "Delete account",
             buttonColor: Color(kGenchiBlue),
@@ -197,7 +207,10 @@ class _UserScreenState extends State<UserScreen> {
                 await authService.updateCurrentUserData();
 
                 Navigator.pushNamedAndRemoveUntil(
-                    context, HomeScreen.id, (Route<dynamic> route) => false,);
+                  context,
+                  HomeScreen.id,
+                  (Route<dynamic> route) => false,
+                );
               }
             },
           ),
@@ -238,29 +251,11 @@ class _UserScreenState extends State<UserScreen> {
           ),
           Scaffold(
             backgroundColor: Colors.transparent,
-            // appBar: AppBar(
-            //   iconTheme: IconThemeData(
-            //     color: Colors.black,
-            //   ),
-            //   centerTitle: true,
-            //   title: Text(
-            //     account.accountType,
-            //     maxLines: 1,
-            //     style: TextStyle(
-            //       color: Colors.black,
-            //       fontSize: 30,
-            //       fontWeight: FontWeight.w500,
-            //     ),
-            //   ),
-            //   backgroundColor: Color(kGenchiGreen),
-            //   elevation: 0,
-            //   brightness: Brightness.light,
-            // ),
             body: CustomScrollView(
               slivers: [
                 SliverAppBar(
                   title: Text(
-                    'Individual',
+                    account.accountType,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 30,
@@ -292,7 +287,6 @@ class _UserScreenState extends State<UserScreen> {
                                     ? MediaQuery.of(context).size.height * 0.4
                                     : MediaQuery.of(context).size.height * 0.15,
                                 duration: Duration(milliseconds: 150),
-                                //TODO: play around with this
                                 curve: Curves.fastOutSlowIn,
                                 child: LargeDisplayPicture(
                                   imageUrl: account.displayPictureURL,
@@ -347,23 +341,32 @@ class _UserScreenState extends State<UserScreen> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        account.category.toUpperCase() ?? "",
-                                        style: TextStyle(
-                                            fontSize: 22.0,
-                                            color: Color(kGenchiOrange),
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      if (account.accountType != 'Individual')
-                                        Text(
-                                          account.subcategory.toUpperCase(),
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Color(kGenchiOrange),
-                                              fontWeight: FontWeight.w500),
-                                        )
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                              text: account.category
+                                                      .toUpperCase() +
+                                                  ": ",
+                                              style: TextStyle(
+                                                  fontSize: 22.0,
+                                                  color: Color(kGenchiOrange),
+                                                  fontWeight: FontWeight.w500),
+                                              children: [
+                                                TextSpan(
+                                                    text: account.subcategory
+                                                        .toUpperCase(),
+                                                    style: TextStyle(
+                                                        color: Color(
+                                                            kGenchiOrange),
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500))
+                                              ]),
+                                        ),
+                                      )
                                     ],
                                   ),
                                   SizedBox(
@@ -372,30 +375,22 @@ class _UserScreenState extends State<UserScreen> {
                                 ],
                               ),
                             Container(
-                              child: Text(
-                                "About Me",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 22.0,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
+                              child: Text("About Me",
+                                  textAlign: TextAlign.left,
+                                  style: kTitleTextStyle),
                             ),
                             Divider(
                               thickness: 1,
                               height: 5,
                             ),
                             SelectableLinkify(
-                              text: account.bio,
-                              onOpen: _onOpenLink,
-                              options: LinkifyOptions(
-                                humanize: false,
-                                defaultToHttps: true,
-                              ),
-                              style: TextStyle(
-                                fontSize: 16.0,
-                              ),
-                            ),
+                                text: account.bio,
+                                onOpen: _onOpenLink,
+                                options: LinkifyOptions(
+                                  humanize: false,
+                                  defaultToHttps: true,
+                                ),
+                                style: kBodyTextStyle),
                             SizedBox(height: 10),
                             if (currentUser.admin)
                               buildAdminSection(context: context),

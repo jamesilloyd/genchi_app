@@ -27,7 +27,6 @@ class AuthenticationService extends ChangeNotifier {
   //TODO: change the name of this
   Future<bool> isUserLoggedIn() async {
 
-
     try {
       print("isUserLoggedIn");
       var user =  _firebaseAuth.currentUser;

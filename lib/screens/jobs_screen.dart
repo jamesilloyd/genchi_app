@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -8,9 +9,11 @@ import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
+import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
@@ -105,6 +108,7 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
+    final accountService =  Provider.of<AccountService>(context);
     GenchiUser currentUser = authProvider.currentUser;
 
     if (debugMode) print('Job screen activated');
@@ -117,7 +121,7 @@ class _JobsScreenState extends State<JobsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: BasicAppNavigationBar(
-        barTitle: 'Jobs',
+        barTitle: 'Home',
       ),
       body: SlidingUpPanel(
         snapPoint: 0.08,
@@ -307,10 +311,10 @@ class _JobsScreenState extends State<JobsScreen> {
                   Center(
                     child: Text(
                       appliedPosted == 'Posted'
-                          ? "Jobs you've posted"
-                          : "Jobs you've applied to",
+                          ? "Opportunities you've posted"
+                          : "Opportunities you've applied to",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                       ),
                     ),
                   ),
@@ -330,7 +334,7 @@ class _JobsScreenState extends State<JobsScreen> {
                               height: 30,
                               child: Center(
                                 child: Text(
-                                  'You have not posted a job!',
+                                  'You have not posted an opportunity!',
                                   style: TextStyle(
                                     fontSize: 20,
                                   ),
@@ -363,10 +367,15 @@ class _JobsScreenState extends State<JobsScreen> {
                                     showSpinner = false;
                                   });
 
+                                  bool isUsersTask =
+                                      taskProvider.currentTask.hirerId ==
+                                          currentUser.id;
 
-                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
-
-                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id)
+                                  Navigator.pushNamed(
+                                          context,
+                                          isUsersTask
+                                              ? TaskScreenHirer.id
+                                              : TaskScreenApplicant.id)
                                       .then((value) {
                                     ///Refresh the tasks to remove notifications.
                                     getUserTasksPostedAndNotificationsFuture =
@@ -408,7 +417,7 @@ class _JobsScreenState extends State<JobsScreen> {
                               height: 30,
                               child: Center(
                                 child: Text(
-                                  'You have not applied to a job!',
+                                  'You have not applied to an opportunity!',
                                   style: TextStyle(
                                     fontSize: 20,
                                   ),
@@ -442,18 +451,22 @@ class _JobsScreenState extends State<JobsScreen> {
                                     showSpinner = false;
                                   });
 
-                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
+                                  bool isUsersTask =
+                                      taskProvider.currentTask.hirerId ==
+                                          currentUser.id;
 
-                                  Navigator.pushNamed(context, isUsersTask ? TaskScreenHirer.id : TaskScreenApplicant.id)
+                                  Navigator.pushNamed(
+                                          context,
+                                          isUsersTask
+                                              ? TaskScreenHirer.id
+                                              : TaskScreenApplicant.id)
                                       .then((value) {
                                     getUserTasksAppliedFuture = firestoreAPI
                                         .getUserTasksAppliedAndNotifications(
                                             providerIds:
                                                 currentUser.providerProfiles,
                                             mainId: currentUser.id);
-                                    setState(() {
-
-                                    });
+                                    setState(() {});
                                   });
                                 });
                             if (task.status == 'Vacant') {
@@ -508,27 +521,63 @@ class _JobsScreenState extends State<JobsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: [
                   SizedBox(height: 25),
-                  PostJobSection(onPressed: () async {
-                    bool postTask = await showYesNoAlert(
-                        context: context, title: 'Post Job?');
-                    if (postTask)
-                      Navigator.pushNamed(context, PostTaskScreen.id).then((value) {
-                        ///Update futures
-                        searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-                        getUserTasksPostedAndNotificationsFuture =
-                            firestoreAPI.getUserTasksPostedAndNotifications(
-                                postIds: currentUser.posts);
-                        setState(() {
+                  PostJobSection(
+                    text: 'Post New Opportunity',
+                    onPressed: () async {
+                      bool postTask = await showYesNoAlert(
+                          context: context, title: 'Post Opportunity?');
+                      if (postTask)
+                        Navigator.pushNamed(context, PostTaskScreen.id)
+                            .then((value) {
+                          ///Update futures
+                          searchTasksFuture =
+                              firestoreAPI.fetchTasksAndHirers();
+                          getUserTasksPostedAndNotificationsFuture =
+                              firestoreAPI.getUserTasksPostedAndNotifications(
+                                  postIds: currentUser.posts);
+                          setState(() {});
                         });
-                      });
-                  },),
+                    },
+                  ),
+                  if (currentUser.admin)
+                    PostJobSection(
+                      text: 'Post New Opportunity and Hirer',
+                      onPressed: () async {
+                        bool postTask = await showYesNoAlert(
+                            context: context,
+                            title: 'Post Opportunity and Hirer?',
+                            body:
+                                'This will create a new user as soon as you click, so make sure to do it in one go');
+                        if (postTask) {
+
+                          ///Create an empty user
+                          DocumentReference result = await firestoreAPI.addUser(GenchiUser());
+                          await firestoreAPI.updateUser(user: GenchiUser(id: result.id), uid: result.id);
+
+                          ///Update the account service to be on this user
+                          await accountService.updateCurrentAccount(id: result.id);
+
+                          Navigator.pushNamed(
+                                  context, PostTaskAndHirerScreen.id)
+                              .then((value) {
+                            ///Update futures
+                            searchTasksFuture =
+                                firestoreAPI.fetchTasksAndHirers();
+                            getUserTasksPostedAndNotificationsFuture =
+                                firestoreAPI.getUserTasksPostedAndNotifications(
+                                    postIds: currentUser.posts);
+                            setState(() {});
+                          });
+                        }
+                      },
+                    ),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       Text(
-                        'JOBS FEED',
+                        'OPPORTUNITIES',
                         style: TextStyle(
                           fontSize: 20,
                         ),
@@ -560,7 +609,7 @@ class _JobsScreenState extends State<JobsScreen> {
                                 const PopupMenuItem<String>(
                                     child: const Text('ALL'), value: 'ALL'),
                               ];
-                              for (Service service in servicesList) {
+                              for (Service service in opportunityTypeList) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(
@@ -603,7 +652,7 @@ class _JobsScreenState extends State<JobsScreen> {
                           height: 40,
                           child: Center(
                             child: Text(
-                              'No jobs yet. Check again later',
+                              'No opportunities yet. Check again later',
                               style: TextStyle(fontSize: 20),
                             ),
                           ),
@@ -635,21 +684,23 @@ class _JobsScreenState extends State<JobsScreen> {
                                   });
 
                                   ///Check whether it is the users task or not
-                                  bool isUsersTask = taskProvider.currentTask.hirerId == currentUser.id;
+                                  bool isUsersTask =
+                                      taskProvider.currentTask.hirerId ==
+                                          currentUser.id;
 
-                                  if(isUsersTask){
-
-                                    Navigator.pushNamed(context, TaskScreenHirer.id);
-
+                                  if (isUsersTask) {
+                                    Navigator.pushNamed(
+                                        context, TaskScreenHirer.id);
                                   } else {
-
                                     ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
-                                    if(!taskProvider.currentTask.viewedIds.contains(currentUser.id)) firestoreAPI.addViewedIdToTask(viewedId: currentUser.id, taskId: task.taskId);
-                                    Navigator.pushNamed(context, TaskScreenApplicant.id);
-
+                                    if (!taskProvider.currentTask.viewedIds
+                                        .contains(currentUser.id))
+                                      await firestoreAPI.addViewedIdToTask(
+                                          viewedId: currentUser.id,
+                                          taskId: task.taskId);
+                                    Navigator.pushNamed(
+                                        context, TaskScreenApplicant.id);
                                   }
-
-
                                 },
                               );
                             } else {
@@ -672,7 +723,6 @@ class _JobsScreenState extends State<JobsScreen> {
     );
   }
 }
-
 
 class PostedAppliedList extends StatelessWidget {
   List taskWidgets;
@@ -700,14 +750,14 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
-        if(taskWidgets[0].isEmpty)
+        if (taskWidgets[0].isEmpty)
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: Text(
-                  'Nothing to show',
-                  style: TextStyle(fontSize: 16),
-                )),
+              'Nothing to show',
+              style: TextStyle(fontSize: 16),
+            )),
           ),
         Column(
           children: taskWidgets[0],
@@ -727,15 +777,15 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
-        if(taskWidgets[1].isEmpty)
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-              child: Text(
-            'Nothing to show',
-            style: TextStyle(fontSize: 16),
-          )),
-        ),
+        if (taskWidgets[1].isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text(
+              'Nothing to show',
+              style: TextStyle(fontSize: 16),
+            )),
+          ),
         Column(
           children: taskWidgets[1],
         ),
@@ -754,15 +804,15 @@ class PostedAppliedList extends StatelessWidget {
           height: 0,
           thickness: 1,
         ),
-    if(taskWidgets[2].isEmpty)
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-              child: Text(
-            'Nothing to show',
-            style: TextStyle(fontSize: 16),
-          )),
-        ),
+        if (taskWidgets[2].isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text(
+              'Nothing to show',
+              style: TextStyle(fontSize: 16),
+            )),
+          ),
         Column(
           children: taskWidgets[2],
         ),
@@ -771,12 +821,11 @@ class PostedAppliedList extends StatelessWidget {
   }
 }
 
-
 class PostJobSection extends StatelessWidget {
-
   Function onPressed;
+  String text;
 
-  PostJobSection({@required this.onPressed});
+  PostJobSection({@required this.onPressed, @required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -811,12 +860,11 @@ class PostJobSection extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'Post New Job',
+                    text,
                     maxLines: 1,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 18.0),
+                    style:
+                        TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
                   ),
                 ],
               ),

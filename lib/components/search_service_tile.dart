@@ -35,7 +35,7 @@ class SearchServiceTile extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(1.0, 5, 1, 0),
               child: Stack(
-                overflow: Overflow.clip,
+                clipBehavior: Clip.hardEdge,
                 children: <Widget>[
                   FittedBox(
                     fit: BoxFit.scaleDown,

@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
-import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -179,7 +178,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 });
                             providerCards.add(pCard);
                           }
-
                           ///add the "add provider" card
                           providerCards.add(
                             AddProviderCard(

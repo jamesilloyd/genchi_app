@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:genchi_app/constants.dart';
-import 'dart:io' show Platform;
 
 class SignInTextField extends StatelessWidget {
   const SignInTextField(

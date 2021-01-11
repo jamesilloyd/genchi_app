@@ -7,7 +7,6 @@ import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class BasicAppNavigationBar extends StatelessWidget
     implements PreferredSizeWidget {

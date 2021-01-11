@@ -5,10 +5,7 @@ import 'package:genchi_app/models/task.dart';
 
 
 class TaskDetailsSection extends StatelessWidget {
-  TextStyle titleTextStyle = TextStyle(
-    fontSize: 20.0,
-    fontWeight: FontWeight.w500,
-  );
+
   Task task;
   Function linkOpen;
 
@@ -19,21 +16,21 @@ class TaskDetailsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Category', style: titleTextStyle),
+        Text('Category', style: kTitleTextStyle),
         Divider(
           thickness: 1,
           height: 8,
         ),
         Text(
           task.service.toUpperCase(),
-          style: TextStyle(fontSize: 22, color: Color(kGenchiOrange)),
+          style: TextStyle(fontSize: 20, color: Color(kGenchiOrange)),
         ),
         SizedBox(
           height: 10,
         ),
         Container(
           child:
-          Text("Details", textAlign: TextAlign.left, style: titleTextStyle),
+          Text("Details", textAlign: TextAlign.left, style: kTitleTextStyle),
         ),
         Divider(
           thickness: 1,
@@ -43,12 +40,12 @@ class TaskDetailsSection extends StatelessWidget {
           text: task.details ?? "",
           onOpen: linkOpen,
           options: LinkifyOptions(humanize: false),
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+          style: kBodyTextStyle,
         ),
         SizedBox(height: 10),
         Container(
           child: Text("Job Timings",
-              textAlign: TextAlign.left, style: titleTextStyle),
+              textAlign: TextAlign.left, style: kTitleTextStyle),
         ),
         Divider(
           thickness: 1,
@@ -58,20 +55,22 @@ class TaskDetailsSection extends StatelessWidget {
           text: task.date ?? "",
           onOpen: linkOpen,
           options: LinkifyOptions(humanize: false),
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+          style: kBodyTextStyle,
         ),
         SizedBox(height: 10),
         Container(
           child: Text("Incentive",
-              textAlign: TextAlign.left, style: titleTextStyle),
+              textAlign: TextAlign.left, style: kTitleTextStyle),
         ),
         Divider(
           thickness: 1,
           height: 8,
         ),
-        SelectableText(
-          task.price ?? "",
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
+        SelectableLinkify(
+          text: task.price ?? "",
+          onOpen: linkOpen,
+          options: LinkifyOptions(humanize: false),
+          style: kBodyTextStyle,
         ),
         SizedBox(height: 10),
       ],

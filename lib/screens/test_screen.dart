@@ -1,13 +1,8 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:package_info/package_info.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class TestScreen extends StatefulWidget {
@@ -30,13 +25,9 @@ class _TestScreenState extends State<TestScreen> {
     Colors.blue,
   ];
 
-  static const double minExtent = 0.2;
-  static const double maxExtent = 0.6;
 
   bool isExpanded = false;
-  double initialExtent = minExtent;
   BuildContext draggableSheetContext;
-  bool _isVisible = true;
 
 
   @override
@@ -51,8 +42,13 @@ class _TestScreenState extends State<TestScreen> {
         body: Center(
           child: RoundedButton(
             buttonColor: Color(kGenchiGreen),
-            buttonTitle: 'Delete photo',
+            buttonTitle: 'Viewers',
             onPressed: () async {
+
+              await firestoreApi.findTaskViewers();
+
+              print('done');
+
             },
           ),
         ),

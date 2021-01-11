@@ -21,22 +21,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-
 Color _iconColor = Color(kGenchiCream);
 
 class AddImageScreen extends StatefulWidget {
-
-  final bool isUser;
-
-  AddImageScreen({Key key, @required this.isUser}) : super(key: key);
-
   @override
   _AddImageScreenState createState() => _AddImageScreenState();
 }
 
-
 class _AddImageScreenState extends State<AddImageScreen> {
-
   bool showSpinner = false;
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
@@ -44,12 +36,11 @@ class _AddImageScreenState extends State<AddImageScreen> {
   File _imageFile;
   bool noChangesMade = true;
 
-
   Future<void> _pickImage(ImageSource source) async {
-
     final _picker = ImagePicker();
 
-    PickedFile selected = await _picker.getImage(source: source, imageQuality: 100);
+    PickedFile selected =
+        await _picker.getImage(source: source, imageQuality: 100);
 
     setState(() {
       if (selected != null) {
@@ -70,7 +61,6 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   ///Croper plugin
   Future<void> _cropImage() async {
-
     setState(() {
       showSpinner = true;
     });
@@ -102,15 +92,15 @@ class _AddImageScreenState extends State<AddImageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(debugMode) print('Add Image Screen: Activated');
+    if (debugMode) print('Add Image Screen: Activated');
     final authProvider = Provider.of<AuthenticationService>(context);
 
     final accountService = Provider.of<AccountService>(context);
     GenchiUser currentUser = accountService.currentAccount;
 
     return ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          progressIndicator: CircularProgress(),
+      inAsyncCall: showSpinner,
+      progressIndicator: CircularProgress(),
       child: Container(
         padding: EdgeInsets.all(20.0),
         decoration: BoxDecoration(
@@ -143,10 +133,17 @@ class _AddImageScreenState extends State<AddImageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       GestureDetector(
-                        onTap: (){Navigator.pop(context);},
-                        child: Icon(Icons.close, color: Color(kGenchiCream),),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(
+                          Icons.close,
+                          color: Color(kGenchiCream),
+                        ),
                       )
                     ],
                   ),
@@ -158,32 +155,37 @@ class _AddImageScreenState extends State<AddImageScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  //TODO can we removed cached network image provider?
                   _imageFile == null
                       ? CircleAvatar(
-                          radius: (MediaQuery.of(context).size.height * 0.75 - 130) * 0.35,
+                          radius: (MediaQuery.of(context).size.height * 0.75 -
+                                  130) *
+                              0.35,
                           backgroundColor: Color(kGenchiCream),
-                          backgroundImage: currentUser.displayPictureURL != null ? CachedNetworkImageProvider(currentUser.displayPictureURL) : null,
+                          backgroundImage: currentUser.displayPictureURL != null
+                              ? CachedNetworkImageProvider(
+                                  currentUser.displayPictureURL)
+                              : null,
                         )
                       : CircleAvatar(
-
                           backgroundImage: FileImage(_imageFile),
-                          radius:
-                              (MediaQuery.of(context).size.height * 0.75 - 130) *
-                                  0.35,
+                          radius: (MediaQuery.of(context).size.height * 0.75 -
+                                  130) *
+                              0.35,
                           backgroundColor: Color(kGenchiCream),
                         ),
-                  _imageFile == null ? SizedBox(height: 30): SizedBox(
-                    height: 25,
-                    child:  Center(
-                      child: IconButton(
-                        color: _iconColor,
-                        iconSize: 25,
-                        icon: Icon(Icons.crop),
-                        onPressed: _cropImage,
-                      ),
-                    ),
-                  ),
+                  _imageFile == null
+                      ? SizedBox(height: 30)
+                      : SizedBox(
+                          height: 25,
+                          child: Center(
+                            child: IconButton(
+                              color: _iconColor,
+                              iconSize: 25,
+                              icon: Icon(Icons.crop),
+                              onPressed: _cropImage,
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
@@ -230,26 +232,30 @@ class _AddImageScreenState extends State<AddImageScreen> {
                               size: 25,
                             ),
                             onPressed: () async {
-                              bool delete = await showYesNoAlert(context: context, title: 'Delete Current Picture?');
-                              if(delete) {
+                              bool delete = await showYesNoAlert(
+                                  context: context,
+                                  title: 'Delete Current Picture?');
+                              if (delete) {
                                 setState(() {
                                   showSpinner = true;
                                 });
-                                await firestoreAPI.deleteDisplayPicture(user: currentUser);
+                                await firestoreAPI.deleteDisplayPicture(
+                                    user: currentUser);
                                 await authProvider.updateCurrentUserData();
-                                await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
+                                await accountService.updateCurrentAccount(
+                                    id: accountService.currentAccount.id);
                                 setState(() {
                                   showSpinner = false;
                                 });
                               }
-                              },
+                            },
                             color: _iconColor,
                           ),
                         )
                       : SizedBox(
                           width: (MediaQuery.of(context).size.width - 40) / 3,
                           child: uploadStarted
-                              ? Uploader(file: _imageFile, isUser: widget.isUser,)
+                              ? Uploader(file: _imageFile)
                               : IconButton(
                                   iconSize: 25,
                                   color: _iconColor,
@@ -273,58 +279,76 @@ class _AddImageScreenState extends State<AddImageScreen> {
   }
 }
 
-
-
 /// Widget used to handle the management of sending files
 class Uploader extends StatefulWidget {
   final File file;
-  final bool isUser;
 
-  Uploader({Key key, this.file, @required this.isUser}) : super(key: key);
+  Uploader({Key key, this.file}) : super(key: key);
 
   createState() => _UploaderState();
 }
 
-
 class _UploaderState extends State<Uploader> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
-  final FirebaseStorage _storage = FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // final FirebaseStorage _storage =
+  //     FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
+  //
+  // final FirebaseStorage _storage = FirebaseStorage.instance.ref('gs://genchi-c96c1.appspot.com');
 
-  StorageUploadTask _uploadTask;
+  UploadTask _uploadTask;
   String filePath;
 
   Future<bool> updateDisplayPicture() async {
-    final authProvider = Provider.of<AuthenticationService>(context,listen: false);
+    final authProvider =
+        Provider.of<AuthenticationService>(context, listen: false);
     final accountService = Provider.of<AccountService>(context, listen: false);
+    GenchiUser currentAccount = accountService.currentAccount;
 
     try {
-      filePath = 'images/users/${authProvider.currentUser.id}${DateTime.now()}.png';
-      StorageReference ref = _storage.ref().child(filePath);
+      ///We need to work out if this current account corresponds to a service provider or not
+      if (currentAccount.accountType == GenchiUser().serviceProviderAccount) {
+        ///IS a provider
+        ///Grab the main account id and carry out the remaining code on that
+        currentAccount =
+            await firestoreAPI.getUserById(currentAccount.mainAccountId);
+      }
+
+      filePath = 'images/users/${currentAccount.id}${DateTime.now()}.png';
+      Reference ref = _storage.ref().child(filePath);
       print('Uploading image');
       _uploadTask = ref.putFile(widget.file);
-      StorageTaskSnapshot storageSnapshot = await _uploadTask.onComplete;
+      TaskSnapshot storageSnapshot = await _uploadTask.whenComplete(() => null);
       print('downloading url');
       String downloadUrl = await storageSnapshot.ref.getDownloadURL();
       print(downloadUrl);
 
-
-      String oldFileName = authProvider.currentUser.displayPictureFileName;
+      String oldFileName = currentAccount.displayPictureFileName;
       print('Updating firestore user');
 
-      await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: authProvider.currentUser.id);
+      await firestoreAPI.updateUser(
+          user: GenchiUser(
+              displayPictureFileName: filePath, displayPictureURL: downloadUrl),
+          uid: currentAccount.id);
 
       print('Updating firestore providers');
 
-      for(String id in authProvider.currentUser.providerProfiles) {
-        await firestoreAPI.updateUser(user: GenchiUser(displayPictureFileName: filePath, displayPictureURL: downloadUrl), uid: id);
+      for (String id in currentAccount.providerProfiles) {
+        await firestoreAPI.updateUser(
+            user: GenchiUser(
+                displayPictureFileName: filePath,
+                displayPictureURL: downloadUrl),
+            uid: id);
       }
 
       print('Updating current user and provider');
-        await authProvider.updateCurrentUserData();
-        await accountService.updateCurrentAccount(id: accountService.currentAccount.id);
+      await authProvider.updateCurrentUserData();
+      await accountService.updateCurrentAccount(
+          id: accountService.currentAccount.id);
 
       print('Deleting old file');
-      if (oldFileName != null) await FirebaseStorage.instance.ref().child(oldFileName).delete();
+      if (oldFileName != null)
+        await FirebaseStorage.instance.ref().child(oldFileName).delete();
 
       await FirebaseAnalytics().logEvent(name: 'added_photo');
 
@@ -337,7 +361,6 @@ class _UploaderState extends State<Uploader> {
 
   Future<bool> successfullUpload;
 
-
   @override
   void initState() {
     super.initState();
@@ -346,46 +369,45 @@ class _UploaderState extends State<Uploader> {
 
   @override
   Widget build(BuildContext context) {
-      return FutureBuilder(
-        future: successfullUpload,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Container(
-                height: 20,
-                width: 20,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(_iconColor),
-                    strokeWidth: 2.0,
-                  ),
+    return FutureBuilder(
+      future: successfullUpload,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: Container(
+              height: 20,
+              width: 20,
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(_iconColor),
+                  strokeWidth: 2.0,
                 ),
               ),
-            );
-          }
+            ),
+          );
+        }
 
-          if (snapshot.data) {
-            return IconButton(
-              iconSize: 25,
-              color: _iconColor,
-              icon: Icon(
-                Platform.isIOS
-                    ? CupertinoIcons.check_mark_circled_solid
-                    : Icons.check_circle,
-              ),
-              onPressed: () {},
-            );
-          } else {
-
-            return IconButton(
-              iconSize: 25,
-              color: _iconColor,
-              icon: Icon(Icons.error),
-              //TODO Maybe add in a snackbar here
-              onPressed: () {},
-            );
-          }
-        },
-      );
+        if (snapshot.data) {
+          return IconButton(
+            iconSize: 25,
+            color: _iconColor,
+            icon: Icon(
+              Platform.isIOS
+                  ? CupertinoIcons.check_mark_circled_solid
+                  : Icons.check_circle,
+            ),
+            onPressed: () {},
+          );
+        } else {
+          return IconButton(
+            iconSize: 25,
+            color: _iconColor,
+            icon: Icon(Icons.error),
+            //TODO Maybe add in a snackbar here
+            onPressed: () {},
+          );
+        }
+      },
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+//TODO: maybe change the name due to conflicting types from cloud firestore
 class Task {
   String taskId;
   String hirerId;
@@ -9,10 +10,13 @@ class Task {
   String date;
   String price;
   String status;
+  String applicationLink;
+  bool linkApplicationType;
   List<dynamic> successfulApplications;
   List<dynamic> unsuccessfulApplications;
   List<dynamic> applicationIds;
   List<dynamic> viewedIds;
+  List<dynamic> linkApplicationIds;
   Timestamp time;
 
   Task({
@@ -24,10 +28,13 @@ class Task {
     this.date,
     this.price,
     this.status,
+    this.applicationLink,
+    this.linkApplicationType,
     this.successfulApplications,
     this.unsuccessfulApplications,
     this.applicationIds,
     this.viewedIds,
+    this.linkApplicationIds,
     this.time,
   });
 
@@ -41,9 +48,12 @@ class Task {
         time = snapshot['time'] ?? Timestamp.now(),
         price = snapshot['price'] ?? '',
         status = snapshot['status'] ?? 'Vacant',
+        applicationLink = snapshot['applicationLink'] ?? '',
+        linkApplicationType = snapshot['linkApplicationType'] ?? false,
         successfulApplications = snapshot['successfulApplications'] ?? [],
         unsuccessfulApplications = snapshot['unsuccessfulApplications'] ?? [],
         viewedIds = snapshot['viewedIds'] ?? [],
+        linkApplicationIds = snapshot['linkApplicationIds'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 
   Map<String, dynamic> toJson() {
@@ -55,6 +65,8 @@ class Task {
       if (details != null) 'details': details,
       if (price != null) 'price': price,
       if (date != null) 'date': date,
+      if (applicationLink != null) 'applicationLink' :applicationLink,
+      if(linkApplicationType != null) 'linkApplicationType':linkApplicationType,
       if (status != null) 'status': status,
       if (successfulApplications != null)
         'successfulApplications': successfulApplications,
@@ -62,6 +74,7 @@ class Task {
         'unsuccessfulApplications': unsuccessfulApplications,
       if (applicationIds != null) 'applicationIds': applicationIds,
       if (viewedIds != null) 'viewedIds': viewedIds,
+      if (linkApplicationIds !=null) 'linkApplicationIds':linkApplicationIds,
       if (time != null) 'time': time,
     };
   }

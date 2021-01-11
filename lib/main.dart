@@ -16,6 +16,7 @@ import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
+import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
@@ -30,7 +31,6 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
-import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
@@ -87,7 +87,6 @@ class _GenchiState extends State<Genchi> {
   @override
   Widget build(BuildContext context) {
 
-    // return Container(color: Colors.red);
     print('Genchi main activated');
 
     return FutureBuilder(
@@ -156,13 +155,16 @@ class StartUp extends StatelessWidget{
             theme: ThemeData(
               fontFamily: 'FuturaPT',
               canvasColor: Colors.white,
-              cursorColor: Color(kGenchiOrange),
+              textSelectionTheme: TextSelectionThemeData(
+                selectionHandleColor: Color(kGenchiOrange),
+                selectionColor: Color(kGenchiLightOrange),
+                cursorColor: Color(kGenchiOrange),
+              ),
+
               scaffoldBackgroundColor: Colors.white,
               primaryColor: Color(kGenchiOrange),
               indicatorColor: Color(kGenchiOrange),
-              textSelectionHandleColor: Color(kGenchiOrange),
               accentColor: Color(kGenchiOrange),
-              textSelectionColor: Color(kGenchiLightOrange),
               hintColor: Colors.black45,
             ),
             initialRoute: loggedIn ? HomeScreen.id : WelcomeScreen.id,
@@ -189,6 +191,7 @@ class StartUp extends StatelessWidget{
                   EditAccountSettingsScreen(),
               UserScreen.id: (context) => UserScreen(),
               PostRegDetailsScreen.id: (context) => PostRegDetailsScreen(),
+              PostTaskAndHirerScreen.id: (context) => PostTaskAndHirerScreen(),
             },
           );
         }

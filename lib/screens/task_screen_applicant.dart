@@ -4,6 +4,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
@@ -31,7 +32,6 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-//TODO: WHEN FINISHED ADD IN ADMIN CONTROLS
 class TaskScreenApplicant extends StatefulWidget {
   static const id = 'task_screen_applicant';
 
@@ -57,13 +57,9 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
   @override
   void initState() {
     super.initState();
-    Task task = Provider
-        .of<TaskService>(context, listen: false)
-        .currentTask;
+    Task task = Provider.of<TaskService>(context, listen: false).currentTask;
     GenchiUser user =
-        Provider
-            .of<AuthenticationService>(context, listen: false)
-            .currentUser;
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
     hirerFuture = firestoreAPI.getUserById(task.hirerId);
     applicantsFuture = firestoreAPI.getTaskApplicants(task: task);
     applicantWasSuccessfulFuture =
@@ -90,7 +86,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
         ),
         centerTitle: true,
         title: Text(
-          'Job',
+          'Opportunity',
           style: TextStyle(
             color: Colors.black,
             fontSize: 30,
@@ -100,75 +96,112 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
         backgroundColor: Color(kGenchiGreen),
         elevation: 2.0,
         brightness: Brightness.light,
+        actions: <Widget>[
+          if (currentUser.admin)
+            IconButton(
+              icon: Icon(
+                Icons.settings,
+                size: 30,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+                Navigator.pushNamed(context, EditTaskScreen.id);
+              },
+            )
+        ],
       ),
       bottomNavigationBar: showSpinner
           ? SizedBox.shrink()
           : ActionButton(
-        userpidsAndId: userPidsAndId,
-        applicantsFuture: applicantsFuture,
-        applyFunction: () async {
-          String selectedId = await showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: modalBottomSheetBorder,
-            builder: (context) => ApplyToJob(currentUser: currentUser),
-          );
+              userpidsAndId: userPidsAndId,
+              applicantsFuture: applicantsFuture,
+              applyFunction: currentTask.linkApplicationType
+                  ? () async {
+                      bool apply = await showYesNoAlert(
+                          context: context, title: 'Apply to this job?');
 
-          if (debugMode)
-            print('Task Screen: applied with id $selectedId');
+                      if (apply) {
+                        await analytics.logEvent(name: 'application_sent_link');
 
-          if (selectedId != null) {
-            setState(() {
-              showSpinner = true;
-            });
+                        ///STORE THE USER / TASK relationship somewhere
 
-            await analytics.logEvent(name: 'task_application_sent');
+                        await firestoreAPI.addLinkApplicantId(taskId: currentTask.taskId,applicantId: currentUser.id);
 
-            DocumentReference chatRef = await firestoreAPI.applyToTask(
-                taskId: currentTask.taskId,
-                applicantId: selectedId,
-                hirerId: currentTask.hirerId);
+                        ///Send them to the location
+                        if (await canLaunch(currentTask.applicationLink)) {
+                            await launch(currentTask.applicationLink);
+                        } else {
+                          Scaffold.of(context)
+                              .showSnackBar(kApplicationLinkNotWorking);
+                          print("Could not open URL");
+                        }
+                      }
+                    }
+                  : () async {
+                      String selectedId = await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: modalBottomSheetBorder,
+                        builder: (context) =>
+                            ApplyToJob(currentUser: currentUser),
+                      );
 
-            TaskApplication taskApplication =
-            await firestoreAPI.getTaskApplicationById(
-              taskId: currentTask.taskId,
-              applicationId: chatRef.id,
-            );
+                      if (debugMode)
+                        print('Task Screen: applied with id $selectedId');
 
-            GenchiUser applicantProfile =
-            await firestoreAPI.getUserById(selectedId);
+                      if (selectedId != null) {
+                        setState(() {
+                          showSpinner = true;
+                        });
 
-            GenchiUser hirer =
-            await firestoreAPI.getUserById(currentTask.hirerId);
+                        await analytics.logEvent(name: 'application_sent_app');
 
-            setState(() {
-              showSpinner = false;
-            });
+                        DocumentReference chatRef =
+                            await firestoreAPI.applyToTask(
+                                taskId: currentTask.taskId,
+                                applicantId: selectedId,
+                                hirerId: currentTask.hirerId);
 
-            ///Check all necessary documents exist before entering chat
-            if (hirer != null &&
-                applicantProfile != null &&
-                taskApplication != null) {
-              Navigator.pushNamed(context, ApplicationChatScreen.id,
-                  arguments: ApplicationChatScreenArguments(
-                    isInitialApplication: true,
-                    taskApplication: taskApplication,
-                    hirer: hirer,
-                    applicant: applicantProfile,
-                    userIsApplicant: true,
-                  )).then((value) {
-                authProvider.updateCurrentUserData();
+                        TaskApplication taskApplication =
+                            await firestoreAPI.getTaskApplicationById(
+                          taskId: currentTask.taskId,
+                          applicationId: chatRef.id,
+                        );
 
-                applicantsFuture =
-                    firestoreAPI.getTaskApplicants(task: currentTask);
+                        GenchiUser applicantProfile =
+                            await firestoreAPI.getUserById(selectedId);
 
-                ///Refresh screen
-                setState(() {});
-              });
-            }
-          }
-        },
-      ),
+                        GenchiUser hirer =
+                            await firestoreAPI.getUserById(currentTask.hirerId);
+
+                        setState(() {
+                          showSpinner = false;
+                        });
+
+                        ///Check all necessary documents exist before entering chat
+                        if (hirer != null &&
+                            applicantProfile != null &&
+                            taskApplication != null) {
+                          Navigator.pushNamed(context, ApplicationChatScreen.id,
+                              arguments: ApplicationChatScreenArguments(
+                                isInitialApplication: true,
+                                taskApplication: taskApplication,
+                                hirer: hirer,
+                                applicant: applicantProfile,
+                                userIsApplicant: true,
+                              )).then((value) {
+                            authProvider.updateCurrentUserData();
+
+                            applicantsFuture = firestoreAPI.getTaskApplicants(
+                                task: currentTask);
+
+                            ///Refresh screen
+                            setState(() {});
+                          });
+                        }
+                      }
+                    },
+            ),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgress(),
@@ -196,12 +229,14 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         onPressed: () async {
                           bool likesFeature = await showYesNoAlert(
                               context: context,
-                              title: 'Share this job with a friend?');
+                              title: 'Share this opportunity with a friend?');
 
                           if (likesFeature != null) {
                             analytics.logEvent(
                                 name: 'share_job_button_pressed',
-                                parameters: {'response': likesFeature});
+                                parameters: {
+                                  'response': likesFeature.toString()
+                                });
 
                             if (likesFeature) {
                               Scaffold.of(context)
@@ -230,7 +265,6 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
 
             ///APPLICANT VIEW
             FutureBuilder(
-
               ///We probably don't need to check that the user exists here as the
               ///task would have been deleted if the hirer doesn't exist.
               ///Worst case scenario the infite scoller appears
@@ -271,8 +305,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                                   fontSize: 14, fontWeight: FontWeight.w400),
                             ),
                             Text(
-                              "Posted ${getTaskPostedTime(
-                                  time: currentTask.time)}",
+                              "Posted ${getTaskPostedTime(time: currentTask.time)}",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -286,8 +319,19 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                 );
               },
             ),
+            if (currentUser.admin)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(currentTask.viewedIds.length.toString() + ' views',
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey)),
+                ],
+              ),
             SizedBox(height: 10),
-            Text('Job Status',
+            Text('Opportunity Status',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
@@ -311,21 +355,21 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                   if (currentTask.status == 'Vacant') {
                     return Text(
                       'ACCEPTING APPLICATIONS',
-                      style: TextStyle(fontSize: 22, color: Color(kPurple)),
+                      style: TextStyle(fontSize: 20, color: Color(kPurple)),
                     );
                   } else {
                     return Text(
                       success
                           ? (currentTask.status == 'InProgress'
-                          ? 'IN PROGRESS'
-                          : 'COMPLETED')
+                              ? 'IN PROGRESS'
+                              : 'COMPLETED')
                           : "NOT RECEIVING APPLICATIONS",
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 20,
                         color: success
                             ? (currentTask.status == 'InProgress'
-                            ? Color(kGreen)
-                            : Color(kRed))
+                                ? Color(kGreen)
+                                : Color(kRed))
                             : Color(kRed),
                       ),
                     );
@@ -358,7 +402,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                 for (var applicantAndProvider in applicantsAndProviders) {
                   GenchiUser applicant = applicantAndProvider['applicant'];
                   TaskApplication application =
-                  applicantAndProvider['application'];
+                      applicantAndProvider['application'];
 
                   if (userPidsAndId.contains(applicant.id)) {
                     ///currentUser has applied
@@ -396,13 +440,13 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                     lastMessage: usersApplication.lastMessage,
                     time: usersApplication.time,
                     hasUnreadMessage:
-                    usersApplication.applicantHasUnreadMessage,
+                        usersApplication.applicantHasUnreadMessage,
                     onTap: () async {
                       setState(() {
                         showSpinner = true;
                       });
                       GenchiUser hirer =
-                      await firestoreAPI.getUserById(currentTask.hirerId);
+                          await firestoreAPI.getUserById(currentTask.hirerId);
 
                       ///Check that the hirer exists before opening chat
                       if (hirer != null) {
@@ -445,7 +489,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                             bool withdraw = await showYesNoAlert(
                                 context: context,
                                 title:
-                                'Are you sure you want to withdraw your application?');
+                                    'Are you sure you want to withdraw your application?');
 
                             if (withdraw) {
                               setState(() {
@@ -461,7 +505,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                                   taskId: usersApplication.taskid);
 
                               await Provider.of<AuthenticationService>(context,
-                                  listen: false)
+                                      listen: false)
                                   .updateCurrentUserData();
 
                               setState(() {
@@ -500,15 +544,16 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         height: 0,
                         thickness: 1,
                       ),
-                      Center(child: Text(
-                          "Task id: ${currentTask.taskId}"),)
+                      Center(
+                        child: Text("Task id: ${currentTask.taskId}"),
+                      )
                     ],
                   ));
 
                   for (var applicantAndProvider in applicantsAndProviders) {
                     GenchiUser applicant = applicantAndProvider['applicant'];
                     TaskApplication application =
-                    applicantAndProvider['application'];
+                        applicantAndProvider['application'];
 
                     ApplicantListItem chatWidget = ApplicantListItem(
                       imageURL: applicant.displayPictureURL,
@@ -522,7 +567,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         });
 
                         GenchiUser hirer =
-                        await firestoreAPI.getUserById(currentTask.hirerId);
+                            await firestoreAPI.getUserById(currentTask.hirerId);
 
                         ///Check that the hirer exists before opening chat
                         if (hirer != null) {
@@ -546,26 +591,24 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                     widgets.add(chatWidget);
                   }
 
-
                   widgets.add(Center(
                     child: RoundedButton(
                       fontColor: Colors.white,
                       buttonColor: Color(kGenchiBlue),
-                      buttonTitle: 'Delete Job',
+                      buttonTitle: 'Delete Opportunity',
                       onPressed: () async {
+                        bool delete = await showYesNoAlert(
+                            context: context,
+                            title: 'Delete this opportunity?');
 
-                        bool delete = await showYesNoAlert(context: context, title: 'Delete this job?');
-
-                        if(delete != null && delete){
+                        if (delete != null && delete) {
                           ///Log in firebase analytics
                           await analytics.logEvent(name: 'job_deleted');
 
                           await firestoreAPI.deleteTask(task: currentTask);
 
                           Navigator.pop(context);
-
                         }
-
                       },
                     ),
                   ));
@@ -639,17 +682,11 @@ class ActionButton extends StatelessWidget {
             ///User has not applied so show them the apply button
             return Container(
               color: Colors.white,
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.1,
+              height: MediaQuery.of(context).size.height * 0.1,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: 80,
-                    vertical: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.012),
+                    vertical: MediaQuery.of(context).size.height * 0.012),
                 child: RoundedButton(
                   elevation: false,
                   buttonTitle: 'APPLY',
@@ -678,10 +715,7 @@ class ApplyToJob extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery
-          .of(context)
-          .size
-          .height * 0.75,
+      height: MediaQuery.of(context).size.height * 0.75,
       padding: EdgeInsets.all(15.0),
       decoration: modalBottomSheetContainerDecoration,
       child: ListView(
@@ -731,7 +765,7 @@ class ApplyToJob extends StatelessWidget {
                     child: Text(
                       'Service Account(s)',
                       style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
@@ -740,7 +774,6 @@ class ApplyToJob extends StatelessWidget {
                   thickness: 1,
                 ),
                 FutureBuilder(
-
                   ///This function returns a list of providerUsers
                   future: firestoreAPI.getServiceProviders(
                       ids: currentUser.providerProfiles),
@@ -783,28 +816,28 @@ class ApplyToJob extends StatelessWidget {
                       bool createAccount = await showYesNoAlert(
                           context: context,
                           title:
-                          'Create a service account before applying to this job?');
+                              'Create a service account before applying to this opportunity?');
                       if (createAccount) {
                         ///Log event in firebase
                         await analytics.logEvent(
                             name: 'provider_account_created');
 
                         AuthenticationService authService =
-                        Provider.of<AuthenticationService>(context,
-                            listen: false);
+                            Provider.of<AuthenticationService>(context,
+                                listen: false);
                         AccountService accountService =
-                        Provider.of<AccountService>(context, listen: false);
+                            Provider.of<AccountService>(context, listen: false);
 
                         DocumentReference result =
-                        await firestoreAPI.addServiceProvider(
-                            serviceUser: GenchiUser(
-                                mainAccountId: authService.currentUser.id,
-                                accountType: 'Service Provider',
-                                displayPictureURL: authService
-                                    .currentUser.displayPictureURL,
-                                displayPictureFileName: authService
-                                    .currentUser.displayPictureFileName),
-                            uid: authService.currentUser.id);
+                            await firestoreAPI.addServiceProvider(
+                                serviceUser: GenchiUser(
+                                    mainAccountId: authService.currentUser.id,
+                                    accountType: 'Service Provider',
+                                    displayPictureURL: authService
+                                        .currentUser.displayPictureURL,
+                                    displayPictureFileName: authService
+                                        .currentUser.displayPictureFileName),
+                                uid: authService.currentUser.id);
 
                         await authService.updateCurrentUserData();
 

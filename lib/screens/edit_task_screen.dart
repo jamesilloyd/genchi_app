@@ -1,4 +1,6 @@
 import 'dart:io' show Platform;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,6 +32,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   bool changesMade = false;
   bool showSpinner = false;
   bool linkApplicationType = false;
+  bool hasFixedDeadline = true;
+
+  Timestamp deadlineDate;
+  DateTime firstDate;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -41,6 +47,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   void initState() {
     super.initState();
+    firstDate = DateTime.now();
     Task task = Provider.of<TaskService>(context, listen: false).currentTask;
     titleController.text = task.title;
     detailsController.text = task.details;
@@ -49,6 +56,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     priceController.text = task.price;
     applicationLinkController.text = task.applicationLink;
     linkApplicationType = task.linkApplicationType;
+    hasFixedDeadline = task.hasFixedDeadline;
+    deadlineDate = task.applicationDeadline;
   }
 
   @override
@@ -121,15 +130,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     ///Just check if the link is valid first
                     bool error = false;
 
-                    if(linkApplicationType) {
+                    if (linkApplicationType) {
                       try {
                         ///Test the link is real
-                        var response = await http
-                            .head(applicationLinkController.text);
+                        var response =
+                            await http.head(applicationLinkController.text);
                         if (response.statusCode == 200) {
                           error = false;
-                        }else{
-                          error=true;
+                        } else {
+                          error = true;
                         }
                       } catch (e) {
                         print(e);
@@ -146,6 +155,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                               details: detailsController.text,
                               linkApplicationType: linkApplicationType,
                               applicationLink: applicationLinkController.text,
+                              hasFixedDeadline: hasFixedDeadline,
+                              applicationDeadline: deadlineDate,
                               price: priceController.text,
                               date: dateController.text),
                           taskId: taskService.currentTask.taskId);
@@ -340,21 +351,150 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       },
                       controller: applicationLinkController,
                       decoration: kEditAccountTextFieldDecoration.copyWith(
-                          hintText:
-                              'Insert application link'),
+                          hintText: 'Insert application link'),
                       cursorColor: Color(kGenchiOrange),
                     ),
                   ),
                 ),
-                Text(
-                  'Application Deadline',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Open Application?',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.help_outline_outlined,
+                        size: 18,
+                      ),
+                      onTap: () async {
+                        await showDialogBox(
+                            context: context,
+                            title: 'Open Application',
+                            body:
+                                'Does this opportunity have a deadline to apply by?');
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Yes',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: Color(kGenchiGreen),
+                            fontSize: 20,
+                            fontWeight: hasFixedDeadline
+                                ? FontWeight.w400
+                                : FontWeight.w500,
+                          ),
+                        )),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Switch(
+                            value: hasFixedDeadline,
+                            inactiveTrackColor: Color(kGenchiLightGreen),
+                            inactiveThumbColor: Color(kGenchiGreen),
+                            onChanged: (value) {
+                              setState(() {
+                                hasFixedDeadline = value;
+                              });
+                            }),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 1,
+                        child: Text(
+                          'No',
+                          style: TextStyle(
+                            color: Color(kGenchiOrange),
+                            fontSize: 20,
+                            fontWeight: hasFixedDeadline
+                                ? FontWeight.w500
+                                : FontWeight.w400,
+                          ),
+                        )),
+                  ],
+                ),
+                AnimatedContainer(
+                  height: hasFixedDeadline ? 80 : 0,
+                  duration: Duration(milliseconds: 200),
+                  child: AnimatedOpacity(
+                    duration: Duration(milliseconds: 200),
+                    opacity: hasFixedDeadline ? 1 : 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Application Deadline',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        GestureDetector(
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(32.0)),
+                                border: Border.all(color: Colors.black)),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0, horizontal: 20.0),
+                              child: Text(
+                                deadlineDate == null
+                                    ? 'Select Date'
+                                    : getApplicationDeadline(
+                                        time: deadlineDate),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onTap: () async {
+                            DateTime deadlineDateDT = await showDatePicker(
+                              context: context,
+                              initialDate: deadlineDate == null
+                                  ? DateTime.now()
+                                  : deadlineDate
+                                              .toDate()
+                                              .difference(firstDate).inMinutes > 0
+                                      ? deadlineDate.toDate()
+                                      : DateTime.now(),
+                              firstDate: firstDate,
+                              lastDate: DateTime.now().add(Duration(days: 365)),
+                            );
+                            print(deadlineDateDT);
+                            print('hi');
+                            if (deadlineDateDT != null) {
+                              deadlineDate =
+                                  Timestamp.fromMicrosecondsSinceEpoch(
+                                      deadlineDateDT.microsecondsSinceEpoch);
+                              setState(() {});
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Center(child: Text('Coming in next update')),
                 EditAccountField(
                   field: "Opportunity Timings",
                   textController: dateController,

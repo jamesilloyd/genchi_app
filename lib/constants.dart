@@ -123,6 +123,36 @@ const kGenchiCream = 0xfff9f8eb;
 const kGenchiGreen = 0xff76b39d;
 const kGenchiLightGreen = 0xffafcac0;
 
+Map<int, Color> orangeColor = {
+  50: Color.fromRGBO(241, 147, 0, .1),
+  100: Color.fromRGBO(241, 147, 0, .2),
+  200: Color.fromRGBO(241, 147, 0, .3),
+  300: Color.fromRGBO(241, 147, 0, .4),
+  400: Color.fromRGBO(241, 147, 0, .5),
+  500: Color.fromRGBO(241, 147, 0, .6),
+  600: Color.fromRGBO(241, 147, 0, .7),
+  700: Color.fromRGBO(241, 147, 0, .8),
+  800: Color.fromRGBO(241, 147, 0, .9),
+  900: Color.fromRGBO(241, 147, 0, 1),
+};
+
+
+Map<int, Color> greenColor = {
+  50: Color.fromRGBO(118, 179, 157, .1),
+  100: Color.fromRGBO(118, 179, 157, .2),
+  200: Color.fromRGBO(118, 179, 157, .3),
+  300: Color.fromRGBO(118, 179, 157, .4),
+  400: Color.fromRGBO(118, 179, 157, .5),
+  500: Color.fromRGBO(118, 179, 157, .6),
+  600: Color.fromRGBO(118, 179, 157, .7),
+  700: Color.fromRGBO(118, 179, 157, .8),
+  800: Color.fromRGBO(118, 179, 157, .9),
+  900: Color.fromRGBO(118, 179, 157, 1),
+};
+
+MaterialColor kMaterialGenchiOrange = MaterialColor(kGenchiOrange, orangeColor);
+MaterialColor kMaterialGenchiGreen = MaterialColor(kGenchiGreen, greenColor);
+
 const kGenchiLightOrange = 0xffF7BE66;
 const kGenchiBrown = 0xffD3CCAF;
 const kGenchiLightBlue = 0xff534F8E;

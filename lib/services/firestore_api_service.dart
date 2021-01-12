@@ -563,11 +563,13 @@ class FirestoreAPIService {
 
   Future<List<Map<String, dynamic>>> fetchTasksAndHirers() async {
     ///This function is for fetching all the tasks for the tasks feed
-
     if (debugMode) print('FirestoreAPI: fetchTasksAndHirers called');
 
     List<Map<String, dynamic>> tasksAndHirers = [];
     List<Task> tasks;
+    List<Task> openTasks = [];
+    List<Task> deadlineTasks = [];
+
 
     var result =
         await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
@@ -575,8 +577,21 @@ class FirestoreAPIService {
     ///Map all the docs into Task objects
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
 
-    ///Sort by time posted
-    tasks.sort((a, b) => b.time.compareTo(a.time));
+    for(Task task in tasks){
+      if(task.hasFixedDeadline && task.applicationDeadline != null){
+        deadlineTasks.add(task);
+      } else {
+        openTasks.add(task);
+      }
+    }
+
+    deadlineTasks.sort((a,b) => a.applicationDeadline.compareTo(b.applicationDeadline));
+    openTasks.sort((a,b) => b.time.compareTo(a.time));
+
+    tasks = [];
+    tasks.addAll(deadlineTasks);
+    tasks.addAll(openTasks);
+
     for (Task task in tasks) {
       Map<String, dynamic> taskAndHirer = {};
       taskAndHirer['task'] = task;
@@ -1072,6 +1087,17 @@ class FirestoreAPIService {
         }
 
         print('------------------------------------------------');
+      }
+    });
+  }
+
+
+  Future findBadBoy() async {
+
+    await _usersCollectionRef.get().then((value) async{
+      for(DocumentSnapshot doc1 in value.docs){
+       GenchiUser theUser = GenchiUser.fromMap(doc1.data());
+       if(theUser.name == 'Cambridge University Human Rights Law Society') print(theUser.id);
       }
     });
   }

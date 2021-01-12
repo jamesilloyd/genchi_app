@@ -55,6 +55,7 @@ class _GenchiState extends State<Genchi> {
   ///Initialise FlutterFire
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
+  //TODO: this is for better handling of dynamic links
   // final DynamicLinkService _dynamicLinkService = DynamicLinkService();
   //
   // Timer _timerLink;
@@ -155,6 +156,9 @@ class StartUp extends StatelessWidget{
             theme: ThemeData(
               fontFamily: 'FuturaPT',
               canvasColor: Colors.white,
+              primarySwatch: kMaterialGenchiGreen,
+
+
               textSelectionTheme: TextSelectionThemeData(
                 selectionHandleColor: Color(kGenchiOrange),
                 selectionColor: Color(kGenchiLightOrange),

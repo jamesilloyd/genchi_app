@@ -48,7 +48,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
   double buttonHeight;
 
-  //TODO: "no jobs" not appearing under filter (remove "coming soon")
+  //TODO: "no jobs" not appearing under filter
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
@@ -645,7 +645,7 @@ class _JobsScreenState extends State<JobsScreen> {
                       final List<Map<String, dynamic>> tasksAndHirers =
                           snapshot.data;
 
-                      // final List<Widget> widgets = [];
+
 
                       if (tasksAndHirers.isEmpty) {
                         return Container(

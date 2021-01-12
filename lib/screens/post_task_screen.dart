@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/services/time_formatting.dart';
 import 'package:http/http.dart' as http;
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
@@ -30,6 +31,10 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
   bool changesMade = false;
   bool showSpinner = false;
   bool linkApplicationType = false;
+  bool hasFixedDeadline = true;
+
+  Timestamp deadlineDate;
+  DateTime firstDate;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -44,10 +49,10 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
   void initState() {
     super.initState();
 
+    firstDate = DateTime.now();
+
     GenchiUser currentUser =
-        Provider
-            .of<AuthenticationService>(context, listen: false)
-            .currentUser;
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
     if (currentUser.draftJob.isNotEmpty) {
       Task draftJob = Task.fromMap(currentUser.draftJob);
       titleController.text = draftJob.title;
@@ -56,6 +61,9 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
       dateController.text = draftJob.date;
       serviceController.text = draftJob.service;
       applicationLinkController.text = draftJob.applicationLink;
+      linkApplicationType = draftJob.linkApplicationType;
+      hasFixedDeadline = draftJob.hasFixedDeadline;
+      deadlineDate = draftJob.applicationDeadline;
     } else {
       serviceController.text = 'Other';
     }
@@ -83,16 +91,20 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
       if (finishLater) {
         ///Get the current user
         final authProvider =
-        Provider.of<AuthenticationService>(context, listen: false);
+            Provider.of<AuthenticationService>(context, listen: false);
         GenchiUser currentUser = authProvider.currentUser;
 
         ///Save the text controller values as a draft to the current user
         currentUser.draftJob = Task(
-            title: titleController.text,
-            details: detailsController.text,
-            date: dateController.text,
-            service: serviceController.text,
-            price: priceController.text)
+                title: titleController.text,
+                details: detailsController.text,
+                date: dateController.text,
+                service: serviceController.text,
+                applicationLink: applicationLinkController.text,
+                linkApplicationType: linkApplicationType,
+                hasFixedDeadline: hasFixedDeadline,
+                applicationDeadline: deadlineDate,
+                price: priceController.text)
             .toJson();
 
         ///Update the current user in firestore
@@ -156,7 +168,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
+                                      BorderRadius.all(Radius.circular(32.0)),
                                   border: Border.all(color: Colors.black)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -214,7 +226,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                 context: context,
                                 title: 'Application Style',
                                 body:
-                                'In-App is used to allow users to apply in the app and create a chat with you. '
+                                    'In-App is used to allow users to apply in the app and create a chat with you. '
                                     '\n\nA Link application is used if you want to route the user away from the app to your recruitment destination.');
                           },
                         ),
@@ -286,21 +298,153 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                           },
                           controller: applicationLinkController,
                           decoration: kEditAccountTextFieldDecoration.copyWith(
-                              hintText:
-                              'Insert application link'),
+                              hintText: 'Insert application link'),
                           cursorColor: Color(kGenchiOrange),
                         ),
                       ),
                     ),
-                    Text(
-                      'Application Deadline',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Open Application?',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        GestureDetector(
+                          child: Icon(
+                            Icons.help_outline_outlined,
+                            size: 18,
+                          ),
+                          onTap: () async {
+                            await showDialogBox(
+                                context: context,
+                                title: 'Open Application',
+                                body:
+                                    'Does this opportunity have a deadline to apply by?');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            flex: 1,
+                            child: Text(
+                              'Yes',
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                color: Color(kGenchiGreen),
+                                fontSize: 20,
+                                fontWeight: hasFixedDeadline
+                                    ? FontWeight.w400
+                                    : FontWeight.w500,
+                              ),
+                            )),
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Switch(
+                                value: hasFixedDeadline,
+                                inactiveTrackColor: Color(kGenchiLightGreen),
+                                inactiveThumbColor: Color(kGenchiGreen),
+                                onChanged: (value) {
+                                  setState(() {
+                                    hasFixedDeadline = value;
+                                  });
+                                }),
+                          ),
+                        ),
+                        Expanded(
+                            flex: 1,
+                            child: Text(
+                              'No',
+                              style: TextStyle(
+                                color: Color(kGenchiOrange),
+                                fontSize: 20,
+                                fontWeight: hasFixedDeadline
+                                    ? FontWeight.w500
+                                    : FontWeight.w400,
+                              ),
+                            )),
+                      ],
+                    ),
+                    AnimatedContainer(
+                      height: hasFixedDeadline ? 80 : 0,
+                      duration: Duration(milliseconds: 200),
+                      child: AnimatedOpacity(
+                        duration: Duration(milliseconds: 200),
+                        opacity: hasFixedDeadline ? 1 : 0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Application Deadline',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(height: 5.0),
+                            GestureDetector(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32.0)),
+                                    border: Border.all(color: Colors.black)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 20.0),
+                                  child: Text(
+                                    deadlineDate == null
+                                        ? 'Select Date'
+                                        : getApplicationDeadline(
+                                            time: deadlineDate),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onTap: () async {
+                                DateTime deadlineDateDT = await showDatePicker(
+                                  context: context,
+                                  initialDate: deadlineDate == null
+                                      ? DateTime.now()
+                                      : deadlineDate
+                                                  .toDate()
+                                                  .difference(firstDate)
+                                                  .inMinutes >
+                                              0
+                                          ? deadlineDate.toDate()
+                                          : DateTime.now(),
+                                  firstDate: firstDate,
+                                  lastDate:
+                                      DateTime.now().add(Duration(days: 365)),
+                                );
+
+                                if (deadlineDateDT != null) {
+                                  deadlineDate =
+                                      Timestamp.fromMicrosecondsSinceEpoch(
+                                          deadlineDateDT
+                                              .microsecondsSinceEpoch);
+                                  setState(() {});
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Center(child: Text('Coming in next update')),
                     EditAccountField(
                       field: 'Opportunity Timings',
                       onChanged: (value) {
@@ -316,7 +460,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       },
                       textController: detailsController,
                       hintText:
-                      'Provide further details of the opportunity, urls etc.',
+                          'Provide further details of the opportunity, urls etc.',
                     ),
                     EditAccountField(
                       field: 'Incentive',
@@ -347,15 +491,15 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                             ///Just check if the link is valid first
                             bool error = false;
 
-                            if(linkApplicationType) {
+                            if (linkApplicationType) {
                               try {
                                 ///Test the link is real
                                 var response = await http
                                     .head(applicationLinkController.text);
                                 if (response.statusCode == 200) {
                                   error = false;
-                                }else{
-                                  error=true;
+                                } else {
+                                  error = true;
                                 }
                               } catch (e) {
                                 print(e);
@@ -376,7 +520,9 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                       status: 'Vacant',
                                       linkApplicationType: linkApplicationType,
                                       applicationLink:
-                                      applicationLinkController.text,
+                                          applicationLinkController.text,
+                                      hasFixedDeadline: hasFixedDeadline,
+                                      applicationDeadline: deadlineDate,
                                       price: priceController.text,
                                       hirerId: authProvider.currentUser.id),
                                   hirerId: authProvider.currentUser.id);
@@ -407,7 +553,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                   context: context,
                                   title: 'Application Link Not Valid',
                                   body:
-                                  'Enter a working application link before posting the job');
+                                      'Enter a working application link before posting the job');
                             }
                           }
                         },

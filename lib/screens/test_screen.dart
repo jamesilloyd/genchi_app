@@ -29,6 +29,20 @@ class _TestScreenState extends State<TestScreen> {
   bool isExpanded = false;
   BuildContext draggableSheetContext;
 
+  DateTime selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+      });
+  }
+
 
   @override
   void initState() {
@@ -40,16 +54,22 @@ class _TestScreenState extends State<TestScreen> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: RoundedButton(
-            buttonColor: Color(kGenchiGreen),
-            buttonTitle: 'Viewers',
-            onPressed: () async {
+          child: GestureDetector(
+            child: Container(
+              child: Text(
+                    'Select Date',
+              ),
+            ),
+            onTap: () => _selectDate(context),
 
-              await firestoreApi.findTaskViewers();
+              // if (deadlineDateDT != null) {
+              //   deadlineDate =
+              //       Timestamp.fromMicrosecondsSinceEpoch(
+              //           deadlineDateDT
+              //               .microsecondsSinceEpoch);
+              //   setState(() {});
+              // }
 
-              print('done');
-
-            },
           ),
         ),
       ),

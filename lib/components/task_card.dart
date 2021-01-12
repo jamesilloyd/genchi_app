@@ -4,9 +4,7 @@ import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:genchi_app/constants.dart';
 
-
 class TaskCard extends StatelessWidget {
-
   final Task task;
   final bool orangeBackground;
   final String imageURL;
@@ -16,12 +14,12 @@ class TaskCard extends StatelessWidget {
 
   const TaskCard(
       {Key key,
-        @required this.task,
-        this.orangeBackground = false,
-        @required this.imageURL,
-        @required this.onTap,
-        this.isDisplayTask = true,
-        this.hasUnreadMessage = false})
+      @required this.task,
+      this.orangeBackground = false,
+      @required this.imageURL,
+      @required this.onTap,
+      this.isDisplayTask = true,
+      this.hasUnreadMessage = false})
       : super(key: key);
 
   @override
@@ -42,7 +40,8 @@ class TaskCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
                 fontSize: 20,
-                fontWeight: hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
+                fontWeight:
+                    hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
           ),
           subtitle: Text(
             task.details,
@@ -56,19 +55,21 @@ class TaskCard extends StatelessWidget {
             children: <Widget>[
               hasUnreadMessage
                   ? Container(
-                height: 15,
-                width: 15,
-                decoration: BoxDecoration(
-                  color: Color(
-                      orangeBackground ? kGenchiGreen : kGenchiOrange),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                ),
-              )
+                      height: 15,
+                      width: 15,
+                      decoration: BoxDecoration(
+                        color: Color(
+                            orangeBackground ? kGenchiGreen : kGenchiOrange),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                    )
                   : SizedBox(height: 15.0),
               Text(
-                getSummaryTime(time: task.time),
+                task.hasFixedDeadline && task.applicationDeadline != null
+                    ? getSummaryTime(time: task.applicationDeadline)
+                    : 'Open',
                 textAlign: TextAlign.end,
                 style: TextStyle(fontSize: 15),
               ),
@@ -77,7 +78,8 @@ class TaskCard extends StatelessWidget {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                     fontSize: 15,
-                    color: Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
+                    color:
+                        Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
                     fontWeight: FontWeight.w500),
               ),
             ],
@@ -91,5 +93,3 @@ class TaskCard extends StatelessWidget {
     );
   }
 }
-
-

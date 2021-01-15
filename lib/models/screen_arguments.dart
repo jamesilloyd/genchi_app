@@ -39,3 +39,14 @@ class ApplicationChatScreenArguments {
       this.adminView = false,
       this.isInitialApplication = false});
 }
+
+
+class PreferencesScreenArguments {
+  final bool isFromRegistration;
+  final bool isFromHome;
+
+  PreferencesScreenArguments({
+        this.isFromRegistration = false,
+        this.isFromHome = false,
+  });
+}

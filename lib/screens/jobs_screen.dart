@@ -7,8 +7,10 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
@@ -54,11 +56,21 @@ class _JobsScreenState extends State<JobsScreen> {
       GlobalKey<LiquidPullToRefreshState>();
 
   void openBottomSection() async {
-    await Duration(milliseconds: 500);
+    await Future.delayed(const Duration(milliseconds: 500));
 
     _panelController.animatePanelToPosition(0.08,
         duration: Duration(milliseconds: 150));
   }
+
+  void checkForPreferenceUpdate() async {
+    await Future.delayed(const Duration(milliseconds: 2000));
+
+    Navigator.pushNamed(context, CustomerNeedsScreen.id,arguments: PreferencesScreenArguments(isFromHome: true));
+
+
+  }
+
+
 
   @override
   void initState() {
@@ -90,6 +102,7 @@ class _JobsScreenState extends State<JobsScreen> {
 
     GenchiUser currentUser =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
+    Provider.of<AccountService>(context,listen: false).updateCurrentAccount(id: currentUser.id);
     analytics.setCurrentScreen(screenName: 'home/jobs_screen');
 
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
@@ -102,6 +115,7 @@ class _JobsScreenState extends State<JobsScreen> {
             providerIds: currentUser.providerProfiles, mainId: currentUser.id);
 
     openBottomSection();
+    if(!currentUser.hasSetPreferences) checkForPreferenceUpdate();
   }
 
   @override

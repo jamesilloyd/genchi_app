@@ -111,10 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final authProvider = Provider.of<AuthenticationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
 
-    // TODO is this ok?
-    // cacheManager.emptyCache();
-
-    // imageCache.clear();
 
     return Scaffold(
       //TODO: look into using a page view instead

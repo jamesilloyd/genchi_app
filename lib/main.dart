@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -157,14 +158,11 @@ class StartUp extends StatelessWidget{
               fontFamily: 'FuturaPT',
               canvasColor: Colors.white,
               primarySwatch: kMaterialGenchiGreen,
-
-
               textSelectionTheme: TextSelectionThemeData(
                 selectionHandleColor: Color(kGenchiOrange),
                 selectionColor: Color(kGenchiLightOrange),
                 cursorColor: Color(kGenchiOrange),
               ),
-
               scaffoldBackgroundColor: Colors.white,
               primaryColor: Color(kGenchiOrange),
               indicatorColor: Color(kGenchiOrange),
@@ -196,6 +194,7 @@ class StartUp extends StatelessWidget{
               UserScreen.id: (context) => UserScreen(),
               PostRegDetailsScreen.id: (context) => PostRegDetailsScreen(),
               PostTaskAndHirerScreen.id: (context) => PostTaskAndHirerScreen(),
+              CustomerNeedsScreen.id: (context) => CustomerNeedsScreen(),
             },
           );
         }

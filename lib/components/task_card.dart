@@ -68,7 +68,7 @@ class TaskCard extends StatelessWidget {
                   : SizedBox(height: 15.0),
               Text(
                 task.hasFixedDeadline && task.applicationDeadline != null
-                    ? getSummaryTime(time: task.applicationDeadline)
+                    ? "Apply by " + getShortApplicationDeadline(time: task.applicationDeadline)
                     : 'Open',
                 textAlign: TextAlign.end,
                 style: TextStyle(fontSize: 15),

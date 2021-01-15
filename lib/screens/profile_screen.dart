@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
-import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  Future providerFuture ;
+  Future providerFuture;
 
   @override
   void initState() {
@@ -53,7 +53,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     analytics.setCurrentScreen(screenName: "/home/profile");
 
     providerFuture = firestoreAPI.getServiceProviders(
-        ids: Provider.of<AuthenticationService>(context, listen: false).currentUser.providerProfiles);
+        ids: Provider.of<AuthenticationService>(context, listen: false)
+            .currentUser
+            .providerProfiles);
   }
 
   @override
@@ -138,12 +140,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pushNamed(context, UserScreen.id);
                     },
                   ),
-                 // ProfileOptionTile(
-                 //   text: 'Test Screen',
-                 //   onPressed: ()  {
-                 //    Navigator.pushNamed(context, TestScreen.id);
-                 //   },
-                 // ),
+                  // ProfileOptionTile(
+                  //   text: 'Test Screen',
+                  //   onPressed: () {
+                  //     // await accountService.updateCurrentAccount(
+                  //     //     id: currentUser.id);
+                  //     Navigator.pushNamed(context, CustomerNeedsScreen.id);
+                  //   },
+                  // ),
                   if (userIsProvider)
                     ProfileOptionTile(
                       text: 'Service Profiles',
@@ -160,7 +164,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           if (!snapshot.hasData) {
                             return CircularProgress();
                           }
-                          final List<GenchiUser> serviceProviders = snapshot.data;
+                          final List<GenchiUser> serviceProviders =
+                              snapshot.data;
 
                           List<Widget> providerCards = [];
 
@@ -179,6 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 });
                             providerCards.add(pCard);
                           }
+
                           ///add the "add provider" card
                           providerCards.add(
                             AddProviderCard(
@@ -205,8 +211,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           serviceUser: GenchiUser(
                                             name: currentUser.name,
                                             mainAccountId: currentUser.id,
-                                            accountType:
-                                            GenchiUser().serviceProviderAccount,
+                                            accountType: GenchiUser()
+                                                .serviceProviderAccount,
                                             displayPictureURL:
                                                 currentUser.displayPictureURL,
                                             displayPictureFileName: currentUser
@@ -279,7 +285,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   serviceUser: GenchiUser(
                                     name: currentUser.name,
                                     mainAccountId: currentUser.id,
-                                    accountType: GenchiUser().serviceProviderAccount,
+                                    accountType:
+                                        GenchiUser().serviceProviderAccount,
                                     displayPictureURL:
                                         currentUser.displayPictureURL,
                                     displayPictureFileName:
@@ -304,7 +311,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                   ProfileOptionTile(
-                    text: 'Favourites',
+                    text: 'Preferences',
+                    onPressed: () async {
+                      await accountService.updateCurrentAccount(id: currentUser.id);
+                      Navigator.pushNamed(context, CustomerNeedsScreen.id);
+                    },
+                  ),
+                  ProfileOptionTile(
+                    text: 'Favourite Users',
                     onPressed: () {
                       Navigator.pushNamed(context, FavouritesScreen.id);
                     },

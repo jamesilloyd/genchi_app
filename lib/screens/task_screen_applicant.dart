@@ -154,7 +154,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           showSpinner = true;
                         });
 
-                        await analytics.logEvent(name: 'application_sent_app');
+                        await analytics.logEvent(name: 'application_sent');
 
                         DocumentReference chatRef =
                             await firestoreAPI.applyToTask(

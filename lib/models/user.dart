@@ -16,7 +16,11 @@ class GenchiUser {
   List<dynamic> isFavouritedBy;
   List<dynamic> posts;
   List<dynamic> fcmTokens;
+  List<dynamic> preferences;
   Map draftJob;
+
+  //TODO: this is temporary
+  bool hasSetPreferences;
 
   ///For groups and service providers
   String category;
@@ -62,6 +66,9 @@ class GenchiUser {
     this.mainAccountId,
     this.providerProfiles,
     this.admin,
+    this.preferences,
+    //TODO: this is temporary
+    this.hasSetPreferences,
   });
 
   GenchiUser.fromMap(Map snapshot)
@@ -86,6 +93,9 @@ class GenchiUser {
         subcategory = snapshot['subcategory'] ?? '',
         mainAccountId = snapshot['mainAccountId'] ?? snapshot['uid'],
         providerProfiles = snapshot['providerProfiles'] ?? [],
+        preferences = snapshot['preferences'] ?? [],
+        //TODO: this is temporary
+        hasSetPreferences = snapshot['hasSetPreferences'] ?? false,
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -110,6 +120,9 @@ class GenchiUser {
       if (subcategory != null) 'subcategory': subcategory,
       if (mainAccountId != null) 'mainAccountId': mainAccountId,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
+      if (preferences != null) 'preferences' : preferences,
+      //TODO: this is temporary
+      if (hasSetPreferences != null) 'hasSetPreferences':hasSetPreferences,
       if (admin != null) 'admin': admin,
     };
   }
@@ -175,10 +188,6 @@ List<Service> opportunityTypeList = [
       nameSingular: 'Designer',
       namePlural: 'Designers',
       databaseValue: 'Design'),
-  Service(
-      nameSingular: 'Entertainment',
-      namePlural: 'Entertainment',
-      databaseValue: 'Entertainment'),
   Service(
       nameSingular: 'Journalist',
       namePlural: 'Journalists',

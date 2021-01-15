@@ -257,17 +257,6 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                       },
                       textController: emailController,
                     ),
-                    /*TODO: add in the option (and on the post reg screen)
-                        for users to subscribe / unsubscribe to job notification
-                        -also need to update fcm accordingly
-                    */
-
-                    // Center(
-                    //   child: Switch(
-                    //     onChanged: (bool){},
-                    //     value: true,
-                    //   ),
-                    // ),
                     SizedBox(
                       height: 20.0,
                     ),

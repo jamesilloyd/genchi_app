@@ -8,6 +8,24 @@ String getApplicationDeadline({@required Timestamp time}) {
   return formatted;
 }
 
+String getShortApplicationDeadline({@required Timestamp time}) {
+  if ((time.toDate().day == DateTime.now().day) &
+      (time.toDate().month == DateTime.now().month) &
+      (time.toDate().year == DateTime.now().year)) {
+    ///TODAY
+    return 'Today';
+  } else if (time.toDate().difference(DateTime.now()).inDays < 7) {
+    /// less than  a week
+    var formatter = new DateFormat.E();
+    String formatted = formatter.format(time.toDate());
+    return formatted;
+  } else {
+    var formatter = new DateFormat.d().add_MMM();
+    String formatted = formatter.format(time.toDate());
+    return formatted;
+  }
+}
+
 String getSummaryTime({@required Timestamp time}) {
   if ((time.toDate().day == DateTime.now().day) &
       (time.toDate().month == DateTime.now().month) &

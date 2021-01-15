@@ -88,6 +88,7 @@ class _UserScreenState extends State<UserScreen> {
 
                 if (commonChatIds.isEmpty) {
                   ///This is a new chat
+                  await analytics.logEvent(name: 'new_private_chat_created');
                   Navigator.pushNamed(context, ChatScreen.id,
                       arguments: ChatScreenArguments(
                           chat: Chat(),

@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/add_image_screen.dart';
+import 'package:genchi_app/models/preferences.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:http/http.dart' as http;
 import 'package:genchi_app/components/app_bar.dart';
@@ -45,12 +46,68 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
   TextEditingController dateController = TextEditingController();
   TextEditingController serviceController = TextEditingController();
   TextEditingController applicationLinkController = TextEditingController();
+  TextEditingController otherValuesController = TextEditingController();
 
   TextEditingController categoryController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController nameController = TextEditingController();
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
+
+  List<Tag> allTags = List.generate(
+      originalTags.length, (index) => Tag.fromTag(originalTags[index]));
+
+  List<Widget> _chipBuilder(
+      {@required List<Tag> values, @required String filter}) {
+    List<Widget> widgets = [];
+
+    for (Tag tag in values) {
+      if (tag.category == filter) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                changesMade = true;
+                setState(() {
+                  tag.selected = !tag.selected;
+                });
+              },
+              child: Chip(
+                label: Text(tag.displayName),
+                backgroundColor:
+                tag.selected ? Color(kGenchiLightOrange) : Colors.black12,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return widgets;
+  }
+
+  List<Widget> _otherChipBuilder({@required List<Tag> values}) {
+    List<Widget> widgets = [];
+    for (Tag tag in values) {
+      if (tag.category == 'other') {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1),
+            child: Chip(
+              label: Text(tag.displayName),
+              backgroundColor: Color(kGenchiLightOrange),
+              onDeleted: () {
+                allTags.remove(tag);
+                setState(() {});
+              },
+            ),
+          ),
+        );
+      }
+    }
+
+    return widgets;
+  }
 
   @override
   void initState() {
@@ -67,6 +124,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
     serviceController.dispose();
     priceController.dispose();
     applicationLinkController.dispose();
+    otherValuesController.dispose();
 
     categoryController.dispose();
     bioController.dispose();
@@ -558,13 +616,158 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                     hintText:
                         'Provide further details of the opportunity, urls etc.',
                   ),
-                  EditAccountField(
-                    field: 'Incentive',
-                    onChanged: (value) {
-                      changesMade = true;
-                    },
-                    textController: priceController,
-                    hintText: 'Payment, experience, volunteering etc.',
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'What type of opportunity is this?',
+                        textAlign: TextAlign.start,
+                        style: kTitleTextStyle,
+                      ),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.help_outline_outlined,
+                          size: 18,
+                        ),
+                        onTap: () async {
+                          await showDialogBox(
+                              context: context,
+                              title: 'Types of Opportunities',
+                              body:
+                              'Select the type of opportunities you are after and we will optimise our platform to get you these opportunities.');
+                        },
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: _chipBuilder(values: allTags, filter: 'type'),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'What area(s)?',
+                        style: kTitleTextStyle,
+                      ),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.help_outline_outlined,
+                          size: 18,
+                        ),
+                        onTap: () async {
+                          await showDialogBox(
+                              context: context,
+                              title: 'Areas',
+                              body:
+                              'Select the areas you would like the opportunities to be in.');
+                        },
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: _chipBuilder(values: allTags, filter: 'area'),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'What specifications?',
+                        style: kTitleTextStyle,
+                      ),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.help_outline_outlined,
+                          size: 18,
+                        ),
+                        onTap: () async {
+                          await showDialogBox(
+                              context: context,
+                              title: 'Specification',
+                              body:
+                              'Select the constraints you want for these opportunities.');
+                        },
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: _chipBuilder(values: allTags, filter: 'spec'),
+                  ),
+                  SizedBox(height: 10),
+                  Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                    Text(
+                      'Other tags?',
+                      style: kTitleTextStyle,
+                    ),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.help_outline_outlined,
+                        size: 18,
+                      ),
+                      onTap: () async {
+                        await showDialogBox(
+                            context: context,
+                            title: 'Other',
+                            body:
+                            'Add any other tags that are not listed above.');
+                      },
+                    ),
+                  ]),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextField(
+                          textCapitalization: TextCapitalization.sentences,
+                          maxLines: null,
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.left,
+                          controller: otherValuesController,
+                          decoration:
+                          kEditAccountTextFieldDecoration.copyWith(
+                              hintText: 'Add any other tags here...'),
+                          cursorColor: Color(kGenchiOrange),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: RoundedButton(
+                            onPressed: () {
+                              if (otherValuesController.text != '') {
+                                allTags.add(Tag(
+                                    displayName: otherValuesController.text,
+                                    databaseValue: otherValuesController.text,
+                                    selected: true,
+                                    category: 'other'));
+                                otherValuesController.clear();
+                                changesMade = true;
+                                setState(() {});
+                              }
+                            },
+                            buttonTitle: 'Add',
+                            fontColor: Colors.black,
+                            buttonColor: Color(kGenchiLightGreen),
+                          ))
+                    ],
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    children: _otherChipBuilder(values: allTags),
                   ),
                   SizedBox(
                     height: 20,
@@ -586,6 +789,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
 
                           ///Just check if the link is valid first
                           bool error = false;
+                          String errorMessage = '';
 
                           if (linkApplicationType) {
                             try {
@@ -600,12 +804,28 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                             } catch (e) {
                               print(e);
                               error = true;
+                              errorMessage = 'Application Link Not Valid';
                             }
                           }
+
+                          if (hasFixedDeadline && deadlineDate == null) {
+                            error = true;
+                            errorMessage =
+                            'Please set the application deadline date.';
+                          }
+
                           if (!error) {
                             ///Link was valid
 
                             await analytics.logEvent(name: 'job_created');
+
+                            ///Collate all the tags
+                            List taskTags = [];
+
+                            for (Tag tag in allTags) {
+                              if (tag.selected)
+                                taskTags.add(tag.databaseValue);
+                            }
 
                             GenchiUser newHirer = GenchiUser(
                                 name: nameController.text,
@@ -632,6 +852,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                                     hasFixedDeadline: hasFixedDeadline,
                                     applicationDeadline: deadlineDate,
                                     price: priceController.text,
+                                    tags: taskTags,
                                     hirerId: accountService.currentAccount.id),
                                 hirerId: accountService.currentAccount.id);
 
@@ -649,10 +870,9 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                             });
 
                             await showDialogBox(
-                                context: context,
-                                title: 'Application Link Not Valid',
-                                body:
-                                    'Enter a working application link before posting the job');
+                              context: context,
+                              title: errorMessage,
+                            );
                           }
                         }
                       },

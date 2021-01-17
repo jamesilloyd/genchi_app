@@ -4,6 +4,7 @@ import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/preferences.dart';
 import 'dart:io' show Platform;
 
 import 'package:genchi_app/models/screen_arguments.dart';
@@ -29,79 +30,56 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
   bool chip1 = false;
   bool changesMade = false;
 
-  //TODO: GET THESE FROM FIREBASE?
-  List<Map> opportunityValues = [
-    {'name': 'Easy paid work e.g. flyering', 'value': false},
-    {'name': 'Career Experience', 'value': false},
-    {'name': 'Skilled paid work e.g. product design', 'value': false},
-    {'name': 'Interesting Projects', 'value': false},
-    {'name': 'Academic Research', 'value': false},
-    {'name': 'Scholarships / Awards', 'value': false},
-  ];
+  List<Tag> allTags = List.generate(
+      originalTags.length, (index) => Tag.fromTag(originalTags[index]));
 
-  List<Map> areaValues = [
-    {'name': 'STEM', 'value': false},
-    {'name': 'Public Sector', 'value': false},
-    {'name': 'Social Impact', 'value': false},
-    {'name': 'Arts / Creative', 'value': false},
-    {'name': 'Sustainability', 'value': false},
-    {'name': 'Banking / Law / Consulting', 'value': false},
-  ];
-
-  List<Map> specValues = [
-    {'name': 'Short term (within a week/a few days)', 'value': false},
-    {'name': 'With companies', 'value': false},
-    {'name': 'Long term (over several weeks)', 'value': false},
-    {'name': 'With student groups', 'value': false},
-    {'name': 'During term', 'value': false},
-    {'name': 'Outside of term', 'value': false},
-    {'name': 'With charities', 'value': false},
-  ];
-
-  List otherValues = [];
-
-  List<Widget> _chipBuilder({@required List values}) {
+  List<Widget> _chipBuilder(
+      {@required List<Tag> values, @required String filter}) {
     List<Widget> widgets = [];
 
-    for (Map chip in values) {
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5.0),
-          child: GestureDetector(
-            onTap: () {
-              changesMade = true;
-              setState(() {
-                chip['value'] = !chip['value'];
-              });
-            },
-            child: Chip(
-              label: Text(chip['name']),
-              backgroundColor:
-                  chip['value'] ? Color(kGenchiLightOrange) : Colors.black12,
+    for (Tag tag in values) {
+      if (tag.category == filter) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                changesMade = true;
+                setState(() {
+                  tag.selected = !tag.selected;
+                });
+              },
+              child: Chip(
+                label: Text(tag.displayName),
+                backgroundColor:
+                    tag.selected ? Color(kGenchiLightOrange) : Colors.black12,
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
     }
     return widgets;
   }
 
-  List<Widget> _otherChipBuilder({@required List values}) {
+  List<Widget> _otherChipBuilder({@required List<Tag> values}) {
     List<Widget> widgets = [];
-    for (String chip in values) {
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1),
-          child: Chip(
-            label: Text(chip),
-            backgroundColor: Color(kGenchiLightOrange),
-            onDeleted: () {
-              values.remove(chip);
-              setState(() {});
-            },
+    for (Tag tag in values) {
+      if (tag.category == 'other') {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1),
+            child: Chip(
+              label: Text(tag.displayName),
+              backgroundColor: Color(kGenchiLightOrange),
+              onDeleted: () {
+                allTags.remove(tag);
+                setState(() {});
+              },
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
 
     return widgets;
@@ -116,33 +94,21 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
     for (String preference in currentUser.preferences) {
       bool found = false;
 
-      ///if prefernce in opps values mark as true
-      for (Map value in opportunityValues) {
-        if (preference == value['name']) {
-          value['value'] = true;
-          found = true;
-        }
-      }
-
-      ///if prefernce in opps values mark as true
-      for (Map value in areaValues) {
-        if (preference == value['name']) {
-          value['value'] = true;
-          found = true;
-        }
-      }
-
-      ///if prefernce in opps values mark as true
-      for (Map value in specValues) {
-        if (preference == value['name']) {
-          value['value'] = true;
+      ///if preference in opps values mark as true
+      for (Tag tag in allTags) {
+        if (preference == tag.databaseValue) {
+          tag.selected = true;
           found = true;
         }
       }
 
       /// if nothing then add to other values
       if (!found) {
-        otherValues.add(preference);
+        allTags.add(Tag(
+            databaseValue: preference,
+            displayName: preference,
+            selected: true,
+            category: 'other'));
       }
     }
   }
@@ -172,10 +138,13 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
             PreferencesScreenArguments();
 
     return WillPopScope(
-      onWillPop: args.isFromRegistration || args.isFromHome ? () async => false : _onWillPop,
+      onWillPop: args.isFromRegistration || args.isFromHome
+          ? () async => false
+          : _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          leading: args.isFromRegistration || args.isFromHome ? Container() : null,
+          leading:
+              args.isFromRegistration || args.isFromHome ? Container() : null,
           centerTitle: true,
           backgroundColor: Color(kGenchiGreen),
           title: Text(
@@ -199,26 +168,19 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                   if (save) {
                     List allPreferences = [];
 
-                    allPreferences.addAll(opportunityValues);
-                    allPreferences.addAll(areaValues);
-                    allPreferences.addAll(specValues);
-
-                    List userPreferences = [];
-                    userPreferences.addAll(otherValues);
-
-                    for (Map preference in allPreferences) {
-                      if (preference['value']) {
-                        userPreferences.add(preference['name']);
-                      }
+                    for (Tag tag in allTags) {
+                      if (tag.selected) allPreferences.add(tag.databaseValue);
                     }
 
-                    currentUser.preferences = userPreferences;
+                    currentUser.preferences = allPreferences;
                     currentUser.hasSetPreferences = true;
 
                     await firestoreAPI.updateUser(
                         uid: currentUser.id, user: currentUser);
 
-                    await Provider.of<AuthenticationService>(context,listen:false).updateCurrentUserData();
+                    await Provider.of<AuthenticationService>(context,
+                            listen: false)
+                        .updateCurrentUserData();
 
                     if (args.isFromRegistration) {
                       ///Move on to the next page
@@ -278,7 +240,7 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                 Wrap(
                   alignment: WrapAlignment.spaceEvenly,
                   crossAxisAlignment: WrapCrossAlignment.start,
-                  children: _chipBuilder(values: opportunityValues),
+                  children: _chipBuilder(values: allTags, filter: 'type'),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -306,7 +268,7 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                 Wrap(
                   alignment: WrapAlignment.spaceEvenly,
                   crossAxisAlignment: WrapCrossAlignment.start,
-                  children: _chipBuilder(values: areaValues),
+                  children: _chipBuilder(values: allTags, filter: 'area'),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -334,7 +296,7 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                 Wrap(
                   alignment: WrapAlignment.spaceEvenly,
                   crossAxisAlignment: WrapCrossAlignment.start,
-                  children: _chipBuilder(values: specValues),
+                  children: _chipBuilder(values: allTags, filter: 'spec'),
                 ),
                 SizedBox(height: 10),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -382,8 +344,12 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                         flex: 1,
                         child: RoundedButton(
                           onPressed: () {
-                            if(otherValuesController.text != '') {
-                              otherValues.add(otherValuesController.text);
+                            if (otherValuesController.text != '') {
+                              allTags.add(Tag(
+                                  displayName: otherValuesController.text,
+                                  databaseValue: otherValuesController.text,
+                                  selected: true,
+                                  category: 'other'));
                               otherValuesController.clear();
                               changesMade = true;
                               setState(() {});
@@ -397,10 +363,188 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
                 ),
                 Wrap(
                   alignment: WrapAlignment.start,
-                  children: _otherChipBuilder(values: otherValues),
+                  children: _otherChipBuilder(values: allTags),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomePageSelectionScreen extends StatefulWidget {
+  List<Tag> allTags;
+
+  HomePageSelectionScreen({@required this.allTags});
+
+  @override
+  _HomePageSelectionScreenState createState() =>
+      _HomePageSelectionScreenState();
+}
+
+class _HomePageSelectionScreenState extends State<HomePageSelectionScreen> {
+  bool chip1 = false;
+  bool changesMade = false;
+
+  List<Widget> _chipBuilder(
+      {@required List<Tag> values, @required String filter}) {
+    List<Widget> widgets = [];
+
+    for (Tag tag in values) {
+      if (tag.category == filter) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                changesMade = true;
+                setState(() {
+                  tag.selected = !tag.selected;
+                });
+              },
+              child: Chip(
+                label: Text(tag.databaseValue),
+                backgroundColor:
+                    tag.selected ? Color(kGenchiLightOrange) : Colors.black12,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.06,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(flex: 1, child: SizedBox.shrink()),
+                    Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Filters',
+                          textAlign: TextAlign.center,
+                          style: kTitleTextStyle,
+                        )),
+
+                    //TODO: TEST THIS IS WORKING
+                    Expanded(
+                      flex: 1,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0,0,15,0),
+                          child: Text(
+                            'Done',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Divider(
+                thickness: 1,
+                height: 0,
+              ),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.74,
+                child: ListView(
+                  children: [
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Text(
+                        'Type',
+                        textAlign: TextAlign.left,
+                        style: kTitleTextStyle,
+                      ),
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      children:
+                          _chipBuilder(values: widget.allTags, filter: 'type'),
+                    ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Text(
+                        'Area',
+                        style: kTitleTextStyle,
+                      ),
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      children:
+                          _chipBuilder(values: widget.allTags, filter: 'area'),
+                    ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Text(
+                        'Specification',
+                        style: kTitleTextStyle,
+                      ),
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      children:
+                          _chipBuilder(values: widget.allTags, filter: 'spec'),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+              ),
+              Divider(
+                thickness: 1,
+                height: 0,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Container(
+                    height: 50,
+                    child: GestureDetector(
+                      onTap: () {
+                        for (Tag tag in widget.allTags) {
+                          tag.selected = false;
+                          if (tag.category == 'other')
+                            widget.allTags.remove(tag);
+                        }
+                        setState(() {});
+                      },
+                      child: Center(
+                          child: Text(
+                        'Clear all',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      )),
+                    )),
+              ),
+            ],
           ),
         ),
       ),

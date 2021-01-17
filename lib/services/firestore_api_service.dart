@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/models/feedback.dart';
 import '../models/user.dart';
 import '../models/chat.dart';
 import 'package:genchi_app/models/task.dart';
@@ -11,13 +12,16 @@ import 'package:rxdart/rxdart.dart';
 class FirestoreAPIService {
   ///PRODUCTION MODE
   static CollectionReference _usersCollectionRef =
-  FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('users');
 
   static CollectionReference _chatCollectionRef =
-  FirebaseFirestore.instance.collection('chats');
+      FirebaseFirestore.instance.collection('chats');
 
   static CollectionReference _taskCollectionRef =
-  FirebaseFirestore.instance.collection('tasks');
+      FirebaseFirestore.instance.collection('tasks');
+
+  static CollectionReference _feedbackCollectionRef =
+      FirebaseFirestore.instance.collection('feedback');
 
   ///DEVELOP MODE
   // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
@@ -31,6 +35,17 @@ class FirestoreAPIService {
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
+
+  Future sendOpportunityFeedback({List filters, GenchiUser user}) async {
+    UserFeedback feedback = UserFeedback(
+        filters: filters,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        timeSubmitted: Timestamp.now());
+
+    await _feedbackCollectionRef.add(feedback.toJson());
+  }
 
   ///***------------------ SERVICE SEARCH FUNCTIONS ------------------***
 
@@ -570,23 +585,23 @@ class FirestoreAPIService {
     List<Task> openTasks = [];
     List<Task> deadlineTasks = [];
 
-
     var result =
         await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
 
     ///Map all the docs into Task objects
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
 
-    for(Task task in tasks){
-      if(task.hasFixedDeadline && task.applicationDeadline != null){
+    for (Task task in tasks) {
+      if (task.hasFixedDeadline && task.applicationDeadline != null) {
         deadlineTasks.add(task);
       } else {
         openTasks.add(task);
       }
     }
 
-    deadlineTasks.sort((a,b) => a.applicationDeadline.compareTo(b.applicationDeadline));
-    openTasks.sort((a,b) => b.time.compareTo(a.time));
+    deadlineTasks
+        .sort((a, b) => a.applicationDeadline.compareTo(b.applicationDeadline));
+    openTasks.sort((a, b) => b.time.compareTo(a.time));
 
     tasks = [];
     tasks.addAll(deadlineTasks);
@@ -1091,15 +1106,23 @@ class FirestoreAPIService {
     });
   }
 
-
   Future findBadBoy() async {
+    Map opportunityValues = {};
 
-    await _usersCollectionRef.get().then((value) async{
-      for(DocumentSnapshot doc1 in value.docs){
-       GenchiUser theUser = GenchiUser.fromMap(doc1.data());
-       if(theUser.name == 'Cambridge University Human Rights Law Society') print(theUser.id);
+    await _usersCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        GenchiUser theUser = GenchiUser.fromMap(doc1.data());
+        for (String value in theUser.preferences) {
+          if (opportunityValues.containsKey(value)) {
+            opportunityValues[value] += 1;
+          } else {
+            opportunityValues[value] = 1;
+          }
+        }
       }
     });
+
+    print(opportunityValues);
   }
 
   ///Must only call this whilst in PRODUCTION MODE

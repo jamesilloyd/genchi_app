@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:genchi_app/models/preferences.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -43,6 +44,62 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   TextEditingController serviceController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController applicationLinkController = TextEditingController();
+  TextEditingController otherValuesController = TextEditingController();
+
+  List<Tag> allTags = List.generate(
+      originalTags.length, (index) => Tag.fromTag(originalTags[index]));
+
+  List<Widget> _chipBuilder(
+      {@required List<Tag> values, @required String filter}) {
+    List<Widget> widgets = [];
+
+    for (Tag tag in values) {
+      if (tag.category == filter) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                changesMade = true;
+                setState(() {
+                  tag.selected = !tag.selected;
+                });
+              },
+              child: Chip(
+                label: Text(tag.displayName),
+                backgroundColor:
+                    tag.selected ? Color(kGenchiLightOrange) : Colors.black12,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return widgets;
+  }
+
+  List<Widget> _otherChipBuilder({@required List<Tag> values}) {
+    List<Widget> widgets = [];
+    for (Tag tag in values) {
+      if (tag.category == 'other') {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1),
+            child: Chip(
+              label: Text(tag.displayName),
+              backgroundColor: Color(kGenchiLightOrange),
+              onDeleted: () {
+                allTags.remove(tag);
+                setState(() {});
+              },
+            ),
+          ),
+        );
+      }
+    }
+
+    return widgets;
+  }
 
   @override
   void initState() {
@@ -58,6 +115,27 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     linkApplicationType = task.linkApplicationType;
     hasFixedDeadline = task.hasFixedDeadline;
     deadlineDate = task.applicationDeadline;
+
+    for (String preference in task.tags) {
+      bool found = false;
+
+      ///if preference in opps values mark as true
+      for (Tag tag in allTags) {
+        if (preference == tag.databaseValue) {
+          tag.selected = true;
+          found = true;
+        }
+      }
+
+      /// if nothing then add to other values
+      if (!found) {
+        allTags.add(Tag(
+            databaseValue: preference,
+            displayName: preference,
+            selected: true,
+            category: 'other'));
+      }
+    }
   }
 
   @override
@@ -69,6 +147,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     serviceController.dispose();
     priceController.dispose();
     applicationLinkController.dispose();
+    otherValuesController.dispose();
   }
 
   final FirestoreAPIService fireStoreAPI = FirestoreAPIService();
@@ -129,12 +208,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                     ///Just check if the link is valid first
                     bool error = false;
+                    String errorMessage = '';
 
                     if (linkApplicationType) {
                       try {
                         ///Test the link is real
-                        var response =
-                            await http.head(applicationLinkController.text);
+                        var response = await http
+                            .head(applicationLinkController.text);
                         if (response.statusCode == 200) {
                           error = false;
                         } else {
@@ -143,10 +223,27 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       } catch (e) {
                         print(e);
                         error = true;
+                        errorMessage = 'Application Link Not Valid';
                       }
                     }
+
+                    if (hasFixedDeadline && deadlineDate == null) {
+                      error = true;
+                      errorMessage =
+                      'Please set the application deadline date.';
+                    }
+
                     if (!error) {
-                      ///link is valid
+                      ///Link was valid
+
+                      await analytics.logEvent(name: 'job_created');
+
+                      ///Collate all the tags
+                      List taskTags = [];
+
+                      for (Tag tag in allTags) {
+                        if (tag.selected) taskTags.add(tag.databaseValue);
+                      }
 
                       await fireStoreAPI.updateTask(
                           task: Task(
@@ -157,6 +254,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                               applicationLink: applicationLinkController.text,
                               hasFixedDeadline: hasFixedDeadline,
                               applicationDeadline: deadlineDate,
+                              tags: taskTags,
                               price: priceController.text,
                               date: dateController.text),
                           taskId: taskService.currentTask.taskId);
@@ -177,10 +275,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       });
 
                       await showDialogBox(
-                          context: context,
-                          title: 'Application Link Not Valid',
-                          body:
-                              'Enter a working application link before posting the job');
+                        context: context,
+                        title: errorMessage,
+                      );
                     }
                   },
                 ),
@@ -200,60 +297,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   onChanged: (value) {
                     changesMade = true;
                   },
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Container(
-                      height: 30.0,
-                    ),
-                    Text(
-                      'Service',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 5.0),
-                    PopupMenuButton(
-                        elevation: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                              border: Border.all(color: Colors.black)),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12.0, horizontal: 20.0),
-                            child: Text(
-                              serviceController.text,
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ),
-                        itemBuilder: (_) {
-                          List<PopupMenuItem<String>> items = [];
-                          for (Service serviceType in opportunityTypeList) {
-                            var newItem = new PopupMenuItem(
-                              child: Text(
-                                serviceType.databaseValue,
-                              ),
-                              value: serviceType.databaseValue,
-                            );
-                            items.add(newItem);
-                          }
-                          return items;
-                        },
-                        onSelected: (value) async {
-                          setState(() {
-                            changesMade = true;
-                            serviceController.text = value;
-                          });
-                        }),
-                  ],
                 ),
                 SizedBox(
                   height: 20,
@@ -475,7 +518,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                                   ? DateTime.now()
                                   : deadlineDate
                                               .toDate()
-                                              .difference(firstDate).inMinutes > 0
+                                              .difference(firstDate)
+                                              .inMinutes >
+                                          0
                                       ? deadlineDate.toDate()
                                       : DateTime.now(),
                               firstDate: firstDate,
@@ -506,19 +551,162 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 EditAccountField(
                   field: "Details",
                   textController: detailsController,
-                  hintText:
-                      'Provide further details of the opportunity, urls etc.',
+                  hintText: 'Provide further details of the opportunity',
                   onChanged: (value) {
                     changesMade = true;
                   },
                 ),
-                EditAccountField(
-                  field: "Incentive",
-                  textController: priceController,
-                  hintText: 'Payment, experience, volunteering etc.',
-                  onChanged: (value) {
-                    changesMade = true;
-                  },
+                SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'What type of opportunity is this?',
+                      textAlign: TextAlign.start,
+                      style: kTitleTextStyle,
+                    ),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.help_outline_outlined,
+                        size: 18,
+                      ),
+                      onTap: () async {
+                        await showDialogBox(
+                            context: context,
+                            title: 'Types of Opportunities',
+                            body:
+                                'Select the type of opportunities you are after and we will optimise our platform to get you these opportunities.');
+                      },
+                    ),
+                  ],
+                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children: _chipBuilder(values: allTags, filter: 'type'),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'What area(s)?',
+                      style: kTitleTextStyle,
+                    ),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.help_outline_outlined,
+                        size: 18,
+                      ),
+                      onTap: () async {
+                        await showDialogBox(
+                            context: context,
+                            title: 'Areas',
+                            body:
+                                'Select the areas you would like the opportunities to be in.');
+                      },
+                    ),
+                  ],
+                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children: _chipBuilder(values: allTags, filter: 'area'),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'What specifications?',
+                      style: kTitleTextStyle,
+                    ),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.help_outline_outlined,
+                        size: 18,
+                      ),
+                      onTap: () async {
+                        await showDialogBox(
+                            context: context,
+                            title: 'Specification',
+                            body:
+                                'Select the constraints you want for these opportunities.');
+                      },
+                    ),
+                  ],
+                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children: _chipBuilder(values: allTags, filter: 'spec'),
+                ),
+                SizedBox(height: 10),
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Text(
+                    'Other tags?',
+                    style: kTitleTextStyle,
+                  ),
+                  GestureDetector(
+                    child: Icon(
+                      Icons.help_outline_outlined,
+                      size: 18,
+                    ),
+                    onTap: () async {
+                      await showDialogBox(
+                          context: context,
+                          title: 'Other',
+                          body:
+                              'Add any other tags that are not listed above.');
+                    },
+                  ),
+                ]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: null,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.left,
+                        controller: otherValuesController,
+                        decoration: kEditAccountTextFieldDecoration.copyWith(
+                            hintText: 'Add any other tags here...'),
+                        cursorColor: Color(kGenchiOrange),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        flex: 1,
+                        child: RoundedButton(
+                          onPressed: () {
+                            if (otherValuesController.text != '') {
+                              allTags.add(Tag(
+                                  displayName: otherValuesController.text,
+                                  databaseValue: otherValuesController.text,
+                                  selected: true,
+                                  category: 'other'));
+                              otherValuesController.clear();
+                              changesMade = true;
+                              setState(() {});
+                            }
+                          },
+                          buttonTitle: 'Add',
+                          fontColor: Colors.black,
+                          buttonColor: Color(kGenchiLightGreen),
+                        ))
+                  ],
+                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  children: _otherChipBuilder(values: allTags),
                 ),
                 SizedBox(height: 10),
                 Divider(height: 10),

@@ -35,6 +35,19 @@ const kForgotPasswordSnackbar = SnackBar(
   ),
 );
 
+const kSubmitRequestSnackbar = SnackBar(
+  backgroundColor: Color(kGenchiLightOrange),
+  duration: Duration(seconds: 3),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'Thanks for your feedback, we will get on it!',
+    style: TextStyle(
+        color: Colors.black, fontSize: 15, fontWeight: FontWeight.w500),
+    textAlign: TextAlign.center,
+  ),
+);
 
 const kDevelopmentFeature = SnackBar(
   backgroundColor: Color(kGenchiOrange),

@@ -44,13 +44,16 @@ class TaskCard extends StatelessWidget {
                     hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
           ),
           subtitle: Text(
-            task.details,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14),
+            task.hasFixedDeadline && task.applicationDeadline != null
+                ? "Apply by " +
+                getShortApplicationDeadline(
+                    time: task.applicationDeadline)
+                : 'Open application',
+            textAlign: TextAlign.start,
+            style: TextStyle(fontSize: 15,fontWeight: FontWeight.w400),
           ),
           trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               hasUnreadMessage
@@ -66,22 +69,6 @@ class TaskCard extends StatelessWidget {
                       ),
                     )
                   : SizedBox(height: 15.0),
-              Text(
-                task.hasFixedDeadline && task.applicationDeadline != null
-                    ? "Apply by " + getShortApplicationDeadline(time: task.applicationDeadline)
-                    : 'Open',
-                textAlign: TextAlign.end,
-                style: TextStyle(fontSize: 15),
-              ),
-              Text(
-                task.service,
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                    fontSize: 15,
-                    color:
-                        Color(orangeBackground ? kGenchiGreen : kGenchiOrange),
-                    fontWeight: FontWeight.w500),
-              ),
             ],
           ),
         ),
@@ -90,6 +77,118 @@ class TaskCard extends StatelessWidget {
           thickness: 1,
         )
       ],
+    );
+  }
+}
+
+class BigTaskCard extends StatelessWidget {
+  final Task task;
+  final bool orangeBackground;
+  final String imageURL;
+  final Function onTap;
+  final bool isDisplayTask;
+  final bool hasUnreadMessage;
+
+  List<Widget> _otherChipBuilder({@required List tags}) {
+    List<Widget> widgets = [];
+    for (String tag in tags) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.all(3),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(kGenchiLightGreen),
+             borderRadius: BorderRadius.circular(15)
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+              child: Text(
+                tag,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
+
+  const BigTaskCard(
+      {Key key,
+      @required this.task,
+      this.orangeBackground = false,
+      @required this.imageURL,
+      @required this.onTap,
+      this.isDisplayTask = true,
+      this.hasUnreadMessage = false})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      padding: EdgeInsets.all(0),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.black12,
+      onPressed: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0,0,10,0),
+                  child: ListDisplayPicture(
+                    imageUrl: imageURL,
+                    height: 56,
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight:
+                                hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
+                      ),
+                      Text(
+                        task.hasFixedDeadline && task.applicationDeadline != null
+                            ? "Apply by " +
+                                getShortApplicationDeadline(
+                                    time: task.applicationDeadline)
+                            : 'Open application',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(fontSize: 15,fontWeight: FontWeight.w400, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          // Wrap(
+          //   alignment: WrapAlignment.start,
+          //   children: _otherChipBuilder(tags: task.tags),
+          // ),
+          SizedBox(height: 5),
+          Divider(
+            height: 0,
+            thickness: 1,
+          )
+        ],
+      ),
     );
   }
 }

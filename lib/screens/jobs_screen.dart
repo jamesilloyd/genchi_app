@@ -2,11 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
+import 'package:genchi_app/components/rounded_button.dart';
+import 'package:genchi_app/components/snackbars.dart';
 import 'package:genchi_app/components/task_card.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/preferences.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
@@ -40,13 +44,15 @@ class _JobsScreenState extends State<JobsScreen> {
   Future searchTasksFuture;
   Future getUserTasksPostedAndNotificationsFuture;
   Future getUserTasksAppliedFuture;
-  String filter = 'ALL';
   bool _isVisible = true;
   bool _isExpanded = false;
   String appliedPosted = 'Posted';
 
   // int postedNotifications = 0;
   // int appliedNotifications = 0;
+
+  List<Tag> allTags = List.generate(
+      originalTags.length, (index) => Tag.fromTag(originalTags[index]));
 
   double buttonHeight;
 
@@ -65,12 +71,9 @@ class _JobsScreenState extends State<JobsScreen> {
   void checkForPreferenceUpdate() async {
     await Future.delayed(const Duration(milliseconds: 2000));
 
-    Navigator.pushNamed(context, CustomerNeedsScreen.id,arguments: PreferencesScreenArguments(isFromHome: true));
-
-
+    Navigator.pushNamed(context, CustomerNeedsScreen.id,
+        arguments: PreferencesScreenArguments(isFromHome: true));
   }
-
-
 
   @override
   void initState() {
@@ -102,7 +105,8 @@ class _JobsScreenState extends State<JobsScreen> {
 
     GenchiUser currentUser =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
-    Provider.of<AccountService>(context,listen: false).updateCurrentAccount(id: currentUser.id);
+    Provider.of<AccountService>(context, listen: false)
+        .updateCurrentAccount(id: currentUser.id);
     analytics.setCurrentScreen(screenName: 'home/jobs_screen');
 
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
@@ -115,14 +119,14 @@ class _JobsScreenState extends State<JobsScreen> {
             providerIds: currentUser.providerProfiles, mainId: currentUser.id);
 
     openBottomSection();
-    if(!currentUser.hasSetPreferences) checkForPreferenceUpdate();
+    if (!currentUser.hasSetPreferences) checkForPreferenceUpdate();
   }
 
   @override
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
-    final accountService =  Provider.of<AccountService>(context);
+    final accountService = Provider.of<AccountService>(context);
     GenchiUser currentUser = authProvider.currentUser;
 
     if (debugMode) print('Job screen activated');
@@ -563,13 +567,15 @@ class _JobsScreenState extends State<JobsScreen> {
                             body:
                                 'This will create a new user as soon as you click, so make sure to do it in one go');
                         if (postTask) {
-
                           ///Create an empty user
-                          DocumentReference result = await firestoreAPI.addUser(GenchiUser());
-                          await firestoreAPI.updateUser(user: GenchiUser(id: result.id), uid: result.id);
+                          DocumentReference result =
+                              await firestoreAPI.addUser(GenchiUser());
+                          await firestoreAPI.updateUser(
+                              user: GenchiUser(id: result.id), uid: result.id);
 
                           ///Update the account service to be on this user
-                          await accountService.updateCurrentAccount(id: result.id);
+                          await accountService.updateCurrentAccount(
+                              id: result.id);
 
                           Navigator.pushNamed(
                                   context, PostTaskAndHirerScreen.id)
@@ -596,53 +602,51 @@ class _JobsScreenState extends State<JobsScreen> {
                           fontSize: 20,
                         ),
                       ),
-                      SizedBox(
-                          child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: PopupMenuButton(
-                            elevation: 1,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text(
-                                    filter.toUpperCase(),
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                  SizedBox(width: 5),
-                                  ImageIcon(
-                                    AssetImage('images/filter.png'),
-                                    color: Colors.black,
-                                    size: 30,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  )
-                                ]),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                                const PopupMenuItem<String>(
-                                    child: const Text('ALL'), value: 'ALL'),
-                              ];
-                              for (Service service in opportunityTypeList) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(
-                                          service.databaseValue.toUpperCase()),
-                                      value: service.databaseValue),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {
-                              setState(() {
-                                filter = value;
-                              });
-                            }),
-                      )),
+                      GestureDetector(
+                        onTap: () async {
+                          await showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20.0),
+                                    topRight: Radius.circular(20.0))),
+                            builder: (context) => SingleChildScrollView(
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom),
+                                child: Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.9,
+                                    child: HomePageSelectionScreen(
+                                      allTags: allTags,
+                                    )),
+                              ),
+                            ),
+                          );
+                          setState(() {});
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              'FILTERS',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            SizedBox(width: 5),
+                            ImageIcon(
+                              AssetImage('images/filter.png'),
+                              color: Colors.black,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                   Divider(
-                    height: 5,
+                    height: 0,
                     thickness: 1,
                   ),
                   FutureBuilder(
@@ -659,30 +663,48 @@ class _JobsScreenState extends State<JobsScreen> {
                       final List<Map<String, dynamic>> tasksAndHirers =
                           snapshot.data;
 
+                      ///This variable is for checking if their filter returns a result
+                      bool foundResults = false;
 
+                      List searchResults = [];
 
-                      if (tasksAndHirers.isEmpty) {
-                        return Container(
-                          height: 40,
-                          child: Center(
-                            child: Text(
-                              'No opportunities yet. Check again later',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        );
-                      } else {
+                      ///Get all true values in the allTags list
+                      List filteredTags = [];
+                      for (Tag filter in allTags) {
+                        if (filter.selected)
+                          filteredTags.add(filter.databaseValue);
+                      }
+
+                      ///Go through the snapshot and check add any to a list to be presented
+                      for(Map taskAndHirer in tasksAndHirers) {
+                        bool addToSearchResults = true;
+                        Task task = taskAndHirer['task'];
+                        ///Evaluate these values against the task's tag
+                        ///If they are all contained show
+                        for (String filter in filteredTags) {
+                          if (!task.tags.contains(filter)) {
+                            addToSearchResults = false;
+                            }
+                        }
+                        if(addToSearchResults){
+                          foundResults = true;
+                          searchResults.add(taskAndHirer);
+                        }
+                      }
+
+                      if(foundResults){
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          itemCount: tasksAndHirers.length,
+                          itemCount: searchResults.length,
                           itemBuilder: (context, index) {
-                            Map taskAndHirer = tasksAndHirers[index];
+
+                            Map taskAndHirer = searchResults[index];
                             Task task = taskAndHirer['task'];
                             GenchiUser hirer = taskAndHirer['hirer'];
 
-                            if ((task.service == filter) || (filter == 'ALL')) {
-                              return TaskCard(
+
+                              return BigTaskCard(
                                 imageURL: hirer.displayPictureURL,
                                 task: task,
                                 onTap: () async {
@@ -717,12 +739,43 @@ class _JobsScreenState extends State<JobsScreen> {
                                   }
                                 },
                               );
-                            } else {
-                              return SizedBox.shrink();
-                            }
                           },
                         );
                       }
+                      else{
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Center(
+                                child: Text(
+                                  'No search results.\n\nPress the button below and we will do our best to find more of these opportunities.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              RoundedButton(
+                                buttonTitle: 'Submit Request',
+                                buttonColor: Color(kGenchiLightGreen),
+                                fontColor: Colors.black,
+                                elevation: true,
+                                onPressed: () async {
+                                  ///Send results
+                                  await firestoreAPI.sendOpportunityFeedback(
+                                      filters: filteredTags, user: currentUser);
+
+                                  ///send snackbar
+                                  Scaffold.of(context)
+                                      .showSnackBar(kSubmitRequestSnackbar);
+                                },
+                              )
+                            ],
+                          ),
+                        );
+
+                      }
+
+
                     },
                   ),
                   SizedBox(

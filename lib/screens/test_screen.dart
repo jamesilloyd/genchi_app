@@ -54,22 +54,12 @@ class _TestScreenState extends State<TestScreen> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: GestureDetector(
-            child: Container(
-              child: Text(
-                    'Select Date',
-              ),
-            ),
-            onTap: () => _selectDate(context),
-
-              // if (deadlineDateDT != null) {
-              //   deadlineDate =
-              //       Timestamp.fromMicrosecondsSinceEpoch(
-              //           deadlineDateDT
-              //               .microsecondsSinceEpoch);
-              //   setState(() {});
-              // }
-
+          child: RoundedButton(
+                buttonTitle: "Press me",
+            onPressed: () async {
+                  await firestoreApi.findBadBoy();
+            },
+            buttonColor: Color(kGenchiGreen),
           ),
         ),
       ),

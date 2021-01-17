@@ -333,7 +333,13 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                 );
               },
             ),
-            Text(currentTask.viewedIds.length.toString() + ' views',
+            Text(
+                currentTask.linkApplicationType
+                    ? currentTask.viewedIds.length.toString() +
+                        ' views - ' +
+                        currentTask.linkApplicationIds.length.toString() +
+                        ' applicants'
+                    : currentTask.viewedIds.length.toString() + ' views',
                 style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w500,

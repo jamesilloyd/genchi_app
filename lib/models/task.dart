@@ -20,6 +20,7 @@ class Task {
   Timestamp time;
   Timestamp applicationDeadline;
   bool hasFixedDeadline;
+  List<dynamic> tags;
 
   Task({
     this.taskId,
@@ -40,6 +41,7 @@ class Task {
     this.time,
     this.applicationDeadline,
     this.hasFixedDeadline,
+    this.tags
   });
 
   Task.fromMap(Map snapshot)
@@ -61,6 +63,7 @@ class Task {
         ///This is not initialed because if a job is open, then we will put them after
         applicationDeadline = snapshot['applicationDeadline'],
         hasFixedDeadline = snapshot['hasFixedDeadline'] ?? false,
+        tags = snapshot['tags'] ?? [],
         applicationIds = snapshot['applicationIds'] ?? [];
 
   Map<String, dynamic> toJson() {
@@ -85,6 +88,7 @@ class Task {
       if (applicationDeadline != null) 'applicationDeadline':applicationDeadline,
       if (hasFixedDeadline != null) 'hasFixedDeadline':hasFixedDeadline,
       if (time != null) 'time': time,
+      if (tags !=null) 'tags': tags,
     };
   }
 }

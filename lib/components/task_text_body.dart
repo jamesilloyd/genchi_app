@@ -10,6 +10,34 @@ class TaskDetailsSection extends StatelessWidget {
 
   TaskDetailsSection({this.task, this.linkOpen});
 
+  List<Widget> _otherChipBuilder({@required List tags}) {
+    List<Widget> widgets = [];
+    for (String tag in tags) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.all(3),
+          child: Container(
+            decoration: BoxDecoration(
+                color: Color(kGenchiLightGreen),
+                borderRadius: BorderRadius.circular(15)
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+              child: Text(
+                tag,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -26,17 +54,18 @@ class TaskDetailsSection extends StatelessWidget {
               : 'OPEN',
           style: task.hasFixedDeadline && task.applicationDeadline != null ? kBodyTextStyle:TextStyle(fontSize: 20, color: Color(kGenchiOrange)) ,
         ),
-        SizedBox(
-          height: 10,
+        SizedBox(height: 10),
+        Container(
+          child: Text("Tags",
+              textAlign: TextAlign.left, style: kTitleTextStyle),
         ),
-        Text('Category', style: kTitleTextStyle),
         Divider(
           thickness: 1,
           height: 8,
         ),
-        Text(
-          task.service.toUpperCase(),
-          style: TextStyle(fontSize: 20, color: Color(kGenchiOrange)),
+        Wrap(
+          alignment: WrapAlignment.start,
+          children: _otherChipBuilder(tags: task.tags),
         ),
         SizedBox(
           height: 10,
@@ -66,21 +95,6 @@ class TaskDetailsSection extends StatelessWidget {
         ),
         SelectableLinkify(
           text: task.date ?? "",
-          onOpen: linkOpen,
-          options: LinkifyOptions(humanize: false),
-          style: kBodyTextStyle,
-        ),
-        SizedBox(height: 10),
-        Container(
-          child: Text("Incentive",
-              textAlign: TextAlign.left, style: kTitleTextStyle),
-        ),
-        Divider(
-          thickness: 1,
-          height: 8,
-        ),
-        SelectableLinkify(
-          text: task.price ?? "",
           onOpen: linkOpen,
           options: LinkifyOptions(humanize: false),
           style: kBodyTextStyle,

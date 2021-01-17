@@ -16,11 +16,11 @@ String getShortApplicationDeadline({@required Timestamp time}) {
     return 'Today';
   } else if (time.toDate().difference(DateTime.now()).inDays < 7) {
     /// less than  a week
-    var formatter = new DateFormat.E();
+    var formatter = new DateFormat.EEEE();
     String formatted = formatter.format(time.toDate());
     return formatted;
   } else {
-    var formatter = new DateFormat.d().add_MMM();
+    var formatter = new DateFormat.d().add_MMMM();
     String formatted = formatter.format(time.toDate());
     return formatted;
   }

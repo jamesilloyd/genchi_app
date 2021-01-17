@@ -4,7 +4,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
@@ -121,15 +120,17 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           context: context, title: 'Apply to this job?');
 
                       if (apply) {
-                        await analytics.logEvent(name: 'application_sent_link');
+                        if(!currentUser.admin) await analytics.logEvent(name: 'application_sent_link');
 
                         ///STORE THE USER / TASK relationship somewhere
 
-                        await firestoreAPI.addLinkApplicantId(taskId: currentTask.taskId,applicantId: currentUser.id);
+                        await firestoreAPI.addLinkApplicantId(
+                            taskId: currentTask.taskId,
+                            applicantId: currentUser.id);
 
                         ///Send them to the location
                         if (await canLaunch(currentTask.applicationLink)) {
-                            await launch(currentTask.applicationLink);
+                          await launch(currentTask.applicationLink);
                         } else {
                           Scaffold.of(context)
                               .showSnackBar(kApplicationLinkNotWorking);
@@ -154,7 +155,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           showSpinner = true;
                         });
 
-                        await analytics.logEvent(name: 'application_sent');
+                        if(!currentUser.admin) await analytics.logEvent(name: 'application_sent');
 
                         DocumentReference chatRef =
                             await firestoreAPI.applyToTask(
@@ -323,7 +324,13 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(currentTask.viewedIds.length.toString() + ' views',
+                  Text(
+                      currentTask.linkApplicationType
+                          ? currentTask.viewedIds.length.toString() +
+                              ' views - ' +
+                              currentTask.linkApplicationIds.length.toString() +
+                              ' applicants'
+                          : currentTask.viewedIds.length.toString() + ' views',
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w500,

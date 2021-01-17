@@ -8,6 +8,7 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_provider_account_screen.dart';
+import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -143,9 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // ProfileOptionTile(
                   //   text: 'Test Screen',
                   //   onPressed: () {
-                  //     // await accountService.updateCurrentAccount(
-                  //     //     id: currentUser.id);
-                  //     Navigator.pushNamed(context, CustomerNeedsScreen.id);
+                  //     Navigator.pushNamed(context, TestScreen.id);
                   //   },
                   // ),
                   if (userIsProvider)

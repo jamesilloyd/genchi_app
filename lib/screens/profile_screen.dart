@@ -141,174 +141,175 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pushNamed(context, UserScreen.id);
                     },
                   ),
+                  //TODO: trying out without service profiles
                   // ProfileOptionTile(
                   //   text: 'Test Screen',
                   //   onPressed: () {
                   //     Navigator.pushNamed(context, TestScreen.id);
                   //   },
                   // ),
-                  if (userIsProvider)
-                    ProfileOptionTile(
-                      text: 'Service Profiles',
-                      isPressable: false,
-                      onPressed: () {},
-                    ),
-                  if (userIsProvider)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: FutureBuilder(
-                        ///This function returns a list of providerUsers
-                        future: providerFuture,
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return CircularProgress();
-                          }
-                          final List<GenchiUser> serviceProviders =
-                              snapshot.data;
-
-                          List<Widget> providerCards = [];
-
-                          for (GenchiUser serviceProvider in serviceProviders) {
-                            Widget pCard = ProviderAccountCard(
-                                width: (MediaQuery.of(context).size.width -
-                                        20 * 3) /
-                                    2.2,
-                                serviceProvider: serviceProvider,
-                                isSmallScreen:
-                                    MediaQuery.of(context).size.height < 600,
-                                onPressed: () async {
-                                  await accountService.updateCurrentAccount(
-                                      id: serviceProvider.id);
-                                  Navigator.pushNamed(context, UserScreen.id);
-                                });
-                            providerCards.add(pCard);
-                          }
-
-                          ///add the "add provider" card
-                          providerCards.add(
-                            AddProviderCard(
-                              width:
-                                  (MediaQuery.of(context).size.width - 20 * 3) /
-                                      2.2,
-                              onPressed: () async {
-                                bool createAccount = await showYesNoAlert(
-                                    context: context,
-                                    title: 'Create Service Account?',
-                                    body:
-                                        "Are you ready to provide your skills to the Cambridge community?");
-                                if (createAccount) {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-
-                                  ///Log event in firebase
-                                  await analytics.logEvent(
-                                      name: 'provider_account_created');
-
-                                  DocumentReference result =
-                                      await firestoreAPI.addServiceProvider(
-                                          serviceUser: GenchiUser(
-                                            name: currentUser.name,
-                                            mainAccountId: currentUser.id,
-                                            accountType: GenchiUser()
-                                                .serviceProviderAccount,
-                                            displayPictureURL:
-                                                currentUser.displayPictureURL,
-                                            displayPictureFileName: currentUser
-                                                .displayPictureFileName,
-                                            fcmTokens: currentUser.fcmTokens,
-                                            timeStamp: Timestamp.now(),
-                                          ),
-                                          uid: authProvider.currentUser.id);
-
-                                  await authProvider.updateCurrentUserData();
-
-                                  await accountService.updateCurrentAccount(
-                                      id: result.id);
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-
-                                  Navigator.pushNamed(context, UserScreen.id);
-                                  Navigator.pushNamed(
-                                      context, EditProviderAccountScreen.id);
-                                }
-                              },
-                            ),
-                          );
-
-                          return Container(
-                            height:
-                                (MediaQuery.of(context).size.width - 20 * 3) /
-                                        (2.2 * 1.77) +
-                                    20,
-                            child: ListView(
-                              padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                              scrollDirection: Axis.horizontal,
-                              children: providerCards,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  if (userIsProvider)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Divider(
-                        height: 0,
-                        thickness: 1,
-                        color: Colors.black,
-                      ),
-                    ),
-                  if (!userIsProvider &&
-                      currentUser.accountType == 'Individual')
-                    ProfileOptionTile(
-                      text: 'Create Service Profile',
-                      onPressed: () async {
-                        bool createAccount = await showYesNoAlert(
-                            context: context,
-                            title: 'Create Service Account?',
-                            body:
-                                "Are you ready to provide your skills to the Cambridge community?");
-                        if (createAccount) {
-                          setState(() {
-                            showSpinner = true;
-                          });
-
-                          ///Log event in firebase
-                          await analytics.logEvent(
-                              name: 'provider_account_created');
-
-                          DocumentReference result =
-                              await firestoreAPI.addServiceProvider(
-                                  serviceUser: GenchiUser(
-                                    name: currentUser.name,
-                                    mainAccountId: currentUser.id,
-                                    accountType:
-                                        GenchiUser().serviceProviderAccount,
-                                    displayPictureURL:
-                                        currentUser.displayPictureURL,
-                                    displayPictureFileName:
-                                        currentUser.displayPictureFileName,
-                                    fcmTokens: currentUser.fcmTokens,
-                                    timeStamp: Timestamp.now(),
-                                  ),
-                                  uid: authProvider.currentUser.id);
-
-                          await authProvider.updateCurrentUserData();
-
-                          await accountService.updateCurrentAccount(
-                              id: result.id);
-                          setState(() {
-                            showSpinner = false;
-                          });
-
-                          Navigator.pushNamed(context, UserScreen.id);
-                          Navigator.pushNamed(
-                              context, EditProviderAccountScreen.id);
-                        }
-                      },
-                    ),
+                  // if (userIsProvider)
+                  //   ProfileOptionTile(
+                  //     text: 'Service Profiles',
+                  //     isPressable: false,
+                  //     onPressed: () {},
+                  //   ),
+                  // if (userIsProvider)
+                  //   Padding(
+                  //     padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  //     child: FutureBuilder(
+                  //       ///This function returns a list of providerUsers
+                  //       future: providerFuture,
+                  //       builder: (context, snapshot) {
+                  //         if (!snapshot.hasData) {
+                  //           return CircularProgress();
+                  //         }
+                  //         final List<GenchiUser> serviceProviders =
+                  //             snapshot.data;
+                  //
+                  //         List<Widget> providerCards = [];
+                  //
+                  //         for (GenchiUser serviceProvider in serviceProviders) {
+                  //           Widget pCard = ProviderAccountCard(
+                  //               width: (MediaQuery.of(context).size.width -
+                  //                       20 * 3) /
+                  //                   2.2,
+                  //               serviceProvider: serviceProvider,
+                  //               isSmallScreen:
+                  //                   MediaQuery.of(context).size.height < 600,
+                  //               onPressed: () async {
+                  //                 await accountService.updateCurrentAccount(
+                  //                     id: serviceProvider.id);
+                  //                 Navigator.pushNamed(context, UserScreen.id);
+                  //               });
+                  //           providerCards.add(pCard);
+                  //         }
+                  //
+                  //         ///add the "add provider" card
+                  //         providerCards.add(
+                  //           AddProviderCard(
+                  //             width:
+                  //                 (MediaQuery.of(context).size.width - 20 * 3) /
+                  //                     2.2,
+                  //             onPressed: () async {
+                  //               bool createAccount = await showYesNoAlert(
+                  //                   context: context,
+                  //                   title: 'Create Service Account?',
+                  //                   body:
+                  //                       "Are you ready to provide your skills to the Cambridge community?");
+                  //               if (createAccount) {
+                  //                 setState(() {
+                  //                   showSpinner = true;
+                  //                 });
+                  //
+                  //                 ///Log event in firebase
+                  //                 await analytics.logEvent(
+                  //                     name: 'provider_account_created');
+                  //
+                  //                 DocumentReference result =
+                  //                     await firestoreAPI.addServiceProvider(
+                  //                         serviceUser: GenchiUser(
+                  //                           name: currentUser.name,
+                  //                           mainAccountId: currentUser.id,
+                  //                           accountType: GenchiUser()
+                  //                               .serviceProviderAccount,
+                  //                           displayPictureURL:
+                  //                               currentUser.displayPictureURL,
+                  //                           displayPictureFileName: currentUser
+                  //                               .displayPictureFileName,
+                  //                           fcmTokens: currentUser.fcmTokens,
+                  //                           timeStamp: Timestamp.now(),
+                  //                         ),
+                  //                         uid: authProvider.currentUser.id);
+                  //
+                  //                 await authProvider.updateCurrentUserData();
+                  //
+                  //                 await accountService.updateCurrentAccount(
+                  //                     id: result.id);
+                  //                 setState(() {
+                  //                   showSpinner = false;
+                  //                 });
+                  //
+                  //                 Navigator.pushNamed(context, UserScreen.id);
+                  //                 Navigator.pushNamed(
+                  //                     context, EditProviderAccountScreen.id);
+                  //               }
+                  //             },
+                  //           ),
+                  //         );
+                  //
+                  //         return Container(
+                  //           height:
+                  //               (MediaQuery.of(context).size.width - 20 * 3) /
+                  //                       (2.2 * 1.77) +
+                  //                   20,
+                  //           child: ListView(
+                  //             padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  //             scrollDirection: Axis.horizontal,
+                  //             children: providerCards,
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //   ),
+                  // if (userIsProvider)
+                  //   Padding(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 15),
+                  //     child: Divider(
+                  //       height: 0,
+                  //       thickness: 1,
+                  //       color: Colors.black,
+                  //     ),
+                  //   ),
+                  // if (!userIsProvider &&
+                  //     currentUser.accountType == 'Individual')
+                  //   ProfileOptionTile(
+                  //     text: 'Create Service Profile',
+                  //     onPressed: () async {
+                  //       bool createAccount = await showYesNoAlert(
+                  //           context: context,
+                  //           title: 'Create Service Account?',
+                  //           body:
+                  //               "Are you ready to provide your skills to the Cambridge community?");
+                  //       if (createAccount) {
+                  //         setState(() {
+                  //           showSpinner = true;
+                  //         });
+                  //
+                  //         ///Log event in firebase
+                  //         await analytics.logEvent(
+                  //             name: 'provider_account_created');
+                  //
+                  //         DocumentReference result =
+                  //             await firestoreAPI.addServiceProvider(
+                  //                 serviceUser: GenchiUser(
+                  //                   name: currentUser.name,
+                  //                   mainAccountId: currentUser.id,
+                  //                   accountType:
+                  //                       GenchiUser().serviceProviderAccount,
+                  //                   displayPictureURL:
+                  //                       currentUser.displayPictureURL,
+                  //                   displayPictureFileName:
+                  //                       currentUser.displayPictureFileName,
+                  //                   fcmTokens: currentUser.fcmTokens,
+                  //                   timeStamp: Timestamp.now(),
+                  //                 ),
+                  //                 uid: authProvider.currentUser.id);
+                  //
+                  //         await authProvider.updateCurrentUserData();
+                  //
+                  //         await accountService.updateCurrentAccount(
+                  //             id: result.id);
+                  //         setState(() {
+                  //           showSpinner = false;
+                  //         });
+                  //
+                  //         Navigator.pushNamed(context, UserScreen.id);
+                  //         Navigator.pushNamed(
+                  //             context, EditProviderAccountScreen.id);
+                  //       }
+                  //     },
+                  //   ),
                   ProfileOptionTile(
                     text: 'Preferences',
                     onPressed: () async {

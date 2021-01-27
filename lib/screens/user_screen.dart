@@ -317,6 +317,11 @@ class _UserScreenState extends State<UserScreen> {
                             SizedBox(
                               height: 10,
                             ),
+                            Center(
+                              child: Text(account.university, style: TextStyle(
+                                  color: Colors.black,fontSize: 24, fontWeight: FontWeight.w500
+                              ),),
+                            ),
                             buildActionSection(
                                 isUsersProfile: isUsersOwnProfile,
                                 account: account,

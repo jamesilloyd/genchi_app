@@ -358,7 +358,6 @@ class FirestoreAPIService {
         .asyncMap((event) async {
       var futures = event.docs.map((doc) async {
         Task appliedTask = Task.fromMap(doc.data());
-
         QuerySnapshot taskApplicationData = await _taskCollectionRef
             .doc(appliedTask.taskId)
             .collection(applicantCollectionName)
@@ -407,8 +406,7 @@ class FirestoreAPIService {
     ///Getting the tasks the user has posted (service providers can't post tasks so
     ///this is a little more simple)
     Stream stream3 = _taskCollectionRef
-        //TODO: is this risky using [' '] as a null entry?
-        .where('taskId', whereIn: user.posts.isNotEmpty ? user.posts : [' '])
+        .where('hirerId', isEqualTo: user.id)
         .snapshots()
         .asyncMap((event) async {
       var futures = event.docs.map((doc) async {
@@ -1112,11 +1110,14 @@ class FirestoreAPIService {
     await _usersCollectionRef.get().then((value) async {
       for (DocumentSnapshot doc1 in value.docs) {
         GenchiUser theUser = GenchiUser.fromMap(doc1.data());
-        for (String value in theUser.preferences) {
-          if (opportunityValues.containsKey(value)) {
-            opportunityValues[value] += 1;
-          } else {
-            opportunityValues[value] = 1;
+        if(theUser.preferences.isNotEmpty) {
+          print(theUser.preferences);
+          for (String value in theUser.preferences) {
+            if (opportunityValues.containsKey(value)) {
+              opportunityValues[value] += 1;
+            } else {
+              opportunityValues[value] = 1;
+            }
           }
         }
       }

@@ -34,11 +34,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool agreed = false;
 
   TextEditingController accountTypeController = TextEditingController();
+  TextEditingController universityTypeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     accountTypeController.text = 'Select type';
+    universityTypeController.text = 'Select University';
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    accountTypeController.dispose();
+    universityTypeController.dispose();
   }
 
   @override
@@ -101,6 +110,69 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     SizedBox(
                       height: 10.0,
                     ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'University',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(32.0))),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  universityTypeController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: universityTypeController.text ==
+                                        'Select University'
+                                        ? Colors.black45
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                                new PopupMenuItem<String>(
+                                    child: Text(
+                                      'Select University',
+                                      style: TextStyle(color: Colors.black45),
+                                    ),
+                                    value: 'Select University')
+                              ];
+                              for (String accountType
+                              in GenchiUser().accessibleUniversities) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value) {
+                              universityTypeController.text = value;
+                              setState(() {});
+                            }),
+                      ],
+                    ),
+
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -230,7 +302,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                           if (name == null ||
                               email == null ||
-                              accountTypeController.text == 'Select type')
+                              accountTypeController.text == 'Select type' || universityTypeController.text == 'Select University')
                             throw (Exception(
                                 'Enter name, email and account type'));
 
@@ -240,6 +312,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           await authProvider.registerWithEmail(
                               email: email,
                               password: password,
+                              uni: universityTypeController.text,
                               type: accountTypeController.text,
                               name: name);
 

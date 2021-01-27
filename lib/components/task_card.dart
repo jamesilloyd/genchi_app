@@ -46,11 +46,10 @@ class TaskCard extends StatelessWidget {
           subtitle: Text(
             task.hasFixedDeadline && task.applicationDeadline != null
                 ? "Apply by " +
-                getShortApplicationDeadline(
-                    time: task.applicationDeadline)
+                    getShortApplicationDeadline(time: task.applicationDeadline)
                 : 'Open application',
             textAlign: TextAlign.start,
-            style: TextStyle(fontSize: 15,fontWeight: FontWeight.w400),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
           ),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -88,6 +87,8 @@ class BigTaskCard extends StatelessWidget {
   final Function onTap;
   final bool isDisplayTask;
   final bool hasUnreadMessage;
+  final bool newTask;
+  final String uni;
 
   List<Widget> _otherChipBuilder({@required List tags}) {
     List<Widget> widgets = [];
@@ -97,17 +98,13 @@ class BigTaskCard extends StatelessWidget {
           padding: const EdgeInsets.all(3),
           child: Container(
             decoration: BoxDecoration(
-              color: Color(kGenchiLightGreen),
-             borderRadius: BorderRadius.circular(15)
-            ),
+                color: Color(kGenchiLightGreen),
+                borderRadius: BorderRadius.circular(15)),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
               child: Text(
                 tag,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
               ),
             ),
           ),
@@ -124,6 +121,8 @@ class BigTaskCard extends StatelessWidget {
       @required this.imageURL,
       @required this.onTap,
       this.isDisplayTask = true,
+      this.newTask = false,
+        @required this.uni,
       this.hasUnreadMessage = false})
       : super(key: key);
 
@@ -140,41 +139,59 @@ class BigTaskCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 5),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0,0,10,0),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                   child: ListDisplayPicture(
                     imageUrl: imageURL,
                     height: 56,
                   ),
                 ),
                 Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        task.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight:
-                                hasUnreadMessage ? FontWeight.w500 : FontWeight.w400),
-                      ),
-                      Text(
-                        task.hasFixedDeadline && task.applicationDeadline != null
-                            ? "Apply by " +
-                                getShortApplicationDeadline(
-                                    time: task.applicationDeadline)
-                            : 'Open application',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(fontSize: 15,fontWeight: FontWeight.w400, color: Colors.black54),
-                      ),
-                    ],
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (newTask)
+                          Text(
+                            'New',
+
+                          ),
+                        Text(
+                          task.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: hasUnreadMessage
+                                  ? FontWeight.w500
+                                  : FontWeight.w400),
+                        ),
+                        Text(
+                          task.hasFixedDeadline &&
+                                  task.applicationDeadline != null
+                              ? "Apply by " +
+                                  getShortApplicationDeadline(
+                                      time: task.applicationDeadline)
+                              : 'Open application',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black54),
+                        ),
+                      ],
+                    ),
                   ),
-                )
+                ),
+                Text(uni,
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: Color(kGenchiOrange)
+                ),),
               ],
             ),
           ),

@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static List<Widget> screens = [
     JobsScreen(),
-    SearchScreen(),
+    // SearchScreen(),
     ChatSummaryScreen(),
     ProfileScreen(),
   ];
@@ -146,11 +146,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 label: 'Home',
               ),
-              BottomNavigationBarItem(
-                icon:
-                    Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
-                label: 'Search',
-              ),
+              // BottomNavigationBarItem(
+              //   icon:
+              //       Icon(Platform.isIOS ? CupertinoIcons.search : Icons.search),
+              //   label: 'Search',
+              // ),
               BottomNavigationBarItem(
                 icon: Icon(Platform.isIOS
                     ? CupertinoIcons.conversation_bubble

@@ -355,15 +355,15 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Genchi.png',
       sliderHeading: 'WELCOME TO',
       sliderSubHeading:
-          'Genchi is as platform for students to find and share opportunities within Cambridge.'),
+          'Genchi is as platform for students to find and share opportunities at Universities anywhere in the world.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Hire.png',
       sliderHeading: 'HIRE',
       sliderSubHeading:
-          'We give you the freedom to easily select between skilled students or post an opportunity and choose from those that apply.'),
+          'We give you the freedom to post an opportunity and choose from the students that apply.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Provide.png',
-      sliderHeading: 'PROVIDE',
+      sliderHeading: 'APPLY',
       sliderSubHeading:
-          'We also allow you to create provider profiles for each service you offer. \n\n Start applying to opportunities and begin gaining valuable experience.'),
+          'Start applying to projects and opportunities at Universities over the world. \n\n Meet students with similar interests and start spreading ideas and innovations.'),
 ];

@@ -14,7 +14,6 @@ import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/task.dart';
-import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -41,13 +40,31 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  TextEditingController serviceController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController applicationLinkController = TextEditingController();
   TextEditingController otherValuesController = TextEditingController();
 
   List<Tag> allTags = List.generate(
       originalTags.length, (index) => Tag.fromTag(originalTags[index]));
+
+  //TODO: find a better way of doing this (may be better to just show their uni, or "others"
+  List<Tag> uniTags = [
+    Tag(
+        databaseValue: 'Cambridge',
+        displayName: 'Cambridge',
+        selected: false,
+        category: 'University'),
+    Tag(
+        databaseValue: 'Harvard',
+        displayName: 'Harvard',
+        selected: false,
+        category: 'University'),
+    Tag(
+        databaseValue: 'MIT',
+        displayName: 'MIT',
+        selected: false,
+        category: 'University'),
+  ];
 
   List<Widget> _chipBuilder(
       {@required List<Tag> values, @required String filter}) {
@@ -109,12 +126,19 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     titleController.text = task.title;
     detailsController.text = task.details;
     dateController.text = task.date;
-    serviceController.text = task.service;
     priceController.text = task.price;
     applicationLinkController.text = task.applicationLink;
     linkApplicationType = task.linkApplicationType;
     hasFixedDeadline = task.hasFixedDeadline;
     deadlineDate = task.applicationDeadline;
+
+    for (String university in task.universities) {
+      for (Tag tag in uniTags) {
+        if (university == tag.databaseValue) {
+          tag.selected = true;
+        }
+      }
+    }
 
     for (String preference in task.tags) {
       bool found = false;
@@ -144,7 +168,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     titleController.dispose();
     detailsController.dispose();
     dateController.dispose();
-    serviceController.dispose();
     priceController.dispose();
     applicationLinkController.dispose();
     otherValuesController.dispose();
@@ -213,8 +236,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     if (linkApplicationType) {
                       try {
                         ///Test the link is real
-                        var response = await http
-                            .head(applicationLinkController.text);
+                        var response =
+                            await http.head(applicationLinkController.text);
                         if (response.statusCode == 200) {
                           error = false;
                         } else {
@@ -230,7 +253,21 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     if (hasFixedDeadline && deadlineDate == null) {
                       error = true;
                       errorMessage =
-                      'Please set the application deadline date.';
+                          'Please set the application deadline date.';
+                    }
+
+                    bool selectedUni = false;
+                    List universities = [];
+
+                    for (Tag uni in uniTags) {
+                      if (uni.selected == true) {
+                        selectedUni = true;
+                        universities.add(uni.databaseValue);
+                      }
+                    }
+                    if (!selectedUni) {
+                      error = true;
+                      errorMessage = 'Please select a University';
                     }
 
                     if (!error) {
@@ -248,13 +285,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       await fireStoreAPI.updateTask(
                           task: Task(
                               title: titleController.text,
-                              service: serviceController.text,
                               details: detailsController.text,
                               linkApplicationType: linkApplicationType,
                               applicationLink: applicationLinkController.text,
                               hasFixedDeadline: hasFixedDeadline,
                               applicationDeadline: deadlineDate,
                               tags: taskTags,
+                              universities: universities,
                               price: priceController.text,
                               date: dateController.text),
                           taskId: taskService.currentTask.taskId);
@@ -404,7 +441,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Open Application?',
+                      'Fixed Deadline?',
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w500,
@@ -419,9 +456,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       onTap: () async {
                         await showDialogBox(
                             context: context,
-                            title: 'Open Application',
+                            title: 'Fixed Deadline',
                             body:
-                                'Does this opportunity have a deadline to apply by?');
+                                'Does this opportunity have a deadline to apply by (Yes) or is the application open (No)?');
                       },
                     ),
                   ],
@@ -439,20 +476,20 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                             color: Color(kGenchiGreen),
                             fontSize: 20,
                             fontWeight: hasFixedDeadline
-                                ? FontWeight.w400
-                                : FontWeight.w500,
+                                ? FontWeight.w500
+                                : FontWeight.w400,
                           ),
                         )),
                     Expanded(
                       flex: 1,
                       child: Center(
                         child: Switch(
-                            value: hasFixedDeadline,
+                            value: !hasFixedDeadline,
                             inactiveTrackColor: Color(kGenchiLightGreen),
                             inactiveThumbColor: Color(kGenchiGreen),
                             onChanged: (value) {
                               setState(() {
-                                hasFixedDeadline = value;
+                                hasFixedDeadline = !value;
                               });
                             }),
                       ),
@@ -465,8 +502,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                             color: Color(kGenchiOrange),
                             fontSize: 20,
                             fontWeight: hasFixedDeadline
-                                ? FontWeight.w500
-                                : FontWeight.w400,
+                                ? FontWeight.w400
+                                : FontWeight.w500,
                           ),
                         )),
                   ],
@@ -557,6 +594,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   },
                 ),
                 SizedBox(height: 15),
+                Text(
+                  'Students from which Universities can apply?',
+                  textAlign: TextAlign.start,
+                  style: kTitleTextStyle,
+                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children: _chipBuilder(values: uniTags, filter: 'University'),
+                ),
+                SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [

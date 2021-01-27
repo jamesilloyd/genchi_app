@@ -56,6 +56,7 @@ class AuthenticationService extends ChangeNotifier {
       {@required String email,
       @required String password,
       @required String type,
+        @required String uni,
       @required String name}) async {
     try {
       UserCredential authResult = await _firebaseAuth
@@ -73,6 +74,7 @@ class AuthenticationService extends ChangeNotifier {
             id: user.uid,
             email: email,
             name: name,
+            university: uni,
             timeStamp: Timestamp.now(),
             admin: false,
             accountType: type));

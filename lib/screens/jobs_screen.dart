@@ -56,8 +56,6 @@ class _JobsScreenState extends State<JobsScreen> {
 
   double buttonHeight;
 
-  //TODO: "no jobs" not appearing under filter
-
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
 
@@ -676,29 +674,32 @@ class _JobsScreenState extends State<JobsScreen> {
                       }
 
                       ///Go through the snapshot and check add any to a list to be presented
-                      for(Map taskAndHirer in tasksAndHirers) {
+                      for (Map taskAndHirer in tasksAndHirers) {
                         bool addToSearchResults = true;
                         Task task = taskAndHirer['task'];
-                        ///Evaluate these values against the task's tag
-                        ///If they are all contained show
-                        for (String filter in filteredTags) {
-                          if (!task.tags.contains(filter)) {
-                            addToSearchResults = false;
+                        ///Just quickly check that the user is able to see this content
+                        if(task.universities.contains(currentUser.university)) {
+                          ///Evaluate these values against the task's tag
+                          ///If they are all contained show
+                          for (String filter in filteredTags) {
+                            if (!task.tags.contains(filter)) {
+                              addToSearchResults = false;
                             }
-                        }
-                        if(addToSearchResults){
-                          foundResults = true;
-                          searchResults.add(taskAndHirer);
+                          }
+
+                          if (addToSearchResults) {
+                            foundResults = true;
+                            searchResults.add(taskAndHirer);
+                          }
                         }
                       }
 
-                      if(foundResults){
+                      if (foundResults) {
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: searchResults.length,
                           itemBuilder: (context, index) {
-
                             Map taskAndHirer = searchResults[index];
                             Task task = taskAndHirer['task'];
                             GenchiUser hirer = taskAndHirer['hirer'];
@@ -707,6 +708,12 @@ class _JobsScreenState extends State<JobsScreen> {
                               return BigTaskCard(
                                 imageURL: hirer.displayPictureURL,
                                 task: task,
+                                uni: hirer.university,
+                                newTask: task.time
+                                        .toDate()
+                                        .difference(DateTime.now())
+                                        .inHours >
+                                    -24,
                                 onTap: () async {
                                   setState(() {
                                     showSpinner = true;
@@ -741,15 +748,14 @@ class _JobsScreenState extends State<JobsScreen> {
                               );
                           },
                         );
-                      }
-                      else{
+                      } else {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             children: [
                               Center(
                                 child: Text(
-                                  'No search results.\n\nPress the button below and we will do our best to find more of these opportunities.',
+                                  'No search results.\n\nPress the button below and we find more opportunities for you.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(fontSize: 20),
                                 ),
@@ -772,10 +778,7 @@ class _JobsScreenState extends State<JobsScreen> {
                             ],
                           ),
                         );
-
                       }
-
-
                     },
                   ),
                   SizedBox(

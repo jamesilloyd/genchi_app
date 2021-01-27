@@ -44,7 +44,6 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
   TextEditingController priceController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  TextEditingController serviceController = TextEditingController();
   TextEditingController applicationLinkController = TextEditingController();
   TextEditingController otherValuesController = TextEditingController();
 
@@ -56,6 +55,25 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
 
   List<Tag> allTags = List.generate(
       originalTags.length, (index) => Tag.fromTag(originalTags[index]));
+
+  //TODO: find a better way of doing this
+  List<Tag> uniTags = [
+    Tag(
+        databaseValue: 'Cambridge',
+        displayName: 'Cambridge',
+        selected: false,
+        category: 'University'),
+    Tag(
+        databaseValue: 'Harvard',
+        displayName: 'Harvard',
+        selected: false,
+        category: 'University'),
+    Tag(
+        databaseValue: 'MIT',
+        displayName: 'MIT',
+        selected: false,
+        category: 'University'),
+  ];
 
   List<Widget> _chipBuilder(
       {@required List<Tag> values, @required String filter}) {
@@ -121,7 +139,6 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
     titleController.dispose();
     detailsController.dispose();
     dateController.dispose();
-    serviceController.dispose();
     priceController.dispose();
     applicationLinkController.dispose();
     otherValuesController.dispose();
@@ -303,61 +320,6 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                     textController: titleController,
                     hintText: 'Summary of the opportunity',
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Container(
-                        height: 30.0,
-                      ),
-                      Text(
-                        'Type',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 5.0),
-                      PopupMenuButton(
-                          elevation: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(32.0)),
-                                border: Border.all(color: Colors.black)),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0, horizontal: 20.0),
-                              child: Text(
-                                serviceController.text,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ),
-                          itemBuilder: (_) {
-                            List<PopupMenuItem<String>> items = [];
-                            for (Service serviceType in opportunityTypeList) {
-                              var newItem = new PopupMenuItem(
-                                child: Text(
-                                  serviceType.databaseValue,
-                                ),
-                                value: serviceType.databaseValue,
-                              );
-                              items.add(newItem);
-                            }
-                            return items;
-                          },
-                          onSelected: (value) async {
-                            setState(() {
-                              changesMade = true;
-                              serviceController.text = value;
-                            });
-                          }),
-                    ],
-                  ),
                   SizedBox(
                     height: 15,
                   ),
@@ -464,7 +426,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Open Application?',
+                        'Fixed Deadline?',
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w500,
@@ -479,9 +441,9 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                         onTap: () async {
                           await showDialogBox(
                               context: context,
-                              title: 'Open Application',
+                              title: 'Fixed Deadline',
                               body:
-                                  'Does this opportunity have a deadline to apply by?');
+                              'Does this opportunity have a deadline to apply by (Yes) or is the application open (No)?');
                         },
                       ),
                     ],
@@ -499,20 +461,20 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                               color: Color(kGenchiGreen),
                               fontSize: 20,
                               fontWeight: hasFixedDeadline
-                                  ? FontWeight.w400
-                                  : FontWeight.w500,
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
                             ),
                           )),
                       Expanded(
                         flex: 1,
                         child: Center(
                           child: Switch(
-                              value: hasFixedDeadline,
+                              value: !hasFixedDeadline,
                               inactiveTrackColor: Color(kGenchiLightGreen),
                               inactiveThumbColor: Color(kGenchiGreen),
                               onChanged: (value) {
                                 setState(() {
-                                  hasFixedDeadline = value;
+                                  hasFixedDeadline = !value;
                                 });
                               }),
                         ),
@@ -525,8 +487,8 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                               color: Color(kGenchiOrange),
                               fontSize: 20,
                               fontWeight: hasFixedDeadline
-                                  ? FontWeight.w500
-                                  : FontWeight.w400,
+                                  ? FontWeight.w400
+                                  : FontWeight.w500,
                             ),
                           )),
                     ],
@@ -617,6 +579,17 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                         'Provide further details of the opportunity, urls etc.',
                   ),
                   SizedBox(height: 15),
+                  Text(
+                    'Students from which Universities can apply?',
+                    textAlign: TextAlign.start,
+                    style: kTitleTextStyle,
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: _chipBuilder(values: uniTags, filter: 'University'),
+                  ),
+                  SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -814,6 +787,21 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                             'Please set the application deadline date.';
                           }
 
+                          bool selectedUni = false;
+                          List universities = [];
+
+                          for(Tag uni in uniTags){
+                            if(uni.selected == true){
+                              selectedUni = true;
+                              universities.add(uni.databaseValue);
+
+                            }
+                          }
+                          if(!selectedUni){
+                            error = true;
+                            errorMessage = 'Please select a University';
+                          }
+
                           if (!error) {
                             ///Link was valid
 
@@ -843,7 +831,6 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                                     title: titleController.text,
                                     date: dateController.text,
                                     details: detailsController.text,
-                                    service: serviceController.text,
                                     time: Timestamp.now(),
                                     status: 'Vacant',
                                     linkApplicationType: linkApplicationType,
@@ -851,6 +838,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                                         applicationLinkController.text,
                                     hasFixedDeadline: hasFixedDeadline,
                                     applicationDeadline: deadlineDate,
+                                    universities: universities,
                                     price: priceController.text,
                                     tags: taskTags,
                                     hirerId: accountService.currentAccount.id),

@@ -120,7 +120,9 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           context: context, title: 'Apply to this job?');
 
                       if (apply) {
-                        if(!currentUser.admin) await analytics.logEvent(name: 'application_sent_link');
+                        if (!currentUser.admin)
+                          await analytics.logEvent(
+                              name: 'application_sent_link');
 
                         ///STORE THE USER / TASK relationship somewhere
 
@@ -139,28 +141,34 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                       }
                     }
                   : () async {
-                      String selectedId = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: modalBottomSheetBorder,
-                        builder: (context) =>
-                            ApplyToJob(currentUser: currentUser),
-                      );
+                      //TODO: trying out without service profiles
+                      // String selectedId = await showModalBottomSheet(
+                      //   context: context,
+                      //   isScrollControlled: true,
+                      //   shape: modalBottomSheetBorder,
+                      //   builder: (context) =>
+                      //       ApplyToJob(currentUser: currentUser),
+                      // );
 
-                      if (debugMode)
-                        print('Task Screen: applied with id $selectedId');
+                      // if (debugMode)
+                      //   print('Task Screen: applied with id $selectedId');
+                      //
+                      // if (selectedId != null) {
 
-                      if (selectedId != null) {
+                      bool apply = await showYesNoAlert(
+                          context: context, title: 'Apply to this job?');
+                      if (apply) {
                         setState(() {
                           showSpinner = true;
                         });
 
-                        if(!currentUser.admin) await analytics.logEvent(name: 'application_sent');
+                        if (!currentUser.admin)
+                          await analytics.logEvent(name: 'application_sent');
 
                         DocumentReference chatRef =
                             await firestoreAPI.applyToTask(
                                 taskId: currentTask.taskId,
-                                applicantId: selectedId,
+                                applicantId: currentUser.id,
                                 hirerId: currentTask.hirerId);
 
                         TaskApplication taskApplication =
@@ -169,8 +177,9 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           applicationId: chatRef.id,
                         );
 
-                        GenchiUser applicantProfile =
-                            await firestoreAPI.getUserById(selectedId);
+                        //TODO: trying out without service profiles
+                        // GenchiUser applicantProfile =
+                        //     await firestoreAPI.getUserById(selectedId);
 
                         GenchiUser hirer =
                             await firestoreAPI.getUserById(currentTask.hirerId);
@@ -180,15 +189,18 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         });
 
                         ///Check all necessary documents exist before entering chat
+                        /////TODO: trying out without service profiles
                         if (hirer != null &&
-                            applicantProfile != null &&
+                            // applicantProfile != null &&
                             taskApplication != null) {
                           Navigator.pushNamed(context, ApplicationChatScreen.id,
                               arguments: ApplicationChatScreenArguments(
                                 isInitialApplication: true,
                                 taskApplication: taskApplication,
                                 hirer: hirer,
-                                applicant: applicantProfile,
+                                //TODO: trying out without service profiles
+                                // applicant: applicantProfile,
+                                applicant: currentUser,
                                 userIsApplicant: true,
                               )).then((value) {
                             authProvider.updateCurrentUserData();

@@ -35,6 +35,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController accountTypeTextController = TextEditingController();
+  TextEditingController universityTextController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -53,6 +54,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
     nameController.text = user.name;
     emailController.text = user.email;
     accountTypeTextController.text = user.accountType;
+    universityTextController.text = user.university;
   }
 
   @override
@@ -61,6 +63,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
     nameController.dispose();
     emailController.dispose();
     accountTypeTextController.dispose();
+    universityTextController.dispose();
   }
 
   @override
@@ -144,6 +147,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                         name: nameController.text,
                         email: emailController.text,
                         accountType: accountTypeTextController.text,
+                        university: universityTextController.text,
                       ),
                       uid: currentUser.id);
 
@@ -241,6 +245,65 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                             }),
                       ],
                     ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
+                        ),
+                        Text(
+                          'University',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  universityTextController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (String accountType
+                              in GenchiUser().accessibleUniversities) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value)  {
+                              changesMade = true;
+                              universityTextController.text = value;
+
+                              setState(() {
+
+                              });
+
+                            }),
+                      ],
+                    ),
                     EditAccountField(
                       field: "Name",
                       onChanged: (value) {
@@ -311,6 +374,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                                 name: nameController.text,
                                 email: emailController.text,
                                 accountType: accountTypeTextController.text,
+                                university: universityTextController.text,
                               ),
                               uid: currentUser.id);
 

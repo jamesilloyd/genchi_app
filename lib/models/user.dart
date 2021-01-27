@@ -18,6 +18,7 @@ class GenchiUser {
   List<dynamic> fcmTokens;
   List<dynamic> preferences;
   Map draftJob;
+  String university;
 
   //TODO: this is temporary
   bool hasSetPreferences;
@@ -45,6 +46,13 @@ class GenchiUser {
     individualAccount,
   ];
 
+  List<String> accessibleUniversities = [
+    'Cambridge',
+    'Harvard',
+    'MIT',
+  ];
+
+
   GenchiUser({
     this.accountType,
     this.id,
@@ -67,6 +75,7 @@ class GenchiUser {
     this.providerProfiles,
     this.admin,
     this.preferences,
+    this.university,
     //TODO: this is temporary
     this.hasSetPreferences,
   });
@@ -96,6 +105,7 @@ class GenchiUser {
         preferences = snapshot['preferences'] ?? [],
         //TODO: this is temporary
         hasSetPreferences = snapshot['hasSetPreferences'] ?? false,
+        university = snapshot['university'] ?? 'Cambridge',
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -121,12 +131,14 @@ class GenchiUser {
       if (mainAccountId != null) 'mainAccountId': mainAccountId,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
       if (preferences != null) 'preferences' : preferences,
+      if (university != null) 'university' : university,
       //TODO: this is temporary
       if (hasSetPreferences != null) 'hasSetPreferences':hasSetPreferences,
       if (admin != null) 'admin': admin,
     };
   }
 }
+
 
 ///FOR Service Provider Accounts (Individual on the app)
 class Service {

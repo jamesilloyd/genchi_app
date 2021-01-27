@@ -38,6 +38,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   TextEditingController bioController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
   TextEditingController subCategoryController = TextEditingController();
+  TextEditingController universityTextController = TextEditingController();
 
   Future<bool> _onWillPop() async {
     if (changesMade) {
@@ -56,6 +57,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     nameController.text = user.name;
     bioController.text = user.bio;
     categoryController.text = user.category;
+    universityTextController.text = user.university;
     subCategoryController.text = user.subcategory;
   }
 
@@ -66,6 +68,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     bioController.dispose();
     categoryController.dispose();
     subCategoryController.dispose();
+    universityTextController.dispose();
   }
 
   @override
@@ -120,6 +123,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         bio: bioController.text,
                         category: categoryController.text,
                         subcategory: subCategoryController.text,
+                          university: universityTextController.text
                       ),
                       uid: currentUser.id);
 
@@ -226,6 +230,65 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          height: 30.0,
+                        ),
+                        Text(
+                          'University',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        PopupMenuButton(
+                            elevation: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(32.0)),
+                                  border: Border.all(color: Colors.black)
+
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: Text(
+                                  universityTextController.text,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            itemBuilder: (_) {
+                              List<PopupMenuItem<String>> items = [
+                              ];
+                              for (String accountType
+                              in GenchiUser().accessibleUniversities) {
+                                items.add(
+                                  new PopupMenuItem<String>(
+                                      child: Text(accountType),
+                                      value: accountType),
+                                );
+                              }
+                              return items;
+                            },
+                            onSelected: (value)  {
+                              changesMade = true;
+                              universityTextController.text = value;
+
+                              setState(() {
+
+                              });
+
+                            }),
+                      ],
+                    ),
                     if(currentUser.accountType != 'Individual') Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
@@ -323,7 +386,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                 name: nameController.text,
                                 bio: bioController.text,
                                 category: categoryController.text,
-                                subcategory: subCategoryController.text
+                                subcategory: subCategoryController.text,
+                                university: universityTextController.text
                               ),
                               uid: currentUser.id);
 

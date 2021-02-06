@@ -4,6 +4,7 @@ import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:package_info/package_info.dart';
 
 class AuthenticationService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -18,20 +19,29 @@ class AuthenticationService extends ChangeNotifier {
     if (user != null) {
       if (debugMode)
         print('Authentication service _populateCurrentUser: user ${user.uid}');
+      // _currentUser = await _firestoreCRUDModel.getUserById('cILAhQxPmQdYR8hcili0sqAuddg2');
+
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       notifyListeners();
       //TODO: how to handle error here ???
     }
   }
 
+
   //TODO: change the name of this
   Future<bool> isUserLoggedIn() async {
 
     try {
       print("isUserLoggedIn");
-      var user =  _firebaseAuth.currentUser;
+      var user = _firebaseAuth.currentUser;
       if (user != null) {
-        await _populateCurrentUser(user); // Populate the
+        await _populateCurrentUser(user); // Populate the user
+        //Todo: Add in version number here
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        GenchiUser thisUser = currentUser;
+        thisUser.versionNumber = packageInfo.version;
+        thisUser.sessionCount ++;
+        await _firestoreCRUDModel.updateUser(user: thisUser,uid: thisUser.id);
         return true;
       } else {
         return false;

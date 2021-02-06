@@ -174,6 +174,9 @@ TextStyle kBodyTextStyle = TextStyle(
     fontWeight: FontWeight.w400
 );
 
+
+const GenchiPlayStoreURL = 'https://play.google.com/store/apps/details?id=app.genchi.genchi';
+const GenchiAppStoreURL = 'https://apps.apple.com/us/app/genchi/id1473696183';
 const GenchiURL = 'https://www.genchi.app';
 const GenchiAboutURL = 'https://www.genchi.app/about-us';
 const GenchiFAQsURL = 'https://www.genchi.app/faqs';
@@ -182,4 +185,4 @@ const GenchiPPURL = 'https://www.genchi.app/privacy-policy';
 const GenchiHirerURL = 'https://www.genchi.app/hirer';
 const GenchiProviderURL = 'https://www.genchi.app/provider';
 const GenchiFacebookURL = 'https://www.facebook.com/genchiapp/';
-const GenchiFeedbackURL = 'https://forms.gle/nhKiAq1DUo8TbsFX6';
+const GenchiFeedbackURL = 'https://forms.gle/C3auGkD693xRVaXD9';

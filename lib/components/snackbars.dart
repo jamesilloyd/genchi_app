@@ -35,6 +35,20 @@ const kForgotPasswordSnackbar = SnackBar(
   ),
 );
 
+const kNewUniversitySnackbar = SnackBar(
+  backgroundColor: Color(kGenchiLightOrange),
+  duration: Duration(seconds: 5),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'Thanks!\nWe will do our best to bring Genchi to you soon!',
+    style: TextStyle(
+        color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
+    textAlign: TextAlign.center,
+  ),
+);
+
 const kSubmitRequestSnackbar = SnackBar(
   backgroundColor: Color(kGenchiLightOrange),
   duration: Duration(seconds: 3),

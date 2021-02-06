@@ -355,7 +355,7 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Genchi.png',
       sliderHeading: 'WELCOME TO',
       sliderSubHeading:
-          'Genchi is as platform for students to find and share opportunities at Universities anywhere in the world.'),
+          'Genchi is a platform for students to find and share opportunities at Universities anywhere in the world.'),
   Slider(
       sliderImageUrl: 'images/onboarding/Hire.png',
       sliderHeading: 'HIRE',

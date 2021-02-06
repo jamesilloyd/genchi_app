@@ -9,6 +9,7 @@ import 'dart:io' show Platform;
 
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
+import 'package:genchi_app/screens/jobs_screen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
@@ -376,8 +377,9 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
 
 class HomePageSelectionScreen extends StatefulWidget {
   List<Tag> allTags;
+  Sort sortDeadline;
 
-  HomePageSelectionScreen({@required this.allTags});
+  HomePageSelectionScreen({@required this.allTags, @required this.sortDeadline});
 
   @override
   _HomePageSelectionScreenState createState() =>
@@ -431,10 +433,10 @@ class _HomePageSelectionScreenState extends State<HomePageSelectionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.06,
+                height: MediaQuery.of(context).size.height * 0.07,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(flex: 1, child: SizedBox.shrink()),
                     Expanded(
@@ -448,16 +450,17 @@ class _HomePageSelectionScreenState extends State<HomePageSelectionScreen> {
                     //TODO: TEST THIS IS WORKING
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0,0,15,0),
-                          child: Text(
-                            'Done',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0,0,15,0),
+                            child: Icon(
+                              Icons.close
+                            ),
                           ),
                         ),
                       ),
@@ -470,9 +473,59 @@ class _HomePageSelectionScreenState extends State<HomePageSelectionScreen> {
                 height: 0,
               ),
               Container(
-                height: MediaQuery.of(context).size.height * 0.74,
+                height: MediaQuery.of(context).size.height * 0.73,
                 child: ListView(
                   children: [
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Text(
+                            'Sort By',
+                            textAlign: TextAlign.left,
+                            style: kTitleTextStyle,
+                          ),
+                        ),
+                        SizedBox(width: 5,),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: GestureDetector(
+                            onTap: () {
+
+                              setState(() {
+                                widget.sortDeadline.value = true;
+                                // tag.selected = !tag.selected;
+                              });
+                            },
+                            child: Chip(
+                              label: Text('Application Deadline'),
+                              backgroundColor:
+                              widget.sortDeadline.value ? Color(kGenchiLightGreen) : Colors.black12,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                widget.sortDeadline.value = false;
+                              });
+                            },
+                            child: Chip(
+                              label: Text('Date Posted'),
+                              backgroundColor:
+                              !widget.sortDeadline.value ? Color(kGenchiLightGreen) : Colors.black12,
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    ),
+
                     SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),

@@ -19,6 +19,8 @@ class GenchiUser {
   List<dynamic> preferences;
   Map draftJob;
   String university;
+  String versionNumber;
+  int sessionCount;
 
   //TODO: this is temporary
   bool hasSetPreferences;
@@ -74,8 +76,10 @@ class GenchiUser {
     this.mainAccountId,
     this.providerProfiles,
     this.admin,
+    this.versionNumber,
     this.preferences,
     this.university,
+    this.sessionCount,
     //TODO: this is temporary
     this.hasSetPreferences,
   });
@@ -106,6 +110,8 @@ class GenchiUser {
         //TODO: this is temporary
         hasSetPreferences = snapshot['hasSetPreferences'] ?? false,
         university = snapshot['university'] ?? 'Cambridge',
+        versionNumber = snapshot['versionNumber'] ?? "1.0.0",
+        sessionCount = snapshot['sessionCount'] ?? 0,
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -132,8 +138,10 @@ class GenchiUser {
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
       if (preferences != null) 'preferences' : preferences,
       if (university != null) 'university' : university,
+      if (versionNumber != null) 'versionNumber' : versionNumber,
       //TODO: this is temporary
       if (hasSetPreferences != null) 'hasSetPreferences':hasSetPreferences,
+      if (sessionCount != null) 'sessionCount':sessionCount,
       if (admin != null) 'admin': admin,
     };
   }

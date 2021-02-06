@@ -57,7 +57,7 @@ class _TestScreenState extends State<TestScreen> {
           child: RoundedButton(
                 buttonTitle: "Press me",
             onPressed: () async {
-                  await firestoreApi.findBadBoy();
+                  await firestoreApi.leadingUsers();
             },
             buttonColor: Color(kGenchiGreen),
           ),

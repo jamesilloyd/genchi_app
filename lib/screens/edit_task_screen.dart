@@ -237,7 +237,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       try {
                         ///Test the link is real
                         var response =
-                            await http.head(applicationLinkController.text);
+                            await http.head(applicationLinkController.text.replaceAll(' ', ''));
                         if (response.statusCode == 200) {
                           error = false;
                         } else {
@@ -287,7 +287,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                               title: titleController.text,
                               details: detailsController.text,
                               linkApplicationType: linkApplicationType,
-                              applicationLink: applicationLinkController.text,
+                              applicationLink: applicationLinkController.text.replaceAll(' ', ''),
                               hasFixedDeadline: hasFixedDeadline,
                               applicationDeadline: deadlineDate,
                               tags: taskTags,
@@ -418,7 +418,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     // duration: Duration(milliseconds: 200),
                     // height: linkApplicationType ? 0 : 100,
                     child: TextField(
-                      textCapitalization: TextCapitalization.sentences,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.none,
                       maxLines: null,
                       style: TextStyle(
                         color: Colors.black,
@@ -431,7 +432,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       },
                       controller: applicationLinkController,
                       decoration: kEditAccountTextFieldDecoration.copyWith(
-                          hintText: 'Insert application link'),
+                          hintText: 'Insert application link https://...'),
                       cursorColor: Color(kGenchiOrange),
                     ),
                   ),

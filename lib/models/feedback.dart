@@ -5,13 +5,15 @@ class UserFeedback {
   String email;
   String name;
   String id;
+  String request;
   Timestamp timeSubmitted;
 
   UserFeedback(
-      {this.filters, this.name, this.id, this.email, this.timeSubmitted});
+      {this.filters, this.name, this.id, this.email, this.timeSubmitted, this.request});
 
   toJson() {
     return {
+      if (request != null) "request":request,
       if (filters != null) "filters": filters,
       if (name != null) "name": name,
       if (id != null) "id": id,

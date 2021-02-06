@@ -7,6 +7,7 @@ class SignInTextField extends StatelessWidget {
       @required this.hintText,
       this.isPasswordField = false,
       this.isNameField = false,
+        this.autocorrect = true,
       @required this.field});
 
   final Function onChanged;
@@ -14,6 +15,7 @@ class SignInTextField extends StatelessWidget {
   final bool isPasswordField;
   final bool isNameField;
   final String field;
+  final bool autocorrect;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class SignInTextField extends StatelessWidget {
               textAlign: TextAlign.left,
               cursorColor: Color(kGenchiOrange),
               onChanged: onChanged,
-              autocorrect: isNameField,
+              autocorrect: autocorrect,
               decoration:
                   kSignInTextFieldDecoration.copyWith(hintText: hintText)),
         ),

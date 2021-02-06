@@ -36,11 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  static List<Widget> screens = [
-    JobsScreen(),
-    // SearchScreen(),
-    ChatSummaryScreen(),
-    ProfileScreen(),
+  static final JobsScreen jobsScreen = JobsScreen();
+  static final ProfileScreen profileScreen = ProfileScreen();
+  static final ChatSummaryScreen chatSummaryScreen = ChatSummaryScreen();
+
+  List<Widget> screens = [
+    jobsScreen,
+    chatSummaryScreen,
+    profileScreen
   ];
 
   final FirebaseMessaging _fcm = FirebaseMessaging();
@@ -62,12 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   //TODO move fcm token to login/registration
   @override
   void initState() {
     super.initState();
-
 
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
@@ -114,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       //TODO: look into using a page view instead
-      // body: IndexedStack(
-      //   index: _page ?? startingIndex,
-      //   children: screens,
-      // ),
-      body: screens.elementAt(_page ?? startingIndex),
+      body: IndexedStack(
+        index: _page ?? startingIndex,
+        children: screens,
+      ),
+      // body: screens.elementAt(_page ?? startingIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),

@@ -172,7 +172,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                 title: titleController.text,
                 details: detailsController.text,
                 date: dateController.text,
-                applicationLink: applicationLinkController.text,
+                applicationLink: applicationLinkController.text.replaceAll(' ', ''),
                 linkApplicationType: linkApplicationType,
                 hasFixedDeadline: hasFixedDeadline,
                 applicationDeadline: deadlineDate,
@@ -302,6 +302,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                         // duration: Duration(milliseconds: 200),
                         // height: linkApplicationType ? 0 : 100,
                         child: TextField(
+                          autocorrect: false,
                           textCapitalization: TextCapitalization.none,
                           maxLines: null,
                           style: TextStyle(
@@ -669,7 +670,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                               try {
                                 ///Test the link is real
                                 var response = await http
-                                    .head(applicationLinkController.text);
+                                    .head(applicationLinkController.text.replaceAll(' ', ''));
                                 if (response.statusCode == 200) {
                                   error = false;
                                 } else {
@@ -725,7 +726,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                       status: 'Vacant',
                                       linkApplicationType: linkApplicationType,
                                       applicationLink:
-                                          applicationLinkController.text,
+                                          applicationLinkController.text.replaceAll(' ', ''),
                                       hasFixedDeadline: hasFixedDeadline,
                                       universities: universities,
                                       applicationDeadline: deadlineDate,

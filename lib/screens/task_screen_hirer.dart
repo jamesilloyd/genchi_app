@@ -321,6 +321,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                       ? unSuccessfullChatWidgets.add(chatWidget)
                       : successfullChatWidgets.add(chatWidget);
                 }
+                print(currentTask.applicationIds);
 
                 return HirerTaskApplicants(
                   task: currentTask,

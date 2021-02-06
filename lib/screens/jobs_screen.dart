@@ -28,6 +28,14 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'dart:io' show Platform;
+
+import 'package:url_launcher/url_launcher.dart';
+
+class Sort {
+  bool value = true;
+}
+
 class JobsScreen extends StatefulWidget {
   @override
   _JobsScreenState createState() => _JobsScreenState();
@@ -40,13 +48,18 @@ class _JobsScreenState extends State<JobsScreen> {
   bool showSpinner = false;
 
   final ScrollController _listScrollController = ScrollController();
+  TextEditingController requestTextController = TextEditingController();
   PanelController _panelController = PanelController();
   Future searchTasksFuture;
   Future getUserTasksPostedAndNotificationsFuture;
   Future getUserTasksAppliedFuture;
+  Future checkForAppUpdate;
   bool _isVisible = true;
   bool _isExpanded = false;
   String appliedPosted = 'Posted';
+
+  //TODO: this is ugly
+  Sort sortDeadline = Sort();
 
   // int postedNotifications = 0;
   // int appliedNotifications = 0;
@@ -55,6 +68,12 @@ class _JobsScreenState extends State<JobsScreen> {
       originalTags.length, (index) => Tag.fromTag(originalTags[index]));
 
   double buttonHeight;
+
+  @override
+  void dispose() {
+    super.dispose();
+    requestTextController.dispose();
+  }
 
   final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
       GlobalKey<LiquidPullToRefreshState>();
@@ -116,6 +135,9 @@ class _JobsScreenState extends State<JobsScreen> {
         firestoreAPI.getUserTasksAppliedAndNotifications(
             providerIds: currentUser.providerProfiles, mainId: currentUser.id);
 
+
+    checkForAppUpdate = firestoreAPI.checkForAppUpdate(currentVersion: currentUser.versionNumber);
+
     openBottomSection();
     if (!currentUser.hasSetPreferences) checkForPreferenceUpdate();
   }
@@ -134,449 +156,421 @@ class _JobsScreenState extends State<JobsScreen> {
             AppBar().preferredSize.height -
             25);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: BasicAppNavigationBar(
-        barTitle: 'Home',
-      ),
-      body: SlidingUpPanel(
-        snapPoint: 0.08,
-        onPanelClosed: () {
-          setState(() {
-            _isExpanded = false;
-          });
-        },
-        onPanelOpened: () {
-          setState(() {
-            _isExpanded = true;
-          });
-        },
-        boxShadow: [BoxShadow(color: Colors.transparent)],
-        color: Colors.transparent,
-        minHeight: 25,
-        maxHeight: MediaQuery.of(context).size.height -
-            kToolbarHeight -
-            AppBar().preferredSize.height,
-        controller: _panelController,
-        panel: Column(
-          children: [
-            Container(
-              height: 25 + buttonHeight,
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            _panelController.animatePanelToPosition(
-                                _isExpanded ? 0 : 1.0,
-                                duration: Duration(milliseconds: 500),
-                                curve: Curves.fastOutSlowIn);
-                            _isExpanded = !_isExpanded;
-                            setState(() {});
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 8,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(10)),
-                              color: Color(kGenchiLightOrange),
-                            ),
-                            child: Icon(
-                              _isExpanded
-                                  ? Icons.keyboard_arrow_down
-                                  : Icons.keyboard_arrow_up,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _panelController.animatePanelToPosition(
-                                _isExpanded ? 0 : 1.0,
-                                duration: Duration(milliseconds: 500),
-                                curve: Curves.fastOutSlowIn);
-                            _isExpanded = !_isExpanded;
-                            setState(() {});
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 8,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(10)),
-                              color: Color(kGenchiLightGreen),
-                            ),
-                            child: Icon(
-                              _isExpanded
-                                  ? Icons.keyboard_arrow_down
-                                  : Icons.keyboard_arrow_up,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                      ]),
-                  SizedBox(
-                    height: buttonHeight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+
+        appBar: BasicAppNavigationBar(
+          barTitle: 'Home',
+        ),
+        body: SlidingUpPanel(
+          snapPoint: 0.08,
+          onPanelClosed: () {
+            setState(() {
+              _isExpanded = false;
+            });
+          },
+          onPanelOpened: () {
+            setState(() {
+              _isExpanded = true;
+            });
+          },
+          boxShadow: [BoxShadow(color: Colors.transparent)],
+          color: Colors.transparent,
+          minHeight: 25,
+          maxHeight: MediaQuery.of(context).size.height -
+              kToolbarHeight -
+              AppBar().preferredSize.height,
+          controller: _panelController,
+          panel: Column(
+            children: [
+              Container(
+                height: 25 + buttonHeight,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          GestureDetector(
                             onTap: () {
-                              if (!_isExpanded) {
-                                _panelController.animatePanelToPosition(1.0,
-                                    duration: Duration(milliseconds: 500),
-                                    curve: Curves.fastOutSlowIn);
-                                _isExpanded = true;
-                              }
-                              setState(() {
-                                appliedPosted = 'Posted';
-                              });
+                              _panelController.animatePanelToPosition(
+                                  _isExpanded ? 0 : 1.0,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.fastOutSlowIn);
+                              _isExpanded = !_isExpanded;
+                              setState(() {});
                             },
                             child: Container(
-                              foregroundDecoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment(0, 1.5),
-                                  end: Alignment(0, 0.5),
-                                  colors: [
-                                    appliedPosted == 'Applied'
-                                        ? Colors.black12
-                                        : Colors.transparent,
-                                    Colors.transparent
-                                  ],
-                                ),
-                              ),
+                              width: MediaQuery.of(context).size.width / 8,
+                              height: 25,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10)),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(10)),
                                 color: Color(kGenchiLightOrange),
                               ),
-                              child: Center(
-                                child: Text(
-                                  'Posted',
-                                  style: TextStyle(fontSize: 18),
-                                ),
+                              child: Icon(
+                                _isExpanded
+                                    ? Icons.keyboard_arrow_down
+                                    : Icons.keyboard_arrow_up,
+                                size: 30,
                               ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
+                          GestureDetector(
                             onTap: () {
-                              if (!_isExpanded) {
-                                _panelController.animatePanelToPosition(1.0,
-                                    duration: Duration(milliseconds: 500),
-                                    curve: Curves.fastOutSlowIn);
-                                _isExpanded = true;
-                              }
-                              setState(() {
-                                appliedPosted = 'Applied';
-                              });
+                              _panelController.animatePanelToPosition(
+                                  _isExpanded ? 0 : 1.0,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.fastOutSlowIn);
+                              _isExpanded = !_isExpanded;
+                              setState(() {});
                             },
                             child: Container(
-                              foregroundDecoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment(0, 1.5),
-                                  end: Alignment(0, 0.5),
-                                  colors: [
-                                    appliedPosted == 'Posted'
-                                        ? Colors.black12
-                                        : Colors.transparent,
-                                    Colors.transparent
-                                  ],
-                                ),
-                              ),
+                              width: MediaQuery.of(context).size.width / 8,
+                              height: 25,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10)),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(10)),
                                 color: Color(kGenchiLightGreen),
                               ),
-                              child: Center(
-                                child: Text(
-                                  'Applied To',
-                                  style: TextStyle(fontSize: 18),
+                              child: Icon(
+                                _isExpanded
+                                    ? Icons.keyboard_arrow_down
+                                    : Icons.keyboard_arrow_up,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                        ]),
+                    SizedBox(
+                      height: buttonHeight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (!_isExpanded) {
+                                  _panelController.animatePanelToPosition(1.0,
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.fastOutSlowIn);
+                                  _isExpanded = true;
+                                }
+                                setState(() {
+                                  appliedPosted = 'Posted';
+                                });
+                              },
+                              child: Container(
+                                foregroundDecoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment(0, 1.5),
+                                    end: Alignment(0, 0.5),
+                                    colors: [
+                                      appliedPosted == 'Applied'
+                                          ? Colors.black12
+                                          : Colors.transparent,
+                                      Colors.transparent
+                                    ],
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(10)),
+                                  color: Color(kGenchiLightOrange),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Posted',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              color: appliedPosted == 'Posted'
-                  ? Color(kGenchiLightOrange)
-                  : Color(kGenchiLightGreen),
-              height: MediaQuery.of(context).size.height -
-                  kToolbarHeight -
-                  AppBar().preferredSize.height -
-                  25 -
-                  buttonHeight,
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                children: [
-                  SizedBox(height: 15),
-                  Center(
-                    child: Text(
-                      appliedPosted == 'Posted'
-                          ? "Opportunities you've posted"
-                          : "Opportunities you've applied to",
-                      style: TextStyle(
-                        fontSize: 22,
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (!_isExpanded) {
+                                  _panelController.animatePanelToPosition(1.0,
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.fastOutSlowIn);
+                                  _isExpanded = true;
+                                }
+                                setState(() {
+                                  appliedPosted = 'Applied';
+                                });
+                              },
+                              child: Container(
+                                foregroundDecoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment(0, 1.5),
+                                    end: Alignment(0, 0.5),
+                                    colors: [
+                                      appliedPosted == 'Posted'
+                                          ? Colors.black12
+                                          : Colors.transparent,
+                                      Colors.transparent
+                                    ],
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10)),
+                                  color: Color(kGenchiLightGreen),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Applied To',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  Visibility(
-                    visible: appliedPosted == 'Posted',
-                    child: FutureBuilder(
-                      future: getUserTasksPostedAndNotificationsFuture,
-                      builder: (context, snapshot) {
-                        final List<Map<String, dynamic>>
-                            userTasksAndNotifications = snapshot.data;
-
-                        List<List<Widget>> taskWidgets = [[], [], []];
-
-                        if (snapshot.hasData) {
-                          if (userTasksAndNotifications.isEmpty) {
-                            return Container(
-                              height: 30,
-                              child: Center(
-                                child: Text(
-                                  'You have not posted an opportunity!',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          for (Map taskAndNotification
-                              in userTasksAndNotifications) {
-                            Task task = taskAndNotification['task'];
-                            bool userHasNotification =
-                                taskAndNotification['hasNotification'];
-
-                            Widget tCard = TaskCard(
-                                orangeBackground: true,
-                                imageURL: currentUser.displayPictureURL,
-                                task: task,
-                                hasUnreadMessage: userHasNotification,
-                                isDisplayTask: false,
-                                onTap: () async {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-
-                                  await taskProvider.updateCurrentTask(
-                                      taskId: task.taskId);
-
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-
-                                  bool isUsersTask =
-                                      taskProvider.currentTask.hirerId ==
-                                          currentUser.id;
-
-                                  Navigator.pushNamed(
-                                          context,
-                                          isUsersTask
-                                              ? TaskScreenHirer.id
-                                              : TaskScreenApplicant.id)
-                                      .then((value) {
-                                    ///Refresh the tasks to remove notifications.
-                                    getUserTasksPostedAndNotificationsFuture =
-                                        firestoreAPI
-                                            .getUserTasksPostedAndNotifications(
-                                                postIds: currentUser.posts);
-                                    setState(() {});
-                                  });
-                                });
-
-                            if (task.status == 'Vacant') {
-                              taskWidgets[0].add(tCard);
-                            } else if (task.status == 'InProgress') {
-                              taskWidgets[1].add(tCard);
-                            } else if (task.status == 'Completed') {
-                              taskWidgets[2].add(tCard);
-                            }
-                          }
-                        }
-
-                        return PostedAppliedList(
-                            taskWidgets: taskWidgets, isPosted: true);
-                      },
-                    ),
-                  ),
-                  Visibility(
-                    visible: appliedPosted == 'Applied',
-                    child: FutureBuilder(
-                      future: getUserTasksAppliedFuture,
-                      builder: (context, snapshot) {
-                        final List<Map<String, dynamic>>
-                            tasksAndHirersAndNotification = snapshot.data;
-
-                        List<List<Widget>> taskWidgets = [[], [], []];
-
-                        if (snapshot.hasData) {
-                          if (tasksAndHirersAndNotification.isEmpty) {
-                            return Container(
-                              height: 30,
-                              child: Center(
-                                child: Text(
-                                  'You have not applied to an opportunity!',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          for (Map taskAndHirerAndNotification
-                              in tasksAndHirersAndNotification) {
-                            Task task = taskAndHirerAndNotification['task'];
-                            GenchiUser hirer =
-                                taskAndHirerAndNotification['hirer'];
-                            bool userHasNotification =
-                                taskAndHirerAndNotification['hasNotification'];
-
-                            Widget tCard = TaskCard(
-                                imageURL: hirer.displayPictureURL,
-                                task: task,
-                                hasUnreadMessage: userHasNotification,
-                                isDisplayTask: false,
-                                onTap: () async {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-
-                                  await taskProvider.updateCurrentTask(
-                                      taskId: task.taskId);
-
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-
-                                  bool isUsersTask =
-                                      taskProvider.currentTask.hirerId ==
-                                          currentUser.id;
-
-                                  Navigator.pushNamed(
-                                          context,
-                                          isUsersTask
-                                              ? TaskScreenHirer.id
-                                              : TaskScreenApplicant.id)
-                                      .then((value) {
-                                    getUserTasksAppliedFuture = firestoreAPI
-                                        .getUserTasksAppliedAndNotifications(
-                                            providerIds:
-                                                currentUser.providerProfiles,
-                                            mainId: currentUser.id);
-                                    setState(() {});
-                                  });
-                                });
-                            if (task.status == 'Vacant') {
-                              taskWidgets[0].add(tCard);
-                            } else if (task.status == 'InProgress') {
-                              taskWidgets[1].add(tCard);
-                            } else if (task.status == 'Completed') {
-                              taskWidgets[2].add(tCard);
-                            }
-                          }
-                        }
-
-                        return PostedAppliedList(
-                            taskWidgets: taskWidgets, isPosted: false);
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 100),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-        body: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          progressIndicator: CircularProgress(),
-          child: SafeArea(
-            child: LiquidPullToRefresh(
-              key: _refreshIndicatorKey,
-              color: Color(kGenchiOrange),
-              backgroundColor: Colors.white,
-              showChildOpacityTransition: false,
-              borderWidth: 0.75,
-              animSpeedFactor: 2,
-              height: 40,
-              onRefresh: () async {
-                ///Update futures
-                searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-                getUserTasksPostedAndNotificationsFuture =
-                    firestoreAPI.getUserTasksPostedAndNotifications(
-                        postIds: currentUser.posts);
+              Container(
+                color: appliedPosted == 'Posted'
+                    ? Color(kGenchiLightOrange)
+                    : Color(kGenchiLightGreen),
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    AppBar().preferredSize.height -
+                    25 -
+                    buttonHeight,
+                child: ListView(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  children: [
+                    SizedBox(height: 15),
+                    Center(
+                      child: Text(
+                        appliedPosted == 'Posted'
+                            ? "Opportunities you've posted"
+                            : "Opportunities you've applied to",
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: appliedPosted == 'Posted',
+                      child: FutureBuilder(
+                        future: getUserTasksPostedAndNotificationsFuture,
+                        builder: (context, snapshot) {
+                          final List<Map<String, dynamic>>
+                              userTasksAndNotifications = snapshot.data;
 
-                getUserTasksAppliedFuture =
-                    firestoreAPI.getUserTasksAppliedAndNotifications(
-                        providerIds: currentUser.providerProfiles,
-                        mainId: currentUser.id);
-                setState(() {});
-              },
-              child: ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                controller: _listScrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                children: [
-                  SizedBox(height: 25),
-                  PostJobSection(
-                    text: 'Post New Opportunity',
-                    onPressed: () async {
-                      bool postTask = await showYesNoAlert(
-                          context: context, title: 'Post Opportunity?');
-                      if (postTask)
-                        Navigator.pushNamed(context, PostTaskScreen.id)
-                            .then((value) {
-                          ///Update futures
-                          searchTasksFuture =
-                              firestoreAPI.fetchTasksAndHirers();
-                          getUserTasksPostedAndNotificationsFuture =
-                              firestoreAPI.getUserTasksPostedAndNotifications(
-                                  postIds: currentUser.posts);
-                          setState(() {});
-                        });
-                    },
-                  ),
-                  if (currentUser.admin)
+                          List<List<Widget>> taskWidgets = [[], [], []];
+
+                          if (snapshot.hasData) {
+                            if (userTasksAndNotifications.isEmpty) {
+                              return Container(
+                                height: 30,
+                                child: Center(
+                                  child: Text(
+                                    'You have not posted an opportunity!',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            for (Map taskAndNotification
+                                in userTasksAndNotifications) {
+                              Task task = taskAndNotification['task'];
+                              bool userHasNotification =
+                                  taskAndNotification['hasNotification'];
+
+                              Widget tCard = TaskCard(
+                                  orangeBackground: true,
+                                  imageURL: currentUser.displayPictureURL,
+                                  task: task,
+                                  hasUnreadMessage: userHasNotification,
+                                  isDisplayTask: false,
+                                  onTap: () async {
+                                    setState(() {
+                                      showSpinner = true;
+                                    });
+
+                                    await taskProvider.updateCurrentTask(
+                                        taskId: task.taskId);
+
+                                    setState(() {
+                                      showSpinner = false;
+                                    });
+
+                                    bool isUsersTask =
+                                        taskProvider.currentTask.hirerId ==
+                                            currentUser.id;
+
+                                    Navigator.pushNamed(
+                                            context,
+                                            isUsersTask
+                                                ? TaskScreenHirer.id
+                                                : TaskScreenApplicant.id)
+                                        .then((value) {
+                                      ///Refresh the tasks to remove notifications.
+                                      getUserTasksPostedAndNotificationsFuture =
+                                          firestoreAPI
+                                              .getUserTasksPostedAndNotifications(
+                                                  postIds: currentUser.posts);
+                                      setState(() {});
+                                    });
+                                  });
+
+                              if (task.status == 'Vacant') {
+                                taskWidgets[0].add(tCard);
+                              } else if (task.status == 'InProgress') {
+                                taskWidgets[1].add(tCard);
+                              } else if (task.status == 'Completed') {
+                                taskWidgets[2].add(tCard);
+                              }
+                            }
+                          }
+
+                          return PostedAppliedList(
+                              taskWidgets: taskWidgets, isPosted: true);
+                        },
+                      ),
+                    ),
+                    Visibility(
+                      visible: appliedPosted == 'Applied',
+                      child: FutureBuilder(
+                        future: getUserTasksAppliedFuture,
+                        builder: (context, snapshot) {
+                          final List<Map<String, dynamic>>
+                              tasksAndHirersAndNotification = snapshot.data;
+
+                          List<List<Widget>> taskWidgets = [[], [], []];
+
+                          if (snapshot.hasData) {
+                            if (tasksAndHirersAndNotification.isEmpty) {
+                              return Container(
+                                height: 30,
+                                child: Center(
+                                  child: Text(
+                                    'You have not applied to an opportunity!',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            for (Map taskAndHirerAndNotification
+                                in tasksAndHirersAndNotification) {
+                              Task task = taskAndHirerAndNotification['task'];
+                              GenchiUser hirer =
+                                  taskAndHirerAndNotification['hirer'];
+                              bool userHasNotification =
+                                  taskAndHirerAndNotification['hasNotification'];
+
+                              Widget tCard = TaskCard(
+                                  imageURL: hirer.displayPictureURL,
+                                  task: task,
+                                  hasUnreadMessage: userHasNotification,
+                                  isDisplayTask: false,
+                                  onTap: () async {
+                                    setState(() {
+                                      showSpinner = true;
+                                    });
+
+                                    await taskProvider.updateCurrentTask(
+                                        taskId: task.taskId);
+
+                                    setState(() {
+                                      showSpinner = false;
+                                    });
+
+                                    bool isUsersTask =
+                                        taskProvider.currentTask.hirerId ==
+                                            currentUser.id;
+
+                                    Navigator.pushNamed(
+                                            context,
+                                            isUsersTask
+                                                ? TaskScreenHirer.id
+                                                : TaskScreenApplicant.id)
+                                        .then((value) {
+                                      getUserTasksAppliedFuture = firestoreAPI
+                                          .getUserTasksAppliedAndNotifications(
+                                              providerIds:
+                                                  currentUser.providerProfiles,
+                                              mainId: currentUser.id);
+                                      setState(() {});
+                                    });
+                                  });
+                              if (task.status == 'Vacant') {
+                                taskWidgets[0].add(tCard);
+                              } else if (task.status == 'InProgress') {
+                                taskWidgets[1].add(tCard);
+                              } else if (task.status == 'Completed') {
+                                taskWidgets[2].add(tCard);
+                              }
+                            }
+                          }
+
+                          return PostedAppliedList(
+                              taskWidgets: taskWidgets, isPosted: false);
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 100),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          body: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            progressIndicator: CircularProgress(),
+            child: SafeArea(
+              child: LiquidPullToRefresh(
+                key: _refreshIndicatorKey,
+                color: Color(kGenchiOrange),
+                backgroundColor: Colors.white,
+                showChildOpacityTransition: false,
+                borderWidth: 0.75,
+                animSpeedFactor: 2,
+                height: 40,
+                onRefresh: () async {
+                  ///Update futures
+                  searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+                  getUserTasksPostedAndNotificationsFuture =
+                      firestoreAPI.getUserTasksPostedAndNotifications(
+                          postIds: currentUser.posts);
+
+                  getUserTasksAppliedFuture =
+                      firestoreAPI.getUserTasksAppliedAndNotifications(
+                          providerIds: currentUser.providerProfiles,
+                          mainId: currentUser.id);
+                  setState(() {});
+                },
+                child: ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  controller: _listScrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  children: [
+                    SizedBox(height: 25),
                     PostJobSection(
-                      text: 'Post New Opportunity and Hirer',
+                      text: 'Post New Opportunity',
                       onPressed: () async {
                         bool postTask = await showYesNoAlert(
-                            context: context,
-                            title: 'Post Opportunity and Hirer?',
-                            body:
-                                'This will create a new user as soon as you click, so make sure to do it in one go');
-                        if (postTask) {
-                          ///Create an empty user
-                          DocumentReference result =
-                              await firestoreAPI.addUser(GenchiUser());
-                          await firestoreAPI.updateUser(
-                              user: GenchiUser(id: result.id), uid: result.id);
-
-                          ///Update the account service to be on this user
-                          await accountService.updateCurrentAccount(
-                              id: result.id);
-
-                          Navigator.pushNamed(
-                                  context, PostTaskAndHirerScreen.id)
+                            context: context, title: 'Post Opportunity?');
+                        if (postTask)
+                          Navigator.pushNamed(context, PostTaskScreen.id)
                               .then((value) {
                             ///Update futures
                             searchTasksFuture =
@@ -586,205 +580,285 @@ class _JobsScreenState extends State<JobsScreen> {
                                     postIds: currentUser.posts);
                             setState(() {});
                           });
+                      },
+                    ),
+                    //TODO: add in condition of being less than the minimum required version
+                    FutureBuilder(
+                        future: checkForAppUpdate,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return SizedBox.shrink();
+                          }
+                          else {
+
+                            final bool doesNotNeedUpdate = snapshot.data;
+
+                            if(doesNotNeedUpdate){
+                              return SizedBox.shrink();
+                            } else {
+
+                              return AppUpdateButton();
+
+                            }
+                        }
+
+
+                    }
+
+                    ),
+                    if (currentUser.admin)
+                      PostJobSection(
+                        text: 'Post New Opportunity and Hirer',
+                        onPressed: () async {
+                          bool postTask = await showYesNoAlert(
+                              context: context,
+                              title: 'Post Opportunity and Hirer?',
+                              body:
+                                  'This will create a new user as soon as you click, so make sure to do it in one go');
+                          if (postTask) {
+                            ///Create an empty user
+                            DocumentReference result =
+                                await firestoreAPI.addUser(GenchiUser());
+                            await firestoreAPI.updateUser(
+                                user: GenchiUser(id: result.id), uid: result.id);
+
+                            ///Update the account service to be on this user
+                            await accountService.updateCurrentAccount(
+                                id: result.id);
+
+                            Navigator.pushNamed(
+                                    context, PostTaskAndHirerScreen.id)
+                                .then((value) {
+                              ///Update futures
+                              searchTasksFuture =
+                                  firestoreAPI.fetchTasksAndHirers();
+                              getUserTasksPostedAndNotificationsFuture =
+                                  firestoreAPI.getUserTasksPostedAndNotifications(
+                                      postIds: currentUser.posts);
+                              setState(() {});
+                            });
+                          }
+                        },
+                      ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'OPPORTUNITIES',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(20.0),
+                                      topRight: Radius.circular(20.0))),
+                              builder: (context) => SingleChildScrollView(
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom),
+                                  child: Container(
+                                      height: MediaQuery.of(context).size.height *
+                                          0.9,
+                                      child: HomePageSelectionScreen(
+                                        allTags: allTags,
+                                        sortDeadline: sortDeadline,
+                                      )),
+                                ),
+                              ),
+                            );
+                            setState(() {});
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'FILTERS',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              SizedBox(width: 5),
+                              ImageIcon(
+                                AssetImage('images/filter.png'),
+                                color: Colors.black,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      height: 0,
+                      thickness: 1,
+                    ),
+                    FutureBuilder(
+                      future: searchTasksFuture,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Container(
+                            height: 60,
+                            child: Center(
+                              child: CircularProgress(),
+                            ),
+                          );
+                        }
+                        final List<Map<String, dynamic>> tasksAndHirers =
+                            snapshot.data;
+
+                        ///This variable is for checking  if their filter returns a result
+                        bool foundResults = false;
+                        List searchResults = [];
+
+                        ///Get all true values in the allTags list
+                        List filteredTags = [];
+                        for (Tag filter in allTags) {
+                          if (filter.selected)
+                            filteredTags.add(filter.databaseValue);
+                        }
+
+                        ///Go through the snapshot and check add any to a list to be presented
+                        for (Map taskAndHirer in tasksAndHirers) {
+                          bool addToSearchResults = true;
+                          Task task = taskAndHirer['task'];
+                          ///Just quickly check that the user is able to see this content
+                          if(task.universities.contains(currentUser.university)) {
+                            ///Evaluate these values against the task's tag
+                            ///If they are all contained show
+                            for (String filter in filteredTags) {
+                              if (!task.tags.contains(filter)) {
+                                addToSearchResults = false;
+                              }
+                            }
+
+                            if (addToSearchResults) {
+                              foundResults = true;
+                              searchResults.add(taskAndHirer);
+                            }
+                          }
+                        }
+
+                        if (foundResults) {
+                          ///Quickly resort the list if the user has selected to sort by posted date
+                          if(!sortDeadline.value){
+                            searchResults.sort((a,b) {
+                              Task taskA = a['task'];
+                              Task taskB = b['task'];
+                              return taskB.time.compareTo(taskA.time);
+                            });
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: searchResults.length,
+                            itemBuilder: (context, index) {
+                              Map taskAndHirer = searchResults[index];
+                              Task task = taskAndHirer['task'];
+                              GenchiUser hirer = taskAndHirer['hirer'];
+
+
+                                return BigTaskCard(
+                                  imageURL: hirer.displayPictureURL,
+                                  task: task,
+                                  uni: hirer.university,
+                                  newTask: task.time
+                                          .toDate()
+                                          .difference(DateTime.now())
+                                          .inHours >
+                                      -36,
+                                  onTap: () async {
+                                    setState(() {
+                                      showSpinner = true;
+                                    });
+
+                                    await taskProvider.updateCurrentTask(
+                                        taskId: task.taskId);
+
+                                    setState(() {
+                                      showSpinner = false;
+                                    });
+
+                                    ///Check whether it is the users task or not
+                                    bool isUsersTask =
+                                        taskProvider.currentTask.hirerId ==
+                                            currentUser.id;
+
+                                    if (isUsersTask) {
+                                      Navigator.pushNamed(
+                                          context, TaskScreenHirer.id);
+                                    } else {
+                                      ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
+                                      if (!taskProvider.currentTask.viewedIds
+                                          .contains(currentUser.id))
+                                        await firestoreAPI.addViewedIdToTask(
+                                            viewedId: currentUser.id,
+                                            taskId: task.taskId);
+                                      Navigator.pushNamed(
+                                          context, TaskScreenApplicant.id);
+                                    }
+                                  },
+                                );
+                            },
+                          );
+                        } else {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: Text(
+                                    "No search results...\n\nLet us know what you're looking for and we will do our best to find that for you.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                                SizedBox(height:5),
+                                TextField(
+                                  maxLines: null,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                  cursorColor: Color(kGenchiOrange),
+                                  controller: requestTextController,
+                                  decoration: kEditAccountTextFieldDecoration.copyWith(hintText: 'Enter request'),
+                                ),
+                                RoundedButton(
+                                  buttonTitle: 'Submit Request',
+                                  buttonColor: Color(kGenchiLightGreen),
+                                  fontColor: Colors.black,
+                                  elevation: true,
+                                  onPressed: () async {
+                                    ///Send results
+                                    await firestoreAPI.sendOpportunityFeedback(
+                                        filters: filteredTags, user: currentUser, request: requestTextController.text);
+
+                                    requestTextController.clear();
+
+                                    ///send snackbar
+                                    Scaffold.of(context)
+                                        .showSnackBar(kSubmitRequestSnackbar);
+                                  },
+                                )
+                              ],
+                            ),
+                          );
                         }
                       },
                     ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        'OPPORTUNITIES',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          await showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20.0),
-                                    topRight: Radius.circular(20.0))),
-                            builder: (context) => SingleChildScrollView(
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context)
-                                        .viewInsets
-                                        .bottom),
-                                child: Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.9,
-                                    child: HomePageSelectionScreen(
-                                      allTags: allTags,
-                                    )),
-                              ),
-                            ),
-                          );
-                          setState(() {});
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              'FILTERS',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            SizedBox(width: 5),
-                            ImageIcon(
-                              AssetImage('images/filter.png'),
-                              color: Colors.black,
-                              size: 30,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    height: 0,
-                    thickness: 1,
-                  ),
-                  FutureBuilder(
-                    future: searchTasksFuture,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Container(
-                          height: 60,
-                          child: Center(
-                            child: CircularProgress(),
-                          ),
-                        );
-                      }
-                      final List<Map<String, dynamic>> tasksAndHirers =
-                          snapshot.data;
-
-                      ///This variable is for checking if their filter returns a result
-                      bool foundResults = false;
-
-                      List searchResults = [];
-
-                      ///Get all true values in the allTags list
-                      List filteredTags = [];
-                      for (Tag filter in allTags) {
-                        if (filter.selected)
-                          filteredTags.add(filter.databaseValue);
-                      }
-
-                      ///Go through the snapshot and check add any to a list to be presented
-                      for (Map taskAndHirer in tasksAndHirers) {
-                        bool addToSearchResults = true;
-                        Task task = taskAndHirer['task'];
-                        ///Just quickly check that the user is able to see this content
-                        if(task.universities.contains(currentUser.university)) {
-                          ///Evaluate these values against the task's tag
-                          ///If they are all contained show
-                          for (String filter in filteredTags) {
-                            if (!task.tags.contains(filter)) {
-                              addToSearchResults = false;
-                            }
-                          }
-
-                          if (addToSearchResults) {
-                            foundResults = true;
-                            searchResults.add(taskAndHirer);
-                          }
-                        }
-                      }
-
-                      if (foundResults) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: searchResults.length,
-                          itemBuilder: (context, index) {
-                            Map taskAndHirer = searchResults[index];
-                            Task task = taskAndHirer['task'];
-                            GenchiUser hirer = taskAndHirer['hirer'];
-
-
-                              return BigTaskCard(
-                                imageURL: hirer.displayPictureURL,
-                                task: task,
-                                uni: hirer.university,
-                                newTask: task.time
-                                        .toDate()
-                                        .difference(DateTime.now())
-                                        .inHours >
-                                    -24,
-                                onTap: () async {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-
-                                  await taskProvider.updateCurrentTask(
-                                      taskId: task.taskId);
-
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-
-                                  ///Check whether it is the users task or not
-                                  bool isUsersTask =
-                                      taskProvider.currentTask.hirerId ==
-                                          currentUser.id;
-
-                                  if (isUsersTask) {
-                                    Navigator.pushNamed(
-                                        context, TaskScreenHirer.id);
-                                  } else {
-                                    ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
-                                    if (!taskProvider.currentTask.viewedIds
-                                        .contains(currentUser.id))
-                                      await firestoreAPI.addViewedIdToTask(
-                                          viewedId: currentUser.id,
-                                          taskId: task.taskId);
-                                    Navigator.pushNamed(
-                                        context, TaskScreenApplicant.id);
-                                  }
-                                },
-                              );
-                          },
-                        );
-                      } else {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Center(
-                                child: Text(
-                                  'No search results.\n\nPress the button below and we find more opportunities for you.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                              RoundedButton(
-                                buttonTitle: 'Submit Request',
-                                buttonColor: Color(kGenchiLightGreen),
-                                fontColor: Colors.black,
-                                elevation: true,
-                                onPressed: () async {
-                                  ///Send results
-                                  await firestoreAPI.sendOpportunityFeedback(
-                                      filters: filteredTags, user: currentUser);
-
-                                  ///send snackbar
-                                  Scaffold.of(context)
-                                      .showSnackBar(kSubmitRequestSnackbar);
-                                },
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 200,
-                  ),
-                ],
+                    SizedBox(
+                      height: 200,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -936,6 +1010,83 @@ class PostJobSection extends StatelessWidget {
                     style:
                         TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class AppUpdateButton extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10.0),
+        height: 42.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(7.0),
+          color: Color(kGenchiBlue),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 5,
+              spreadRadius: 1,
+              offset: Offset(0, 2),
+            )
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7.0),
+          child: FlatButton(
+            onPressed: ()async{
+              if(Platform.isIOS){
+
+                if (await canLaunch(GenchiAppStoreURL)) {
+              await launch(GenchiAppStoreURL);
+              } else {
+              print("Could not open URL");
+              }
+
+              } else {
+
+              if (await canLaunch(GenchiPlayStoreURL)) {
+              await launch(GenchiPlayStoreURL);
+              } else {
+              print("Could not open URL");
+              }
+
+
+              }
+            },
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'New Update Available',
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style:
+                    TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0,color: Colors.white),
+                  ),
+                  SizedBox(width: 10),
+                  Container(
+                    height: 15,
+                    width: 15,
+                    decoration: BoxDecoration(
+                      color: Color(kGenchiOrange),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10.0),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

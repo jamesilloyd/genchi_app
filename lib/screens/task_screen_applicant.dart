@@ -120,15 +120,17 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           context: context, title: 'Apply to this job?');
 
                       if (apply) {
-                        if (!currentUser.admin)
+                        ///Quickly check if the user has already applied
+                        if (!currentUser.admin ||
+                            currentTask.linkApplicationIds
+                                .contains(currentUser.id)) {
                           await analytics.logEvent(
                               name: 'application_sent_link');
-
-                        ///STORE THE USER / TASK relationship somewhere
-
-                        await firestoreAPI.addLinkApplicantId(
-                            taskId: currentTask.taskId,
-                            applicantId: currentUser.id);
+                          ///STORE THE USER / TASK relationship somewhere
+                          await firestoreAPI.addLinkApplicantId(
+                              taskId: currentTask.taskId,
+                              applicantId: currentUser.id);
+                        }
 
                         ///Send them to the location
                         if (await canLaunch(currentTask.applicationLink)) {

@@ -74,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: <Widget>[
                         SignInTextField(
                           field: 'Email',
+                          autocorrect: false,
                           onChanged: (value) {
                             email = value;
                           },
@@ -86,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SignInTextField(
                           field: 'Password',
+                          autocorrect: false,
                           onChanged: (value) {
                             password = value;
                           },

@@ -22,6 +22,7 @@ import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/screens/test_screen.dart';
+import 'package:genchi_app/screens/university_not_listed_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/screens/welcome_screen.dart';
 import 'package:genchi_app/screens/login_screen.dart';
@@ -195,6 +196,7 @@ class StartUp extends StatelessWidget{
               PostRegDetailsScreen.id: (context) => PostRegDetailsScreen(),
               PostTaskAndHirerScreen.id: (context) => PostTaskAndHirerScreen(),
               CustomerNeedsScreen.id: (context) => CustomerNeedsScreen(),
+              UniversityNotListedScreen.id: (context) => UniversityNotListedScreen(),
             },
           );
         }

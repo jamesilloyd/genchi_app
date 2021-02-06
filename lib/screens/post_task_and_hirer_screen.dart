@@ -768,7 +768,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                             try {
                               ///Test the link is real
                               var response = await http
-                                  .head(applicationLinkController.text);
+                                  .head(applicationLinkController.text.replaceAll(' ', ''));
                               if (response.statusCode == 200) {
                                 error = false;
                               } else {
@@ -835,7 +835,7 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                                     status: 'Vacant',
                                     linkApplicationType: linkApplicationType,
                                     applicationLink:
-                                        applicationLinkController.text,
+                                        applicationLinkController.text.replaceAll(' ', ''),
                                     hasFixedDeadline: hasFixedDeadline,
                                     applicationDeadline: deadlineDate,
                                     universities: universities,

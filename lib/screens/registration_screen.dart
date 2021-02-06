@@ -3,12 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
+import 'package:genchi_app/screens/university_not_listed_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
@@ -71,9 +73,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               children: <Widget>[
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * .1,
+                  height: MediaQuery.of(context).size.height * .07,
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.bottomLeft,
                     child: IconButton(
                       icon: Icon(Icons.arrow_back_ios),
                       color: Color(kGenchiBlue),
@@ -106,6 +108,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       field: 'Name',
                       hintText: "Enter name",
                       isNameField: true,
+                      autocorrect: true,
                     ),
                     SizedBox(
                       height: 10.0,
@@ -172,18 +175,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             }),
                       ],
                     ),
+                    SizedBox(height: 10,),
 
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          'Account Type',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              'Account Type',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            GestureDetector(
+                              child: Icon(
+                                Icons.help_outline_outlined,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                              onTap: () async {
+                                await showDialogBox(
+                                    context: context,
+                                    title: 'Account Type',
+                                    body:
+                                    'Are you creating this account as an individual or for a society or project group?');
+                              },
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 5,
@@ -240,6 +263,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     SignInTextField(
                       field: 'Email',
+                      autocorrect: false,
                       onChanged: (value) {
                         email = value;
                       },
@@ -250,6 +274,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     SignInTextField(
                       field: 'Password',
+                      autocorrect: false,
                       onChanged: (value) {
                         password = value;
                       },
@@ -288,7 +313,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     showErrorField
                         ? PasswordErrorText(errorMessage: errorMessage)
-                        : SizedBox(height: 30.0),
+                        : SizedBox(height: 20.0),
                     RoundedButton(
                       buttonColor: Color(kGenchiBlue),
                       buttonTitle: "Register",
@@ -310,7 +335,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
 
                           await authProvider.registerWithEmail(
-                              email: email,
+                              email: email.replaceAll(' ', ''),
                               password: password,
                               uni: universityTypeController.text,
                               type: accountTypeController.text,
@@ -341,6 +366,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           showSpinner = false;
                         });
                       },
+                    ),
+                    RoundedButton(
+                      buttonColor: Color(kGenchiLightOrange),
+                      buttonTitle: "University not listed?",
+                      fontColor: Colors.black,
+                      onPressed: () {
+
+                        Navigator.pushNamed(context, UniversityNotListedScreen.id);
+                      }
+
                     )
                   ],
                 )),

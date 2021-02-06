@@ -142,12 +142,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   //TODO: trying out without service profiles
-                  // ProfileOptionTile(
+                  // if(currentUser.admin)ProfileOptionTile(
                   //   text: 'Test Screen',
                   //   onPressed: () {
                   //     Navigator.pushNamed(context, TestScreen.id);
                   //   },
                   // ),
+
                   // if (userIsProvider)
                   //   ProfileOptionTile(
                   //     text: 'Service Profiles',

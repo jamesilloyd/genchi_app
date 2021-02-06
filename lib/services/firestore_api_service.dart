@@ -11,40 +11,66 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  static CollectionReference _usersCollectionRef =
-      FirebaseFirestore.instance.collection('users');
-
-  static CollectionReference _chatCollectionRef =
-      FirebaseFirestore.instance.collection('chats');
-
-  static CollectionReference _taskCollectionRef =
-      FirebaseFirestore.instance.collection('tasks');
+  // static CollectionReference _usersCollectionRef =
+  //     FirebaseFirestore.instance.collection('users');
+  //
+  // static CollectionReference _chatCollectionRef =
+  //     FirebaseFirestore.instance.collection('chats');
+  //
+  // static CollectionReference _taskCollectionRef =
+  //     FirebaseFirestore.instance.collection('tasks');
 
   static CollectionReference _feedbackCollectionRef =
       FirebaseFirestore.instance.collection('feedback');
 
+  static CollectionReference _universityCollectionRef =
+      FirebaseFirestore.instance.collection('university');
+
+  static CollectionReference _versionCollectionRef =
+  FirebaseFirestore.instance.collection('version');
   ///DEVELOP MODE
-  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/users');
-  //
-  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
-  //
-  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
+  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/users');
+
+  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
+
+  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+      .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
 
-  Future sendOpportunityFeedback({List filters, GenchiUser user}) async {
+  Future sendOpportunityFeedback({List filters, GenchiUser user, String request}) async {
     UserFeedback feedback = UserFeedback(
         filters: filters,
         id: user.id,
         email: user.email,
         name: user.name,
+        request:  request,
         timeSubmitted: Timestamp.now());
 
     await _feedbackCollectionRef.add(feedback.toJson());
+  }
+
+  Future addUniveristy({String uni, String email, String reason}) async {
+
+    await _universityCollectionRef
+        .add({'univeristy': uni, 'time': Timestamp.now(), 'reason':reason,'email':email});
+  }
+
+  Future checkForAppUpdate({String currentVersion}) async {
+
+
+    DocumentSnapshot versionsData = await _versionCollectionRef.doc('QvfpN3wVCzvsvK1sTu4M').get();
+    Map versions = versionsData.data();
+
+    List acceptableVersions = versions['acceptableVersions'];
+
+    ///Tease the user
+    await Future.delayed(const Duration(seconds: 2));
+
+    return acceptableVersions.contains(currentVersion);
   }
 
   ///***------------------ SERVICE SEARCH FUNCTIONS ------------------***
@@ -582,6 +608,7 @@ class FirestoreAPIService {
     List<Task> tasks;
     List<Task> openTasks = [];
     List<Task> deadlineTasks = [];
+    List<Task> newTasks = [];
 
     var result =
         await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
@@ -590,18 +617,23 @@ class FirestoreAPIService {
     tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
 
     for (Task task in tasks) {
-      if (task.hasFixedDeadline && task.applicationDeadline != null) {
+      if (task.time.toDate().difference(DateTime.now()).inHours > -36) {
+        newTasks.add(task);
+      } else if (task.hasFixedDeadline && task.applicationDeadline != null) {
         deadlineTasks.add(task);
       } else {
         openTasks.add(task);
       }
     }
 
+    newTasks.sort((a, b) => b.time.compareTo(a.time));
+
     deadlineTasks
         .sort((a, b) => a.applicationDeadline.compareTo(b.applicationDeadline));
     openTasks.sort((a, b) => b.time.compareTo(a.time));
 
     tasks = [];
+    tasks.addAll(newTasks);
     tasks.addAll(deadlineTasks);
     tasks.addAll(openTasks);
 
@@ -612,37 +644,6 @@ class FirestoreAPIService {
 
       ///If hirer exists add them to the task list
       if (hirer != null && task.status == 'Vacant') {
-        taskAndHirer['hirer'] = hirer;
-        tasksAndHirers.add(taskAndHirer);
-      }
-    }
-    return tasksAndHirers;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchTasksAndHirersByService(
-      {String service}) async {
-    if (debugMode)
-      print(
-          'FirestoreAPI: fetchTasksAndHirersByService called on service $service');
-
-    List<Map<String, dynamic>> tasksAndHirers = [];
-    List<Task> tasks;
-    var result =
-        await _taskCollectionRef.where('service', isEqualTo: service).get();
-
-    ///Map all the docs into Task objects
-    tasks = result.docs.map((doc) => Task.fromMap(doc.data())).toList();
-
-    ///Sort by time posted
-    tasks.sort((a, b) => b.time.compareTo(a.time));
-
-    for (Task task in tasks) {
-      Map<String, dynamic> taskAndHirer = {};
-      taskAndHirer['task'] = task;
-      var hirer = await getUserById(task.hirerId);
-
-      ///If hirer exists add them to the task list
-      if (hirer != null) {
         taskAndHirer['hirer'] = hirer;
         tasksAndHirers.add(taskAndHirer);
       }
@@ -1104,14 +1105,13 @@ class FirestoreAPIService {
     });
   }
 
-  Future findBadBoy() async {
+  Future preferencAggregate() async {
     Map opportunityValues = {};
 
     await _usersCollectionRef.get().then((value) async {
       for (DocumentSnapshot doc1 in value.docs) {
         GenchiUser theUser = GenchiUser.fromMap(doc1.data());
-        if(theUser.preferences.isNotEmpty) {
-          print(theUser.preferences);
+        if (theUser.preferences.isNotEmpty) {
           for (String value in theUser.preferences) {
             if (opportunityValues.containsKey(value)) {
               opportunityValues[value] += 1;
@@ -1124,6 +1124,163 @@ class FirestoreAPIService {
     });
 
     print(opportunityValues);
+  }
+
+  Future weightedPreferencAggregate() async {
+    Map opportunityValuesViewed = {};
+    Map opportunityValuesApplied = {};
+
+    await _taskCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        print('1');
+        Task task = Task.fromMap(doc1.data());
+        if (task.viewedIds.isNotEmpty) {
+          for (String id in task.viewedIds) {
+            ///Get the user and get their preferences
+            GenchiUser user = await getUserById(id);
+            if (user != null) {
+              for (String value in user.preferences) {
+                if (opportunityValuesViewed.containsKey(value)) {
+                  opportunityValuesViewed[value] += 1;
+                } else {
+                  opportunityValuesViewed[value] = 1;
+                }
+              }
+            }
+          }
+        }
+        print('2');
+        if (task.linkApplicationIds.isNotEmpty) {
+          for (String id in task.linkApplicationIds) {
+            ///Get the user and get their preferences
+            GenchiUser user = await getUserById(id);
+            if (user != null) {
+              for (String value in user.preferences) {
+                if (opportunityValuesApplied.containsKey(value)) {
+                  opportunityValuesApplied[value] += 1;
+                } else {
+                  opportunityValuesApplied[value] = 1;
+                }
+              }
+            }
+          }
+        }
+        print('3');
+        if (task.applicationIds.isNotEmpty) {
+          for (String id in task.applicationIds) {
+            ///Get the user and get their preferences
+            GenchiUser user = await getUserById(id);
+            if (user != null) {
+              for (String value in user.preferences) {
+                if (opportunityValuesApplied.containsKey(value)) {
+                  opportunityValuesApplied[value] += 1;
+                } else {
+                  opportunityValuesApplied[value] = 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    print(opportunityValuesViewed);
+    print(opportunityValuesApplied);
+  }
+
+  Future taskTagsAggregate() async {
+    Map tagsAggregate = {};
+
+    await _taskCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        Task task = Task.fromMap(doc1.data());
+
+        if (task.tags.isNotEmpty) {
+          for (String tag in task.tags) {
+            if (tagsAggregate.containsKey(tag)) {
+              tagsAggregate[tag] += 1;
+            } else {
+              tagsAggregate[tag] = 1;
+            }
+          }
+        }
+      }
+    });
+
+    print(tagsAggregate);
+  }
+
+  Future taskViewApplyRatio() async {
+    Map ratioAggregate = {};
+
+    await _taskCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        Task task = Task.fromMap(doc1.data());
+
+        print({
+          "name": task.title,
+          "views": task.viewedIds.length,
+          "applications":
+              task.applicationIds.length + task.linkApplicationIds.length
+        });
+
+        ratioAggregate[task.title] = {
+          "views": task.viewedIds.length,
+          "applications":
+              task.applicationIds.length + task.linkApplicationIds.length
+        };
+      }
+    });
+
+    print(ratioAggregate);
+  }
+
+  Future taskTagWeightingsAggregate() async {
+    Map viewAggregate = {};
+    Map applyAggregate = {};
+
+    await _taskCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        Task task = Task.fromMap(doc1.data());
+
+        for (String tag in task.tags) {
+          if (viewAggregate.containsKey(tag)) {
+            viewAggregate[tag] += 1 * task.viewedIds.length;
+          } else {
+            viewAggregate[tag] = 1 * task.viewedIds.length;
+          }
+
+          if (applyAggregate.containsKey(tag)) {
+            applyAggregate[tag] += 1 *
+                (task.linkApplicationIds.length + task.applicationIds.length);
+          } else {
+            applyAggregate[tag] = 1 *
+                (task.linkApplicationIds.length + task.applicationIds.length);
+          }
+        }
+      }
+    });
+
+    print(viewAggregate);
+    print(applyAggregate);
+  }
+
+  Future leadingUsers() async {
+    List leadingUsers = [];
+
+    await _usersCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        GenchiUser user = GenchiUser.fromMap(doc1.data());
+
+        leadingUsers.add([user.name,user.sessionCount]);
+
+
+      }
+    });
+
+    leadingUsers.sort((a, b) => b[1].compareTo(a[1]));
+    print(leadingUsers);
+
   }
 
   ///Must only call this whilst in PRODUCTION MODE

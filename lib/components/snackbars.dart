@@ -77,6 +77,20 @@ const kDevelopmentFeature = SnackBar(
   ),
 );
 
+const kDeepLinkCreated = SnackBar(
+  backgroundColor: Color(kGenchiLightGreen),
+  duration: Duration(seconds: 7),
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+  content: Text(
+    'A link has been copied to your clipboard. Paste to share 😊',
+    style: TextStyle(
+        color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
+    textAlign: TextAlign.center,
+  ),
+);
+
 const kApplicationLinkNotWorking = SnackBar(
   backgroundColor: Color(kGenchiOrange),
   duration: Duration(seconds: 5),

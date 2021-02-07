@@ -11,14 +11,14 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  // static CollectionReference _usersCollectionRef =
-  //     FirebaseFirestore.instance.collection('users');
-  //
-  // static CollectionReference _chatCollectionRef =
-  //     FirebaseFirestore.instance.collection('chats');
-  //
-  // static CollectionReference _taskCollectionRef =
-  //     FirebaseFirestore.instance.collection('tasks');
+  static CollectionReference _usersCollectionRef =
+      FirebaseFirestore.instance.collection('users');
+
+  static CollectionReference _chatCollectionRef =
+      FirebaseFirestore.instance.collection('chats');
+
+  static CollectionReference _taskCollectionRef =
+      FirebaseFirestore.instance.collection('tasks');
 
   static CollectionReference _feedbackCollectionRef =
       FirebaseFirestore.instance.collection('feedback');
@@ -28,15 +28,16 @@ class FirestoreAPIService {
 
   static CollectionReference _versionCollectionRef =
   FirebaseFirestore.instance.collection('version');
+
   ///DEVELOP MODE
-  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-      .collection('development/esAH2pX9jWOIxyaMi1v4/users');
-
-  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-      .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
-
-  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-      .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
+  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/esAH2pX9jWOIxyaMi1v4/users');
+  //
+  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
+  //
+  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');

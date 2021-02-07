@@ -7,6 +7,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/jobs_screen.dart';
+import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
@@ -51,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
   DefaultCacheManager cacheManager = DefaultCacheManager();
   StreamSubscription iosSubscription;
 
+  final DynamicLinkService dynamicLinkService = DynamicLinkService();
+
   _saveDeviceToken() async {
     /// Get the current user
     GenchiUser currentUser = Provider.of<AuthenticationService>(context, listen: false)
@@ -69,6 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    print('home');
+
+    dynamicLinkService.initDynamicLinks(context);
+
 
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
@@ -93,6 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // TODO optional
       },
     );
+
+
+
   }
 
   @override
@@ -115,11 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       //TODO: look into using a page view instead
-      body: IndexedStack(
-        index: _page ?? startingIndex,
-        children: screens,
-      ),
-      // body: screens.elementAt(_page ?? startingIndex),
+      // body: IndexedStack(
+      //   index: _page ?? startingIndex,
+      //   children: screens,
+      // ),
+      body: screens.elementAt(_page ?? startingIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),

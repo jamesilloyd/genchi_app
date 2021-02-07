@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
@@ -33,6 +34,7 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
@@ -50,42 +52,20 @@ class Genchi extends StatefulWidget {
   _GenchiState createState() => _GenchiState();
 }
 
-//TODO: need to add code to hand dynamic links
-//TODO: not quite ready for this
-// class _GenchiState extends State<Genchi> with WidgetsBindingObserver {
 class _GenchiState extends State<Genchi> {
   ///Initialise FlutterFire
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
-  //TODO: this is for better handling of dynamic links
-  // final DynamicLinkService _dynamicLinkService = DynamicLinkService();
-  //
-  // Timer _timerLink;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addObserver(this);
-  // }
-  //
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if(state == AppLifecycleState.resumed){
-  //     _timerLink = new Timer(const Duration(milliseconds: 1000), (){
-  //       _dynamicLinkService.retrieveDynamicLink(context);
-  //     },);
-  //   }
-  //
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   WidgetsBinding.instance.removeObserver(this);
-  //   if (_timerLink != null){
-  //     _timerLink.cancel();
-  //   }
-  //   super.dispose();
-  // }
+  /// This is for better handling of dynamic links
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +102,6 @@ class _GenchiState extends State<Genchi> {
               // ChangeNotifierProvider(create: (_) =>),
               ChangeNotifierProvider(create: (_) => AuthenticationService()),
               ChangeNotifierProvider(create: (_) => AccountService()),
-              //TODO: implement this
               // ChangeNotifierProvider(create: (_) => NotificationService()),
               ChangeNotifierProvider(create: (_) => TaskService()),
             ],
@@ -137,8 +116,24 @@ class _GenchiState extends State<Genchi> {
 
 
 
-class StartUp extends StatelessWidget{
+class StartUp extends StatefulWidget{
+  @override
+  _StartUpState createState() => _StartUpState();
+}
+
+class _StartUpState extends State<StartUp> {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  // final DynamicLinkService dynamicLinkService = DynamicLinkService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // dynamicLinkService.initDynamicLinks();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

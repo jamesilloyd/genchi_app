@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 
 import 'package:genchi_app/components/circular_progress.dart';
@@ -22,6 +23,7 @@ import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
+import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'package:genchi_app/models/task.dart';
@@ -39,6 +41,8 @@ class TaskScreenApplicant extends StatefulWidget {
 }
 
 class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
+
+
   TextStyle titleTextStyle = TextStyle(
     fontSize: 20.0,
     fontWeight: FontWeight.w500,
@@ -47,6 +51,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
   bool showSpinner = false;
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
+  static final DynamicLinkService dynamicLinkService = DynamicLinkService();
   List userPidsAndId = [];
 
   Future hirerFuture;
@@ -242,22 +247,21 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                     builder: (context) {
                       return IconButton(
                         onPressed: () async {
-                          bool likesFeature = await showYesNoAlert(
-                              context: context,
-                              title: 'Share this opportunity with a friend?');
 
-                          if (likesFeature != null) {
-                            analytics.logEvent(
-                                name: 'share_job_button_pressed',
-                                parameters: {
-                                  'response': likesFeature.toString()
-                                });
+                          ///Generate a new dynamic link
+                            String newLink = await dynamicLinkService.createDynamicLink(title: currentTask.title,taskId: currentTask.taskId);
 
-                            if (likesFeature) {
-                              Scaffold.of(context)
-                                  .showSnackBar(kDevelopmentFeature);
-                            }
-                          }
+                            ///Copy it to clipboard
+                            Clipboard.setData(ClipboardData(text:newLink));
+
+                            ///Let them know :)
+                            Scaffold.of(context)
+                                .showSnackBar(kDeepLinkCreated);
+
+                            await analytics.logEvent(
+                                name: 'share_job_button_pressed');
+
+
                         },
                         icon: Icon(
                           Platform.isIOS ? Icons.ios_share : Icons.share,

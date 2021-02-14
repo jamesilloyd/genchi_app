@@ -29,6 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(kGenchiGreen),
       body: Stack(
         alignment: AlignmentDirectional.bottomCenter,
         children: <Widget>[
@@ -365,5 +366,5 @@ final sliderArrayList = [
       sliderImageUrl: 'images/onboarding/Provide.png',
       sliderHeading: 'APPLY',
       sliderSubHeading:
-          'Start applying to projects and opportunities at Universities over the world. \n\n Meet students with similar interests and start spreading ideas and innovations.'),
+          'Start applying to projects and opportunities at Universities all over the world. \n\n Get valuable experience for your CV, meet students with similar interests and start spreading ideas and innovations.'),
 ];

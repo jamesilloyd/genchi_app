@@ -35,6 +35,7 @@ import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/dynamic_link_service.dart';
+import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
 import 'services/authentication_service.dart';
@@ -102,7 +103,7 @@ class _GenchiState extends State<Genchi> {
               // ChangeNotifierProvider(create: (_) =>),
               ChangeNotifierProvider(create: (_) => AuthenticationService()),
               ChangeNotifierProvider(create: (_) => AccountService()),
-              // ChangeNotifierProvider(create: (_) => NotificationService()),
+              ChangeNotifierProvider(create: (_) => NotificationService()),
               ChangeNotifierProvider(create: (_) => TaskService()),
             ],
             child: StartUp(),

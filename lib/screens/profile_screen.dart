@@ -38,7 +38,7 @@ class ProfileScreen extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveClientMixin {
   String userName;
   List<GenchiUser> serviceProviders;
   bool showSpinner = false;
@@ -46,28 +46,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  Future providerFuture;
+  // Future providerFuture;
 
   @override
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: "/home/profile");
 
-    providerFuture = firestoreAPI.getServiceProviders(
-        ids: Provider.of<AuthenticationService>(context, listen: false)
-            .currentUser
-            .providerProfiles);
+    // providerFuture = firestoreAPI.getServiceProviders(
+    //     ids: Provider.of<AuthenticationService>(context, listen: false)
+    //         .currentUser
+    //         .providerProfiles);
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     print('Profile screen: activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
     final accountService = Provider.of<AccountService>(context);
 
     GenchiUser currentUser = authProvider.currentUser;
-    bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
+    // bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
 
     return Stack(
       children: <Widget>[

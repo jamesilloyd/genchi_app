@@ -19,7 +19,7 @@ class AuthenticationService extends ChangeNotifier {
     if (user != null) {
       if (debugMode)
         print('Authentication service _populateCurrentUser: user ${user.uid}');
-      // _currentUser = await _firestoreCRUDModel.getUserById('cILAhQxPmQdYR8hcili0sqAuddg2');
+      // _currentUser = await _firestoreCRUDModel.getUserById('RFc0QjKHF6HM5cMfqF1y');
 
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       notifyListeners();

@@ -41,7 +41,9 @@ class JobsScreen extends StatefulWidget {
   _JobsScreenState createState() => _JobsScreenState();
 }
 
-class _JobsScreenState extends State<JobsScreen> {
+class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMixin{
+
+
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
@@ -69,6 +71,8 @@ class _JobsScreenState extends State<JobsScreen> {
 
   double buttonHeight;
 
+
+
   @override
   void dispose() {
     super.dispose();
@@ -95,6 +99,7 @@ class _JobsScreenState extends State<JobsScreen> {
   @override
   void initState() {
     super.initState();
+    analytics.setCurrentScreen(screenName: 'home/jobs_screen');
 
     _listScrollController.addListener(() {
       if (_listScrollController.position.userScrollDirection ==
@@ -124,9 +129,10 @@ class _JobsScreenState extends State<JobsScreen> {
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
     Provider.of<AccountService>(context, listen: false)
         .updateCurrentAccount(id: currentUser.id);
-    analytics.setCurrentScreen(screenName: 'home/jobs_screen');
+
 
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
+
 
     getUserTasksPostedAndNotificationsFuture = firestoreAPI
         .getUserTasksPostedAndNotifications(postIds: currentUser.posts);
@@ -143,7 +149,11 @@ class _JobsScreenState extends State<JobsScreen> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final taskProvider = Provider.of<TaskService>(context);
     final authProvider = Provider.of<AuthenticationService>(context);
     final accountService = Provider.of<AccountService>(context);

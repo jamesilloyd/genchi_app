@@ -9,6 +9,7 @@ import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/services/notification_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
@@ -26,14 +27,14 @@ class ChatSummaryScreen extends StatefulWidget {
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();
 }
 
-class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
+class _ChatSummaryScreenState extends State<ChatSummaryScreen>
+    with AutomaticKeepAliveClientMixin {
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
 
   bool showSpinner = false;
 
   Stream chatSummaryStream;
-
 
   @override
   void initState() {
@@ -43,19 +44,19 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
 
     chatSummaryStream = firestoreAPI.streamUserChatsAndApplications(user: user);
-
   }
 
-  //TODO: ADD IN A PULL TO REFRESH HERE?
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     print('Chat summary screen activated');
 
     final authProvider = Provider.of<AuthenticationService>(context);
     GenchiUser currentUser = authProvider.currentUser;
     bool userIsProvider = currentUser.providerProfiles.isNotEmpty;
-
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
       progressIndicator: CircularProgress(),
@@ -69,19 +70,22 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             children: <Widget>[
               Column(
-                      children: [
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Divider(
-                          thickness: 1,
-                          height: 0,
-                        ),
-                      ],
-                    ),
+                children: [
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Divider(
+                    thickness: 1,
+                    height: 0,
+                  ),
+                ],
+              ),
               StreamBuilder(
                 stream: chatSummaryStream,
                 builder: (context, snapshot) {
+                  ///This variable is used to update the notifcations
+                  int notifications = 0;
+
                   if (!snapshot.hasData) {
                     return Container(
                       height: 60,
@@ -123,70 +127,75 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                           bool userIsUser1 =
                               chatORApplication['data']['userIsUser1'];
 
-                            ///Users main account messages
-                            Widget chatWidget = MessageListItem(
-                              imageURL: otherUser.displayPictureURL,
-                              name: otherUser.name,
-                              lastMessage: chat.lastMessage,
-                              time: chat.time,
-                              hasUnreadMessage: userIsUser1
-                                  ? chat.user1HasUnreadMessage
-                                  : chat.user2HasUnreadMessage,
-                              deleteMessage: 'Archive',
-                              onTap: () async {
+                          ///Update number of notifications
+                          if (userIsUser1) {
+                            if (chat.user1HasUnreadMessage) notifications += 1;
+                          } else {
+                            if (chat.user2HasUnreadMessage) notifications += 1;
+                          }
+
+                          ///Users main account messages
+                          Widget chatWidget = MessageListItem(
+                            imageURL: otherUser.displayPictureURL,
+                            name: otherUser.name,
+                            lastMessage: chat.lastMessage,
+                            time: chat.time,
+                            hasUnreadMessage: userIsUser1
+                                ? chat.user1HasUnreadMessage
+                                : chat.user2HasUnreadMessage,
+                            deleteMessage: 'Archive',
+                            onTap: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              userIsUser1
+                                  ? chat.user1HasUnreadMessage = false
+                                  : chat.user2HasUnreadMessage = false;
+                              await firestoreAPI.updateChat(chat: chat);
+
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              Navigator.pushNamed(context, ChatScreen.id,
+                                  arguments: ChatScreenArguments(
+                                    chat: chat,
+                                    user1: userIsUser1 ? user : otherUser,
+                                    userIsUser1: userIsUser1,
+                                    user2: userIsUser1 ? otherUser : user,
+                                  ));
+                            },
+                            hideChat: () async {
+                              bool deleteChat = await showYesNoAlert(
+                                  context: context,
+                                  title: "Are you sure you want delete chat?");
+
+                              if (deleteChat) {
                                 setState(() {
                                   showSpinner = true;
                                 });
-                                userIsUser1
-                                    ? chat.user1HasUnreadMessage = false
-                                    : chat.user2HasUnreadMessage = false;
-                                await firestoreAPI.updateChat(chat: chat);
+                                await analytics.logEvent(
+                                    name: 'provider_hidden_chat');
+                                await firestoreAPI.hideChat(
+                                    chat: chat, hiddenId: user.id);
 
                                 setState(() {
                                   showSpinner = false;
                                 });
-                                Navigator.pushNamed(context, ChatScreen.id,
-                                    arguments: ChatScreenArguments(
-                                      chat: chat,
-                                      user1: userIsUser1 ? user : otherUser,
-                                      userIsUser1: userIsUser1,
-                                      user2: userIsUser1 ? otherUser : user,
-                                    ));
-                              },
-                              hideChat: () async {
-                                bool deleteChat = await showYesNoAlert(
-                                    context: context,
-                                    title:
-                                        "Are you sure you want delete chat?");
-
-                                if (deleteChat) {
-                                  setState(() {
-                                    showSpinner = true;
-                                  });
-                                  await analytics.logEvent(
-                                      name: 'provider_hidden_chat');
-                                  await firestoreAPI.hideChat(
-                                      chat: chat, hiddenId: user.id);
-
-                                  setState(() {
-                                    showSpinner = false;
-                                  });
-                                }
-                              },
-                            );
-
-                            if (userIsUser1) {
-                              if (!chat.isHiddenFromUser1) {
-                                chatWidgets.add(chatWidget);
                               }
-                            } else {
-                              if (!chat.isHiddenFromUser2) {
-                                chatWidgets.add(chatWidget);
-                              }
+                            },
+                          );
+
+                          if (userIsUser1) {
+                            if (!chat.isHiddenFromUser1) {
+                              chatWidgets.add(chatWidget);
                             }
-
+                          } else {
+                            if (!chat.isHiddenFromUser2) {
+                              chatWidgets.add(chatWidget);
+                            }
+                          }
                         } else if (chatORApplication['type'] == 'taskApplied') {
-                          ///We're dealing with an task applied
+                          ///We're dealing with a task applied
                           TaskApplication application =
                               chatORApplication['data']['application'];
                           GenchiUser hirer = chatORApplication['data']['hirer'];
@@ -194,8 +203,11 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                               chatORApplication['data']['applicant'];
                           Task task = chatORApplication['data']['task'];
 
-                          ///Users task application message
+                          ///Update number of notifications
+                          if (application.applicantHasUnreadMessage)
+                            notifications += 1;
 
+                          ///Users task application message
                           Widget taskApplicationWidget = AppliedTaskChat(
                             imageURL: hirer.displayPictureURL,
                             title: task.title,
@@ -252,8 +264,12 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                             GenchiUser applicant =
                                 applicationAndApplicant['applicant'];
 
-                            if (taskApplication.hirerHasUnreadMessage)
+                            if (taskApplication.hirerHasUnreadMessage) {
                               hirerHasUnreadNotification = true;
+
+                              ///Update number of notifications
+                              notifications += 1;
+                            }
 
                             MessageListItem chatWidget = MessageListItem(
                                 imageURL: applicant.displayPictureURL,
@@ -308,6 +324,9 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen> {
                         }
                       }
                     }
+
+                    Provider.of<NotificationService>(context, listen: false)
+                        .updateJobNotifications(notifications: notifications);
 
                     if (chatWidgets.isEmpty) {
                       return Container(

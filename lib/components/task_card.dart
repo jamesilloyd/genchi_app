@@ -158,6 +158,9 @@ class BigTaskCard extends StatelessWidget {
                         if (newTask)
                           Text(
                             'New',
+                            style: TextStyle(
+                              color: Color(kGenchiOrange)
+                            ),
 
                           ),
                         Text(

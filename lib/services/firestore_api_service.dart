@@ -817,6 +817,7 @@ class FirestoreAPIService {
         time: Timestamp.now(),
         applicantId: applicantId,
         isHiddenFromHirer: false,
+        hirerHasUnreadMessage: true,
         isHiddenFromApplicant: false);
 
     ///Add application to taskApplication collection
@@ -960,6 +961,54 @@ class FirestoreAPIService {
     }
 
     return tasksAndNotifications;
+  }
+
+  Future userHasNotification({@required GenchiUser user}) async {
+
+    print('FirebaseAPI: userHasNotifications called');
+
+    int notifications = 0;
+
+    ///Check for task posted notifications
+      List<Task> allTasks = await getTasks(postIds: user.posts);
+
+      for (Task task in allTasks) {
+
+        if(await hirerTaskHasNotification(taskId: task.taskId)) notifications += 1;
+      }
+
+    /// Check for task applied notifications
+    ///Get tasks the id has applied to
+    if (user.tasksApplied.isNotEmpty) {
+      List<Task> allTasksApplied = await getTasks(postIds: user.tasksApplied);
+
+      ///get the hirer associated with each task
+      for (Task task in allTasksApplied) {
+
+        if(await providerApplicationHasNotification(
+            taskId: task.taskId, applicantId: user.id)) notifications += 1;
+
+      }
+    }
+    /// Check for chat notifications
+    var result1 = await _chatCollectionRef.where('id1', isEqualTo: user.id).get();
+
+    List<Chat> chats1 = result1.docs.map((doc) => Chat.fromMap(doc.data())).toList();
+
+    for(Chat chat in chats1){
+      if(chat.user1HasUnreadMessage) notifications += 1;
+    }
+
+    /// Check for chat notifications
+    var result2 = await _chatCollectionRef.where('id2', isEqualTo: user.id).get();
+
+    List<Chat> chats2 = result2.docs.map((doc) => Chat.fromMap(doc.data())).toList();
+
+    for(Chat chat in chats2){
+      if(chat.user2HasUnreadMessage) notifications += 1;
+    }
+
+    return notifications;
   }
 
   Future<List<Map<String, dynamic>>> getUserTasksAppliedAndNotifications(
@@ -1106,8 +1155,9 @@ class FirestoreAPIService {
     });
   }
 
-  Future preferencAggregate() async {
+  Future preferenceAggregate() async {
     Map opportunityValues = {};
+    List opportunityList = [];
 
     await _usersCollectionRef.get().then((value) async {
       for (DocumentSnapshot doc1 in value.docs) {
@@ -1123,8 +1173,39 @@ class FirestoreAPIService {
         }
       }
     });
+    for (String key in opportunityValues.keys){
+      opportunityList.add([key,opportunityValues[key]]);
+    }
 
-    print(opportunityValues);
+    opportunityList.sort((a, b) => b[1].compareTo(a[1]));
+    print(opportunityList);
+  }
+
+  Future preferenceAggregateWeightedBySession() async {
+    Map opportunityValues = {};
+    List opportunityList = [];
+
+    await _usersCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        GenchiUser theUser = GenchiUser.fromMap(doc1.data());
+        if (theUser.preferences.isNotEmpty) {
+          for (String value in theUser.preferences) {
+            if (opportunityValues.containsKey(value)) {
+              opportunityValues[value] += 1*theUser.sessionCount;
+            } else {
+              opportunityValues[value] = 1*theUser.sessionCount;
+            }
+          }
+        }
+      }
+    });
+
+    for (String key in opportunityValues.keys){
+      opportunityList.add([key,opportunityValues[key]]);
+    }
+
+    opportunityList.sort((a, b) => b[1].compareTo(a[1]));
+    print(opportunityList);
   }
 
   Future weightedPreferencAggregate() async {
@@ -1213,17 +1294,20 @@ class FirestoreAPIService {
 
   Future taskViewApplyRatio() async {
     Map ratioAggregate = {};
+    List taskStats = [];
 
     await _taskCollectionRef.get().then((value) async {
       for (DocumentSnapshot doc1 in value.docs) {
         Task task = Task.fromMap(doc1.data());
 
-        print({
-          "name": task.title,
-          "views": task.viewedIds.length,
-          "applications":
-              task.applicationIds.length + task.linkApplicationIds.length
-        });
+        // print({
+        //   "name": task.title,
+        //   "views": task.viewedIds.length,
+        //   "applications":
+        //       task.applicationIds.length + task.linkApplicationIds.length
+        // });
+
+        taskStats.add([task.title,task.viewedIds.length,task.applicationIds.length + task.linkApplicationIds.length]);
 
         ratioAggregate[task.title] = {
           "views": task.viewedIds.length,
@@ -1233,12 +1317,18 @@ class FirestoreAPIService {
       }
     });
 
-    print(ratioAggregate);
+    taskStats.sort((b,a) => b[2].compareTo(a[2]));
+
+    for(List key in taskStats) {
+      print(key);
+    }
   }
 
   Future taskTagWeightingsAggregate() async {
     Map viewAggregate = {};
+    List viewList = [];
     Map applyAggregate = {};
+    List applyList = [];
 
     await _taskCollectionRef.get().then((value) async {
       for (DocumentSnapshot doc1 in value.docs) {
@@ -1247,6 +1337,7 @@ class FirestoreAPIService {
         for (String tag in task.tags) {
           if (viewAggregate.containsKey(tag)) {
             viewAggregate[tag] += 1 * task.viewedIds.length;
+
           } else {
             viewAggregate[tag] = 1 * task.viewedIds.length;
           }
@@ -1262,8 +1353,19 @@ class FirestoreAPIService {
       }
     });
 
-    print(viewAggregate);
-    print(applyAggregate);
+    for(String key in viewAggregate.keys){
+      viewList.add([key,viewAggregate[key]]);
+    }
+
+    for(String key in applyAggregate.keys){
+      applyList.add([key,applyAggregate[key]]);
+    }
+
+    viewList.sort((a,b) => b[1].compareTo(a[1]));
+    applyList.sort((a,b) => b[1].compareTo(a[1]));
+
+    print(viewList);
+    print(applyList);
   }
 
   Future leadingUsers() async {
@@ -1273,15 +1375,36 @@ class FirestoreAPIService {
       for (DocumentSnapshot doc1 in value.docs) {
         GenchiUser user = GenchiUser.fromMap(doc1.data());
 
-        leadingUsers.add([user.name,user.sessionCount]);
+        if(user.name.contains('Hack')) print(user.id);
+
+        leadingUsers.add([user.name,user.sessionCount,user.email]);
 
 
       }
     });
 
     leadingUsers.sort((a, b) => b[1].compareTo(a[1]));
-    print(leadingUsers);
+    // print(leadingUsers);
 
+  }
+
+  Future leadingUsersPreferences() async {
+    List leadingUsers = [];
+
+    await _usersCollectionRef.get().then((value) async {
+      for (DocumentSnapshot doc1 in value.docs) {
+        GenchiUser user = GenchiUser.fromMap(doc1.data());
+
+        leadingUsers.add([user.name,user.sessionCount,user.email,user.preferences]);
+
+
+      }
+    });
+
+    leadingUsers.sort((b,a) => b[1].compareTo(a[1]));
+    for(List user in leadingUsers){
+      print(user);
+    }
   }
 
   ///Must only call this whilst in PRODUCTION MODE

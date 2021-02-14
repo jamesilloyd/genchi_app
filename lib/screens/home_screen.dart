@@ -9,6 +9,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/jobs_screen.dart';
 import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
+import 'package:genchi_app/services/notification_service.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
@@ -25,11 +26,12 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-PageController pageController;
-
 class _HomeScreenState extends State<HomeScreen> {
-
   int _page;
+  final pageController = PageController();
+
+  //TODO: may need to put this in init
+  List<Widget> _children = [JobsScreen(), ChatSummaryScreen(), ProfileScreen()];
 
   void onPageChanged(int page) {
     setState(() {
@@ -37,27 +39,17 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  static final JobsScreen jobsScreen = JobsScreen();
-  static final ProfileScreen profileScreen = ProfileScreen();
-  static final ChatSummaryScreen chatSummaryScreen = ChatSummaryScreen();
-
-  List<Widget> screens = [
-    jobsScreen,
-    chatSummaryScreen,
-    profileScreen
-  ];
-
   final FirebaseMessaging _fcm = FirebaseMessaging();
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
+  final DynamicLinkService dynamicLinkService = DynamicLinkService();
   DefaultCacheManager cacheManager = DefaultCacheManager();
   StreamSubscription iosSubscription;
-
-  final DynamicLinkService dynamicLinkService = DynamicLinkService();
+  Future notificationsFuture;
 
   _saveDeviceToken() async {
     /// Get the current user
-    GenchiUser currentUser = Provider.of<AuthenticationService>(context, listen: false)
-            .currentUser;
+    GenchiUser currentUser =
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
 
     /// Get the token for this device
     String fcmToken = await _fcm.getToken();
@@ -73,9 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     print('home');
+    GenchiUser user =
+        Provider.of<AuthenticationService>(context, listen: false).currentUser;
+    // notificationsFuture = firestoreAPI.userHasNotification(user: user);
+
+    Provider.of<NotificationService>(context, listen: false).updateJobNotificationsFire(user: user);
 
     dynamicLinkService.initDynamicLinks(context);
-
 
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
@@ -100,9 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
         // TODO optional
       },
     );
-
-
-
   }
 
   @override
@@ -120,16 +113,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     int startingIndex = args.startingIndex;
     final authProvider = Provider.of<AuthenticationService>(context);
+    final notificationsProvider = Provider.of<NotificationService>(context);
     print('Home screen: user is ${authProvider.currentUser.id}');
-
 
     return Scaffold(
       //TODO: look into using a page view instead
-      // body: IndexedStack(
-      //   index: _page ?? startingIndex,
-      //   children: screens,
-      // ),
-      body: screens.elementAt(_page ?? startingIndex),
+      body: PageView(
+        children: _children,
+        controller: pageController,
+        onPageChanged: onPageChanged,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 1)]),
@@ -145,16 +138,16 @@ class _HomeScreenState extends State<HomeScreen> {
             unselectedFontSize: 14,
             selectedItemColor: Color(kGenchiOrange),
             unselectedItemColor: Colors.black,
-            onTap: onPageChanged,
+            onTap: (int index) {
+              pageController.jumpToPage(index);
+            },
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Stack(
-                  alignment: Alignment.center,
-                  children: [Icon(Platform.isIOS
+                icon: Stack(alignment: Alignment.center, children: [
+                  Icon(Platform.isIOS
                       ? CupertinoIcons.home
                       : Icons.home_outlined),
-                  ]
-                ),
+                ]),
                 label: 'Home',
               ),
               // BottomNavigationBarItem(
@@ -163,9 +156,40 @@ class _HomeScreenState extends State<HomeScreen> {
               //   label: 'Search',
               // ),
               BottomNavigationBarItem(
-                icon: Icon(Platform.isIOS
-                    ? CupertinoIcons.conversation_bubble
-                    : Icons.message),
+                icon: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          child: Icon(Platform.isIOS
+                              ? CupertinoIcons.conversation_bubble
+                              : Icons.message),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: 9,
+                            width: 9,
+                            decoration: BoxDecoration(
+                                color: notificationsProvider.notifications  > 0
+                                    ? Color(kGenchiOrange)
+                                    : Colors.transparent,
+                                // color: Color(kGenchiGreen),
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                          ),
+                        ),
+                      )
+                    ]),
                 label: 'Messages',
               ),
               BottomNavigationBarItem(

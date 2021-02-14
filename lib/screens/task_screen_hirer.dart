@@ -187,7 +187,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Expanded(
-                  flex: 6,
+                  flex: 5,
                   child: SelectableText(
                     currentTask.title,
                     style: TextStyle(
@@ -200,28 +200,39 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                   flex: 1,
                   child: Builder(
                     builder: (context) {
-                      return IconButton(
-                        onPressed: () async {
+                      return Column(
+                        children: [
+                          IconButton(
+                            onPressed: () async {
 
-                          ///Generate a new dynamic link
-                          String newLink = await dynamicLinkService.createDynamicLink(title: currentTask.title,taskId: currentTask.taskId);
+                              ///Generate a new dynamic link
+                              String newLink = await dynamicLinkService.createDynamicLink(title: currentTask.title,taskId: currentTask.taskId);
 
-                          ///Copy it to clipboard
-                          Clipboard.setData(ClipboardData(text:newLink));
+                              ///Copy it to clipboard
+                              Clipboard.setData(ClipboardData(text:newLink));
 
-                          ///Let them know :)
-                          Scaffold.of(context)
-                              .showSnackBar(kDeepLinkCreated);
+                              ///Let them know :)
+                              Scaffold.of(context)
+                                  .showSnackBar(kDeepLinkCreated);
 
-                          await analytics.logEvent(
-                              name: 'share_job_button_pressed');
+                              await analytics.logEvent(
+                                  name: 'share_job_button_pressed');
 
 
-                        },
-                        icon: Icon(
-                          Platform.isIOS ? Icons.ios_share : Icons.share,
-                          size: 25,
-                        ),
+                            },
+                            icon: Icon(
+                              Platform.isIOS ? Icons.ios_share : Icons.share,
+                              size: 25,
+                              color: Color(kGenchiOrange),
+                            ),
+                          ),
+                          Text('SHARE',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Color(kGenchiOrange)
+                          ),),
+                        ],
                       );
                     },
                     // child:

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:genchi_app/components/add_image_screen.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
@@ -854,7 +853,7 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                                     requestTextController.clear();
 
                                     ///send snackbar
-                                    Scaffold.of(context)
+                                    ScaffoldMessenger.of(context)
                                         .showSnackBar(kSubmitRequestSnackbar);
                                   },
                                 )
@@ -879,8 +878,8 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
 }
 
 class PostedAppliedList extends StatelessWidget {
-  List taskWidgets;
-  bool isPosted;
+  final List taskWidgets;
+  final bool isPosted;
 
   PostedAppliedList({@required this.taskWidgets, @required this.isPosted});
 
@@ -976,8 +975,8 @@ class PostedAppliedList extends StatelessWidget {
 }
 
 class PostJobSection extends StatelessWidget {
-  Function onPressed;
-  String text;
+  final Function onPressed;
+  final String text;
 
   PostJobSection({@required this.onPressed, @required this.text});
 
@@ -1001,7 +1000,7 @@ class PostJobSection extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7.0),
-          child: FlatButton(
+          child: MaterialButton(
             onPressed: onPressed,
             child: FittedBox(
               fit: BoxFit.contain,
@@ -1053,7 +1052,7 @@ class AppUpdateButton extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7.0),
-          child: FlatButton(
+          child: MaterialButton(
             onPressed: ()async{
               if(Platform.isIOS){
 

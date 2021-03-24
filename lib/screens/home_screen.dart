@@ -10,7 +10,6 @@ import 'package:genchi_app/screens/jobs_screen.dart';
 import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/notification_service.dart';
-import 'search_screen.dart';
 import 'profile_screen.dart';
 import 'chat_summary_screen.dart';
 import 'dart:io' show Platform;
@@ -31,7 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final pageController = PageController();
 
   //TODO: may need to put this in init
-  List<Widget> _children = [JobsScreen(), ChatSummaryScreen(), ProfileScreen()];
+  // static List<Widget> _children = [JobsScreen(), ChatSummaryScreen(), ProfileScreen()];
+  List<Widget> _children;
 
   void onPageChanged(int page) {
     setState(() {
@@ -70,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // notificationsFuture = firestoreAPI.userHasNotification(user: user);
 
     Provider.of<NotificationService>(context, listen: false).updateJobNotificationsFire(user: user);
+    _children = [JobsScreen(),ChatSummaryScreen(),ProfileScreen()];
 
     dynamicLinkService.initDynamicLinks(context);
 

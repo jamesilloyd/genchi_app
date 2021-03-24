@@ -7,8 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
-import 'package:genchi_app/screens/edit_provider_account_screen.dart';
-import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -17,7 +15,6 @@ import 'package:genchi_app/screens/about_screen.dart';
 
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/profile_option_tile.dart';
-import 'package:genchi_app/components/profile_cards.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/display_picture.dart';
@@ -28,7 +25,6 @@ import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -146,10 +142,19 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                     },
                   ),
                   //TODO: trying out without service profiles
-                  // if(currentUser.admin)ProfileOptionTile(
+                  // if(currentUser.admin) ProfileOptionTile(
                   //   text: 'Test Screen',
                   //   onPressed: () {
                   //     Navigator.pushNamed(context, TestScreen.id);
+                  //   },
+                  // ),
+
+                  // ProfileOptionTile(
+                  //   text: 'PostReg',
+                  //   onPressed: ()async{
+                  //
+                  //     await accountService.updateCurrentAccount(id: currentUser.id);
+                  //     Navigator.pushNamed(context,PostRegDetailsScreen.id);
                   //   },
                   // ),
 

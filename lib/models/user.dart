@@ -22,6 +22,8 @@ class GenchiUser {
   String versionNumber;
   int sessionCount;
 
+  bool accountCreatedOnWeb;
+
   //TODO: this is temporary
   bool hasSetPreferences;
 
@@ -82,6 +84,7 @@ class GenchiUser {
     this.sessionCount,
     //TODO: this is temporary
     this.hasSetPreferences,
+    this.accountCreatedOnWeb,
   });
 
   GenchiUser.fromMap(Map snapshot)
@@ -112,6 +115,7 @@ class GenchiUser {
         university = snapshot['university'] ?? 'Cambridge',
         versionNumber = snapshot['versionNumber'] ?? "1.0.0",
         sessionCount = snapshot['sessionCount'] ?? 0,
+        accountCreatedOnWeb = snapshot['accountCreatedOnWeb'] ?? false,
         admin = snapshot['admin'] ?? false;
 
   toJson() {
@@ -141,6 +145,7 @@ class GenchiUser {
       if (versionNumber != null) 'versionNumber' : versionNumber,
       //TODO: this is temporary
       if (hasSetPreferences != null) 'hasSetPreferences':hasSetPreferences,
+      if (accountCreatedOnWeb != null) 'accountCreatedOnWeb' : accountCreatedOnWeb,
       if (sessionCount != null) 'sessionCount':sessionCount,
       if (admin != null) 'admin': admin,
     };

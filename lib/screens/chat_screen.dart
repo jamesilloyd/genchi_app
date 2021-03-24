@@ -133,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           decoration: kMessageTextFieldDecoration,
                         ),
                       ),
-                      FlatButton(
+                      TextButton(
                         onPressed: () async {
                           setState(() {});
                           if (messageText != null) {

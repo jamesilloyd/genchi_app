@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:genchi_app/constants.dart';
 
-SnackBar TextSnackBar({String text}) {
+SnackBar kTextSnackBar({String text}) {
   return SnackBar(
     backgroundColor: Color(kGenchiOrange),
     duration: Duration(seconds: 3),

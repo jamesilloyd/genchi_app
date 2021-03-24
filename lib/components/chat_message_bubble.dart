@@ -47,6 +47,7 @@ class MessageBubble extends StatelessWidget {
                         SelectableLinkify(
                           text: text,
                           onOpen: _onOpenLink,
+                          cursorColor: Color(kGenchiOrange),
                           options: LinkifyOptions(humanize: false),
                           style: TextStyle(
                             fontWeight: FontWeight.w400,

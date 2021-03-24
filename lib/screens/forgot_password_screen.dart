@@ -79,7 +79,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 try {
                                   if (email != null) {
                                     await authProvider.sendResetEmail(email: email);
-                                    Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                    ScaffoldMessenger.of(context).showSnackBar(kForgotPasswordSnackbar);
                                   } else {
                                     throw ("Enter an email address");
                                   }
@@ -105,7 +105,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   if (email != null) {
                                     await authProvider.sendResetEmail(
                                         email: email);
-                                    Scaffold.of(context).showSnackBar(kForgotPasswordSnackbar);
+                                    ScaffoldMessenger.of(context).showSnackBar(kForgotPasswordSnackbar);
                                   } else {
                                     throw ("Enter an email address");
                                   }

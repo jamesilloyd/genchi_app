@@ -128,7 +128,7 @@ class BigTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return MaterialButton(
       padding: EdgeInsets.all(0),
       splashColor: Colors.transparent,
       highlightColor: Colors.black12,
@@ -190,11 +190,12 @@ class BigTaskCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text(uni,
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Color(kGenchiOrange)
-                ),),
+                //TODO: temporary
+                // Text(uni,
+                // style: TextStyle(
+                //   fontWeight: FontWeight.w400,
+                //   color: Color(kGenchiOrange)
+                // ),),
               ],
             ),
           ),

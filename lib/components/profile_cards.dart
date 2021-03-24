@@ -87,7 +87,7 @@ class ProviderAccountCard extends StatelessWidget {
               ]),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
-            child: FlatButton(
+            child: MaterialButton(
               onPressed: onPressed,
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: Column(
@@ -164,9 +164,9 @@ class AddProviderCard extends StatelessWidget {
               ]),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
-            child: FlatButton(
+            child: IconButton(
               onPressed: onPressed,
-              child: Icon(
+              icon: Icon(
                 Icons.add,
                 color: Colors.black,
               ),

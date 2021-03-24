@@ -61,7 +61,7 @@ class _PostRegDetailsScreenState extends State<PostRegDetailsScreen> {
           ),
           brightness: Brightness.light,
           actions: [
-            FlatButton(
+            TextButton(
                 onPressed: () async {
                   bool skip = await showYesNoAlert(
                       context: context,
@@ -75,7 +75,7 @@ class _PostRegDetailsScreenState extends State<PostRegDetailsScreen> {
                 },
                 child: Text(
                   'Skip',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16,color: Colors.black),
                 ))
           ],
         ),

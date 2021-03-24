@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
-import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/snackbars.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
@@ -27,7 +26,6 @@ class _UniversityNotListedScreenState extends State<UniversityNotListedScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     universityController.dispose();
     emailController.dispose();
@@ -41,7 +39,6 @@ class _UniversityNotListedScreenState extends State<UniversityNotListedScreen> {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
         backgroundColor: Color(kGenchiGreen),
         appBar: BasicAppNavigationBar(
           barTitle: 'University',
@@ -53,13 +50,13 @@ class _UniversityNotListedScreenState extends State<UniversityNotListedScreen> {
             progressIndicator: CircularProgress(),
             child: Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: ListView(
                 children: <Widget>[
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      SizedBox(height: MediaQuery.of(context).size.height*0.25,),
                       Center(
                         child: Text(
                           'What University are you from?',
@@ -119,6 +116,7 @@ class _UniversityNotListedScreenState extends State<UniversityNotListedScreen> {
                       Center(
                         child: Text(
                           'What would you like Genchi for? (optional)',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -145,35 +143,46 @@ class _UniversityNotListedScreenState extends State<UniversityNotListedScreen> {
                       ),
                     ],
                   ),
-                  RoundedButton(
-                    buttonTitle: "Submit",
-                    buttonColor: Color(kGenchiBlue),
-                    onPressed: () async {
-                      FocusScope.of(context).requestFocus(new FocusNode());
+                  Center(
+                    child: RoundedButton(
+                      buttonTitle: "Submit",
+                      buttonColor: Color(kGenchiBlue),
+                      onPressed: () async {
+                        FocusScope.of(context).requestFocus(new FocusNode());
 
-                      setState(() {
-                        showSpinner = true;
-                      });
 
-                      final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                        if(universityController.text != "" || emailController.text != '' || reasonController.text != '') {
+                          setState(() {
+                            showSpinner = true;
+                          });
 
-                      await firebaseAuth.signInAnonymously();
-                      firebaseAuth.currentUser;
+                          final FirebaseAuth firebaseAuth =
+                              FirebaseAuth.instance;
 
-                      final FirestoreAPIService firestore = FirestoreAPIService();
+                          await firebaseAuth.signInAnonymously();
+                          firebaseAuth.currentUser;
 
-                      await firestore.addUniveristy(uni: universityController.text,email: emailController.text,reason: reasonController.text);
+                          final FirestoreAPIService firestore =
+                              FirestoreAPIService();
 
-                      universityController.clear();
-                      emailController.clear();
-                      reasonController.clear();
+                          await firestore.addUniveristy(
+                              uni: universityController.text,
+                              email: emailController.text,
+                              reason: reasonController.text);
 
-                      await firebaseAuth.signOut();
-                      setState(() {
-                        showSpinner = false;
-                      });
-                      Scaffold.of(context).showSnackBar(kNewUniversitySnackbar);
-                    },
+                          universityController.clear();
+                          emailController.clear();
+                          reasonController.clear();
+
+                          await firebaseAuth.signOut();
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(kNewUniversitySnackbar);
+                        }
+
+                      },
+                    ),
                   )
                 ],
               ),

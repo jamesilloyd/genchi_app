@@ -49,7 +49,7 @@ Future<void> showAlertAndroid(
           ),
         ),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: Text(
               'CANCEL',
               style: TextStyle(color: Colors.black54),
@@ -58,13 +58,13 @@ Future<void> showAlertAndroid(
               Navigator.of(context).pop();
             },
           ),
-          FlatButton(
+          TextButton(
             child: Text(
               alertMessage.toUpperCase(),
               style: TextStyle(color: Colors.red),
             ),
             onPressed: actionFunction,
-          ),
+          )
         ],
       );
     },

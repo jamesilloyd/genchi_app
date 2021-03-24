@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Tag {
   String displayName;
   String databaseValue;

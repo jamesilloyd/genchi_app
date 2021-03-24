@@ -17,7 +17,7 @@ class ProfileOptionTile extends StatelessWidget {
         children: <Widget>[
           Container(
             height: 50,
-            child: isPressable ? FlatButton(
+            child: isPressable ? MaterialButton(
               padding: EdgeInsets.all(0),
               onPressed: onPressed,
               child: Padding(

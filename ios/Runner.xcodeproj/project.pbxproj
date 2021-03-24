@@ -156,7 +156,6 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				4536015D2524D1B000916340 /* ShellScript */,
 				E6505A171DD3AF2B6BE7233B /* [CP] Copy Pods Resources */,
-				37044DFAB060DF4CCA7E7F2B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -216,24 +215,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		37044DFAB060DF4CCA7E7F2B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
-				"${PODS_ROOT}/../Flutter/Flutter.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Flutter.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -426,7 +407,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 1.0.23;
+				MARKETING_VERSION = 1.0.24;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.james-lloyd.Genchi";
 				PRODUCT_NAME = Runner;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -560,7 +541,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 1.0.23;
+				MARKETING_VERSION = 1.0.24;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.james-lloyd.Genchi";
 				PRODUCT_NAME = Runner;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -588,7 +569,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 1.0.23;
+				MARKETING_VERSION = 1.0.24;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.james-lloyd.Genchi";
 				PRODUCT_NAME = Runner;
 				TARGETED_DEVICE_FAMILY = 1;

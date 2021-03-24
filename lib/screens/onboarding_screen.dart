@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             controller: _pageController,
             onPageChanged: _onPageChanged,
             itemCount: sliderArrayList.length,
-            itemBuilder: (ctx, i) => SlideItems[i],
+            itemBuilder: (ctx, i) => slideItems[i],
           ),
           SafeArea(
             child: Padding(
@@ -123,8 +123,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class SlideDots extends StatelessWidget {
-  bool isActive;
-  int page;
+  final bool isActive;
+  final int page;
 
   SlideDots(this.isActive, this.page);
 
@@ -145,7 +145,7 @@ class SlideDots extends StatelessWidget {
   }
 }
 
-List SlideItems = [
+List slideItems = [
   SlideItem1(),
   SlideItem2(),
   SlideItem3(),

@@ -30,7 +30,7 @@ class SearchServiceTile extends StatelessWidget {
             ]),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12.0),
-          child: FlatButton(
+          child: MaterialButton(
             onPressed: onPressed,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(1.0, 5, 1, 0),

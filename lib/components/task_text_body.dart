@@ -5,8 +5,8 @@ import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 
 class TaskDetailsSection extends StatelessWidget {
-  Task task;
-  Function linkOpen;
+  final Task task;
+  final Function linkOpen;
 
   TaskDetailsSection({this.task, this.linkOpen});
 
@@ -44,10 +44,10 @@ class TaskDetailsSection extends StatelessWidget {
       if(count == 0) {
         unis += uni;
       } else if(count == task.universities.length){
-        unis += 'and ${uni}';
+        unis += 'and $uni';
 
       }else{
-        unis += ', ${uni}';
+        unis += ', $uni';
       }
       count ++;
     }

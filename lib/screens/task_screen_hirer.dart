@@ -212,7 +212,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                               Clipboard.setData(ClipboardData(text:newLink));
 
                               ///Let them know :)
-                              Scaffold.of(context)
+                              ScaffoldMessenger.of(context)
                                   .showSnackBar(kDeepLinkCreated);
 
                               await analytics.logEvent(
@@ -406,13 +406,13 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(50.0),
-                        child: FlatButton(
+                        child: MaterialButton(
                           onPressed: () async {
                             bool payApplicants = await showYesNoAlert(
                                 context: context, title: 'Pay Applicants?');
 
                             if (payApplicants != null) {
-                              Scaffold.of(context)
+                              ScaffoldMessenger.of(context)
                                   .showSnackBar(kDevelopmentFeature);
                               await analytics.logEvent(
                                   name: 'pay_button_pressed',
@@ -476,8 +476,8 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
 }
 
 class ChangeJobStatus extends StatefulWidget {
-  Future applicantsFuture;
-  Task currentTask;
+  final Future applicantsFuture;
+  final Task currentTask;
 
   ChangeJobStatus(
       {@required this.applicantsFuture, @required this.currentTask});
@@ -550,7 +550,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
 
                         ///Only choose the options status that the current status is not
                         if (widget.currentTask.status != 'Vacant')
-                          FlatButton(
+                          MaterialButton(
                               height: MediaQuery.of(context).size.height * 0.12,
                               onPressed: () async {
                                 bool changeStatus = await showYesNoAlert(
@@ -579,7 +579,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                             height: 1,
                           ),
                         if (widget.currentTask.status != 'InProgress')
-                          FlatButton(
+                          MaterialButton(
                               height: MediaQuery.of(context).size.height * 0.12,
                               onPressed: () async {
                                 ///If the task is completed, we don't need to choose applicants
@@ -617,7 +617,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                             height: 1,
                           ),
                         if (widget.currentTask.status != 'Completed')
-                          FlatButton(
+                          MaterialButton(
                               height: MediaQuery.of(context).size.height * 0.12,
                               onPressed: () async {
                                 bool completed = await showYesNoAlert(
@@ -814,7 +814,7 @@ class _ChangeJobStatusState extends State<ChangeJobStatus> {
                                     Navigator.pop(context, response);
                                   }
                                 } else {
-                                  Scaffold.of(context)
+                                  ScaffoldMessenger.of(context)
                                       .showSnackBar(kNoApplicantsSelected);
                                 }
                               }),

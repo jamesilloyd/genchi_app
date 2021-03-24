@@ -273,8 +273,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     if (!error) {
                       ///Link was valid
 
-                      await analytics.logEvent(name: 'job_created');
-
                       ///Collate all the tags
                       List taskTags = [];
 

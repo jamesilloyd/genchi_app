@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:genchi_app/components/edit_account_text_field.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
@@ -24,6 +23,8 @@ class CustomerNeedsScreen extends StatefulWidget {
 }
 
 class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
+
+
   TextEditingController otherValuesController = TextEditingController();
 
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
@@ -376,8 +377,8 @@ class _CustomerNeedsScreenState extends State<CustomerNeedsScreen> {
 }
 
 class HomePageSelectionScreen extends StatefulWidget {
-  List<Tag> allTags;
-  Sort sortDeadline;
+  final List<Tag> allTags;
+  final Sort sortDeadline;
 
   HomePageSelectionScreen({@required this.allTags, @required this.sortDeadline});
 

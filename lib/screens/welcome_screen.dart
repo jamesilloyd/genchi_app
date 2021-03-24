@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:genchi_app/screens/login_screen.dart';
-import 'package:genchi_app/screens/onboarding_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/screens/registration_screen.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
-  //Static makes the string associated with the class, so you don't need to make a new object when calling id
+  ///Static makes the string associated with the class, so you don't need to make a new object when calling id
   static const String id = "welcome_screen";
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
@@ -83,14 +83,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       buttonColor: Color(kGenchiOrange),
                       buttonTitle: 'Log In',
                       onPressed: () {
-//                        Navigator.pushNamed(context, RegSequenceScreen.id);
                         Navigator.pushNamed(context, LoginScreen.id);
                       },),
                   RoundedButton(
                     buttonColor: Color(kGenchiBlue),
-                    buttonTitle: "Register",
+                    buttonTitle: "Sign Up",
                     onPressed: () {
-                      Navigator.pushNamed(context, OnboardingScreen.id);
+                      Navigator.pushNamed(context, RegistrationScreen.id);
                     },
                   ),
                 ],

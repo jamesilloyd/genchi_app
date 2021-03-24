@@ -141,7 +141,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         if (await canLaunch(currentTask.applicationLink)) {
                           await launch(currentTask.applicationLink);
                         } else {
-                          Scaffold.of(context)
+                          ScaffoldMessenger.of(context)
                               .showSnackBar(kApplicationLinkNotWorking);
                           print("Could not open URL");
                         }
@@ -257,7 +257,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                                 Clipboard.setData(ClipboardData(text:newLink));
 
                                 ///Let them know :)
-                                Scaffold.of(context)
+                                ScaffoldMessenger.of(context)
                                     .showSnackBar(kDeepLinkCreated);
 
                                 await analytics.logEvent(
@@ -744,7 +744,7 @@ class ActionButton extends StatelessWidget {
 class ApplyToJob extends StatelessWidget {
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
-  GenchiUser currentUser;
+  final GenchiUser currentUser;
 
   ApplyToJob({@required this.currentUser});
 

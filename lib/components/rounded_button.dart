@@ -6,10 +6,8 @@ class RoundedButton extends StatelessWidget {
       this.buttonTitle,
       @required this.onPressed,
       this.fontColor = Colors.white,
-        this.style = const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
-            fontSize: 18.0),
+      this.style = const TextStyle(
+          color: Colors.white, fontWeight: FontWeight.w400, fontSize: 18.0),
       this.elevation = true});
 
   final Color buttonColor;
@@ -40,7 +38,7 @@ class RoundedButton extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(7.0),
-        child: FlatButton(
+        child: TextButton(
           onPressed: onPressed,
           child: FittedBox(
             fit: BoxFit.contain,

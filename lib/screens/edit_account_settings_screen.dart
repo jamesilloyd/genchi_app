@@ -409,7 +409,7 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
 
                             await authProvider.sendResetEmail(
                                 email: currentUser.email);
-                            Scaffold.of(context)
+                            ScaffoldMessenger.of(context)
                                 .showSnackBar(kForgotPasswordSnackbar);
 
                             setState(() => showSpinner = false);

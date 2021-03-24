@@ -9,7 +9,6 @@ import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
-import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/screens/university_not_listed_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -379,6 +378,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     )
                   ],
                 )),
+
               ],
             ),
           ),

@@ -27,7 +27,7 @@ class FirestoreAPIService {
       FirebaseFirestore.instance.collection('university');
 
   static CollectionReference _versionCollectionRef =
-  FirebaseFirestore.instance.collection('version');
+      FirebaseFirestore.instance.collection('version');
 
   ///DEVELOP MODE
   // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
@@ -42,28 +42,31 @@ class FirestoreAPIService {
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
 
-  Future sendOpportunityFeedback({List filters, GenchiUser user, String request}) async {
+  Future sendOpportunityFeedback(
+      {List filters, GenchiUser user, String request}) async {
     UserFeedback feedback = UserFeedback(
         filters: filters,
         id: user.id,
         email: user.email,
         name: user.name,
-        request:  request,
+        request: request,
         timeSubmitted: Timestamp.now());
 
     await _feedbackCollectionRef.add(feedback.toJson());
   }
 
   Future addUniveristy({String uni, String email, String reason}) async {
-
-    await _universityCollectionRef
-        .add({'univeristy': uni, 'time': Timestamp.now(), 'reason':reason,'email':email});
+    await _universityCollectionRef.add({
+      'univeristy': uni,
+      'time': Timestamp.now(),
+      'reason': reason,
+      'email': email
+    });
   }
 
   Future checkForAppUpdate({String currentVersion}) async {
-
-
-    DocumentSnapshot versionsData = await _versionCollectionRef.doc('QvfpN3wVCzvsvK1sTu4M').get();
+    DocumentSnapshot versionsData =
+        await _versionCollectionRef.doc('QvfpN3wVCzvsvK1sTu4M').get();
     Map versions = versionsData.data();
 
     List acceptableVersions = versions['acceptableVersions'];
@@ -612,6 +615,7 @@ class FirestoreAPIService {
     List<Task> newTasks = [];
 
     var result =
+    // await _taskCollectionRef.get();
         await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
 
     ///Map all the docs into Task objects
@@ -645,6 +649,7 @@ class FirestoreAPIService {
 
       ///If hirer exists add them to the task list
       if (hirer != null && task.status == 'Vacant') {
+        // if (hirer != null ) {
         taskAndHirer['hirer'] = hirer;
         tasksAndHirers.add(taskAndHirer);
       }
@@ -964,18 +969,17 @@ class FirestoreAPIService {
   }
 
   Future userHasNotification({@required GenchiUser user}) async {
-
     print('FirebaseAPI: userHasNotifications called');
 
     int notifications = 0;
 
     ///Check for task posted notifications
-      List<Task> allTasks = await getTasks(postIds: user.posts);
+    List<Task> allTasks = await getTasks(postIds: user.posts);
 
-      for (Task task in allTasks) {
-
-        if(await hirerTaskHasNotification(taskId: task.taskId)) notifications += 1;
-      }
+    for (Task task in allTasks) {
+      if (await hirerTaskHasNotification(taskId: task.taskId))
+        notifications += 1;
+    }
 
     /// Check for task applied notifications
     ///Get tasks the id has applied to
@@ -984,28 +988,31 @@ class FirestoreAPIService {
 
       ///get the hirer associated with each task
       for (Task task in allTasksApplied) {
-
-        if(await providerApplicationHasNotification(
+        if (await providerApplicationHasNotification(
             taskId: task.taskId, applicantId: user.id)) notifications += 1;
-
       }
     }
+
     /// Check for chat notifications
-    var result1 = await _chatCollectionRef.where('id1', isEqualTo: user.id).get();
+    var result1 =
+        await _chatCollectionRef.where('id1', isEqualTo: user.id).get();
 
-    List<Chat> chats1 = result1.docs.map((doc) => Chat.fromMap(doc.data())).toList();
+    List<Chat> chats1 =
+        result1.docs.map((doc) => Chat.fromMap(doc.data())).toList();
 
-    for(Chat chat in chats1){
-      if(chat.user1HasUnreadMessage) notifications += 1;
+    for (Chat chat in chats1) {
+      if (chat.user1HasUnreadMessage) notifications += 1;
     }
 
     /// Check for chat notifications
-    var result2 = await _chatCollectionRef.where('id2', isEqualTo: user.id).get();
+    var result2 =
+        await _chatCollectionRef.where('id2', isEqualTo: user.id).get();
 
-    List<Chat> chats2 = result2.docs.map((doc) => Chat.fromMap(doc.data())).toList();
+    List<Chat> chats2 =
+        result2.docs.map((doc) => Chat.fromMap(doc.data())).toList();
 
-    for(Chat chat in chats2){
-      if(chat.user2HasUnreadMessage) notifications += 1;
+    for (Chat chat in chats2) {
+      if (chat.user2HasUnreadMessage) notifications += 1;
     }
 
     return notifications;
@@ -1173,8 +1180,8 @@ class FirestoreAPIService {
         }
       }
     });
-    for (String key in opportunityValues.keys){
-      opportunityList.add([key,opportunityValues[key]]);
+    for (String key in opportunityValues.keys) {
+      opportunityList.add([key, opportunityValues[key]]);
     }
 
     opportunityList.sort((a, b) => b[1].compareTo(a[1]));
@@ -1191,17 +1198,17 @@ class FirestoreAPIService {
         if (theUser.preferences.isNotEmpty) {
           for (String value in theUser.preferences) {
             if (opportunityValues.containsKey(value)) {
-              opportunityValues[value] += 1*theUser.sessionCount;
+              opportunityValues[value] += 1 * theUser.sessionCount;
             } else {
-              opportunityValues[value] = 1*theUser.sessionCount;
+              opportunityValues[value] = 1 * theUser.sessionCount;
             }
           }
         }
       }
     });
 
-    for (String key in opportunityValues.keys){
-      opportunityList.add([key,opportunityValues[key]]);
+    for (String key in opportunityValues.keys) {
+      opportunityList.add([key, opportunityValues[key]]);
     }
 
     opportunityList.sort((a, b) => b[1].compareTo(a[1]));
@@ -1307,7 +1314,11 @@ class FirestoreAPIService {
         //       task.applicationIds.length + task.linkApplicationIds.length
         // });
 
-        taskStats.add([task.title,task.viewedIds.length,task.applicationIds.length + task.linkApplicationIds.length]);
+        taskStats.add([
+          task.title,
+          task.viewedIds.length,
+          task.applicationIds.length + task.linkApplicationIds.length
+        ]);
 
         ratioAggregate[task.title] = {
           "views": task.viewedIds.length,
@@ -1317,9 +1328,9 @@ class FirestoreAPIService {
       }
     });
 
-    taskStats.sort((b,a) => b[2].compareTo(a[2]));
+    taskStats.sort((b, a) => b[2].compareTo(a[2]));
 
-    for(List key in taskStats) {
+    for (List key in taskStats) {
       print(key);
     }
   }
@@ -1337,7 +1348,6 @@ class FirestoreAPIService {
         for (String tag in task.tags) {
           if (viewAggregate.containsKey(tag)) {
             viewAggregate[tag] += 1 * task.viewedIds.length;
-
           } else {
             viewAggregate[tag] = 1 * task.viewedIds.length;
           }
@@ -1353,16 +1363,16 @@ class FirestoreAPIService {
       }
     });
 
-    for(String key in viewAggregate.keys){
-      viewList.add([key,viewAggregate[key]]);
+    for (String key in viewAggregate.keys) {
+      viewList.add([key, viewAggregate[key]]);
     }
 
-    for(String key in applyAggregate.keys){
-      applyList.add([key,applyAggregate[key]]);
+    for (String key in applyAggregate.keys) {
+      applyList.add([key, applyAggregate[key]]);
     }
 
-    viewList.sort((a,b) => b[1].compareTo(a[1]));
-    applyList.sort((a,b) => b[1].compareTo(a[1]));
+    viewList.sort((a, b) => b[1].compareTo(a[1]));
+    applyList.sort((a, b) => b[1].compareTo(a[1]));
 
     print(viewList);
     print(applyList);
@@ -1375,17 +1385,14 @@ class FirestoreAPIService {
       for (DocumentSnapshot doc1 in value.docs) {
         GenchiUser user = GenchiUser.fromMap(doc1.data());
 
-        if(user.name.contains('Hack')) print(user.id);
+        // if(user.name.contains('Hub')) print(user.id + ' '+ user.name);
 
-        leadingUsers.add([user.name,user.sessionCount,user.email]);
-
-
+        leadingUsers.add([user.name, user.sessionCount, user.email]);
       }
     });
 
     leadingUsers.sort((a, b) => b[1].compareTo(a[1]));
-    // print(leadingUsers);
-
+    print(leadingUsers);
   }
 
   Future leadingUsersPreferences() async {
@@ -1395,14 +1402,13 @@ class FirestoreAPIService {
       for (DocumentSnapshot doc1 in value.docs) {
         GenchiUser user = GenchiUser.fromMap(doc1.data());
 
-        leadingUsers.add([user.name,user.sessionCount,user.email,user.preferences]);
-
-
+        leadingUsers
+            .add([user.name, user.sessionCount, user.email, user.preferences]);
       }
     });
 
-    leadingUsers.sort((b,a) => b[1].compareTo(a[1]));
-    for(List user in leadingUsers){
+    leadingUsers.sort((b, a) => b[1].compareTo(a[1]));
+    for (List user in leadingUsers) {
       print(user);
     }
   }

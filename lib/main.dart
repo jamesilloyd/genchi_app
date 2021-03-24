@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
@@ -34,7 +33,6 @@ import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
-import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 
@@ -42,7 +40,6 @@ import 'services/authentication_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:provider/provider.dart';
-
 
 void main() {
   runApp(Genchi());
@@ -59,18 +56,13 @@ class _GenchiState extends State<Genchi> {
 
   /// This is for better handling of dynamic links
 
-
   @override
   void initState() {
     super.initState();
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
-
     print('Genchi main activated');
 
     return FutureBuilder(
@@ -84,19 +76,13 @@ class _GenchiState extends State<Genchi> {
           ///Firebase initialised
           ///Override flutterError for crashlytics collection
 
-
           if (kDebugMode) {
             /// Force disable Crashlytics collection while doing every day development.
             /// Temporarily toggle this to true if you want to test crash reporting in your app.
-            FirebaseCrashlytics.instance
-                .setCrashlyticsCollectionEnabled(false);
-          } else {
-
-
+            FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
           }
           FlutterError.onError =
               FirebaseCrashlytics.instance.recordFlutterError;
-
 
           return MultiProvider(
             providers: [
@@ -115,9 +101,7 @@ class _GenchiState extends State<Genchi> {
   }
 }
 
-
-
-class StartUp extends StatefulWidget{
+class StartUp extends StatefulWidget {
   @override
   _StartUpState createState() => _StartUpState();
 }
@@ -134,17 +118,13 @@ class _StartUpState extends State<StartUp> {
     // dynamicLinkService.initDynamicLinks();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     print('StartUp screen activated');
     return FutureBuilder(
       future: Provider.of<AuthenticationService>(context, listen: false)
           .isUserLoggedIn(),
       builder: (context, snapshot) {
-
         if (snapshot.hasData) {
           bool loggedIn = snapshot.data;
           return MaterialApp(
@@ -192,7 +172,8 @@ class _StartUpState extends State<StartUp> {
               PostRegDetailsScreen.id: (context) => PostRegDetailsScreen(),
               PostTaskAndHirerScreen.id: (context) => PostTaskAndHirerScreen(),
               CustomerNeedsScreen.id: (context) => CustomerNeedsScreen(),
-              UniversityNotListedScreen.id: (context) => UniversityNotListedScreen(),
+              UniversityNotListedScreen.id: (context) =>
+                  UniversityNotListedScreen(),
             },
           );
         }

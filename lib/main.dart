@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
@@ -16,6 +17,7 @@ import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
+import 'package:genchi_app/screens/payGenchiScreen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
@@ -42,6 +44,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+
   runApp(Genchi());
 }
 
@@ -174,6 +177,7 @@ class _StartUpState extends State<StartUp> {
               CustomerNeedsScreen.id: (context) => CustomerNeedsScreen(),
               UniversityNotListedScreen.id: (context) =>
                   UniversityNotListedScreen(),
+              PayGenchiScreen.id: (context)=> PayGenchiScreen(),
             },
           );
         }

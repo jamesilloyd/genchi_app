@@ -316,12 +316,20 @@ class _UploaderState extends State<Uploader> {
 
       filePath = 'images/users/${currentAccount.id}${DateTime.now()}.png';
       Reference ref = _storage.ref().child(filePath);
+      //TODO: how to get this badboy???
+      // String thumbnailPath = filePath.substring(0,filePath.length-4)+"_200x200.png";
+      //TODO: how to get this badboy???
+      // Reference thumbnailRef = _storage.ref().child(thumbnailPath);
       print('Uploading image');
       _uploadTask = ref.putFile(widget.file);
       TaskSnapshot storageSnapshot = await _uploadTask.whenComplete(() => null);
       print('downloading url');
+
       String downloadUrl = await storageSnapshot.ref.getDownloadURL();
+      //TODO: how to get this badboy???
+      // String thumbnailDownloadUrl = await thumbnailRef.getDownloadURL();
       print(downloadUrl);
+
 
       String oldFileName = currentAccount.displayPictureFileName;
       print('Updating firestore user');

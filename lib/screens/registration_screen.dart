@@ -1,4 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,14 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/university_not_listed_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:genchi_app/components/password_error_text.dart';
 import 'package:provider/provider.dart';
 import 'package:genchi_app/services/authentication_service.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io' show Platform;
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registration_screen";
@@ -34,6 +37,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String errorMessage = "";
   bool agreed = false;
 
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   TextEditingController accountTypeController = TextEditingController();
   TextEditingController universityTypeController = TextEditingController();
 
@@ -133,7 +138,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0))),
+                                      BorderRadius.all(Radius.circular(32.0))),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 12.0, horizontal: 20.0),
@@ -142,7 +147,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: universityTypeController.text ==
-                                        'Select University'
+                                            'Select University'
                                         ? Colors.black45
                                         : Colors.black,
                                   ),
@@ -159,7 +164,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     value: 'Select University')
                               ];
                               for (String accountType
-                              in GenchiUser().accessibleUniversities) {
+                                  in GenchiUser().accessibleUniversities) {
                                 items.add(
                                   new PopupMenuItem<String>(
                                       child: Text(accountType),
@@ -174,8 +179,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             }),
                       ],
                     ),
-                    SizedBox(height: 10,),
-
+                    SizedBox(
+                      height: 10,
+                    ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -202,7 +208,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     context: context,
                                     title: 'Account Type',
                                     body:
-                                    'Are you creating this account as an individual or for a society or project group?');
+                                        'Are you creating this account as an individual or for a society or project group?');
                               },
                             ),
                           ],
@@ -282,11 +288,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     Row(
                       children: [
-                        Checkbox(value: agreed, onChanged: (value){
-                          setState(() {
-                            agreed = value;
-                          });
-                        }),
+                        Checkbox(
+                            value: agreed,
+                            onChanged: (value) {
+                              setState(() {
+                                agreed = value;
+                              });
+                            }),
                         RichText(
                           text: TextSpan(
                             children: [
@@ -298,7 +306,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 text: 'Privacy Policy',
                                 style: TextStyle(color: Colors.blue),
                                 recognizer: new TapGestureRecognizer()
-                                  ..onTap = () { launch('https://www.genchi.app/privacy-policy');
+                                  ..onTap = () {
+                                    launch(
+                                        'https://www.genchi.app/privacy-policy');
                                   },
                               ),
                               TextSpan(
@@ -317,21 +327,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       buttonColor: Color(kGenchiBlue),
                       buttonTitle: "Register",
                       onPressed: () async {
-
                         setState(() {
                           showErrorField = false;
                           showSpinner = true;
                         });
                         try {
-
                           if (name == null ||
                               email == null ||
-                              accountTypeController.text == 'Select type' || universityTypeController.text == 'Select University')
+                              accountTypeController.text == 'Select type' ||
+                              universityTypeController.text ==
+                                  'Select University')
                             throw (Exception(
                                 'Enter name, email and account type'));
 
-                          if(agreed == false) throw (Exception('Please accept the Privacy Policy'));
-
+                          if (agreed == false)
+                            throw (Exception(
+                                'Please accept the Privacy Policy'));
 
                           await authProvider.registerWithEmail(
                               email: email.replaceAll(' ', ''),
@@ -349,11 +360,47 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             await accountService.updateCurrentAccount(
                                 id: authProvider.currentUser.id);
 
+                            ///Quickly ask for permission to take notification on iOS
+
+                            if (Platform.isIOS) {
+                              NotificationSettings settings =
+                                  await _fcm.requestPermission(
+                                alert: true,
+                                announcement: false,
+                                badge: true,
+                                carPlay: false,
+                                criticalAlert: false,
+                                provisional: false,
+                                sound: true,
+                              );
+
+                              print(
+                                  'User granted permission: ${settings.authorizationStatus}');
+                            }
+
+                            /// Get the current user
+                            GenchiUser currentUser =
+                                Provider.of<AuthenticationService>(context,
+                                        listen: false)
+                                    .currentUser;
+
+                            /// Get the token for this device
+                            String fcmToken = await _fcm.getToken();
+
+                            print('fcmToken is $fcmToken');
+
+                            /// Save it to Firestore
+                            if (fcmToken != null) {
+                              firestoreAPI.addFCMToken(
+                                  token: fcmToken, user: currentUser);
+                            }
+
                             Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 CustomerNeedsScreen.id,
-                                    (Route<dynamic> route) => false,
-                            arguments: PreferencesScreenArguments(isFromRegistration: true));
+                                (Route<dynamic> route) => false,
+                                arguments: PreferencesScreenArguments(
+                                    isFromRegistration: true));
                           }
                         } catch (e) {
                           print(e);
@@ -367,18 +414,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       },
                     ),
                     RoundedButton(
-                      buttonColor: Color(kGenchiLightOrange),
-                      buttonTitle: "University not listed?",
-                      fontColor: Colors.black,
-                      onPressed: () {
-
-                        Navigator.pushNamed(context, UniversityNotListedScreen.id);
-                      }
-
-                    )
+                        buttonColor: Color(kGenchiLightOrange),
+                        buttonTitle: "University not listed?",
+                        fontColor: Colors.black,
+                        onPressed: () {
+                          Navigator.pushNamed(
+                              context, UniversityNotListedScreen.id);
+                        })
                   ],
                 )),
-
               ],
             ),
           ),

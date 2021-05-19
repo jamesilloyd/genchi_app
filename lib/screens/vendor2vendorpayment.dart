@@ -23,12 +23,14 @@ class TestScreen extends StatefulWidget {
 
 class _TestScreenState extends State<TestScreen> {
   FirestoreAPIService firestoreApi = FirestoreAPIService();
-  final ScrollController _listScrollController = ScrollController();
 
   PanelController panelController = PanelController();
   bool spinner = false;
 
   String text = 'Click the button to start the payment';
+  //TODO: MUST GET THE AMOUNTS FROM FIREBASE
+  //TODO: there is the added step of needing to create the customers connect account?
+  //TODO: would also need to save their bank details for future payments (bit more working out to be done...)
   double totalCost = 20.0;
   double tip = 1.0;
   double tax = 0.0;
@@ -38,22 +40,6 @@ class _TestScreenState extends State<TestScreen> {
   String url =
       'https://us-central1-genchi-c96c1.cloudfunctions.net/StripePI';
 
-  bool isExpanded = false;
-  var _paymentToken;
-  var _paymentMethod;
-  var _paymentIntent;
-  var _source;
-  final _currentSecret =
-      'sk_test_51HQIzJKtrOMGiKFzhHU6NEtNfv6u1PITSwzG77loW0NBVUCwrXuem8yb6PJwiaj84u9kqxpjUKpBngZDalwfJ9JB00C41qM4sW';
-  BuildContext draggableSheetContext;
-
-  DateTime selectedDate = DateTime.now();
-
-  final CreditCard testCard = CreditCard(
-    number: '4111111111111111',
-    expMonth: 08,
-    expYear: 22,
-  );
 
 
   void checkIfNativePayReady() async {
@@ -64,14 +50,12 @@ class _TestScreenState extends State<TestScreen> {
 
 
     deviceSupportNativePay && isNativeReady
-    ? createPaymentMethod()
-        // ? createPaymentMethodNative()
+    ? createPaymentMethodNative()
         : createPaymentMethod();
   }
 
   Future<void> createPaymentMethodNative() async {
     print('started NATIVE payment...');
-    // StripePayment.setStripeAccount(null);
     List<ApplePayItem> items = [];
     items.add(ApplePayItem(
       label: 'Demo Order',
@@ -116,7 +100,6 @@ class _TestScreenState extends State<TestScreen> {
       ),
     );
     paymentMethod != null
-    // ? finalTest(paymentMethod)
         ? processPaymentAsDirectCharge(paymentMethod)
         : showDialog(
         context: context,
@@ -127,8 +110,8 @@ class _TestScreenState extends State<TestScreen> {
             buttonText: 'CLOSE'));
   }
 
+
   Future<void> createPaymentMethod() async {
-    // StripePayment.setStripeAccount(null);
     tax = ((totalCost * taxPercent) * 100).ceil() / 100;
     amount = ((totalCost + tip + tax) * 100).toInt();
     print('amount in pence/cent which will be charged = $amount');
@@ -142,7 +125,6 @@ class _TestScreenState extends State<TestScreen> {
       print('Error Card: ${e.toString()}');
     });
     paymentMethod != null
-    // ? finalTest(paymentMethod)
         ? processPaymentAsDirectCharge(paymentMethod)
         : showDialog(
         context: context,
@@ -153,6 +135,7 @@ class _TestScreenState extends State<TestScreen> {
             buttonText: 'CLOSE'));
   }
 
+
   Future<void> processPaymentAsDirectCharge(PaymentMethod paymentMethod) async {
     setState(() {
       showSpinner = true;
@@ -161,12 +144,12 @@ class _TestScreenState extends State<TestScreen> {
     http.Response response = await http
         .post(Uri.parse('$url?amount=$amount&currency=GBP&paym=${paymentMethod.id}'));
     print('Now i decode');
-
     if (response.body != null && response.body != 'error') {
       final paymentIntentX = jsonDecode(response.body);
       print(paymentIntentX);
       final status = paymentIntentX['paymentIntent']['status'];
       print("Status is: $status");
+      //TODO: what follows is absolutely disgusting, must refactor....
       //step 3: check if payment was succesfully confirmed
       if (status == 'succeeded') {
         //payment was confirmed by the server without need for further authentification
@@ -252,94 +235,12 @@ class _TestScreenState extends State<TestScreen> {
 
 
 
-
-  Future<void> openPaymentSheet()async{
-
-    ///Get payment intent
-    final http.Response response = await http
-        .post(Uri.parse('https://us-central1-genchi-c96c1.cloudfunctions.net/StripePlease'));
-
-    print(response.body);
-
-    final paymentIntentX = jsonDecode(response.body);
-
-    final clientSecret = paymentIntentX['clientSecret'];
-
-    print(clientSecret);
-
-    PaymentMethod paymentMethod = await StripePayment.paymentRequestWithCardForm(
-        CardFormPaymentRequest());
-
-    print(paymentMethod.id);
-
-    PaymentIntent paymentIntent = PaymentIntent(paymentMethodId: paymentMethod.id,clientSecret: clientSecret,returnURL: 'https://genchi.app');
-
-    PaymentIntentResult result = await StripePayment.confirmPaymentIntent(paymentIntent);
-
-    print(result);
-
-    print(result.status);
-
-
- }
-
-
-  Future<void> finalTest(PaymentMethod paymentMethod)async{
-
-    ///Get payment intent
-    final http.Response response = await http
-        .post(Uri.parse('https://us-central1-genchi-c96c1.cloudfunctions.net/StripePlease'));
-
-    print(response.body);
-
-    final paymentIntentX = jsonDecode(response.body);
-
-    final clientSecret = paymentIntentX['clientSecret'];
-
-    print(clientSecret);
-
-    print(paymentMethod.id);
-
-    PaymentIntent paymentIntent = PaymentIntent(paymentMethodId: paymentMethod.id,clientSecret: clientSecret,returnURL: 'https://genchi.app');
-
-    PaymentIntentResult result = await StripePayment.confirmPaymentIntent(paymentIntent);
-
-    print(result);
-
-    print(result.status);
-
-    if(result.status == 'succeeded'){
-      StripePayment.completeNativePayRequest();
-
-    } else {
-
-      StripePayment.cancelNativePayRequest();
-
-
-
-    }
-
-
-
-
-  }
-
-  // const openPaymentSheet = async () => {
-  // const { error } = await presentPaymentSheet({ clientSecret });
-  //
-  // if (error) {
-  // Alert.alert(`Error code: ${error.code}`, error.message);
-  // } else {
-  // Alert.alert('Success', 'Your order is confirmed!');
-  // }
-  // };
-
   @override
   initState() {
     super.initState();
     StripePayment.setOptions(StripeOptions(
         publishableKey:
-            "pk_test_51HQIzJKtrOMGiKFz2ykOuylFiRwaLdPvnGvm8I77167Ah133uEI0Ha2toiztJnMcqDhmZkEzDiAJmrA4Tmg1Hykc00MPd2xUJ2",
+        "pk_test_51HQIzJKtrOMGiKFz2ykOuylFiRwaLdPvnGvm8I77167Ah133uEI0Ha2toiztJnMcqDhmZkEzDiAJmrA4Tmg1Hykc00MPd2xUJ2",
         merchantId: "merchant.com.genchi.genchi",
         //TODO Change to "production"
         androidPayMode: 'test'));
@@ -365,114 +266,7 @@ class _TestScreenState extends State<TestScreen> {
                   ),
                 ),
 
-                Center(
-                  child: ElevatedButton(
-                    child: Text('Try me'),
-                    onPressed:() {
-                      openPaymentSheet();
-                    },
-                  ),
-                ),
-                // Center(
-                //   child: ElevatedButton(
-                //     child: Text("Create Source"),
-                //     onPressed: () {
-                //       StripePayment.createSourceWithParams(SourceParams(
-                //         type: 'ideal',
-                //         amount: 2109,
-                //         currency: 'eur',
-                //         returnURL: 'example://stripe-redirect',
-                //       )).then((source) {
-                //         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //             content: Text('Received ${source.sourceId}')));
-                //         setState(() {
-                //           _source = source;
-                //         });
-                //       });
-                //       // .catchError(setError);
-                //     },
-                //   ),
-                // ),
-                // ElevatedButton(
-                //   child: Text("Create Token with Card Form"),
-                //   onPressed: () {
-                //     StripePayment.paymentRequestWithCardForm(
-                //             CardFormPaymentRequest())
-                //         .then((paymentMethod) {
-                //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //           content: Text('Received ${paymentMethod.id}')));
-                //       setState(() {
-                //         _paymentMethod = paymentMethod;
-                //       });
-                //     });
-                //     // .catchError(setError);
-                //   },
-                // ),
-                // ElevatedButton(
-                //   child: Text("Create Token with Card"),
-                //   onPressed: () {
-                //     StripePayment.createTokenWithCard(
-                //       testCard,
-                //     ).then((token) {
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //           SnackBar(content: Text('Received ${token.tokenId}')));
-                //       setState(() {
-                //         _paymentToken = token;
-                //       });
-                //     });
-                //     // .catchError(setError);
-                //   },
-                // ),
-                // ElevatedButton(
-                //   child: Text("Confirm Payment Intent"),
-                //   onPressed: _paymentMethod == null || _currentSecret == null
-                //       ? null
-                //       : () {
-                //           StripePayment.confirmPaymentIntent(
-                //             PaymentIntent(
-                //               clientSecret: _currentSecret,
-                //               paymentMethodId: _paymentMethod.id,
-                //             ),
-                //           ).then((paymentIntent) {
-                //             print('hello');
-                //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //                 content: Text(
-                //                     'Received ${paymentIntent.paymentIntentId}')));
-                //             setState(() {
-                //               _paymentIntent = paymentIntent;
-                //             });
-                //           });
-                //         },
-                // ),
-                // ElevatedButton(
-                //   child: Text("Native payment"),
-                //   onPressed: () {
-                //     // if (Platform.isIOS) {
-                //     //   _controller.jumpTo(450);
-                //     // }
-                //     StripePayment.paymentRequestWithNativePay(
-                //       androidPayOptions: AndroidPayPaymentRequest(
-                //         totalPrice: "2.40",
-                //         currencyCode: "EUR",
-                //       ),
-                //       applePayOptions: ApplePayPaymentOptions(
-                //         countryCode: 'DE',
-                //         currencyCode: 'GBP',
-                //         items: [
-                //           ApplePayItem(
-                //             label: 'Genchi',
-                //             amount: '900',
-                //           )
-                //         ],
-                //       ),
-                //     ).then((token) {
-                //       setState(() {
-                //         // _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Received ${token.tokenId}')));
-                //         _paymentToken = token;
-                //       });
-                //     });
-                //   },
-                // ),
+
               ]),
         ),
       ),

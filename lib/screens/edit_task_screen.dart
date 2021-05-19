@@ -237,7 +237,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       try {
                         ///Test the link is real
                         var response =
-                            await http.head(applicationLinkController.text.replaceAll(' ', ''));
+                            await http.head(Uri.parse(applicationLinkController.text.replaceAll(' ', '')));
                         if (response.statusCode == 200) {
                           error = false;
                         } else {

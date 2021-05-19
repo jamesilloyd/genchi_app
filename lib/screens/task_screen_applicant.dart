@@ -582,7 +582,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                       ),
                       Center(
                         child: Text("Task id: ${currentTask.taskId}"),
-                      )
+                      ),
                     ],
                   ));
 
@@ -642,6 +642,26 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                           await analytics.logEvent(name: 'job_deleted');
 
                           await firestoreAPI.deleteTask(task: currentTask);
+
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ));
+
+                  widgets.add(Center(
+                    child: RoundedButton(
+                      fontColor: Colors.white,
+                      buttonColor: Color(kGenchiGreen),
+                      buttonTitle: 'Mark as completed',
+                      onPressed: () async {
+                        bool delete = await showYesNoAlert(
+                            context: context,
+                            title: 'Mark this opportunity as completed?');
+
+                        if (delete != null && delete) {
+                          ///Log in firebase analytics
+                          await firestoreAPI.markTaskAsCompleted(task: currentTask);
 
                           Navigator.pop(context);
                         }

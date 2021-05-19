@@ -39,71 +39,51 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  final FirebaseMessaging _fcm = FirebaseMessaging();
+
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   final DynamicLinkService dynamicLinkService = DynamicLinkService();
   DefaultCacheManager cacheManager = DefaultCacheManager();
-  StreamSubscription iosSubscription;
   Future notificationsFuture;
 
-  _saveDeviceToken() async {
+
+  Future<void> saveTokenToDatabase(String token) async {
+
+    print('saving new token: $token');
+    // Assume user is logged in for this example
     /// Get the current user
     GenchiUser currentUser =
-        Provider.of<AuthenticationService>(context, listen: false).currentUser;
-
-    /// Get the token for this device
-    String fcmToken = await _fcm.getToken();
+        Provider.of<AuthenticationService>(context,
+            listen: false)
+            .currentUser;
 
     /// Save it to Firestore
-    if (fcmToken != null) {
-      firestoreAPI.addFCMToken(token: fcmToken, user: currentUser);
-    }
+    if (token != null) {
+      firestoreAPI.addFCMToken(
+          token: token, user: currentUser);
+    };
+
+    print('saved token to firebase');
   }
 
-  //TODO move fcm token to login/registration
+
   @override
   void initState() {
     super.initState();
     print('home');
     GenchiUser user =
         Provider.of<AuthenticationService>(context, listen: false).currentUser;
-    // notificationsFuture = firestoreAPI.userHasNotification(user: user);
+    notificationsFuture = firestoreAPI.userHasNotification(user: user);
 
     Provider.of<NotificationService>(context, listen: false).updateJobNotificationsFire(user: user);
     _children = [JobsScreen(),ChatSummaryScreen(),ProfileScreen()];
 
     dynamicLinkService.initDynamicLinks(context);
 
-    if (Platform.isIOS) {
-      iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
-        print(data);
-        _saveDeviceToken();
-      });
-      _fcm.requestNotificationPermissions(IosNotificationSettings());
-    } else {
-      _saveDeviceToken();
+    /// Any time the token refreshes, store this in the database too.
+    FirebaseMessaging.instance.onTokenRefresh.listen(saveTokenToDatabase);
+
     }
 
-    _fcm.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        // TODO optional
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        // TODO optional
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    if (iosSubscription != null) iosSubscription.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

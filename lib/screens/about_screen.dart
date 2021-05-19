@@ -33,41 +33,8 @@ class AboutScreen extends StatelessWidget {
             text: 'About Us',
             onPressed: () async {
               analytics.logEvent(name: 'about_genchi_url_pressed');
-              if (await canLaunch(GenchiAboutURL)) {
-                await launch(GenchiAboutURL);
-              } else {
-                print("Could not open URL");
-              }
-            },
-          ),
-          ProfileOptionTile(
-            text: 'What is a Provider?',
-            onPressed: () async {
-              analytics.logEvent(name: 'provider_url_pressed');
-              if (await canLaunch(GenchiProviderURL)) {
-                await launch(GenchiProviderURL);
-              } else {
-                print("Could not open URL");
-              }
-            },
-          ),
-          ProfileOptionTile(
-            text: 'What is a Hirer?',
-            onPressed: () async {
-              analytics.logEvent(name: 'hirer_url_pressed');
-              if (await canLaunch(GenchiHirerURL)) {
-                await launch(GenchiHirerURL);
-              } else {
-                print("Could not open URL");
-              }
-            },
-          ),
-          ProfileOptionTile(
-            text: 'Other FAQs',
-            onPressed: () async {
-              analytics.logEvent(name: 'FAQs_url_pressed');
-              if (await canLaunch(GenchiFAQsURL)) {
-                await launch(GenchiFAQsURL);
+              if (await canLaunch(GenchiURL)) {
+                await launch(GenchiURL);
               } else {
                 print("Could not open URL");
               }

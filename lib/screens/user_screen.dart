@@ -185,6 +185,9 @@ class _UserScreenState extends State<UserScreen> {
         Center(
           child: Text('Email: ${user.email}'),
         ),
+        Center(
+          child: Text('Version: ${user.versionNumber}'),
+        ),
         if (user.accountType == "Service Provider")
           Center(
             child: Text('Service Provider id: ${user.id}'),

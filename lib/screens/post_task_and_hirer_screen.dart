@@ -767,8 +767,8 @@ class _PostTaskAndHirerScreenState extends State<PostTaskAndHirerScreen> {
                           if (linkApplicationType) {
                             try {
                               ///Test the link is real
-                              var response = await http
-                                  .head(applicationLinkController.text.replaceAll(' ', ''));
+                              var response =
+                              await http.head(Uri.parse(applicationLinkController.text.replaceAll(' ', '')));
                               if (response.statusCode == 200) {
                                 error = false;
                               } else {

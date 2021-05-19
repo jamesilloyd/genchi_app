@@ -45,6 +45,7 @@ android {
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true //Added for stripe payments
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

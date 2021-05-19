@@ -11,14 +11,14 @@ import 'package:rxdart/rxdart.dart';
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  static CollectionReference _usersCollectionRef =
-      FirebaseFirestore.instance.collection('users');
-
-  static CollectionReference _chatCollectionRef =
-      FirebaseFirestore.instance.collection('chats');
-
-  static CollectionReference _taskCollectionRef =
-      FirebaseFirestore.instance.collection('tasks');
+  // static CollectionReference _usersCollectionRef =
+  //     FirebaseFirestore.instance.collection('users');
+  //
+  // static CollectionReference _chatCollectionRef =
+  //     FirebaseFirestore.instance.collection('chats');
+  //
+  // static CollectionReference _taskCollectionRef =
+  //     FirebaseFirestore.instance.collection('tasks');
 
   static CollectionReference _feedbackCollectionRef =
       FirebaseFirestore.instance.collection('feedback');
@@ -30,14 +30,14 @@ class FirestoreAPIService {
       FirebaseFirestore.instance.collection('version');
 
   ///DEVELOP MODE
-  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/users');
-  //
-  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/chats');
-  //
-  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-  //     .collection('development/esAH2pX9jWOIxyaMi1v4/tasks');
+  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+      .collection('development/JySCxc7chahdObkJgTSy/users');
+
+  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+      .collection('development/JySCxc7chahdObkJgTSy/chats');
+
+  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+      .collection('development/JySCxc7chahdObkJgTSy/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
@@ -891,6 +891,19 @@ class FirestoreAPIService {
         .delete();
   }
 
+
+  Future<void> markTaskAsCompleted({Task task}) async {
+
+    if (debugMode) print('FirestoreAPI: markTaskAsCompleted called for ${task.taskId}');
+
+    ///Updating the status variable of the task
+    task.status = 'Completed';
+
+    await _taskCollectionRef.doc(task.taskId).update(task.toJson());
+
+  }
+
+
   Future<void> deleteTask({Task task}) async {
     if (debugMode) print('FirestoreAPI: deleteTask called for ${task.taskId}');
 
@@ -1417,6 +1430,7 @@ class FirestoreAPIService {
   Future createDevEnvironment() async {
     ///grab all data from firestore
     ///send under the development collection
+    print('Started createDevEnvironment');
 
     DocumentReference devDoc =
         await _developmentCollectionRef.add({'timeStamp': Timestamp.now()});

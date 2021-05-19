@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
+import 'package:genchi_app/screens/payGenchiScreen.dart';
+import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
 import 'package:genchi_app/screens/welcome_screen.dart';
@@ -104,6 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                         alignment: Alignment.center,
                         children: [
                           LargeDisplayPicture(
+                            // imageUrl: 'https://firebasestorage.googleapis.com/v0/b/genchi-c96c1.appspot.com/o/images%2Fusers%2F0pdAGAvIM1fwwJliaJxXfl0jBZs12021-03-24%2019%3A26%3A49.647892_200x200.png?alt=media&token=968ec313-26de-4c12-8f62-5a1b62099863',
                             imageUrl: currentUser.displayPictureURL,
                             height: 0.25,
                           ),
@@ -142,12 +145,19 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                     },
                   ),
                   //TODO: trying out without service profiles
-                  // if(currentUser.admin) ProfileOptionTile(
-                  //   text: 'Test Screen',
-                  //   onPressed: () {
-                  //     Navigator.pushNamed(context, TestScreen.id);
-                  //   },
-                  // ),
+                  if(currentUser.admin) ProfileOptionTile(
+                    text: 'Test Screen',
+                    onPressed: () {
+                      Navigator.pushNamed(context, TestScreen.id);
+                    },
+                  ),
+
+                  if(currentUser.admin) ProfileOptionTile(
+                    text: 'Pay Screen',
+                    onPressed: () {
+                      Navigator.pushNamed(context, PayGenchiScreen.id);
+                    },
+                  ),
 
                   // ProfileOptionTile(
                   //   text: 'PostReg',

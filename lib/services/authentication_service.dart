@@ -19,8 +19,8 @@ class AuthenticationService extends ChangeNotifier {
     if (user != null) {
       if (debugMode)
         print('Authentication service _populateCurrentUser: user ${user.uid}');
-      // _currentUser = await _firestoreCRUDModel.getUserById('gVy6EIaW7av487rCwyCK');
-      //
+      // _currentUser = await _firestoreCRUDModel.getUserById('S0pOGZzspV8eKxoml39w');
+
       _currentUser = await _firestoreCRUDModel.getUserById(user.uid);
       notifyListeners();
       //TODO: how to handle error here ???

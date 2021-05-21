@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/screens/checkout_screen.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
@@ -37,6 +38,7 @@ import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
+import 'screens/paymentSuccessScreen.dart';
 
 import 'services/authentication_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -178,6 +180,8 @@ class _StartUpState extends State<StartUp> {
               UniversityNotListedScreen.id: (context) =>
                   UniversityNotListedScreen(),
               PayGenchiScreen.id: (context)=> PayGenchiScreen(),
+              PaymentSuccessScreen.id: (context)=>PaymentSuccessScreen(),
+              CheckoutScreen.id: (context) => CheckoutScreen(),
             },
           );
         }

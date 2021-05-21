@@ -64,6 +64,17 @@ class FirestoreAPIService {
     });
   }
 
+  Future<Map> getPaymentAmount() async {
+    DocumentSnapshot amountDoc = await FirebaseFirestore.instance
+        .collection('payments')
+        .doc('IyPQrb69MUSNRWvjgzPJ')
+        .get();
+
+    Map amountMap = amountDoc.data();
+
+    return amountMap;
+  }
+
   Future checkForAppUpdate({String currentVersion}) async {
     DocumentSnapshot versionsData =
         await _versionCollectionRef.doc('QvfpN3wVCzvsvK1sTu4M').get();
@@ -615,7 +626,7 @@ class FirestoreAPIService {
     List<Task> newTasks = [];
 
     var result =
-    // await _taskCollectionRef.get();
+        // await _taskCollectionRef.get();
         await _taskCollectionRef.where('status', isEqualTo: 'Vacant').get();
 
     ///Map all the docs into Task objects
@@ -891,18 +902,15 @@ class FirestoreAPIService {
         .delete();
   }
 
-
   Future<void> markTaskAsCompleted({Task task}) async {
-
-    if (debugMode) print('FirestoreAPI: markTaskAsCompleted called for ${task.taskId}');
+    if (debugMode)
+      print('FirestoreAPI: markTaskAsCompleted called for ${task.taskId}');
 
     ///Updating the status variable of the task
     task.status = 'Completed';
 
     await _taskCollectionRef.doc(task.taskId).update(task.toJson());
-
   }
-
 
   Future<void> deleteTask({Task task}) async {
     if (debugMode) print('FirestoreAPI: deleteTask called for ${task.taskId}');

@@ -51,8 +51,10 @@ dependencies:
   http: ^0.13.1
   csv: ^5.0.0
   stripe_payment: ^1.1.0
-
-
+  flutter_credit_card: ^2.0.0
+  webview_flutter: ^2.0.7
+  dio: ^4.0.0
+  js: ^0.6.3
 
 
 dev_dependencies:

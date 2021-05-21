@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
-import 'package:genchi_app/screens/checkout_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -55,7 +54,6 @@ class _TestScreenState extends State<TestScreen> {
         child: RoundedButton(
           buttonTitle: "Checkout",
           onPressed: (){
-            redirectToCheckout(context);
           },
           buttonColor: Color(kGenchiBlue),
         ),

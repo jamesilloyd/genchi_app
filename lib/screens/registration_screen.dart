@@ -32,27 +32,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
   String password;
   String name;
+
   bool showSpinner = false;
   bool showErrorField = false;
   String errorMessage = "";
   bool agreed = false;
+  String accountType;
 
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
-  TextEditingController accountTypeController = TextEditingController();
   TextEditingController universityTypeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    accountTypeController.text = 'Select type';
     universityTypeController.text = 'Select University';
   }
 
   @override
   void dispose() {
     super.dispose();
-    accountTypeController.dispose();
     universityTypeController.dispose();
   }
 
@@ -62,6 +61,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         Provider.of<AuthenticationService>(context);
 
     AccountService accountService = Provider.of<AccountService>(context);
+    final RegistrationScreenArguments args =
+        ModalRoute.of(context).settings.arguments;
+
+    accountType = args.accountType;
+    print(accountType);
 
     return GestureDetector(
       onTap: () {
@@ -105,167 +109,87 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    //TODO: only show both fields if it's a individual account
                     SignInTextField(
                       onChanged: (value) {
                         name = value;
                       },
-                      field: 'Name',
+                      field: accountType == 'Individual'? 'Full Name':'$accountType Name',
                       hintText: "Enter name",
                       isNameField: true,
                       autocorrect: true,
                     ),
+
                     SizedBox(
                       height: 10.0,
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'University',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                    if (accountType != 'Company')
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'University',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(32.0))),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  universityTypeController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: universityTypeController.text ==
-                                            'Select University'
-                                        ? Colors.black45
-                                        : Colors.black,
+                          SizedBox(
+                            height: 5,
+                          ),
+                          PopupMenuButton(
+                              elevation: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(32.0))),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 20.0),
+                                  child: Text(
+                                    universityTypeController.text,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: universityTypeController.text ==
+                                              'Select University'
+                                          ? Colors.black45
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                                new PopupMenuItem<String>(
-                                    child: Text(
-                                      'Select University',
-                                      style: TextStyle(color: Colors.black45),
-                                    ),
-                                    value: 'Select University')
-                              ];
-                              for (String accountType
-                                  in GenchiUser().accessibleUniversities) {
-                                items.add(
+                              itemBuilder: (_) {
+                                List<PopupMenuItem<String>> items = [
                                   new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {
-                              universityTypeController.text = value;
-                              setState(() {});
-                            }),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Account Type',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            GestureDetector(
-                              child: Icon(
-                                Icons.help_outline_outlined,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                              onTap: () async {
-                                await showDialogBox(
-                                    context: context,
-                                    title: 'Account Type',
-                                    body:
-                                        'Are you creating this account as an individual or for a society or project group?');
+                                      child: Text(
+                                        'Select University',
+                                        style: TextStyle(color: Colors.black45),
+                                      ),
+                                      value: 'Select University')
+                                ];
+                                for (String accountType
+                                    in GenchiUser().accessibleUniversities) {
+                                  items.add(
+                                    new PopupMenuItem<String>(
+                                        child: Text(accountType),
+                                        value: accountType),
+                                  );
+                                }
+                                return items;
                               },
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(32.0))),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  accountTypeController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: accountTypeController.text ==
-                                            'Select type'
-                                        ? Colors.black45
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                                new PopupMenuItem<String>(
-                                    child: Text(
-                                      'Select type',
-                                      style: TextStyle(color: Colors.black45),
-                                    ),
-                                    value: 'Select type')
-                              ];
-                              for (String accountType
-                                  in GenchiUser().accessibleAccountTypes) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) {
-                              accountTypeController.text = value;
-                              setState(() {});
-                            }),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
+                              onSelected: (value) {
+                                universityTypeController.text = value;
+                                setState(() {});
+                              }),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                        ],
+                      ),
+
                     SignInTextField(
                       field: 'Email',
                       autocorrect: false,
@@ -307,8 +231,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 style: TextStyle(color: Colors.blue),
                                 recognizer: new TapGestureRecognizer()
                                   ..onTap = () {
-                                    launch(
-                                        'https://www.genchi.app/privacy-policy');
+                                    launch(GenchiPPURL);
                                   },
                               ),
                               TextSpan(
@@ -332,14 +255,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           showSpinner = true;
                         });
                         try {
-                          if (name == null ||
-                              email == null ||
-                              accountTypeController.text == 'Select type' ||
+                          if (name == null || email == null)
+                            throw (Exception('Enter account details'));
+
+                          if (accountType != 'Company' &&
                               universityTypeController.text ==
                                   'Select University')
-                            throw (Exception(
-                                'Enter name, email and account type'));
-
+                            throw (Exception('Enter account details'));
                           if (agreed == false)
                             throw (Exception(
                                 'Please accept the Privacy Policy'));
@@ -348,8 +270,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               email: email.replaceAll(' ', ''),
                               password: password,
                               uni: universityTypeController.text,
-                              type: accountTypeController.text,
-                              name: name);
+                              type: accountType,
+                              name: name,);
 
                           await FirebaseAnalytics()
                               .logSignUp(signUpMethod: 'email');
@@ -361,6 +283,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 id: authProvider.currentUser.id);
 
                             ///Quickly ask for permission to take notification on iOS
+                            ///TODO: move this
 
                             if (Platform.isIOS) {
                               NotificationSettings settings =
@@ -413,14 +336,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         });
                       },
                     ),
-                    RoundedButton(
-                        buttonColor: Color(kGenchiLightOrange),
-                        buttonTitle: "University not listed?",
-                        fontColor: Colors.black,
-                        onPressed: () {
-                          Navigator.pushNamed(
-                              context, UniversityNotListedScreen.id);
-                        })
+                    if (accountType != 'Company')
+                      RoundedButton(
+                          buttonColor: Color(kGenchiLightOrange),
+                          buttonTitle: "University not listed?",
+                          fontColor: Colors.black,
+                          onPressed: () {
+                            Navigator.pushNamed(
+                                context, UniversityNotListedScreen.id);
+                          })
                   ],
                 )),
               ],

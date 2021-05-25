@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:genchi_app/screens/company_or_student_screen.dart';
 
 import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/components/rounded_button.dart';
@@ -89,7 +90,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     buttonColor: Color(kGenchiBlue),
                     buttonTitle: "Sign Up",
                     onPressed: () {
-                      Navigator.pushNamed(context, RegistrationScreen.id);
+                      Navigator.pushNamed(context, CompanyOrStudentScreen.id);
                     },
                   ),
                 ],

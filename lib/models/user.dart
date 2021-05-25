@@ -42,12 +42,14 @@ class GenchiUser {
   bool admin;
 
   static String groupAccount = 'Group';
+  static String companyAccount = 'Company';
   static String individualAccount = 'Individual';
   String serviceProviderAccount = 'Service Provider';
 
   List<String> accessibleAccountTypes = [
     groupAccount,
     individualAccount,
+    companyAccount
   ];
 
   List<String> accessibleUniversities = [
@@ -55,7 +57,6 @@ class GenchiUser {
     'Harvard',
     'MIT',
   ];
-
 
   GenchiUser({
     this.accountType,
@@ -135,23 +136,23 @@ class GenchiUser {
       if (isFavouritedBy != null) 'isFavouritedBy': isFavouritedBy,
       if (posts != null) 'posts': posts,
       if (fcmTokens != null) 'fcmTokens': fcmTokens,
-      if (draftJob != null) 'draftJob' : draftJob,
+      if (draftJob != null) 'draftJob': draftJob,
       if (category != null) "category": category,
       if (subcategory != null) 'subcategory': subcategory,
       if (mainAccountId != null) 'mainAccountId': mainAccountId,
       if (providerProfiles != null) 'providerProfiles': providerProfiles,
-      if (preferences != null) 'preferences' : preferences,
-      if (university != null) 'university' : university,
-      if (versionNumber != null) 'versionNumber' : versionNumber,
+      if (preferences != null) 'preferences': preferences,
+      if (university != null) 'university': university,
+      if (versionNumber != null) 'versionNumber': versionNumber,
       //TODO: this is temporary
-      if (hasSetPreferences != null) 'hasSetPreferences':hasSetPreferences,
-      if (accountCreatedOnWeb != null) 'accountCreatedOnWeb' : accountCreatedOnWeb,
-      if (sessionCount != null) 'sessionCount':sessionCount,
+      if (hasSetPreferences != null) 'hasSetPreferences': hasSetPreferences,
+      if (accountCreatedOnWeb != null)
+        'accountCreatedOnWeb': accountCreatedOnWeb,
+      if (sessionCount != null) 'sessionCount': sessionCount,
       if (admin != null) 'admin': admin,
     };
   }
 }
-
 
 ///FOR Service Provider Accounts (Individual on the app)
 class Service {
@@ -241,12 +242,8 @@ List<Service> opportunityTypeList = [
       nameSingular: 'Training',
       namePlural: 'Training',
       databaseValue: 'Training'),
-  Service(
-      nameSingular: 'Other',
-      namePlural: 'Other',
-      databaseValue: 'Other'),
+  Service(nameSingular: 'Other', namePlural: 'Other', databaseValue: 'Other'),
 ];
-
 
 class GroupType {
   String nameSingular;

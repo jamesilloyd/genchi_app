@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
-import 'package:genchi_app/screens/payGenchiScreen.dart';
+import 'package:genchi_app/screens/pay_genchi_screen.dart';
 import 'package:genchi_app/screens/test_screen.dart';
 import 'package:genchi_app/screens/user_screen.dart';
 
@@ -145,12 +145,12 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                     },
                   ),
                   //TODO: trying out without service profiles
-                  if(currentUser.admin) ProfileOptionTile(
-                    text: 'Test Screen',
-                    onPressed: () {
-                      Navigator.pushNamed(context, TestScreen.id);
-                    },
-                  ),
+                  // if(currentUser.admin) ProfileOptionTile(
+                  //   text: 'Test Screen',
+                  //   onPressed: () {
+                  //     Navigator.pushNamed(context, TestScreen.id);
+                  //   },
+                  // ),
 
                   if(currentUser.admin) ProfileOptionTile(
                     text: 'Pay Screen',

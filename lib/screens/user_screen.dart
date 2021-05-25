@@ -11,7 +11,6 @@ import 'package:genchi_app/models/screen_arguments.dart';
 import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
-import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
@@ -58,9 +57,7 @@ class _UserScreenState extends State<UserScreen> {
             onPressed: () {
               Navigator.pushNamed(
                   context,
-                  account.accountType == 'Service Provider'
-                      ? EditProviderAccountScreen.id
-                      : EditAccountScreen.id);
+                      EditAccountScreen.id);
             }),
       );
     } else {
@@ -319,11 +316,6 @@ class _UserScreenState extends State<UserScreen> {
                             ),
                             SizedBox(
                               height: 10,
-                            ),
-                            Center(
-                              child: Text(account.university, style: TextStyle(
-                                  color: Colors.black,fontSize: 24, fontWeight: FontWeight.w500
-                              ),),
                             ),
                             buildActionSection(
                                 isUsersProfile: isUsersOwnProfile,

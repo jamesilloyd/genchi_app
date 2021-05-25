@@ -178,7 +178,7 @@ TextStyle kBodyTextStyle = TextStyle(
 const GenchiPlayStoreURL = 'https://play.google.com/store/apps/details?id=app.genchi.genchi';
 const GenchiAppStoreURL = 'https://apps.apple.com/us/app/genchi/id1473696183';
 const GenchiURL = 'https://www.genchi.app';
-const GenchiTACsURL = 'https://www.genchi.app#terms-and-conditions';
-const GenchiPPURL = 'https://www.genchi.app#privacy-policy';
+const GenchiTACsURL = 'https://www.genchi.app/#terms-and-conditions';
+const GenchiPPURL = 'https://genchi.app/#privacy-policy';
 const GenchiFacebookURL = 'https://www.facebook.com/genchiapp/';
 const GenchiFeedbackURL = 'https://forms.gle/C3auGkD693xRVaXD9';

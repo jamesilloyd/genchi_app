@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/models/task.dart';
 import 'package:genchi_app/models/user.dart';
-import 'package:genchi_app/screens/paymentSuccessScreen.dart';
+import 'package:genchi_app/screens/payment_success_screen.dart';
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -21,6 +25,7 @@ import 'package:genchi_app/components/platform_alerts.dart';
 import 'package:flutter_credit_card/credit_card_model.dart';
 
 import 'package:stripe_payment/stripe_payment.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PayGenchiScreen extends StatefulWidget {
   static const id = 'pay_genchi_screen';
@@ -33,6 +38,8 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   FirestoreAPIService firestoreApi = FirestoreAPIService();
 
+  FirebaseAnalytics analytics = FirebaseAnalytics();
+  FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
   bool spinner = false;
 
@@ -49,6 +56,9 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
   String cardNumber;
   bool cardEnteredCorrectly;
   String cvc;
+  bool readyToPay = false;
+
+  Task task;
 
   Future nativePayFuture;
 
@@ -82,6 +92,7 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
       cardNumber = "**** **** **** ${card.last4}";
       cvc = "***";
       cardEnteredCorrectly = true;
+      readyToPay = true;
       setState(() {});
     } catch (e) {
       print('Error Card: ${e.toString()}');
@@ -93,17 +104,6 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
       cvc = null;
       setState(() {});
     }
-
-    // //TODO: this appears if the user cancels
-    // paymentMethod != null
-    //     ? processPaymentAsDirectCharge(paymentMethod)
-    //     : showDialog(
-    //         context: context,
-    //         builder: (BuildContext context) => ShowDialogToDismiss(
-    //             title: 'Error',
-    //             content:
-    //                 'It is not possible to pay with this card. Please try again with a different card',
-    //             buttonText: 'CLOSE'));
   }
 
   Future<void> createPaymentMethodNative() async {
@@ -169,10 +169,14 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
   }
 
   Future<void> processPaymentAsDirectCharge(PaymentMethod paymentMethod) async {
+    setState(() {
+      showSpinner = true;
+    });
+
     try {
-      GenchiUser currentUser =
-          Provider.of<AuthenticationService>(context, listen: false)
-              .currentUser;
+      AuthenticationService authProvider =
+          Provider.of<AuthenticationService>(context, listen: false);
+      GenchiUser currentUser = authProvider.currentUser;
 
       http.Response response = await http.post(Uri.parse(
           'https://us-central1-genchi-c96c1.cloudfunctions.net/StripeDirectPayment?email=${currentUser.email}&paymentId=$paymentId'));
@@ -193,12 +197,33 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
 
         print(result);
         print(result.status);
+
         if (result.status == 'succeeded') {
           print('Payment completed!!!');
           StripePayment.completeNativePayRequest();
+
+          await analytics.logEvent(name: 'job_created');
+
+          await firestoreAPI.addTask(task: task, hirerId: currentUser.id);
+
+          ///If there is a draft saved in the user, delete it
+          if (currentUser.draftJob.isNotEmpty) {
+            currentUser.draftJob = {};
+            await firestoreAPI.updateUser(
+                user: currentUser, uid: currentUser.id);
+          }
+
+          ///update the user
+          await authProvider.updateCurrentUserData();
+          setState(() {
+            showSpinner = false;
+          });
           Navigator.pushNamed(context, PaymentSuccessScreen.id);
         } else if (result.status == 'processing') {
           StripePayment.cancelNativePayRequest();
+          setState(() {
+            showSpinner = false;
+          });
 
           showDialogBox(
             context: context,
@@ -208,22 +233,28 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
           );
         } else {
           StripePayment.cancelNativePayRequest();
+          setState(() {
+            showSpinner = false;
+          });
 
           showDialogBox(
-            context: context,
-            title: 'Error',
-            body: 'There was an error to confirm the payment.',
-          );
+              context: context,
+              title: 'Error',
+              body:
+                  'There was an error with the payment. Please try again. If the problem persists, please contact us.');
         }
       }
     } catch (e) {
       print('Error: $e');
+      setState(() {
+        showSpinner = false;
+      });
       StripePayment.cancelNativePayRequest();
       showDialogBox(
           context: context,
           title: 'Error',
           body:
-              'There was an error with the payment. Please try on another card.');
+              'There was an error with the payment. Please try again. If the problem persists, please contact us.');
     }
   }
 
@@ -244,6 +275,10 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final PayGenchiScreenArguments args =
+        ModalRoute.of(context).settings.arguments;
+
+    task = args.taskToPost;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
@@ -251,26 +286,98 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
       child: Scaffold(
         body: ModalProgressHUD(
           inAsyncCall: showSpinner,
+          progressIndicator: CircularProgress(),
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                //TODO: get logo up here
-                FutureBuilder(
-                    future: firestoreApi.getPaymentAmount(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        amount = snapshot.data['amount'];
-                        amountString = snapshot.data['amountString'];
+                Container(
+                  color: Color(kGenchiGreen),
+                  child: SafeArea(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.arrow_back_ios),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(7.0),
+                              child: Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      color: Color(kGenchiCream),
+                                      borderRadius: BorderRadius.circular(40)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Image.asset(
+                                      'images/Logo_Clear.png',
+                                    ),
+                                  )),
+                            ),
+                            Text(
+                              'GENCHI LTD',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                            )
+                          ],
+                        ),
+                        FutureBuilder(
+                            future: firestoreApi.getPaymentAmount(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                amount = snapshot.data['amount'];
+                                amountString = snapshot.data['amountString'];
 
-                        return Text(
-                          'Pay Genchi £$amountString',
-                          style: TextStyle(fontSize: 40),
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
+                                return Column(
+                                  children: [
+                                    Text(
+                                      'Post Paid Opportunity',
+                                      style: TextStyle(fontSize: 25),
+                                    ),
+                                    // Row(
+                                    //   mainAxisAlignment:
+                                    //       MainAxisAlignment.center,
+                                    //   children: [
+                                    //     SizedBox(
+                                    //       width: 48,
+                                    //     ),
+                                    //
+                                    //     // IconButton(
+                                    //     //   padding: const EdgeInsets.all(0),
+                                    //     //   icon: Icon(
+                                    //     //     Icons.help_outline_outlined,
+                                    //     //     size: 18,
+                                    //     //     color: Colors.black,
+                                    //     //   ),
+                                    //     //   onPressed: () async {
+                                    //     //     await showDialogBox(
+                                    //     //         context: context,
+                                    //     //         title: 'Genchi Charge',
+                                    //     //         body:
+                                    //     //             '{Insert reason why we charge}');
+                                    //     //   },
+                                    //     // ),
+                                    //   ],
+                                    // ),
+                                    Text(
+                                      '£$amountString',
+                                      style: TextStyle(fontSize: 40),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return SizedBox.shrink();
+                              }
+                            }),
+                      ],
+                    ),
+                  ),
+                ),
 
                 SizedBox(height: 20),
 
@@ -280,30 +387,35 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Column(children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 10.0),
-                          height: 42.0,
-                          width: 200.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(7.0),
-                            color: Color(kGenchiGreen),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  spreadRadius: 1,
-                                  offset: Offset(0, 2))
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(7.0),
-                            child: TextButton(
-                              onPressed: () async{
-                                print('hello');
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: MaterialButton(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            height: 42.0,
+                            minWidth: 200,
+                            color: Color(kGenchiLightOrange),
+                            onPressed: () async {
+                              if (task != null) {
                                 await createPaymentMethodNative();
-                              },
-                              child: Platform.isIOS ? Image.asset('images/apple_pay.png',height:25) : Image.asset('images/google_pay.png',height:25),
-                            ),
+                              } else {
+                                showDialogBox(
+                                    context: context,
+                                    title:
+                                        'There was a problem with your task details, please contact us at hello@genchi.app');
+                              }
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(7)),
+                            child: Platform.isIOS
+                                ? Image.asset('images/apple_pay.png',
+                                    height: 25)
+                                : Image.asset('images/google_pay.png',
+                                    height: 25),
+                            splashColor: Colors.black12,
+                            highlightColor: Colors.transparent,
+                            elevation: 2,
+                            highlightElevation: 5,
+                            // hoverElevation: 20,
                           ),
                         ),
                         SizedBox(
@@ -342,16 +454,27 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
                     }
                   },
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 30),
 
                 ///Card payment
-                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  TextButton(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 37.0),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  MaterialButton(
+                    color: Color(kGenchiLightGreen),
+                    height: 42.0,
+                    minWidth: 200,
+                    splashColor: Colors.black12,
+                    highlightColor: Colors.transparent,
+                    elevation: 2,
+                    highlightElevation: 5,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7)),
+                    child: Container(
                       child: Text(
                         'Press to Enter Card Information',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400),
                       ),
                     ),
                     onPressed: () async {
@@ -448,24 +571,38 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
                 ),
                 SizedBox(height: 20),
                 Center(
-                  child: RoundedButton(
-                    buttonColor: Color(kGenchiLightOrange),
-                    fontColor: Colors.black,
-                    buttonTitle: 'Pay with card',
-                    onPressed: () async {
-                      if (paymentMethod != null) {
-                        //TODO: error / success handling!
-                        await processPaymentAsDirectCharge(paymentMethod);
-                      } else {
-                        showDialogBox(
-                            context: context,
-                            title: 'Enter card details first');
-                        print(
-                            'Please enter card details or look to see if there is a problem with the card details');
-                      }
-                    },
+                    child: MaterialButton(
+                  color: Color(kGenchiLightOrange),
+                  height: 42.0,
+                  minWidth: 200,
+                  splashColor: Colors.black12,
+                  highlightColor: Colors.transparent,
+                  elevation: 2,
+                  highlightElevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7)),
+                  child: Container(
+                    child: Text(
+                      'Pay with card',
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400),
+                    ),
                   ),
-                ),
+                  onPressed: () async {
+                    if (paymentMethod != null && readyToPay && task != null) {
+                      //TODO: error / success handling!
+
+                      await processPaymentAsDirectCharge(paymentMethod);
+                    } else {
+                      showDialogBox(
+                          context: context, title: 'Enter card details first');
+                      print(
+                          'Please enter card details or look to see if there is a problem with the card details');
+                    }
+                  },
+                )),
                 SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -474,9 +611,18 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
                       'Powered by',
                       style: TextStyle(fontSize: 14),
                     ),
-                    Image.asset(
-                      'images/stripe.png',
-                      height: 25,
+                    GestureDetector(
+                      onTap: () async {
+                        if (await canLaunch('https://stripe.com/en-gb/about')) {
+                          await launch('https://stripe.com/en-gb/about');
+                        } else {
+                          print("Could not open URL");
+                        }
+                      },
+                      child: Image.asset(
+                        'images/stripe.png',
+                        height: 25,
+                      ),
                     )
                   ],
                 )

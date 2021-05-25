@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RoundedButton extends StatelessWidget {
   const RoundedButton(
@@ -19,37 +20,32 @@ class RoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0),
-      height: 42.0,
-      width: 200.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(7.0),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: MaterialButton(
+        padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+        height: 42.0,
+        minWidth: 200,
         color: buttonColor,
-        boxShadow: elevation
-            ? [
-                BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 5,
-                    spreadRadius: 1,
-                    offset: Offset(0, 2))
-              ]
-            : [BoxShadow(color: Colors.transparent)],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7.0),
-        child: TextButton(
-          onPressed: onPressed,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Text(
-              buttonTitle,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              style: style.copyWith(color: fontColor),
-            ),
-          ),
+        onPressed: onPressed,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        child: Text(
+          buttonTitle,
+          maxLines: 1,
+          textAlign: TextAlign.center,
+          style: style.copyWith(color: fontColor),
         ),
+        splashColor: Colors.black12,
+        highlightColor: Colors.transparent,
+        enableFeedback: true,
+        onHighlightChanged: (pressed) {
+          if (pressed) {
+            HapticFeedback.lightImpact();
+          }
+        },
+        elevation: elevation ? 2 : 0,
+        highlightElevation: elevation ? 5 : 0,
+        // hoverElevation: 20,
       ),
     );
   }

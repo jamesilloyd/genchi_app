@@ -114,21 +114,17 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     showSpinner = true;
                   });
 
-                  await analytics.logEvent(
-                      name: 'hirer_top_save_changes_button_pressed');
-
                   await fireStoreAPI.updateUser(
                       user: GenchiUser(
-                        name: nameController.text,
-                        bio: bioController.text,
-                        category: categoryController.text,
-                        subcategory: subCategoryController.text,
-                          university: universityTextController.text
-                      ),
+                          name: nameController.text,
+                          bio: bioController.text,
+                          category: categoryController.text,
+                          subcategory: subCategoryController.text,
+                          university: universityTextController.text),
                       uid: currentUser.id);
 
                   ///If name has changed update in the auth section
-                  if(nameController.text != currentUser.name) {
+                  if (nameController.text != currentUser.name) {
                     await authProvider.updateCurrentUserName(
                         name: nameController.text);
                   }
@@ -178,9 +174,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                   bottom:
                                       MediaQuery.of(context).viewInsets.bottom),
                               child: Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.75,
-                                  child: AddImageScreen(),
+                                height:
+                                    MediaQuery.of(context).size.height * 0.75,
+                                child: AddImageScreen(),
                               ),
                             ),
                           ),
@@ -230,130 +226,126 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       },
                       textController: nameController,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          height: 30.0,
-                        ),
-                        Text(
-                          'University',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
+                    if (currentUser.accountType != 'Company')
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Container(
+                            height: 30.0,
                           ),
-                        ),
-                        SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                  border: Border.all(color: Colors.black)
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  universityTextController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
+                          Text(
+                            'University',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w500,
                             ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              for (String accountType
-                              in GenchiUser().accessibleUniversities) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value)  {
-                              changesMade = true;
-                              universityTextController.text = value;
-
-                              setState(() {
-
-                              });
-
-                            }),
-                      ],
-                    ),
-                    if(currentUser.accountType != 'Individual') Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          height: 30.0,
-                        ),
-                        Text(
-                          'Category',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                        SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                  border: Border.all(color: Colors.black)
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  categoryController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              for (GroupType groupType in groupsList) {
-                                var newItem = new PopupMenuItem(
+                          SizedBox(height: 5.0),
+                          PopupMenuButton(
+                              elevation: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32.0)),
+                                    border: Border.all(color: Colors.black)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 20.0),
                                   child: Text(
-                                    groupType.databaseValue,
+                                    universityTextController.text,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                  value: groupType.databaseValue,
-                                );
-                                items.add(newItem);
-                              }
-                              return items;
-                            },
-                            onSelected: (value) async {
-                              setState(() {
+                                ),
+                              ),
+                              itemBuilder: (_) {
+                                List<PopupMenuItem<String>> items = [];
+                                for (String accountType
+                                    in GenchiUser().accessibleUniversities) {
+                                  items.add(
+                                    new PopupMenuItem<String>(
+                                        child: Text(accountType),
+                                        value: accountType),
+                                  );
+                                }
+                                return items;
+                              },
+                              onSelected: (value) {
                                 changesMade = true;
-                                categoryController.text = value;
-                              });
-                            }),
-                      ],
-                    ),
-                    if(currentUser.accountType != 'Individual') EditAccountField(
-                      field: 'Subcategory',
-                      hintText: 'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
-                      onChanged: (value) {
-                        changesMade = true;
-                      },
-                      textController: subCategoryController,
-                    ),
+                                universityTextController.text = value;
+
+                                setState(() {});
+                              }),
+                        ],
+                      ),
+                    //TODO: this needs updating
+                    if (currentUser.accountType != 'Individual')
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Container(
+                            height: 30.0,
+                          ),
+                          Text(
+                            'Category',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 5.0),
+                          PopupMenuButton(
+                              elevation: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32.0)),
+                                    border: Border.all(color: Colors.black)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 20.0),
+                                  child: Text(
+                                    categoryController.text,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              itemBuilder: (_) {
+                                List<PopupMenuItem<String>> items = [];
+                                for (GroupType groupType in groupsList) {
+                                  var newItem = new PopupMenuItem(
+                                    child: Text(
+                                      groupType.databaseValue,
+                                    ),
+                                    value: groupType.databaseValue,
+                                  );
+                                  items.add(newItem);
+                                }
+                                return items;
+                              },
+                              onSelected: (value) async {
+                                setState(() {
+                                  changesMade = true;
+                                  categoryController.text = value;
+                                });
+                              }),
+                        ],
+                      ),
+                    if (currentUser.accountType != 'Individual')
+                      EditAccountField(
+                        field: 'Subcategory',
+                        hintText:
+                            'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
+                        onChanged: (value) {
+                          changesMade = true;
+                        },
+                        textController: subCategoryController,
+                      ),
                     EditAccountField(
                       field: "About",
                       onChanged: (value) {
@@ -361,52 +353,15 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         changesMade = true;
                       },
                       textController: bioController,
-                      hintText: currentUser.accountType == 'Individual'?'College, Interests, Societies, etc.':'Describe what you do you.',
+                      hintText: currentUser.accountType == 'Individual'
+                          ? 'College, Interests, Societies, etc.'
+                          : 'Describe what you do you.',
                     ),
                     SizedBox(
                       height: 20.0,
                     ),
                     Divider(
                       height: 10,
-                    ),
-                    Center(
-                      child: RoundedButton(
-                        buttonTitle: 'Save changes',
-                        buttonColor: Color(kGenchiGreen),
-                        onPressed: () async {
-                          setState(() {
-                            showSpinner = true;
-                          });
-
-                          await analytics.logEvent(
-                              name: 'hirer_bottom_save_changes_button_pressed');
-
-                          await fireStoreAPI.updateUser(
-                              user: GenchiUser(
-                                name: nameController.text,
-                                bio: bioController.text,
-                                category: categoryController.text,
-                                subcategory: subCategoryController.text,
-                                university: universityTextController.text
-                              ),
-                              uid: currentUser.id);
-
-                          ///If name has changed update in the auth section
-                          if(nameController.text != currentUser.name) {
-                            await authProvider.updateCurrentUserName(
-                                name: nameController.text);
-                          }
-
-                          await accountService.updateCurrentAccount(id: currentUser.id);
-                          await authProvider.updateCurrentUserData();
-
-                          setState(() {
-                            changesMade = false;
-                            showSpinner = false;
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
                     ),
                   ],
                 ),

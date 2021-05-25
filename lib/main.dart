@@ -1,25 +1,25 @@
 import 'dart:async';
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:genchi_app/constants.dart';
 import 'package:genchi_app/screens/application_chat_screen.dart';
+import 'package:genchi_app/screens/company_or_student_screen.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/edit_account_settings_screen.dart';
 import 'package:genchi_app/screens/edit_task_screen.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-
 import 'package:genchi_app/screens/favourites_screen.dart';
 import 'package:genchi_app/screens/forgot_password_screen.dart';
 import 'package:genchi_app/screens/home_screen.dart';
 import 'package:genchi_app/screens/onboarding_screen.dart';
-import 'package:genchi_app/screens/payGenchiScreen.dart';
+import 'package:genchi_app/screens/pay_genchi_screen.dart';
 import 'package:genchi_app/screens/post_reg_details_screen.dart';
 import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
+import 'package:genchi_app/screens/pre_payment_explain_screen.dart';
 import 'package:genchi_app/screens/splash_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
@@ -31,13 +31,12 @@ import 'package:genchi_app/screens/login_screen.dart';
 import 'package:genchi_app/screens/registration_screen.dart';
 import 'package:genchi_app/screens/chat_screen.dart';
 import 'package:genchi_app/screens/edit_account_screen.dart';
-import 'package:genchi_app/screens/edit_provider_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
 import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
-import 'screens/paymentSuccessScreen.dart';
+import 'screens/payment_success_screen.dart';
 
 import 'services/authentication_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -159,8 +158,6 @@ class _StartUpState extends State<StartUp> {
               HomeScreen.id: (context) => HomeScreen(),
               EditAccountScreen.id: (context) => EditAccountScreen(),
               ForgotPasswordScreen.id: (context) => ForgotPasswordScreen(),
-              EditProviderAccountScreen.id: (context) =>
-                  EditProviderAccountScreen(),
               FavouritesScreen.id: (context) => FavouritesScreen(),
               AboutScreen.id: (context) => AboutScreen(),
               PostTaskScreen.id: (context) => PostTaskScreen(),
@@ -180,6 +177,8 @@ class _StartUpState extends State<StartUp> {
                   UniversityNotListedScreen(),
               PayGenchiScreen.id: (context)=> PayGenchiScreen(),
               PaymentSuccessScreen.id: (context)=>PaymentSuccessScreen(),
+              CompanyOrStudentScreen.id: (context)=>CompanyOrStudentScreen(),
+              PrePaymentScreen.id: (context)=>PrePaymentScreen(),
             },
           );
         }

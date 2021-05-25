@@ -70,7 +70,6 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationService>(context);
     GenchiUser currentUser = authProvider.currentUser;
-    bool hasServiceProfiles = currentUser.providerProfiles.isNotEmpty;
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(
@@ -104,44 +103,6 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () async {
-                  await analytics.logEvent(
-                      name: 'hirer_top_save_changes_button_pressed');
-
-                  ///Check if the user has changed their account type and if they
-                  ///have we need to delete their service profiles (if they exist).
-                  if(currentUser.accountType !=
-                      accountTypeTextController.text && hasServiceProfiles) {
-                    bool deleteProviders = await showYesNoAlert(
-                        context: context,
-                        title: 'You have changed your account type',
-                        body:
-                            'We are going to delete your additional service accounts. Do you want to proceed?');
-
-                    if (deleteProviders) {
-                      setState(() {
-                        showSpinner = true;
-                      });
-
-                      await analytics.logEvent(
-                          name:
-                          'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
-
-                      for (String id in currentUser.providerProfiles) {
-                        GenchiUser serviceProfile =
-                            await fireStoreAPI.getUserById(id);
-
-                        ///Check service profile exists before deleting it
-                        if (serviceProfile != null) {
-                          await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
-                        }
-                      }
-                    }
-                  } else {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                  }
-
                   await fireStoreAPI.updateUser(
                       user: GenchiUser(
                         name: nameController.text,
@@ -181,129 +142,134 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                         Container(
                           height: 30.0,
                         ),
-                        Text(
-                          'Account Type',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        //TODO: look at the below, for now just assuming that people can't switch their account types once made
+                        EditAccountField(
+                          field: "Account Type",
+                          isEditable: false,
+                          onChanged: (value) {
+                            // changesMade = true;
+                          },
+                          textController: accountTypeTextController,
                         ),
-                        SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                border: Border.all(color: Colors.black)
 
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  accountTypeTextController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
+                        // Text(
+                        //   'Account Type',
+                        //   style: TextStyle(
+                        //     fontSize: 20.0,
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
+                        // SizedBox(height: 5.0),
+                        // PopupMenuButton(
+                        //     elevation: 1,
+                        //     child: Container(
+                        //       decoration: BoxDecoration(
+                        //           color: Colors.white,
+                        //           borderRadius: BorderRadius.all(
+                        //               Radius.circular(32.0)),
+                        //         border: Border.all(color: Colors.black)
+                        //
+                        //       ),
+                        //       child: Padding(
+                        //         padding: const EdgeInsets.symmetric(
+                        //             vertical: 12.0, horizontal: 20.0),
+                        //         child: Text(
+                        //           accountTypeTextController.text,
+                        //           style: TextStyle(
+                        //             fontSize: 18,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     itemBuilder: (_) {
+                        //       List<PopupMenuItem<String>> items = [
+                        //       ];
+                        //       for (String accountType
+                        //       in GenchiUser().accessibleAccountTypes) {
+                        //         items.add(
+                        //           new PopupMenuItem<String>(
+                        //               child: Text(accountType),
+                        //               value: accountType),
+                        //         );
+                        //       }
+                        //       return items;
+                        //     },
+                        //     onSelected: (value) async {
+                        //       if (value != accountTypeTextController.text && hasServiceProfiles) {
+                        //         bool change = await showYesNoAlert(
+                        //             context: context,
+                        //             title:
+                        //             'Are you sure you want to change account type?',
+                        //             body:
+                        //             'Doing this will remove any other service accounts associated with this account.');
+                        //
+                        //         if (change) {
+                        //           changesMade = true;
+                        //           accountTypeTextController.text = value;
+                        //           setState(() {});
+                        //         }
+                        //       } else {
+                        //         changesMade = true;
+                        //         accountTypeTextController.text = value;
+                        //         setState(() {});
+                        //       }
+                        //     }),
+                      ],
+                    ),
+                    if (currentUser.accountType != 'Company')
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Container(
+                            height: 30.0,
+                          ),
+                          Text(
+                            'University',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 5.0),
+                          PopupMenuButton(
+                              elevation: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32.0)),
+                                    border: Border.all(color: Colors.black)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 20.0),
+                                  child: Text(
+                                    universityTextController.text,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              for (String accountType
-                              in GenchiUser().accessibleAccountTypes) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value) async {
-                              if (value != accountTypeTextController.text && hasServiceProfiles) {
-                                bool change = await showYesNoAlert(
-                                    context: context,
-                                    title:
-                                    'Are you sure you want to change account type?',
-                                    body:
-                                    'Doing this will remove any other service accounts associated with this account.');
-
-                                if (change) {
-                                  changesMade = true;
-                                  accountTypeTextController.text = value;
-                                  setState(() {});
+                              itemBuilder: (_) {
+                                List<PopupMenuItem<String>> items = [];
+                                for (String accountType
+                                    in GenchiUser().accessibleUniversities) {
+                                  items.add(
+                                    new PopupMenuItem<String>(
+                                        child: Text(accountType),
+                                        value: accountType),
+                                  );
                                 }
-                              } else {
+                                return items;
+                              },
+                              onSelected: (value) {
                                 changesMade = true;
-                                accountTypeTextController.text = value;
+                                universityTextController.text = value;
+
                                 setState(() {});
-                              }
-                            }),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          height: 30.0,
-                        ),
-                        Text(
-                          'University',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 5.0),
-                        PopupMenuButton(
-                            elevation: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(32.0)),
-                                  border: Border.all(color: Colors.black)
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0, horizontal: 20.0),
-                                child: Text(
-                                  universityTextController.text,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            itemBuilder: (_) {
-                              List<PopupMenuItem<String>> items = [
-                              ];
-                              for (String accountType
-                              in GenchiUser().accessibleUniversities) {
-                                items.add(
-                                  new PopupMenuItem<String>(
-                                      child: Text(accountType),
-                                      value: accountType),
-                                );
-                              }
-                              return items;
-                            },
-                            onSelected: (value)  {
-                              changesMade = true;
-                              universityTextController.text = value;
-
-                              setState(() {
-
-                              });
-
-                            }),
-                      ],
-                    ),
+                              }),
+                        ],
+                      ),
                     EditAccountField(
                       field: "Name",
                       onChanged: (value) {
@@ -326,74 +292,6 @@ class _EditAccountSettingsScreen extends State<EditAccountSettingsScreen> {
                     Divider(
                       height: 10,
                     ),
-                    Center(
-                      child: RoundedButton(
-                        buttonTitle: 'Save changes',
-                        buttonColor: Color(kGenchiGreen),
-                        onPressed: () async {
-                          await analytics.logEvent(
-                              name: 'hirer_top_save_changes_button_pressed');
-
-                          ///Check if the user has changed their account type and
-                          /// if they have we need to delete their service profiles (if they exist).
-                          if (currentUser.accountType !=
-                              accountTypeTextController.text && hasServiceProfiles) {
-                            bool deleteProviders = await showYesNoAlert(
-                                context: context,
-                                title: 'You have changed your account type',
-                                body:
-                                'We are going to delete your additional service accounts. Do you want to proceed?');
-
-                            if (deleteProviders) {
-                              setState(() {
-                                showSpinner = true;
-                              });
-
-                              await analytics.logEvent(
-                                  name:
-                                  'changed_${currentUser.accountType}_to_${accountTypeTextController.text}');
-
-                              for (String id in currentUser.providerProfiles) {
-                                GenchiUser serviceProfile =
-                                await fireStoreAPI.getUserById(id);
-
-                                ///Check provider exists before deleting it
-                                if (serviceProfile != null) {
-                                  await fireStoreAPI.deleteServiceProvider(serviceProvider: serviceProfile);
-                                }
-                              }
-                            }
-                          } else {
-                            setState(() {
-                              showSpinner = true;
-                            });
-                          }
-
-                          await fireStoreAPI.updateUser(
-                              user: GenchiUser(
-                                name: nameController.text,
-                                email: emailController.text,
-                                accountType: accountTypeTextController.text,
-                                university: universityTextController.text,
-                              ),
-                              uid: currentUser.id);
-
-                          ///If the user has changed their name just update it in the auth section
-                          if (nameController.text != currentUser.name) {
-                            await authProvider.updateCurrentUserName(
-                                name: nameController.text);
-                          }
-                          await authProvider.updateCurrentUserData();
-
-                          setState(() {
-                            changesMade = false;
-                            showSpinner = false;
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-
                     Center(
                       child: RoundedButton(
                         buttonColor: Color(kGenchiBlue),

@@ -3,6 +3,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/models/preferences.dart';
+import 'package:genchi_app/models/screen_arguments.dart';
+import 'package:genchi_app/screens/jobs_screen.dart';
+import 'package:genchi_app/screens/pay_genchi_screen.dart';
 import 'package:genchi_app/services/time_formatting.dart';
 import 'package:http/http.dart' as http;
 import 'package:genchi_app/components/app_bar.dart';
@@ -27,6 +30,7 @@ class PostTaskScreen extends StatefulWidget {
   _PostTaskScreenState createState() => _PostTaskScreenState();
 }
 
+//TODO: add some feedback in here for companies saying they will be charged
 class _PostTaskScreenState extends State<PostTaskScreen> {
   FirebaseAnalytics analytics = FirebaseAnalytics();
   bool changesMade = false;
@@ -172,7 +176,8 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                 title: titleController.text,
                 details: detailsController.text,
                 date: dateController.text,
-                applicationLink: applicationLinkController.text.replaceAll(' ', ''),
+                applicationLink:
+                    applicationLinkController.text.replaceAll(' ', ''),
                 linkApplicationType: linkApplicationType,
                 hasFixedDeadline: hasFixedDeadline,
                 applicationDeadline: deadlineDate,
@@ -489,7 +494,8 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     Wrap(
                       alignment: WrapAlignment.start,
                       crossAxisAlignment: WrapCrossAlignment.start,
-                      children: _chipBuilder(values: uniTags, filter: 'University'),
+                      children:
+                          _chipBuilder(values: uniTags, filter: 'University'),
                     ),
                     SizedBox(height: 10),
                     Row(
@@ -649,122 +655,149 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     ),
                     Center(
                       child: RoundedButton(
-                        buttonTitle: 'POST',
-                        buttonColor: Color(kGenchiLightOrange),
-                        fontColor: Colors.black,
-                        onPressed: () async {
-                          ///Ask the user is they want to post
-                          bool post = await showYesNoAlert(
-                              context: context, title: 'Post opportunity?');
-
-                          if (post) {
-                            setState(() {
-                              showSpinner = true;
-                            });
-
-                            ///Just check if the link is valid first
-                            bool error = false;
-                            String errorMessage = '';
-
-                            if (linkApplicationType) {
-                              try {
-                                ///Test the link is real
-                                var response =
-                                await http.head(Uri.parse(applicationLinkController.text.replaceAll(' ', '')));
-                                if (response.statusCode == 200) {
-                                  error = false;
-                                } else {
-                                  error = true;
-                                }
-                              } catch (e) {
-                                print(e);
-                                error = true;
-                                errorMessage = 'Application Link Not Valid';
-                              }
-                            }
-
-                            if (hasFixedDeadline && deadlineDate == null) {
-                              error = true;
-                              errorMessage =
-                                  'Please set the application deadline date.';
-                            }
-
-                            bool selectedUni = false;
-                            List universities = [];
-
-                            for(Tag uni in uniTags){
-                              if(uni.selected == true){
-                                selectedUni = true;
-                                universities.add(uni.databaseValue);
-
-                              }
-                            }
-                            if(!selectedUni){
-                              error = true;
-                              errorMessage = 'Please select a University';
-                            }
-
-                            if (!error) {
-                              ///Link was valid
-
-                              await analytics.logEvent(name: 'job_created');
-
-                              ///Collate all the tags
-                              List taskTags = [];
-
-                              for (Tag tag in allTags) {
-                                if (tag.selected)
-                                  taskTags.add(tag.databaseValue);
-                              }
-
-                              await firestoreAPI.addTask(
-                                  task: Task(
-                                      title: titleController.text,
-                                      date: dateController.text,
-                                      details: detailsController.text,
-                                      time: Timestamp.now(),
-                                      status: 'Vacant',
-                                      linkApplicationType: linkApplicationType,
-                                      applicationLink:
-                                          applicationLinkController.text.replaceAll(' ', ''),
-                                      hasFixedDeadline: hasFixedDeadline,
-                                      universities: universities,
-                                      applicationDeadline: deadlineDate,
-                                      price: priceController.text,
-                                      tags: taskTags,
-                                      hirerId: authProvider.currentUser.id),
-                                  hirerId: authProvider.currentUser.id);
-
-                              ///If there is a draft saved in the user, delete it
-                              if (authProvider
-                                  .currentUser.draftJob.isNotEmpty) {
-                                authProvider.currentUser.draftJob = {};
-                                await firestoreAPI.updateUser(
-                                    user: authProvider.currentUser,
-                                    uid: authProvider.currentUser.id);
-                              }
-
-                              ///update the user
-                              await authProvider.updateCurrentUserData();
-                              setState(() {
-                                showSpinner = false;
-                              });
-                              Navigator.of(context).pop();
-                            } else {
-                              ///link was not valid
-
-                              setState(() {
-                                showSpinner = false;
-                              });
-
-                              await showDialogBox(
+                          buttonTitle:
+                              authProvider.currentUser.accountType != 'Company'
+                                  ? 'POST'
+                                  : 'Go to Payment',
+                          buttonColor: Color(kGenchiLightOrange),
+                          fontColor: Colors.black,
+                          onPressed: () async {
+                            ///Ask the user is they want to post
+                            bool post = await showYesNoAlert(
                                 context: context,
-                                title: errorMessage,
-                              );
+                                title: authProvider.currentUser.accountType ==
+                                        'Company'
+                                    ? 'Ready to pay'
+                                    : 'Post opportunity?');
+
+                            if (post) {
+                              setState(() {
+                                showSpinner = true;
+                              });
+
+                              ///Just check if the link is valid first
+                              bool error = false;
+                              String errorMessage = '';
+
+                              if (linkApplicationType) {
+                                try {
+                                  ///Test the link is real
+                                  var response = await http.head(Uri.parse(
+                                      applicationLinkController.text
+                                          .replaceAll(' ', '')));
+                                  if (response.statusCode == 200) {
+                                    error = false;
+                                  } else {
+                                    error = true;
+                                  }
+                                } catch (e) {
+                                  print(e);
+                                  error = true;
+                                  errorMessage = 'Application Link Not Valid';
+                                }
+                              }
+
+                              if (hasFixedDeadline && deadlineDate == null) {
+                                error = true;
+                                errorMessage =
+                                    'Please set the application deadline date.';
+                              }
+
+                              bool selectedUni = false;
+                              List universities = [];
+
+                              for (Tag uni in uniTags) {
+                                if (uni.selected == true) {
+                                  selectedUni = true;
+                                  universities.add(uni.databaseValue);
+                                }
+                              }
+                              if (!selectedUni) {
+                                error = true;
+                                errorMessage = 'Please select a University';
+                              }
+
+                              if (!error) {
+                                ///Link was valid
+                                ///Collate all the tags
+                                List taskTags = [];
+
+                                for (Tag tag in allTags) {
+                                  if (tag.selected)
+                                    taskTags.add(tag.databaseValue);
+                                }
+
+                                Task task = Task(
+                                    title: titleController.text,
+                                    date: dateController.text,
+                                    details: detailsController.text,
+                                    time: Timestamp.now(),
+                                    status: 'Vacant',
+                                    linkApplicationType: linkApplicationType,
+                                    applicationLink: applicationLinkController
+                                        .text
+                                        .replaceAll(' ', ''),
+                                    hasFixedDeadline: hasFixedDeadline,
+                                    universities: universities,
+                                    applicationDeadline: deadlineDate,
+                                    price: priceController.text,
+                                    tags: taskTags,
+                                    hirerId: authProvider.currentUser.id);
+
+                                if (authProvider.currentUser.accountType ==
+                                    'Company') {
+                                  //TODO: here we need to route companies to the payment screen
+                                  print('Company job posting');
+
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+
+                                  Navigator.pushNamed(
+                                      context, PayGenchiScreen.id,
+                                      arguments: PayGenchiScreenArguments(
+                                          taskToPost: task));
+                                } else {
+                                  print('Non company job posting');
+                                  await analytics.logEvent(name: 'job_created');
+
+                                  await firestoreAPI.addTask(
+                                      task: task,
+                                      hirerId: authProvider.currentUser.id);
+
+                                  ///If there is a draft saved in the user, delete it
+                                  if (authProvider
+                                      .currentUser.draftJob.isNotEmpty) {
+                                    authProvider.currentUser.draftJob = {};
+                                    await firestoreAPI.updateUser(
+                                        user: authProvider.currentUser,
+                                        uid: authProvider.currentUser.id);
+                                  }
+
+                                  ///update the user
+                                  await authProvider.updateCurrentUserData();
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
+                                  Navigator.of(context).pop();
+                                }
+                              } else {
+                                ///link was not valid
+
+                                setState(() {
+                                  showSpinner = false;
+                                });
+
+                                await showDialogBox(
+                                  context: context,
+                                  title: errorMessage,
+                                );
+                              }
                             }
-                          }
-                        },
-                      ),
+                          }),
+                    ),
+                    SizedBox(
+                      height: 20,
                     )
                   ],
                 ),

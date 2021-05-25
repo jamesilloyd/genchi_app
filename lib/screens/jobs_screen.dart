@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:genchi_app/components/app_bar.dart';
 import 'package:genchi_app/components/circular_progress.dart';
 import 'package:genchi_app/components/platform_alerts.dart';
@@ -16,6 +17,7 @@ import 'package:genchi_app/models/user.dart';
 import 'package:genchi_app/screens/customer_needs_screen.dart';
 import 'package:genchi_app/screens/post_task_and_hirer_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
+import 'package:genchi_app/screens/pre_payment_explain_screen.dart';
 import 'package:genchi_app/screens/task_screen_applicant.dart';
 import 'package:genchi_app/screens/task_screen_hirer.dart';
 import 'package:genchi_app/services/account_service.dart';
@@ -36,13 +38,14 @@ class Sort {
 }
 
 class JobsScreen extends StatefulWidget {
+  static const id = 'jobs_screen';
+
   @override
   _JobsScreenState createState() => _JobsScreenState();
 }
 
-class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMixin{
-
-
+class _JobsScreenState extends State<JobsScreen>
+    with AutomaticKeepAliveClientMixin {
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
   static final FirestoreAPIService firestoreAPI = FirestoreAPIService();
 
@@ -69,8 +72,6 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
       originalTags.length, (index) => Tag.fromTag(originalTags[index]));
 
   double buttonHeight;
-
-
 
   @override
   void dispose() {
@@ -129,9 +130,7 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
     Provider.of<AccountService>(context, listen: false)
         .updateCurrentAccount(id: currentUser.id);
 
-
     searchTasksFuture = firestoreAPI.fetchTasksAndHirers();
-
 
     getUserTasksPostedAndNotificationsFuture = firestoreAPI
         .getUserTasksPostedAndNotifications(postIds: currentUser.posts);
@@ -140,8 +139,8 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
         firestoreAPI.getUserTasksAppliedAndNotifications(
             providerIds: currentUser.providerProfiles, mainId: currentUser.id);
 
-
-    checkForAppUpdate = firestoreAPI.checkForAppUpdate(currentVersion: currentUser.versionNumber);
+    checkForAppUpdate = firestoreAPI.checkForAppUpdate(
+        currentVersion: currentUser.versionNumber);
 
     openBottomSection();
     if (!currentUser.hasSetPreferences) checkForPreferenceUpdate();
@@ -171,7 +170,6 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-
         appBar: BasicAppNavigationBar(
           barTitle: 'Home',
         ),
@@ -484,7 +482,8 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                               GenchiUser hirer =
                                   taskAndHirerAndNotification['hirer'];
                               bool userHasNotification =
-                                  taskAndHirerAndNotification['hasNotification'];
+                                  taskAndHirerAndNotification[
+                                      'hasNotification'];
 
                               Widget tCard = TaskCard(
                                   imageURL: hirer.displayPictureURL,
@@ -573,81 +572,83 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   children: [
                     SizedBox(height: 25),
-                    PostJobSection(
-                      text: 'Post New Opportunity',
-                      onPressed: () async {
-                        bool postTask = await showYesNoAlert(
-                            context: context, title: 'Post Opportunity?');
-                        if (postTask)
-                          Navigator.pushNamed(context, PostTaskScreen.id)
-                              .then((value) {
-                            ///Update futures
-                            searchTasksFuture =
-                                firestoreAPI.fetchTasksAndHirers();
-                            getUserTasksPostedAndNotificationsFuture =
-                                firestoreAPI.getUserTasksPostedAndNotifications(
-                                    postIds: currentUser.posts);
-                            setState(() {});
-                          });
-                      },
+                    Center(
+                      child: PostJobSection(
+                        text: 'Post New Opportunity',
+                        onPressed: () async {
+                          if (currentUser.accountType != 'Company') {
+                            bool postTask = await showYesNoAlert(
+                                context: context, title: 'Post Opportunity?');
+                            if (postTask)
+                              Navigator.pushNamed(context, PostTaskScreen.id)
+                                  .then((value) {
+                                ///Update futures
+                                searchTasksFuture =
+                                    firestoreAPI.fetchTasksAndHirers();
+                                getUserTasksPostedAndNotificationsFuture =
+                                    firestoreAPI
+                                        .getUserTasksPostedAndNotifications(
+                                            postIds: currentUser.posts);
+                                setState(() {});
+                              });
+                          } else {
+                            Navigator.pushNamed(context, PrePaymentScreen.id);
+                          }
+                        },
+                      ),
                     ),
-                    //TODO: add in condition of being less than the minimum required version
                     FutureBuilder(
                         future: checkForAppUpdate,
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return SizedBox.shrink();
-                          }
-                          else {
-
+                          } else {
                             final bool doesNotNeedUpdate = snapshot.data;
 
-                            if(doesNotNeedUpdate){
+                            if (doesNotNeedUpdate) {
                               return SizedBox.shrink();
                             } else {
-
                               return AppUpdateButton();
-
                             }
-                        }
-
-
-                    }
-
-                    ),
-                    if (currentUser.admin)
-                      PostJobSection(
-                        text: 'Post New Opportunity and Hirer',
-                        onPressed: () async {
-                          bool postTask = await showYesNoAlert(
-                              context: context,
-                              title: 'Post Opportunity and Hirer?',
-                              body:
-                                  'This will create a new user as soon as you click, so make sure to do it in one go');
-                          if (postTask) {
-                            ///Create an empty user
-                            DocumentReference result =
-                                await firestoreAPI.addUser(GenchiUser());
-                            await firestoreAPI.updateUser(
-                                user: GenchiUser(id: result.id), uid: result.id);
-
-                            ///Update the account service to be on this user
-                            await accountService.updateCurrentAccount(
-                                id: result.id);
-
-                            Navigator.pushNamed(
-                                    context, PostTaskAndHirerScreen.id)
-                                .then((value) {
-                              ///Update futures
-                              searchTasksFuture =
-                                  firestoreAPI.fetchTasksAndHirers();
-                              getUserTasksPostedAndNotificationsFuture =
-                                  firestoreAPI.getUserTasksPostedAndNotifications(
-                                      postIds: currentUser.posts);
-                              setState(() {});
-                            });
                           }
-                        },
+                        }),
+                    if (currentUser.admin)
+                      Center(
+                        child: PostJobSection(
+                          text: 'Post New Opportunity and Hirer',
+                          onPressed: () async {
+                            bool postTask = await showYesNoAlert(
+                                context: context,
+                                title: 'Post Opportunity and Hirer?',
+                                body:
+                                    'This will create a new user as soon as you click, so make sure to do it in one go');
+                            if (postTask) {
+                              ///Create an empty user
+                              DocumentReference result =
+                                  await firestoreAPI.addUser(GenchiUser());
+                              await firestoreAPI.updateUser(
+                                  user: GenchiUser(id: result.id),
+                                  uid: result.id);
+
+                              ///Update the account service to be on this user
+                              await accountService.updateCurrentAccount(
+                                  id: result.id);
+
+                              Navigator.pushNamed(
+                                      context, PostTaskAndHirerScreen.id)
+                                  .then((value) {
+                                ///Update futures
+                                searchTasksFuture =
+                                    firestoreAPI.fetchTasksAndHirers();
+                                getUserTasksPostedAndNotificationsFuture =
+                                    firestoreAPI
+                                        .getUserTasksPostedAndNotifications(
+                                            postIds: currentUser.posts);
+                                setState(() {});
+                              });
+                            }
+                          },
+                        ),
                       ),
                     SizedBox(height: 10),
                     Row(
@@ -676,8 +677,9 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                                           .viewInsets
                                           .bottom),
                                   child: Container(
-                                      height: MediaQuery.of(context).size.height *
-                                          0.9,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.9,
                                       child: HomePageSelectionScreen(
                                         allTags: allTags,
                                         sortDeadline: sortDeadline,
@@ -737,8 +739,11 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                         for (Map taskAndHirer in tasksAndHirers) {
                           bool addToSearchResults = true;
                           Task task = taskAndHirer['task'];
+
                           ///Just quickly check that the user is able to see this content
-                          if(task.universities.contains(currentUser.university)) {
+                          if (task.universities
+                                  .contains(currentUser.university) ||
+                              currentUser.accountType == 'Company') {
                             ///Evaluate these values against the task's tag
                             ///If they are all contained show
                             for (String filter in filteredTags) {
@@ -756,8 +761,8 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
 
                         if (foundResults) {
                           ///Quickly resort the list if the user has selected to sort by posted date
-                          if(!sortDeadline.value){
-                            searchResults.sort((a,b) {
+                          if (!sortDeadline.value) {
+                            searchResults.sort((a, b) {
                               Task taskA = a['task'];
                               Task taskB = b['task'];
                               return taskB.time.compareTo(taskA.time);
@@ -772,48 +777,47 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                               Task task = taskAndHirer['task'];
                               GenchiUser hirer = taskAndHirer['hirer'];
 
+                              return BigTaskCard(
+                                imageURL: hirer.displayPictureURL,
+                                task: task,
+                                uni: hirer.university,
+                                newTask: task.time
+                                        .toDate()
+                                        .difference(DateTime.now())
+                                        .inHours >
+                                    -36,
+                                onTap: () async {
+                                  setState(() {
+                                    showSpinner = true;
+                                  });
 
-                                return BigTaskCard(
-                                  imageURL: hirer.displayPictureURL,
-                                  task: task,
-                                  uni: hirer.university,
-                                  newTask: task.time
-                                          .toDate()
-                                          .difference(DateTime.now())
-                                          .inHours >
-                                      -36,
-                                  onTap: () async {
-                                    setState(() {
-                                      showSpinner = true;
-                                    });
+                                  await taskProvider.updateCurrentTask(
+                                      taskId: task.taskId);
 
-                                    await taskProvider.updateCurrentTask(
-                                        taskId: task.taskId);
+                                  setState(() {
+                                    showSpinner = false;
+                                  });
 
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
+                                  ///Check whether it is the users task or not
+                                  bool isUsersTask =
+                                      taskProvider.currentTask.hirerId ==
+                                          currentUser.id;
 
-                                    ///Check whether it is the users task or not
-                                    bool isUsersTask =
-                                        taskProvider.currentTask.hirerId ==
-                                            currentUser.id;
-
-                                    if (isUsersTask) {
-                                      Navigator.pushNamed(
-                                          context, TaskScreenHirer.id);
-                                    } else {
-                                      ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
-                                      if (!taskProvider.currentTask.viewedIds
-                                          .contains(currentUser.id))
-                                        await firestoreAPI.addViewedIdToTask(
-                                            viewedId: currentUser.id,
-                                            taskId: task.taskId);
-                                      Navigator.pushNamed(
-                                          context, TaskScreenApplicant.id);
-                                    }
-                                  },
-                                );
+                                  if (isUsersTask) {
+                                    Navigator.pushNamed(
+                                        context, TaskScreenHirer.id);
+                                  } else {
+                                    ///If viewing someone else's task, add their id to the viewedIds if it hasn't been added yet
+                                    if (!taskProvider.currentTask.viewedIds
+                                        .contains(currentUser.id))
+                                      await firestoreAPI.addViewedIdToTask(
+                                          viewedId: currentUser.id,
+                                          taskId: task.taskId);
+                                    Navigator.pushNamed(
+                                        context, TaskScreenApplicant.id);
+                                  }
+                                },
+                              );
                             },
                           );
                         } else {
@@ -828,7 +832,7 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                                     style: TextStyle(fontSize: 20),
                                   ),
                                 ),
-                                SizedBox(height:5),
+                                SizedBox(height: 5),
                                 TextField(
                                   maxLines: null,
                                   style: TextStyle(
@@ -838,7 +842,8 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                                   textAlign: TextAlign.left,
                                   cursorColor: Color(kGenchiOrange),
                                   controller: requestTextController,
-                                  decoration: kEditAccountTextFieldDecoration.copyWith(hintText: 'Enter request'),
+                                  decoration: kEditAccountTextFieldDecoration
+                                      .copyWith(hintText: 'Enter request'),
                                 ),
                                 RoundedButton(
                                   buttonTitle: 'Submit Request',
@@ -848,7 +853,9 @@ class _JobsScreenState extends State<JobsScreen> with AutomaticKeepAliveClientMi
                                   onPressed: () async {
                                     ///Send results
                                     await firestoreAPI.sendOpportunityFeedback(
-                                        filters: filteredTags, user: currentUser, request: requestTextController.text);
+                                        filters: filteredTags,
+                                        user: currentUser,
+                                        request: requestTextController.text);
 
                                     requestTextController.clear();
 
@@ -982,46 +989,41 @@ class PostJobSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 10.0),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: MaterialButton(
+        padding: const EdgeInsets.all(10),
         height: 42.0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(7.0),
-          color: Color(kGenchiLightOrange),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 5,
-              spreadRadius: 1,
-              offset: Offset(0, 2),
-            )
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7.0),
-          child: MaterialButton(
-            onPressed: onPressed,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    Icons.add,
-                    size: 22,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    text,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
-                  ),
-                ],
+        minWidth: 200,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        onPressed: onPressed,
+        color: Color(kGenchiLightOrange),
+        onHighlightChanged: (pressed) {
+          if (pressed) {
+            HapticFeedback.lightImpact();
+          }
+        },
+        splashColor: Colors.black12,
+        highlightColor: Colors.transparent,
+        elevation: 2,
+        highlightElevation: 5,
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(
+                Icons.add,
+                size: 22,
               ),
-            ),
+              SizedBox(width: 10),
+              Text(
+                text,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
+              ),
+            ],
           ),
         ),
       ),
@@ -1029,76 +1031,61 @@ class PostJobSection extends StatelessWidget {
   }
 }
 
-
 class AppUpdateButton extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 10.0),
+      child: MaterialButton(
+        color: Color(kGenchiBlue),
+        padding: const EdgeInsets.all(10),
         height: 42.0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(7.0),
-          color: Color(kGenchiBlue),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 5,
-              spreadRadius: 1,
-              offset: Offset(0, 2),
-            )
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7.0),
-          child: MaterialButton(
-            onPressed: ()async{
-              if(Platform.isIOS){
-
-                if (await canLaunch(GenchiAppStoreURL)) {
+        minWidth: 200,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        splashColor: Colors.black12,
+        highlightColor: Colors.transparent,
+        elevation: 2,
+        highlightElevation: 5,
+        onPressed: () async {
+          if (Platform.isIOS) {
+            if (await canLaunch(GenchiAppStoreURL)) {
               await launch(GenchiAppStoreURL);
-              } else {
+            } else {
               print("Could not open URL");
-              }
-
-              } else {
-
-              if (await canLaunch(GenchiPlayStoreURL)) {
+            }
+          } else {
+            if (await canLaunch(GenchiPlayStoreURL)) {
               await launch(GenchiPlayStoreURL);
-              } else {
+            } else {
               print("Could not open URL");
-              }
-
-
-              }
-            },
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'New Update Available',
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style:
-                    TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0,color: Colors.white),
-                  ),
-                  SizedBox(width: 10),
-                  Container(
-                    height: 15,
-                    width: 15,
-                    decoration: BoxDecoration(
-                      color: Color(kGenchiOrange),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
-                      ),
-                    ),
-                  )
-                ],
+            }
+          }
+        },
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'New Update Available',
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18.0,
+                    color: Colors.white),
               ),
-            ),
+              SizedBox(width: 10),
+              Container(
+                height: 15,
+                width: 15,
+                decoration: BoxDecoration(
+                  color: Color(kGenchiOrange),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),

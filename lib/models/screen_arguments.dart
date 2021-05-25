@@ -5,6 +5,7 @@ import 'package:genchi_app/models/user.dart';
 
 class HomeScreenArguments {
   final int startingIndex;
+
   HomeScreenArguments({this.startingIndex = 0});
 }
 
@@ -40,13 +41,26 @@ class ApplicationChatScreenArguments {
       this.isInitialApplication = false});
 }
 
-
 class PreferencesScreenArguments {
   final bool isFromRegistration;
   final bool isFromHome;
 
   PreferencesScreenArguments({
-        this.isFromRegistration = false,
-        this.isFromHome = false,
+    this.isFromRegistration = false,
+    this.isFromHome = false,
+  });
+}
+
+class PayGenchiScreenArguments {
+  final Task taskToPost;
+
+  PayGenchiScreenArguments({this.taskToPost});
+}
+
+class RegistrationScreenArguments {
+  final String accountType;
+
+  RegistrationScreenArguments({
+    this.accountType = "Individual",
   });
 }

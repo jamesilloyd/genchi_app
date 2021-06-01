@@ -82,12 +82,11 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
   Future<void> createPaymentMethodWithCard() async {
     // tax = ((totalCost * taxPercent) * 100).ceil() / 100;
     // amount = ((totalCost + tip + tax) * 100).toInt();
-    print('amount in pence/cent which will be charged = $amount');
+    print('amount in pence which will be charged = $amount');
     //step 1: add card
     try {
       paymentMethod = await StripePayment.paymentRequestWithCardForm(
           CardFormPaymentRequest());
-      //TODO: return something in the UI
       card = paymentMethod.card;
       cardNumber = "**** **** **** ${card.last4}";
       cvc = "***";
@@ -96,7 +95,6 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
       setState(() {});
     } catch (e) {
       print('Error Card: ${e.toString()}');
-      //TODO  Return something in the UI
       paymentMethod = null;
       cardEnteredCorrectly = false;
       card = CreditCard();
@@ -190,7 +188,7 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
             paymentMethodId: paymentMethod.id,
             clientSecret: clientSecret,
             //TODO: create return dynamic link for the user!
-            returnURL: 'https://genchi.app');
+            returnURL: 'https://genchi.page.link/general');
 
         PaymentIntentResult result =
             await StripePayment.confirmPaymentIntent(paymentIntent);
@@ -202,23 +200,26 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
           print('Payment completed!!!');
           StripePayment.completeNativePayRequest();
 
-          await analytics.logEvent(name: 'job_created');
+          if(currentUser.id != 'ctODsrdymTPu7qW7Szcv2iYTOuw2') {
+            await analytics.logEvent(name: 'job_created');
 
-          await firestoreAPI.addTask(task: task, hirerId: currentUser.id);
+            await firestoreAPI.addTask(task: task, hirerId: currentUser.id);
 
-          ///If there is a draft saved in the user, delete it
-          if (currentUser.draftJob.isNotEmpty) {
-            currentUser.draftJob = {};
-            await firestoreAPI.updateUser(
-                user: currentUser, uid: currentUser.id);
+            ///If there is a draft saved in the user, delete it
+            if (currentUser.draftJob.isNotEmpty) {
+              currentUser.draftJob = {};
+              await firestoreAPI.updateUser(
+                  user: currentUser, uid: currentUser.id);
+            }
+
+            ///update the user
+            await authProvider.updateCurrentUserData();
           }
-
-          ///update the user
-          await authProvider.updateCurrentUserData();
           setState(() {
             showSpinner = false;
           });
-          Navigator.pushNamed(context, PaymentSuccessScreen.id);
+          Navigator.pushNamedAndRemoveUntil(context, PaymentSuccessScreen.id,
+              (Route<dynamic> route) => false);
         } else if (result.status == 'processing') {
           StripePayment.cancelNativePayRequest();
           setState(() {
@@ -262,10 +263,10 @@ class _PayGenchiScreenState extends State<PayGenchiScreen> {
   initState() {
     super.initState();
     StripePayment.setOptions(StripeOptions(
-        // publishableKey:
-        //     "pk_live_51HQIzJKtrOMGiKFzwkMkBPsROe2dIW8W5Ot23ePGhnNvGow60PJUpA5xXHPwQUeDpTlOcGKANRJ2WGTYjaD5vI6B00nvXfp9zq",
         publishableKey:
-            "pk_test_51HQIzJKtrOMGiKFz2ykOuylFiRwaLdPvnGvm8I77167Ah133uEI0Ha2toiztJnMcqDhmZkEzDiAJmrA4Tmg1Hykc00MPd2xUJ2",
+            "pk_live_51HQIzJKtrOMGiKFzwkMkBPsROe2dIW8W5Ot23ePGhnNvGow60PJUpA5xXHPwQUeDpTlOcGKANRJ2WGTYjaD5vI6B00nvXfp9zq",
+        // publishableKey:
+        //     "pk_test_51HQIzJKtrOMGiKFz2ykOuylFiRwaLdPvnGvm8I77167Ah133uEI0Ha2toiztJnMcqDhmZkEzDiAJmrA4Tmg1Hykc00MPd2xUJ2",
         merchantId: "merchant.com.genchi.genchi",
         //TODO Change to "production"
         androidPayMode: 'production'));

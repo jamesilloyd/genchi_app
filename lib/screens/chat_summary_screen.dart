@@ -22,6 +22,8 @@ import 'package:genchi_app/models/screen_arguments.dart';
 
 import 'package:provider/provider.dart';
 
+
+//TODO: this doesn't need to be a stream, just have a pull down button at the top and refresh it if a notification comes through!!!
 class ChatSummaryScreen extends StatefulWidget {
   @override
   _ChatSummaryScreenState createState() => _ChatSummaryScreenState();
@@ -97,13 +99,34 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                     List<Widget> chatWidgets = [];
                     List chatsANDApplications = [];
 
-                    List chatsAndUsers = snapshot.data[0];
-                    List tasksApplicationsApplied = snapshot.data[1];
-                    List taskApplicationsPosted = snapshot.data[2];
+
+                    int index = 0;
+                    List chatsAndUsers;
+                    List taskApplicationsPosted;
+                    List tasksApplicationsApplied = [];
+
+                    for(List data in snapshot.data){
+                      if(index == 0){
+
+                        chatsAndUsers = data;
+
+
+                      } else if (index ==1){
+                        taskApplicationsPosted = data;
+
+                      } else {
+                        tasksApplicationsApplied.addAll(data);
+
+                      }
+                      index += 1;
+                    }
+                    // List chatsAndUsers = snapshot.data[0];
+                    // List taskApplicationsPosted = snapshot.data[1];
+                    // List tasksApplicationsApplied = snapshot.data[];
 
                     chatsANDApplications.addAll(chatsAndUsers);
-                    chatsANDApplications.addAll(tasksApplicationsApplied);
                     chatsANDApplications.addAll(taskApplicationsPosted);
+                    chatsANDApplications.addAll(tasksApplicationsApplied);
 
                     ///Sorting the entries by time
                     chatsANDApplications.sort((a, b) {
@@ -136,7 +159,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
 
                           ///Users main account messages
                           Widget chatWidget = MessageListItem(
-                            imageURL: otherUser.displayPictureURL,
+                            imageURL: otherUser.displayPicture200URL ?? otherUser.displayPictureURL,
                             name: otherUser.name,
                             lastMessage: chat.lastMessage,
                             time: chat.time,
@@ -209,7 +232,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
 
                           ///Users task application message
                           Widget taskApplicationWidget = AppliedTaskChat(
-                            imageURL: hirer.displayPictureURL,
+                            imageURL: hirer.displayPicture200URL ?? hirer.displayPictureURL,
                             title: task.title,
                             lastMessage: application.lastMessage,
                             time: application.time,
@@ -272,7 +295,7 @@ class _ChatSummaryScreenState extends State<ChatSummaryScreen>
                             }
 
                             MessageListItem chatWidget = MessageListItem(
-                                imageURL: applicant.displayPictureURL,
+                                imageURL: applicant.displayPicture200URL ?? applicant.displayPictureURL,
                                 name: applicant.name,
                                 lastMessage: taskApplication.lastMessage,
                                 time: taskApplication.time,

@@ -269,7 +269,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                             const EdgeInsets.symmetric(horizontal: 5),
                         tileColor: Color(kGenchiCream),
                         leading: ListDisplayPicture(
-                          imageUrl: currentUser.displayPictureURL,
+                          imageUrl: currentUser.displayPicture200URL ?? currentUser.displayPictureURL,
                           height: 56,
                         ),
                         title: Text(
@@ -300,7 +300,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
                     hirerHasUnreadNotification = true;
 
                   MessageListItem chatWidget = MessageListItem(
-                    imageURL: applicant.displayPictureURL,
+                    imageURL: applicant.displayPicture200URL ?? applicant.displayPictureURL,
                     name: applicant.name,
                     lastMessage: taskApplication.lastMessage,
                     time: taskApplication.time,
@@ -463,7 +463,7 @@ class _TaskScreenHirerState extends State<TaskScreenHirer> {
 
   Future<void> _onOpenLink(LinkableElement link) async {
     if (link.runtimeType == EmailElement) {
-      //TODO handle email elements
+      launch('mailto:${link.text}?subject=Genchi%20Opportunity');
     } else {
       String url = link.url;
       if (await canLaunch(url)) {

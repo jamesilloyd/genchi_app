@@ -281,71 +281,71 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         ],
                       ),
                     //TODO: this needs updating
-                    if (currentUser.accountType != 'Individual')
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Container(
-                            height: 30.0,
-                          ),
-                          Text(
-                            'Category',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 5.0),
-                          PopupMenuButton(
-                              elevation: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(32.0)),
-                                    border: Border.all(color: Colors.black)),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12.0, horizontal: 20.0),
-                                  child: Text(
-                                    categoryController.text,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              itemBuilder: (_) {
-                                List<PopupMenuItem<String>> items = [];
-                                for (GroupType groupType in groupsList) {
-                                  var newItem = new PopupMenuItem(
-                                    child: Text(
-                                      groupType.databaseValue,
-                                    ),
-                                    value: groupType.databaseValue,
-                                  );
-                                  items.add(newItem);
-                                }
-                                return items;
-                              },
-                              onSelected: (value) async {
-                                setState(() {
-                                  changesMade = true;
-                                  categoryController.text = value;
-                                });
-                              }),
-                        ],
-                      ),
-                    if (currentUser.accountType != 'Individual')
-                      EditAccountField(
-                        field: 'Subcategory',
-                        hintText:
-                            'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
-                        onChanged: (value) {
-                          changesMade = true;
-                        },
-                        textController: subCategoryController,
-                      ),
+                    // if (currentUser.accountType != 'Individual')
+                    //   Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //     children: <Widget>[
+                    //       Container(
+                    //         height: 30.0,
+                    //       ),
+                    //       Text(
+                    //         'Category',
+                    //         style: TextStyle(
+                    //           fontSize: 20.0,
+                    //           fontWeight: FontWeight.w500,
+                    //         ),
+                    //       ),
+                    //       SizedBox(height: 5.0),
+                    //       PopupMenuButton(
+                    //           elevation: 1,
+                    //           child: Container(
+                    //             decoration: BoxDecoration(
+                    //                 color: Colors.white,
+                    //                 borderRadius:
+                    //                     BorderRadius.all(Radius.circular(32.0)),
+                    //                 border: Border.all(color: Colors.black)),
+                    //             child: Padding(
+                    //               padding: const EdgeInsets.symmetric(
+                    //                   vertical: 12.0, horizontal: 20.0),
+                    //               child: Text(
+                    //                 categoryController.text,
+                    //                 style: TextStyle(
+                    //                   fontSize: 18,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           itemBuilder: (_) {
+                    //             List<PopupMenuItem<String>> items = [];
+                    //             for (GroupType groupType in groupsList) {
+                    //               var newItem = new PopupMenuItem(
+                    //                 child: Text(
+                    //                   groupType.databaseValue,
+                    //                 ),
+                    //                 value: groupType.databaseValue,
+                    //               );
+                    //               items.add(newItem);
+                    //             }
+                    //             return items;
+                    //           },
+                    //           onSelected: (value) async {
+                    //             setState(() {
+                    //               changesMade = true;
+                    //               categoryController.text = value;
+                    //             });
+                    //           }),
+                    //     ],
+                    //   ),
+                    // if (currentUser.accountType != 'Individual')
+                    //   EditAccountField(
+                    //     field: 'Subcategory',
+                    //     hintText:
+                    //         'What type of ${categoryController.text == "" ? currentUser.accountType.toLowerCase() : categoryController.text.toLowerCase()} are you?',
+                    //     onChanged: (value) {
+                    //       changesMade = true;
+                    //     },
+                    //     textController: subCategoryController,
+                    //   ),
                     EditAccountField(
                       field: "About",
                       onChanged: (value) {

@@ -9,6 +9,10 @@ class GenchiUser {
   String bio;
   String displayPictureFileName;
   String displayPictureURL;
+  String displayPicture500FileName;
+  String displayPicture500URL;
+  String displayPicture200FileName;
+  String displayPicture200URL;
   Timestamp timeStamp;
   List<dynamic> tasksApplied;
   List<dynamic> chats;
@@ -66,6 +70,10 @@ class GenchiUser {
     this.bio,
     this.displayPictureFileName,
     this.displayPictureURL,
+    this.displayPicture500FileName,
+    this.displayPicture500URL,
+    this.displayPicture200FileName,
+    this.displayPicture200URL,
     this.timeStamp,
     this.tasksApplied,
     this.chats,
@@ -95,9 +103,11 @@ class GenchiUser {
         name = snapshot['name'] ?? '',
         bio = snapshot['bio'] ?? '',
         displayPictureFileName = snapshot['displayPictureFileName'],
-        // displayPictureURL = 'https://firebasestorage.googleapis.com/v0/b/genchi-c96c1.appspot.com/o/images%2Fusers%2FuS1se30jxrfLO0uJNB12ns0Hr8r22020-10-21%2016%3A37%3A40.270658.png?alt=media&token=6ee7b906-7e45-44c1-85ff-2811b4989f8f',
-        // displayPictureURL = 'https://firebasestorage.googleapis.com/v0/b/genchi-c96c1.appspot.com/o/images%2Fusers%2FuS1se30jxrfLO0uJNB12ns0Hr8r22020-10-21%2016%3A37%3A40.270658_100x100.png?alt=media&token=5236c2c7-6047-49bb-bf26-a8eb21a559e0',
         displayPictureURL = snapshot['displayPictureURL'],
+        displayPicture500FileName = snapshot['displayPicture500FileName'],
+        displayPicture500URL = snapshot['displayPicture500URL'],
+        displayPicture200FileName = snapshot['displayPicture200FileName'],
+        displayPicture200URL = snapshot['displayPicture200URL'],
         timeStamp = snapshot['timeStamp'],
         tasksApplied = snapshot['tasksApplied'] ?? [],
         chats = snapshot['chats'] ?? [],
@@ -129,6 +139,18 @@ class GenchiUser {
       if (displayPictureFileName != null)
         "displayPictureFileName": displayPictureFileName,
       if (displayPictureURL != null) 'displayPictureURL': displayPictureURL,
+
+      if (displayPicture500FileName != null)
+        "displayPicture500FileName": displayPicture500FileName,
+      if (displayPicture500URL != null)
+        'displayPicture500URL': displayPicture500URL,
+
+      if (displayPicture200FileName != null)
+        "displayPicture200FileName": displayPicture200FileName,
+      if (displayPicture200URL != null)
+        'displayPicture200URL': displayPicture200URL,
+
+
       if (timeStamp != null) 'timeStamp': timeStamp,
       if (tasksApplied != null) 'tasksApplied': tasksApplied,
       if (chats != null) 'chats': chats,

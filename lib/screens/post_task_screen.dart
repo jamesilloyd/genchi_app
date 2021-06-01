@@ -30,7 +30,6 @@ class PostTaskScreen extends StatefulWidget {
   _PostTaskScreenState createState() => _PostTaskScreenState();
 }
 
-//TODO: add some feedback in here for companies saying they will be charged
 class _PostTaskScreenState extends State<PostTaskScreen> {
   FirebaseAnalytics analytics = FirebaseAnalytics();
   bool changesMade = false;
@@ -746,7 +745,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
                                 if (authProvider.currentUser.accountType ==
                                     'Company') {
-                                  //TODO: here we need to route companies to the payment screen
+                                  ///Route companies to the payment screen
                                   print('Company job posting');
 
                                   setState(() {

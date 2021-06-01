@@ -47,7 +47,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   List<Tag> allTags = List.generate(
       originalTags.length, (index) => Tag.fromTag(originalTags[index]));
 
-  //TODO: find a better way of doing this (may be better to just show their uni, or "others"
+  //TODO: find a better way of doing this (may be better to just show their uni, or "others")
   List<Tag> uniTags = [
     Tag(
         databaseValue: 'Cambridge',

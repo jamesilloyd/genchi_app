@@ -19,7 +19,6 @@ class UserCard extends StatelessWidget {
           child: ListTile(
             enabled: enabled,
             // dense: true,
-            shape: Border.all(color: Colors.black, width: 2),
             contentPadding: EdgeInsets.symmetric(horizontal: 0),
             title: Text(
               user.name,
@@ -31,7 +30,7 @@ class UserCard extends StatelessWidget {
               ),
             ),
             leading: ListDisplayPicture(
-              imageUrl: user.displayPictureURL,
+              imageUrl: user.displayPicture200URL ?? user.displayPictureURL,
               height: 56,
             ),
 

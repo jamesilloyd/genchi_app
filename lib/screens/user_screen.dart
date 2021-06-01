@@ -411,7 +411,7 @@ class _UserScreenState extends State<UserScreen> {
 
   Future<void> _onOpenLink(LinkableElement link) async {
     if (link.runtimeType == EmailElement) {
-      //TODO handle email elements
+      launch('mailto:${link.text}?subject=Genchi');
     } else {
       String url = link.url;
       if (await canLaunch(url)) {

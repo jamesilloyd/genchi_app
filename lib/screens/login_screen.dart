@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:genchi_app/components/rounded_button.dart';
 import 'package:genchi_app/constants.dart';
@@ -10,9 +11,11 @@ import 'package:provider/provider.dart';
 import 'forgot_password_screen.dart';
 import 'package:genchi_app/components/signin_textfield.dart';
 import 'package:genchi_app/components/circular_progress.dart';
+import 'dart:io' show Platform;
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login_screen";
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -24,13 +27,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool showErrorField = false;
   String errorMessage = "";
 
-
   @override
   Widget build(BuildContext context) {
     AuthenticationService authProvider =
         Provider.of<AuthenticationService>(context);
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
@@ -69,72 +71,86 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Container(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        SignInTextField(
-                          field: 'Email',
-                          autocorrect: false,
-                          onChanged: (value) {
-                            email = value;
-                          },
-                          hintText: "Enter email",
-                          isNameField: false,
-                        ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    SignInTextField(
+                      field: 'Email',
+                      autocorrect: false,
+                      onChanged: (value) {
+                        email = value;
+                      },
+                      hintText: "Enter email",
+                      isNameField: false,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    SignInTextField(
+                      field: 'Password',
+                      autocorrect: false,
+                      onChanged: (value) {
+                        password = value;
+                      },
+                      hintText: "Enter password",
+                      isPasswordField: true,
+                    ),
+                    showErrorField
+                        ? PasswordErrorText(errorMessage: errorMessage)
+                        : SizedBox(height: 30.0),
+                    RoundedButton(
+                      buttonColor: Color(kGenchiOrange),
+                      buttonTitle: "Log In",
+                      onPressed: () async {
+                        setState(() {
+                          showErrorField = false;
+                          showSpinner = true;
+                        });
+                        try {
+                          if (email == null) throw (Exception('Enter email'));
 
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        SignInTextField(
-                          field: 'Password',
-                          autocorrect: false,
-                          onChanged: (value) {
-                            password = value;
-                          },
-                          hintText: "Enter password",
-                          isPasswordField: true,
-                        ),
-                        showErrorField ? PasswordErrorText(errorMessage: errorMessage) : SizedBox(height: 30.0),
-                        RoundedButton(
-                          buttonColor: Color(kGenchiOrange),
-                          buttonTitle: "Log In",
-                          onPressed: () async {
-                            setState(() {
-                              showErrorField = false;
-                              showSpinner = true;
-                            });
-                            try {
-                              if (email == null) throw (Exception('Enter email'));
+                          await authProvider.loginWithEmail(
+                              email: email, password: password);
 
-                              await authProvider.loginWithEmail(
-                                  email: email, password: password);
+                          ///Just ask for permission
+                          if (Platform.isIOS) {
+                            NotificationSettings settings =
+                                await FirebaseMessaging.instance
+                                    .requestPermission(
+                              alert: true,
+                              announcement: false,
+                              badge: true,
+                              carPlay: false,
+                              criticalAlert: false,
+                              provisional: false,
+                              sound: true,
+                            );
+                          }
 
-                              //This populates the current user simultaneously
-                              if (await authProvider.isUserLoggedIn() == true) {
-                                Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    HomeScreen.id,
-                                    (Route<dynamic> route) => false);
-                              }
-                            } catch (e) {
-                              print(e);
-                              showErrorField = true;
-                              errorMessage = e.message;
-                            }
-                            setState(() {
-                              showSpinner = false;
-                            });
-                          },
-                        ),
-                        RoundedButton(
-                          buttonColor: Color(kGenchiBlue),
-                          buttonTitle: "Forgot password",
-                          onPressed: () {
-                            Navigator.pushNamed(context, ForgotPasswordScreen.id);
-                          },
-                        ),
-                      ],
-                    )),
+                          ///This populates the current user simultaneously
+                          if (await authProvider.isUserLoggedIn() == true) {
+                            Navigator.pushNamedAndRemoveUntil(context,
+                                HomeScreen.id, (Route<dynamic> route) => false);
+                          }
+                        } catch (e) {
+                          print(e);
+                          showErrorField = true;
+                          errorMessage = e.message;
+                        }
+                        setState(() {
+                          showSpinner = false;
+                        });
+                      },
+                    ),
+                    RoundedButton(
+                      buttonColor: Color(kGenchiBlue),
+                      buttonTitle: "Forgot password",
+                      onPressed: () {
+                        Navigator.pushNamed(context, ForgotPasswordScreen.id);
+                      },
+                    ),
+                  ],
+                )),
               ],
             ),
           ),

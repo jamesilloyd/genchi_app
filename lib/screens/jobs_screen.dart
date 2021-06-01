@@ -401,7 +401,7 @@ class _JobsScreenState extends State<JobsScreen>
 
                               Widget tCard = TaskCard(
                                   orangeBackground: true,
-                                  imageURL: currentUser.displayPictureURL,
+                                  imageURL: currentUser.displayPicture200URL ?? currentUser.displayPictureURL,
                                   task: task,
                                   hasUnreadMessage: userHasNotification,
                                   isDisplayTask: false,
@@ -486,7 +486,7 @@ class _JobsScreenState extends State<JobsScreen>
                                       'hasNotification'];
 
                               Widget tCard = TaskCard(
-                                  imageURL: hirer.displayPictureURL,
+                                  imageURL: hirer.displayPicture200URL ?? hirer.displayPictureURL,
                                   task: task,
                                   hasUnreadMessage: userHasNotification,
                                   isDisplayTask: false,
@@ -778,7 +778,7 @@ class _JobsScreenState extends State<JobsScreen>
                               GenchiUser hirer = taskAndHirer['hirer'];
 
                               return BigTaskCard(
-                                imageURL: hirer.displayPictureURL,
+                                imageURL: hirer.displayPicture200URL ?? hirer.displayPictureURL,
                                 task: task,
                                 uni: hirer.university,
                                 newTask: task.time

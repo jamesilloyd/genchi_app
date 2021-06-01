@@ -22,7 +22,6 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-//TODO for some reason keeping the page alive is not working
 class _SearchScreenState extends State<SearchScreen> {
   List<GenchiUser> users;
   List<GenchiUser> serviceProviders;

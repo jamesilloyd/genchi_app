@@ -109,7 +109,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    //TODO: only show both fields if it's a individual account
                     SignInTextField(
                       onChanged: (value) {
                         name = value;
@@ -283,8 +282,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 id: authProvider.currentUser.id);
 
                             ///Quickly ask for permission to take notification on iOS
-                            ///TODO: move this
-
                             if (Platform.isIOS) {
                               NotificationSettings settings =
                                   await _fcm.requestPermission(

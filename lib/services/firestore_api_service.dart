@@ -1,24 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:genchi_app/models/feedback.dart';
+import 'package:image/image.dart' as img;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/user.dart';
 import '../models/chat.dart';
 import 'package:genchi_app/models/task.dart';
 import 'package:firebase_storage/firebase_storage.dart' hide Task;
 import 'package:genchi_app/constants.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:http/http.dart' as http;
 
 class FirestoreAPIService {
   ///PRODUCTION MODE
-  // static CollectionReference _usersCollectionRef =
-  // FirebaseFirestore.instance.collection('users');
-  //
-  // static CollectionReference _chatCollectionRef =
-  // FirebaseFirestore.instance.collection('chats');
-  //
-  // static CollectionReference _taskCollectionRef =
-  //     FirebaseFirestore.instance.collection('tasks');
+  static CollectionReference _usersCollectionRef =
+      FirebaseFirestore.instance.collection('users');
+
+  static CollectionReference _chatCollectionRef =
+      FirebaseFirestore.instance.collection('chats');
+
+  static CollectionReference _taskCollectionRef =
+      FirebaseFirestore.instance.collection('tasks');
 
   static CollectionReference _feedbackCollectionRef =
       FirebaseFirestore.instance.collection('feedback');
@@ -30,14 +35,14 @@ class FirestoreAPIService {
       FirebaseFirestore.instance.collection('version');
 
   ///DEVELOP MODE
-  static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
-      .collection('development/JySCxc7chahdObkJgTSy/users');
-
-  static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
-      .collection('development/JySCxc7chahdObkJgTSy/chats');
-
-  static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
-      .collection('development/JySCxc7chahdObkJgTSy/tasks');
+  // static CollectionReference _usersCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/JySCxc7chahdObkJgTSy/users');
+  //
+  // static CollectionReference _chatCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/JySCxc7chahdObkJgTSy/chats');
+  //
+  // static CollectionReference _taskCollectionRef = FirebaseFirestore.instance
+  //     .collection('development/JySCxc7chahdObkJgTSy/tasks');
 
   static CollectionReference _developmentCollectionRef =
       FirebaseFirestore.instance.collection('development');
@@ -332,18 +337,37 @@ class FirestoreAPIService {
     usersProfileIds.addAll(user.providerProfiles);
 
     ///Get the tasks the provider profile has applied to!
-    List tasksApplied = [];
+
     List providerProfiles = [];
     providerProfiles.add(user);
-    tasksApplied.addAll(user.tasksApplied);
+
+    List tasksApplied = [[]];
+    int counter = 0;
+    int index = 0;
+
+    for (String taskId in user.tasksApplied) {
+      if (counter == 10) {
+        index += 1;
+        counter = 0;
+        tasksApplied.add([]);
+      }
+      tasksApplied[index].add(taskId);
+      counter += 1;
+    }
+
+    tasksApplied.add([]);
 
     for (String pid in user.providerProfiles) {
       GenchiUser provider = await getUserById(pid);
       if (provider != null) {
         providerProfiles.add(provider);
-        tasksApplied.addAll(provider.tasksApplied);
+        tasksApplied[index + 1].addAll(provider.tasksApplied);
       }
     }
+
+    print(tasksApplied);
+
+    List<Stream> streams = [];
 
     ///Getting all the private chats
     Stream stream1 = _chatCollectionRef
@@ -390,63 +414,12 @@ class FirestoreAPIService {
       return await Future.wait(futures);
     });
 
-    ///Getting the tasks the user has applied to
-    Stream stream2 = _taskCollectionRef
-        //TODO: is this risky using [' '] as a null entry?
-        .where('taskId',
-            whereIn: tasksApplied.isNotEmpty ? tasksApplied : [' '])
-        .snapshots()
-        .asyncMap((event) async {
-      var futures = event.docs.map((doc) async {
-        Task appliedTask = Task.fromMap(doc.data());
-        QuerySnapshot taskApplicationData = await _taskCollectionRef
-            .doc(appliedTask.taskId)
-            .collection(applicantCollectionName)
-            .where('applicantId', whereIn: usersProfileIds)
-            .get();
+    streams.add(stream1);
 
-        ///Check that the application has been found (*there should only be one*)
-        if (taskApplicationData.docs[0] != null) {
-          TaskApplication taskApplication =
-              TaskApplication.fromMap(taskApplicationData.docs[0].data());
-          GenchiUser currentUser;
-
-          ///Need to check which user account it is and get the account if it's a provider
-          for (GenchiUser account in providerProfiles) {
-            if (taskApplication.applicantId == account.id)
-              currentUser = account;
-          }
-
-          ///Need to get the hirer's account
-          GenchiUser hirer = await getUserById(taskApplication.hirerid);
-
-          ///Return results as a map
-          if (hirer != null && currentUser != null) {
-            return {
-              'type': 'taskApplied',
-              'data': {
-                'time': taskApplication.time,
-                'application': taskApplication,
-                'hirer': hirer,
-                'applicant': currentUser,
-                'userIsHirer': false,
-                'task': appliedTask,
-              }
-            };
-          } else {
-            return {
-              'data': {'time': Timestamp.now()}
-            };
-          }
-        }
-      });
-
-      return await Future.wait(futures);
-    });
 
     ///Getting the tasks the user has posted (service providers can't post tasks so
     ///this is a little more simple)
-    Stream stream3 = _taskCollectionRef
+    Stream stream2 = _taskCollectionRef
         .where('hirerId', isEqualTo: user.id)
         .snapshots()
         .asyncMap((event) async {
@@ -454,14 +427,14 @@ class FirestoreAPIService {
         Task postedTask = Task.fromMap(doc.data());
 
         List<Map<String, dynamic>> taskApplicationsData =
-            await getTaskApplicants(task: postedTask);
+        await getTaskApplicants(task: postedTask);
 
         ///Filter out any posts that don't have any applicants
 
         if (taskApplicationsData.isNotEmpty) {
           ///They are ordered by time so the first one will have the latest time
           TaskApplication latestApplication =
-              taskApplicationsData.first['application'];
+          taskApplicationsData.first['application'];
 
           Timestamp latestTime = latestApplication.time;
 
@@ -482,7 +455,67 @@ class FirestoreAPIService {
       return await Future.wait(futures);
     });
 
-    yield* Rx.combineLatest([stream1, stream2, stream3], (values) => values);
+    streams.add(stream2);
+
+    ///Getting the tasks the user has applied to
+    //TODO: split the tasksApplied into chunks of 10 then combine the results
+    for (List taskIds in tasksApplied) {
+      streams.add(_taskCollectionRef
+          //TODO: is this risky using [' '] as a null entry?
+          .where('taskId', whereIn: taskIds.isNotEmpty ? taskIds : [' '])
+          .snapshots()
+          .asyncMap((event) async {
+        var futures = event.docs.map((doc) async {
+          Task appliedTask = Task.fromMap(doc.data());
+          QuerySnapshot taskApplicationData = await _taskCollectionRef
+              .doc(appliedTask.taskId)
+              .collection(applicantCollectionName)
+              .where('applicantId', whereIn: usersProfileIds)
+              .get();
+
+          ///Check that the application has been found (*there should only be one*)
+          if (taskApplicationData.docs[0] != null) {
+            TaskApplication taskApplication =
+                TaskApplication.fromMap(taskApplicationData.docs[0].data());
+            GenchiUser currentUser;
+
+            ///Need to check which user account it is and get the account if it's a provider
+            for (GenchiUser account in providerProfiles) {
+              if (taskApplication.applicantId == account.id)
+                currentUser = account;
+            }
+
+            ///Need to get the hirer's account
+            GenchiUser hirer = await getUserById(taskApplication.hirerid);
+
+            ///Return results as a map
+            if (hirer != null && currentUser != null) {
+              return {
+                'type': 'taskApplied',
+                'data': {
+                  'time': taskApplication.time,
+                  'application': taskApplication,
+                  'hirer': hirer,
+                  'applicant': currentUser,
+                  'userIsHirer': false,
+                  'task': appliedTask,
+                }
+              };
+            } else {
+              return {
+                'data': {'time': Timestamp.now()}
+              };
+            }
+          }
+        });
+
+        return await Future.wait(futures);
+      }));
+    }
+
+
+
+    yield* Rx.combineLatest(streams, (values) => values);
   }
 
   Future addMessageToChat(
@@ -1579,5 +1612,39 @@ class FirestoreAPIService {
     );
 
     print('done');
+  }
+
+  Future resizeImages() async {
+    // filePath = 'images/users/${currentAccount.id}${DateTime.now()}.png';
+
+    ///loop through every user in firestore
+
+    ///Get their image
+    ///Convert to new size
+    ///Re-upload
+    ///Change parameters on development storage accounts
+    int counter = 0;
+
+    await _usersCollectionRef.get().then((value1) async {
+      for (DocumentSnapshot doc in value1.docs) {
+        GenchiUser user = doc.exists ? GenchiUser.fromMap(doc.data()) : null;
+
+        if (user != null) {
+          print(user.id);
+          if (user.displayPictureURL != null) {
+            print('Has a display picture');
+
+            ///Get all the users who's displayPicture exists in the new folder
+
+            if (user.displayPictureURL.contains('users')) {
+              print('bad');
+            } else if (user.displayPictureURL.contains('displayPictures') &&
+                user.id == 'YzE97cPy8Cf5Q7WghCiwrhzGM5A3') {
+              print('good');
+            }
+          }
+        }
+      }
+    });
   }
 }

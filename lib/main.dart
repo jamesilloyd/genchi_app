@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +36,7 @@ import 'package:genchi_app/screens/edit_account_screen.dart';
 import 'package:genchi_app/screens/about_screen.dart';
 import 'package:genchi_app/screens/post_task_screen.dart';
 import 'package:genchi_app/services/account_service.dart';
+import 'package:genchi_app/services/dynamic_link_service.dart';
 import 'package:genchi_app/services/notification_service.dart';
 import 'package:genchi_app/services/task_service.dart';
 import 'screens/payment_success_screen.dart';
@@ -89,7 +92,6 @@ class _GenchiState extends State<Genchi> {
 
           return MultiProvider(
             providers: [
-              // ChangeNotifierProvider(create: (_) =>),
               ChangeNotifierProvider(create: (_) => AuthenticationService()),
               ChangeNotifierProvider(create: (_) => AccountService()),
               ChangeNotifierProvider(create: (_) => NotificationService()),
@@ -104,6 +106,7 @@ class _GenchiState extends State<Genchi> {
   }
 }
 
+
 class StartUp extends StatefulWidget {
   @override
   _StartUpState createState() => _StartUpState();
@@ -112,13 +115,12 @@ class StartUp extends StatefulWidget {
 class _StartUpState extends State<StartUp> {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  // final DynamicLinkService dynamicLinkService = DynamicLinkService();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // dynamicLinkService.initDynamicLinks();
+
+
   }
 
   @override

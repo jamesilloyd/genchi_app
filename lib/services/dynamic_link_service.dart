@@ -10,8 +10,6 @@ import 'package:provider/provider.dart';
 
 class DynamicLinkService{
 
-
-
   Future<void> initDynamicLinks(BuildContext context) async {
     ///This receives links if the app was never closed
     FirebaseDynamicLinks.instance.onLink(

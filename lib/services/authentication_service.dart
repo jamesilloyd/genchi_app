@@ -36,7 +36,7 @@ class AuthenticationService extends ChangeNotifier {
       var user = _firebaseAuth.currentUser;
       if (user != null) {
         await _populateCurrentUser(user); // Populate the user
-        //Todo: Add in version number here
+        ///Update version number data
         PackageInfo packageInfo = await PackageInfo.fromPlatform();
         GenchiUser thisUser = currentUser;
         thisUser.versionNumber = packageInfo.version;

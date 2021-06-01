@@ -190,12 +190,6 @@ class BigTaskCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                //TODO: temporary
-                // Text(uni,
-                // style: TextStyle(
-                //   fontWeight: FontWeight.w400,
-                //   color: Color(kGenchiOrange)
-                // ),),
               ],
             ),
           ),

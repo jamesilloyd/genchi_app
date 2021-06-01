@@ -13,6 +13,8 @@ import 'package:genchi_app/services/account_service.dart';
 
 import 'package:genchi_app/services/firestore_api_service.dart';
 import 'package:genchi_app/services/authentication_service.dart';
+import 'package:path/path.dart' as pth;
+import 'package:path_provider/path_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +22,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:image/image.dart' as img;
 
 Color _iconColor = Color(kGenchiCream);
 
@@ -34,20 +37,40 @@ class _AddImageScreenState extends State<AddImageScreen> {
   FirestoreAPIService firestoreAPI = FirestoreAPIService();
   bool uploadStarted = false;
   File _imageFile;
+  File _500ImageFile;
+  File _200ImageFile;
   bool noChangesMade = true;
 
   Future<void> _pickImage(ImageSource source) async {
     final _picker = ImagePicker();
 
-    PickedFile selected =
-        await _picker.getImage(source: source, imageQuality: 100);
+    PickedFile selected = await _picker.getImage(
+        source: source, imageQuality: 100, maxWidth: 1000);
+
+    if (selected != null) {
+      noChangesMade = false;
+      uploadStarted = false;
+    }
+    _imageFile = File(selected.path);
+
+    ///Create thumbnails
+    img.Image image = img.decodeImage(File(selected.path).readAsBytesSync());
+
+    if (image != null) {
+      final documentDirectory = await getApplicationDocumentsDirectory();
+      print('Created decoded image for thumbnails');
+      img.Image image500 = img.copyResize(image, width: 500);
+      img.Image image200 = img.copyResize(image, width: 200);
+
+      _500ImageFile = File(pth.join(documentDirectory.path,'500.png'))
+        ..writeAsBytesSync(img.encodePng(image500));
+
+      _200ImageFile = File(pth.join(documentDirectory.path,'200.png'))
+        ..writeAsBytesSync(img.encodePng(image200));
+    }
 
     setState(() {
-      if (selected != null) {
-        noChangesMade = false;
-        uploadStarted = false;
-      }
-      _imageFile = File(selected.path);
+
     });
   }
 
@@ -255,7 +278,7 @@ class _AddImageScreenState extends State<AddImageScreen> {
                       : SizedBox(
                           width: (MediaQuery.of(context).size.width - 40) / 3,
                           child: uploadStarted
-                              ? Uploader(file: _imageFile)
+                              ? Uploader(file: _imageFile,file200: _200ImageFile,file500: _500ImageFile,)
                               : IconButton(
                                   iconSize: 25,
                                   color: _iconColor,
@@ -282,8 +305,16 @@ class _AddImageScreenState extends State<AddImageScreen> {
 /// Widget used to handle the management of sending files
 class Uploader extends StatefulWidget {
   final File file;
+  final File file500;
 
-  Uploader({Key key, this.file}) : super(key: key);
+  final File file200;
+
+  Uploader(
+      {Key key,
+      @required this.file,
+      @required this.file500,
+      @required this.file200})
+      : super(key: key);
 
   createState() => _UploaderState();
 }
@@ -291,13 +322,15 @@ class Uploader extends StatefulWidget {
 class _UploaderState extends State<Uploader> {
   final FirestoreAPIService firestoreAPI = FirestoreAPIService();
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
   // final FirebaseStorage _storage =
   //     FirebaseStorage(storageBucket: 'gs://genchi-c96c1.appspot.com');
   //
   // final FirebaseStorage _storage = FirebaseStorage.instance.ref('gs://genchi-c96c1.appspot.com');
 
   UploadTask _uploadTask;
-  String filePath;
+  UploadTask _uploadTask500;
+  UploadTask _uploadTask200;
 
   Future<bool> updateDisplayPicture() async {
     final authProvider =
@@ -314,31 +347,48 @@ class _UploaderState extends State<Uploader> {
             await firestoreAPI.getUserById(currentAccount.mainAccountId);
       }
 
-      filePath = 'images/users/${currentAccount.id}${DateTime.now()}.png';
+      String filePath = 'images/displayPictures/${currentAccount.id}${DateTime.now()}.png'.replaceAll(' ', '')
+          .replaceAll(' ', '');
+      String filePath500 = filePath.substring(0,filePath.length-4)+"_500.png";
+      String filePath200 = filePath.substring(0,filePath.length-4)+"_200.png";
       Reference ref = _storage.ref().child(filePath);
-      //TODO: how to get this badboy???
-      // String thumbnailPath = filePath.substring(0,filePath.length-4)+"_200x200.png";
-      //TODO: how to get this badboy???
-      // Reference thumbnailRef = _storage.ref().child(thumbnailPath);
-      print('Uploading image');
+      Reference ref500 = _storage.ref().child(filePath500);
+      Reference ref200 = _storage.ref().child(filePath200);
+      print('Uploading images');
+
       _uploadTask = ref.putFile(widget.file);
+      _uploadTask500 = ref500.putFile(widget.file500);
+      _uploadTask200 = ref200.putFile(widget.file200);
+
       TaskSnapshot storageSnapshot = await _uploadTask.whenComplete(() => null);
-      print('downloading url');
+      TaskSnapshot storageSnapshot500 = await _uploadTask500.whenComplete(() => null);
+      TaskSnapshot storageSnapshot200 = await _uploadTask200.whenComplete(() => null);
+      print('downloading urls');
 
       String downloadUrl = await storageSnapshot.ref.getDownloadURL();
-      //TODO: how to get this badboy???
-      // String thumbnailDownloadUrl = await thumbnailRef.getDownloadURL();
+      String downloadUrl500 = await storageSnapshot500.ref.getDownloadURL();
+      String downloadUrl200 = await storageSnapshot200.ref.getDownloadURL();
       print(downloadUrl);
-
+      print(downloadUrl500);
+      print(downloadUrl200);
 
       String oldFileName = currentAccount.displayPictureFileName;
+      String oldFileName500 = currentAccount.displayPicture500FileName;
+      String oldFileName200 = currentAccount.displayPicture200FileName;
       print('Updating firestore user');
 
       await firestoreAPI.updateUser(
           user: GenchiUser(
-              displayPictureFileName: filePath, displayPictureURL: downloadUrl),
+            displayPictureFileName: filePath,
+            displayPictureURL: downloadUrl,
+            displayPicture500FileName: filePath500,
+            displayPicture500URL: downloadUrl500,
+            displayPicture200FileName: filePath200,
+            displayPicture200URL: downloadUrl200,
+          ),
           uid: currentAccount.id);
 
+      //TODO: delete?
       print('Updating firestore providers');
 
       for (String id in currentAccount.providerProfiles) {
@@ -354,9 +404,11 @@ class _UploaderState extends State<Uploader> {
       await accountService.updateCurrentAccount(
           id: accountService.currentAccount.id);
 
-      print('Deleting old file');
+      print('Deleting old files');
       if (oldFileName != null)
         await FirebaseStorage.instance.ref().child(oldFileName).delete();
+      if(oldFileName500 != null)  await FirebaseStorage.instance.ref().child(oldFileName500).delete();
+      if(oldFileName200 != null) await FirebaseStorage.instance.ref().child(oldFileName200).delete();
 
       await FirebaseAnalytics().logEvent(name: 'added_photo');
 

@@ -313,7 +313,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                   child: Row(
                     children: [
                       ListDisplayPicture(
-                          imageUrl: hirer.displayPictureURL, height: 90),
+                          imageUrl: hirer.displayPicture500URL ?? hirer.displayPictureURL,  height: 90),
                       SizedBox(width: 15),
                       Expanded(
                         child: Column(
@@ -470,7 +470,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
 
                   ///Show user's application
                   ApplicantListItem chatWidget = ApplicantListItem(
-                    imageURL: appliedAccount.displayPictureURL,
+                    imageURL: appliedAccount.displayPicture200URL ?? appliedAccount.displayPictureURL,
                     name: appliedAccount.name,
                     lastMessage: usersApplication.lastMessage,
                     time: usersApplication.time,
@@ -591,7 +591,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
                         applicantAndProvider['application'];
 
                     ApplicantListItem chatWidget = ApplicantListItem(
-                      imageURL: applicant.displayPictureURL,
+                      imageURL: applicant.displayPicture200URL ?? applicant.displayPictureURL,
                       name: applicant.name,
                       lastMessage: application.lastMessage,
                       time: application.time,
@@ -683,7 +683,7 @@ class _TaskScreenApplicantState extends State<TaskScreenApplicant> {
 
   Future<void> _onOpenLink(LinkableElement link) async {
     if (link.runtimeType == EmailElement) {
-      //TODO handle email elements
+      launch('mailto:${link.text}?subject=Genchi%20Opportunity');
     } else {
       String url = link.url;
       if (await canLaunch(url)) {

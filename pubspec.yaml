@@ -54,7 +54,7 @@ dependencies:
   stripe_payment: ^1.1.0
   flutter_credit_card: ^2.0.0
   webview_flutter: ^2.0.7
-  dio: ^4.0.0
+  dio: ">=4.0.0 <6.0.0"
   js: ^0.6.3
   flutter_app_badger: ^1.2.0
   path_provider: ^2.0.2
